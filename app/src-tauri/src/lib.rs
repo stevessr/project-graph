@@ -1,3 +1,5 @@
+mod plugin_host;
+
 use std::env;
 use std::io::Read;
 
@@ -96,6 +98,12 @@ async fn set_update_channel<R: Runtime>(
     Ok(())
 }
 
+#[tauri::command]
+fn init_plugin_host() {
+    let host = plugin_host::PluginHost::new();
+    host.init();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // 在 Linux 上禁用 DMA-BUF 渲染器
@@ -138,7 +146,8 @@ pub fn run() {
             write_stderr,
             exit,
             #[cfg(desktop)]
-            set_update_channel
+            set_update_channel,
+            init_plugin_host
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
