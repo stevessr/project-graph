@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import tipsJson from "../assets/projectGraphTips.json";
 import Button from "../components/Button";
 import { Settings } from "../core/service/Settings";
-import tipsJson from "../assets/projectGraphTips.json";
 // import DetailsEditSidePanel from "./_details_edit_side_panel";
 // import MarkdownEditor from "./_vditor_panel";
 // import Vditor from "vditor";
+import { invoke } from "@tauri-apps/api/core";
 import "vditor/dist/index.css";
 import { Panel } from "../components/panel";
 
@@ -53,6 +54,7 @@ export default function TestPage() {
         >
           open panel
         </Button>
+        <Button onClick={() => invoke("init_plugin_host")}>初始化插件</Button>
       </div>
     </>
   );

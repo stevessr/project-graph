@@ -100,8 +100,9 @@ async fn set_update_channel<R: Runtime>(
 
 #[tauri::command]
 fn init_plugin_host() {
-    let host = plugin_host::PluginHost::new();
+    let mut host = plugin_host::PluginHost::new();
     host.init();
+    host.run_entry_point();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
