@@ -2,6 +2,7 @@ import { fetch } from "@tauri-apps/plugin-http"; // Removed RequestOptions type 
 import { v4 as uuidv4 } from "uuid";
 import { Settings } from "../../../service/Settings"; // Import Settings service
 import { ArrayFunctions } from "../../../algorithm/arrayFunctions";
+import { Dialog } from "../../../../components/dialog"; // Import Dialog component
 import { Vector } from "../../../dataStruct/Vector";
 import { EdgeRenderer } from "../../../render/canvas2d/entityRenderer/edge/EdgeRenderer";
 import { TextRiseEffect } from "../../../service/feedbackService/effectEngine/concrete/TextRiseEffect";
@@ -33,6 +34,7 @@ export namespace StageGeneratorAI {
       // Get API URL and Key from Settings
       const apiUrl = await Settings.get("aiApiUrl");
       const apiKey = await Settings.get("aiApiKey");
+      const modelName = await Settings.get("aiModelName"); // Get model name from Settings
 
       // Prepare fetch options - Removed explicit RequestOptions type
       const requestOptions = {
@@ -42,7 +44,16 @@ export namespace StageGeneratorAI {
           "Content-Type": "application/json",
         } as { [key: string]: string }, // Add index signature type assertion
         body: JSON.stringify({
-          word: selectedTextNode.text,
+          model: modelName, // Continue using the model name from Settings
+          messages: [
+            {
+              role: "system",
+              content:
+                "你是一个创意助手，请根据用户提供的词语，扩展出 5 个相关的词语或短语，每个占一行，不要包含任何额外的解释或编号。",
+            }, // System message defines the task
+            { role: "user", content: selectedTextNode.text }, // User message contains the selected word
+          ],
+          // Optional: Add other parameters like temperature, max_tokens, etc.
         }),
       };
 
@@ -53,24 +64,53 @@ export namespace StageGeneratorAI {
       }
 
       // Construct the full endpoint URL
-      const endpointUrl = `${apiUrl}/ai/extend_word`; // Ensure apiUrl doesn't have a trailing slash or handle it
+      const endpointUrl = `${apiUrl}/v1/chat/completions`; // Use the standard Chat Completions endpoint
 
       const response = await fetch(endpointUrl, requestOptions);
 
       if (!response.ok) {
         // Handle non-2xx responses
-        const errorText = await response.text();
+        let errorText = await response.text(); // Default to getting text
+        try {
+          const errorJson = JSON.parse(errorText); // Attempt to parse JSON
+          if (errorJson.error && errorJson.error.message) {
+            errorText = errorJson.error.message; // Use OpenAI's error message
+          }
+        } catch (e) {
+          console.error("Failed to parse error response as JSON:", e);
+        }
         console.error(`AI API Error (${response.status}): ${errorText}`);
-        Stage.effectMachine.addEffect(new TextRiseEffect(`AI 请求失败: ${response.status}`));
+        const errorMessage = `AI 请求失败: ${response.status}. ${errorText}`;
+        Stage.effectMachine.addEffect(new TextRiseEffect(errorMessage));
+        Dialog.show({ title: "AI 错误", content: errorMessage }); // Show dialog on API error
         return ["error"];
       }
 
-      const { words, tokens } = await response.json();
+      const data = await response.json();
 
-      Stage.effectMachine.addEffect(new TextRiseEffect(`生成完成，消耗 ${tokens} Tokens`));
-      return words;
+      if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+        const content = data.choices[0].message.content || "";
+        const words = content
+          .split("\n")
+          .map((word: string) => word.trim())
+          .filter((word: string) => word.length > 0); // Split, trim, and filter empty lines
+
+        const tokens = data.usage?.total_tokens || 0; // Attempt to get token usage
+        Stage.effectMachine.addEffect(new TextRiseEffect(`生成完成，消耗 ${tokens} Tokens`));
+        return words;
+      } else {
+        // Handle unexpected response format
+        console.error("AI API Response format unexpected:", data);
+        const errorMessage = "AI 响应格式错误";
+        Stage.effectMachine.addEffect(new TextRiseEffect(errorMessage));
+        Dialog.show({ title: "AI 错误", content: errorMessage });
+        return ["error"];
+      }
     } catch (e) {
       console.error(e);
+      const errorMessage = `AI 请求时发生错误: ${e instanceof Error ? e.message : String(e)}`;
+      Stage.effectMachine.addEffect(new TextRiseEffect(errorMessage)); // Keep or remove this effect based on preference
+      Dialog.show({ title: "AI 错误", content: errorMessage }); // Show dialog on general error
       return ["error"];
     }
   }
