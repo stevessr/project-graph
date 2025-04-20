@@ -43,6 +43,9 @@ export default function AI() {
         {/* AI Model Name Setting */}
         <SettingField icon={<Cpu size={16} />} settingKey="aiModelName" type="text" />
 
+        {/* AI Custom Prompt Setting */}
+        <SettingField settingKey="aiCustomPrompt" type="textarea" />
+
         {/* Optional: Add a Test Connection Button here */}
         {/* <Button onClick={handleTestConnection}>Test Connection</Button> */}
       </FieldGroup>

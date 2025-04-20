@@ -35,6 +35,7 @@ export namespace StageGeneratorAI {
       const apiUrl = await Settings.get("aiApiUrl");
       const apiKey = await Settings.get("aiApiKey");
       const modelName = await Settings.get("aiModelName"); // Get model name from Settings
+      const customPrompt = await Settings.get("aiCustomPrompt"); // Get custom prompt from Settings
 
       // Prepare fetch options - Removed explicit RequestOptions type
       const requestOptions = {
@@ -49,8 +50,10 @@ export namespace StageGeneratorAI {
             {
               role: "system",
               content:
-                "你是一个创意助手，请根据用户提供的词语，扩展出 5 个相关的词语或短语，每个占一行，不要包含任何额外的解释或编号。",
-            }, // System message defines the task
+                customPrompt && customPrompt.trim() !== ""
+                  ? customPrompt
+                  : "你是一个创意助手，请根据用户提供的词语，扩展出 5 个相关的词语或短语，每个占一行，不要包含任何额外的解释或编号。",
+            }, // Use custom prompt if available, otherwise use default
             { role: "user", content: selectedTextNode.text }, // User message contains the selected word
           ],
           // Optional: Add other parameters like temperature, max_tokens, etc.

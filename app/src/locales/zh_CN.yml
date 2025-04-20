@@ -96,6 +96,9 @@ settings:
   aiModelName:
     title: 模型名称
     description: 要使用的 AI 模型名称 (例如：gpt-4o)
+  aiCustomPrompt:
+    title: 自定义提示词
+    description: 为 AI 扩展节点设置自定义提示词
   plugins: 插件
   scripts: 脚本
   themes: 主题

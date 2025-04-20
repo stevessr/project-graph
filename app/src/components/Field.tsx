@@ -21,7 +21,7 @@ export function SettingField({
   kind = "file",
 }: {
   settingKey: keyof Settings.Settings;
-  type?: "text" | "number" | "slider" | "switch" | "select" | "file";
+  type?: "text" | "number" | "slider" | "switch" | "select" | "file" | "textarea";
   min?: number;
   max?: number;
   step?: number;
@@ -77,6 +77,14 @@ export function SettingField({
         ></Select>
       )}
       {type === "file" && <FileChooser kind={kind} value={value} onChange={setValue} />}
+      {type === "textarea" && (
+        <textarea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+          className="bg-field-group-bg text-settings-text h-24 w-48 rounded border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-700"
+        />
+      )}
     </Field>
   );
 }
