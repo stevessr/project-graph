@@ -92,9 +92,19 @@ settings:
     automation: Automation
     control: Control
     keybinds: Keybinds
-    ai: AI
+    ai: AI # Settings Tab Title
     github: GitHub
     sounds: Sounds
+  # --- AI Settings ---
+  ai:
+    groupTitle: AI Service Configuration
+  aiApiUrl:
+    title: API URL
+    description: The base URL for the AI service (e.g., http://localhost:8787)
+  aiApiKey:
+    title: API Key
+    description: The key required to access the AI service (if needed)
+    placeholder: Enter your API key
     plugins: Plugins
     themes: Themes
     scripts: Scripts

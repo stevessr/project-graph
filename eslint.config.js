@@ -12,14 +12,21 @@ export default [
     settings: { react: { version: "19" } },
     languageOptions: { globals: globals.browser },
   },
+  // Add Node.js environment for the MCP server
+  {
+    files: ["app/project-graph-cli-mcp-server/src/**/*.ts"],
+    languageOptions: { globals: globals.node },
+  },
   // https://github.com/eslint/eslint/discussions/18304
   {
     ignores: [
-      "app/dist/*/*",
+      "app/dist/**", // Ignore general app build output
+      "app/project-graph-cli-mcp-server/build/**", // Ignore MCP server build output
       "app/src-tauri/*/*",
       "docs/src/.vitepress/dist/*/*",
       "docs/src/.vitepress/cache/*/*",
       "!.storybook",
+      "docs/.source/index.ts", // Ignore auto-generated docs source file
     ],
   },
   pluginJs.configs.recommended,

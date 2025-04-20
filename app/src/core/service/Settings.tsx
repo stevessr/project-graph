@@ -119,6 +119,9 @@ export namespace Settings {
     // github 相关
     githubToken: string;
     githubUser: string;
+    // AI 相关
+    aiApiUrl: string;
+    aiApiKey: string;
   };
   export const defaultSettings: Settings = {
     language: "zh_CN",
@@ -223,6 +226,9 @@ export namespace Settings {
     // github 相关
     githubToken: "",
     githubUser: "",
+    // AI 相关
+    aiApiUrl: "http://localhost:8787",
+    aiApiKey: "",
   };
 
   export async function init() {

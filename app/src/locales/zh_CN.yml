@@ -77,9 +77,19 @@ settings:
     automation: 自动化
     control: 控制
     keybinds: 快捷键
-    ai: AI
+    ai: AI # Settings Tab Title
     github: GitHub
     sounds: 声音
+  # --- AI Settings ---
+  ai:
+    groupTitle: AI 服务配置
+  aiApiUrl:
+    title: API 地址
+    description: AI 服务的基础 URL (例如：http://localhost:8787)
+  aiApiKey:
+    title: API 密钥
+    description: 用于访问 AI 服务的密钥 (如果需要)
+    placeholder: 输入您的 API 密钥
     plugins: 插件
     scripts: 脚本
     themes: 主题

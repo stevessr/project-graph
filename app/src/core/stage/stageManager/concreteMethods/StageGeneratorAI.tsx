@@ -1,5 +1,6 @@
-import { fetch } from "@tauri-apps/plugin-http";
+import { fetch } from "@tauri-apps/plugin-http"; // Removed RequestOptions type import
 import { v4 as uuidv4 } from "uuid";
+import { Settings } from "../../../service/Settings"; // Import Settings service
 import { ArrayFunctions } from "../../../algorithm/arrayFunctions";
 import { Vector } from "../../../dataStruct/Vector";
 import { EdgeRenderer } from "../../../render/canvas2d/entityRenderer/edge/EdgeRenderer";
@@ -29,17 +30,43 @@ export namespace StageGeneratorAI {
 
   async function realGenerateTextList(selectedTextNode: TextNode) {
     try {
-      const { words, tokens } = await (
-        await fetch((import.meta.env.LR_API_BASE_URL ?? "http://localhost:8787") + "/ai/extend_word", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            word: selectedTextNode.text,
-          }),
-        })
-      ).json();
+      // Get API URL and Key from Settings
+      const apiUrl = await Settings.get("aiApiUrl");
+      const apiKey = await Settings.get("aiApiKey");
+
+      // Prepare fetch options - Removed explicit RequestOptions type
+      const requestOptions = {
+        method: "POST",
+        // Define headers with an index signature to allow adding Authorization later
+        headers: {
+          "Content-Type": "application/json",
+        } as { [key: string]: string }, // Add index signature type assertion
+        body: JSON.stringify({
+          word: selectedTextNode.text,
+        }),
+      };
+
+      // Add Authorization header if API key exists
+      if (apiKey && apiKey.trim() !== "") {
+        // Assuming Bearer token authentication, adjust if needed
+        requestOptions.headers!["Authorization"] = `Bearer ${apiKey}`;
+      }
+
+      // Construct the full endpoint URL
+      const endpointUrl = `${apiUrl}/ai/extend_word`; // Ensure apiUrl doesn't have a trailing slash or handle it
+
+      const response = await fetch(endpointUrl, requestOptions);
+
+      if (!response.ok) {
+        // Handle non-2xx responses
+        const errorText = await response.text();
+        console.error(`AI API Error (${response.status}): ${errorText}`);
+        Stage.effectMachine.addEffect(new TextRiseEffect(`AI 请求失败: ${response.status}`));
+        return ["error"];
+      }
+
+      const { words, tokens } = await response.json();
+
       Stage.effectMachine.addEffect(new TextRiseEffect(`生成完成，消耗 ${tokens} Tokens`));
       return words;
     } catch (e) {
