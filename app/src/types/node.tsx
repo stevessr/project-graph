@@ -105,6 +105,12 @@ export namespace Serialized {
   export type Association = StageObject & {
     text: string;
   };
+  export type MultiTargetUndirectedEdge = Association & {
+    type: "core:multi_target_undirected_edge";
+    targets: string[];
+    color: Color;
+    rectRates: [number, number][]; // 默认中心 0.5, 0.5
+  };
   export type Edge = Association & {
     source: string;
     target: string;
@@ -136,7 +142,7 @@ export namespace Serialized {
   export type File = {
     version: typeof StageDumper.latestVersion;
     entities: (TextNode | Section | ConnectPoint | ImageNode | UrlNode | PenStroke | PortalNode)[];
-    associations: (LineEdge | CublicCatmullRomSplineEdge)[];
+    associations: (LineEdge | CublicCatmullRomSplineEdge | MultiTargetUndirectedEdge)[];
     tags: string[];
   };
 }

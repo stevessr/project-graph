@@ -1,4 +1,5 @@
 import { v4 } from "uuid";
+import { Direction } from "../../../../types/directions";
 import { createFolder } from "../../../../utils/fs";
 import { averageColors, Color } from "../../../dataStruct/Color";
 import { Queue } from "../../../dataStruct/Queue";
@@ -10,6 +11,7 @@ import { Stage } from "../../../stage/Stage";
 import { StageHistoryManager } from "../../../stage/stageManager/StageHistoryManager";
 import { StageManager } from "../../../stage/stageManager/StageManager";
 import { SectionMethods } from "../../../stage/stageManager/basicMethods/SectionMethods";
+import { LayoutManualAlignManager } from "../../../stage/stageManager/concreteMethods/layoutManager/layoutManualAlignManager";
 import { ConnectableEntity } from "../../../stage/stageObject/abstract/ConnectableEntity";
 import { CublicCatmullRomSplineEdge } from "../../../stage/stageObject/association/CublicCatmullRomSplineEdge";
 import { LineEdge } from "../../../stage/stageObject/association/LineEdge";
@@ -22,8 +24,8 @@ import { RectangleNoteEffect } from "../../feedbackService/effectEngine/concrete
 import { TextRiseEffect } from "../../feedbackService/effectEngine/concrete/TextRiseEffect";
 import { ViewFlashEffect } from "../../feedbackService/effectEngine/concrete/ViewFlashEffect";
 import { AutoLayoutFastTree } from "../autoLayoutEngine/autoLayoutFastTreeMode";
-import { LayoutManualAlignManager } from "../../../stage/stageManager/concreteMethods/layoutManager/layoutManualAlignManager";
-import { Direction } from "../../../../types/directions";
+import { MultiTargetUndirectedEdge } from "../../../stage/stageObject/association/MutiTargetUndirectedEdge";
+import { Dialog } from "../../../../components/dialog";
 
 interface SecretKeyItem {
   name: string;
@@ -647,6 +649,28 @@ export class SecretKeysEngine {
             node.move(Vector.fromDegrees(i));
           });
         });
+      },
+    },
+    "m t u e": {
+      name: "将选中的可连接实体添加多源无向边",
+      explain: "测试中",
+      func() {
+        const selectedNodes = StageManager.getSelectedEntities().filter((node) => node instanceof ConnectableEntity);
+        if (selectedNodes.length <= 1) {
+          return;
+        }
+        // 开始添加多源无向边
+        const multiTargetUndirectedEdge = MultiTargetUndirectedEdge.createFromSomeEntity(selectedNodes);
+        Dialog.show({
+          input: true,
+          title: "输入名称",
+          content: "您正在创建一个多源无向边，请输入多源无向边的名称",
+        }).then(({ button, value }) => {
+          if (button === "确定" && value) {
+            multiTargetUndirectedEdge.rename(value);
+          }
+        });
+        StageManager.addAssociation(multiTargetUndirectedEdge);
       },
     },
   };
