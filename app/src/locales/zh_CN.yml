@@ -80,6 +80,9 @@ settings:
     ai: AI # Settings Tab Title
     github: GitHub
     sounds: 声音
+    plugins: 插件
+    scripts: 脚本
+    themes: 主题
   # --- AI Settings ---
   ai:
     groupTitle: AI 服务配置
@@ -90,9 +93,12 @@ settings:
     title: API 密钥
     description: 用于访问 AI 服务的密钥 (如果需要)
     placeholder: 输入您的 API 密钥
-    plugins: 插件
-    scripts: 脚本
-    themes: 主题
+  aiModelName:
+    title: 模型名称
+    description: 要使用的 AI 模型名称 (例如：gpt-4o)
+  plugins: 插件
+  scripts: 脚本
+  themes: 主题
   language:
     title: 语言
     options:

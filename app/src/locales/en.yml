@@ -105,9 +105,12 @@ settings:
     title: API Key
     description: The key required to access the AI service (if needed)
     placeholder: Enter your API key
-    plugins: Plugins
-    themes: Themes
-    scripts: Scripts
+  aiModelName:
+    title: Model Name
+    description: The name of the AI model to use (e.g., gpt-4o)
+  plugins: Plugins
+  themes: Themes
+  scripts: Scripts
   language:
     title: Language
     options:

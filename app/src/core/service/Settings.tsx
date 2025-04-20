@@ -120,8 +120,16 @@ export namespace Settings {
     githubToken: string;
     githubUser: string;
     // AI 相关
+    ai: {
+      groupTitle: string;
+      apiKey: {
+        title: string;
+        description: string;
+      };
+    };
     aiApiUrl: string;
     aiApiKey: string;
+    aiModelName: string; // Added model name setting
   };
   export const defaultSettings: Settings = {
     language: "zh_CN",
@@ -229,6 +237,7 @@ export namespace Settings {
     // AI 相关
     aiApiUrl: "http://localhost:8787",
     aiApiKey: "",
+    aiModelName: "default-model", // Added default model name
   };
 
   export async function init() {
