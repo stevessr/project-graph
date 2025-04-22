@@ -20,6 +20,7 @@ import { VerticalPolyEdgeRenderer } from "./concrete/VerticalPolyEdgeRenderer";
 import { EdgeRendererClass } from "./EdgeRendererClass";
 import { CurveRenderer } from "../../basicRenderer/curveRenderer";
 import { Edge } from "../../../../stage/stageObject/association/Edge";
+import { TextRenderer } from "../../basicRenderer/textRenderer";
 
 /**
  * 边的总渲染器单例
@@ -110,8 +111,9 @@ export namespace EdgeRenderer {
       return;
     }
     const crShape = edge.getShape();
+    const edgeColor = edge.color.a === 0 ? StageStyleManager.currentStyle.StageObjectBorder : edge.color;
     // 画曲线
-    WorldRenderUtils.renderCublicCatmullRomSpline(crShape, StageStyleManager.currentStyle.StageObjectBorder, 2);
+    WorldRenderUtils.renderCublicCatmullRomSpline(crShape, edgeColor, 2);
     if (edge.isSelected) {
       CollisionBoxRenderer.render(edge.collisionBox, StageStyleManager.currentStyle.CollideBoxSelected);
     }
@@ -121,13 +123,30 @@ export namespace EdgeRenderer {
         Renderer.transformWorld2View(point),
         5 * Camera.currentScale,
         Color.Transparent,
-        StageStyleManager.currentStyle.StageObjectBorder,
+        edgeColor,
         2 * Camera.currentScale,
+      );
+    }
+    // 画文字
+    if (edge.text !== "") {
+      const textRect = edge.textRectangle;
+      ShapeRenderer.renderRect(
+        textRect.transformWorld2View(),
+        StageStyleManager.currentStyle.Background,
+        Color.Transparent,
+        0,
+      );
+      TextRenderer.renderMultiLineTextFromCenter(
+        edge.text,
+        Renderer.transformWorld2View(textRect.center),
+        Renderer.FONT_SIZE * Camera.currentScale,
+        Infinity,
+        edgeColor,
       );
     }
     // 画箭头
     const { location, direction } = edge.getArrowHead();
-    renderArrowHead(location, direction.normalize(), 15, StageStyleManager.currentStyle.StageObjectBorder);
+    renderArrowHead(location, direction.normalize(), 15, edgeColor);
   }
 
   /**

@@ -1,25 +1,30 @@
 import { Vector } from "../../../dataStruct/Vector";
 import { StageManager } from "../../../stage/stageManager/StageManager";
-import { LineEdge } from "../../../stage/stageObject/association/LineEdge";
+import { Edge } from "../../../stage/stageObject/association/Edge";
+import { MultiTargetUndirectedEdge } from "../../../stage/stageObject/association/MutiTargetUndirectedEdge";
 import { Section } from "../../../stage/stageObject/entity/Section";
 
 export class StageMouseInteractionCore {
   /**
    * 鼠标悬浮的边
    */
-  private _hoverEdges: LineEdge[] = [];
+  private _hoverEdges: Edge[] = [];
   /** 鼠标悬浮的框 */
   private _hoverSections: Section[] = [];
+  /**
+   * 鼠标悬浮的多边形边
+   */
+  private _hoverMultiTargetEdges: MultiTargetUndirectedEdge[] = [];
 
   public isHaveHoverObject(): boolean {
     return this._hoverEdges.length > 0 || this._hoverSections.length > 0;
   }
 
-  get hoverEdges(): LineEdge[] {
+  get hoverEdges(): Edge[] {
     return this._hoverEdges;
   }
 
-  get firstHoverEdge(): LineEdge | undefined {
+  get firstHoverEdge(): Edge | undefined {
     return this._hoverEdges.length > 0 ? this._hoverEdges[0] : undefined;
   }
 
@@ -30,8 +35,15 @@ export class StageMouseInteractionCore {
   get firstHoverSection(): Section | undefined {
     return this._hoverSections.length > 0 ? this._hoverSections[0] : undefined;
   }
+  get hoverMultiTargetEdges(): MultiTargetUndirectedEdge[] {
+    return this._hoverMultiTargetEdges;
+  }
 
-  public isHoverEdge(edge: LineEdge): boolean {
+  get firstHoverMultiTargetEdge(): MultiTargetUndirectedEdge | undefined {
+    return this._hoverMultiTargetEdges.length > 0 ? this._hoverMultiTargetEdges[0] : undefined;
+  }
+
+  public isHoverEdge(edge: Edge): boolean {
     return this._hoverEdges.includes(edge);
   }
 
@@ -39,15 +51,28 @@ export class StageMouseInteractionCore {
     return this._hoverEdges.length > 0;
   }
 
+  /**
+   * mousemove 事件触发此函数
+   * @param mouseWorldLocation
+   */
   public updateByMouseMove(mouseWorldLocation: Vector): void {
     // 更新 Edge状态
     this._hoverEdges = [];
-    for (const edge of StageManager.getLineEdges()) {
+    for (const edge of StageManager.getEdges()) {
       if (edge.isHiddenBySectionCollapse) {
         continue;
       }
       if (edge.collisionBox.isContainsPoint(mouseWorldLocation)) {
         this._hoverEdges.push(edge);
+      }
+    }
+    // 更新 MultiTargetUndirectedEdge状态
+    this._hoverMultiTargetEdges = [];
+    for (const edge of StageManager.getAssociations().filter(
+      (association) => association instanceof MultiTargetUndirectedEdge,
+    )) {
+      if (edge.collisionBox.isContainsPoint(mouseWorldLocation)) {
+        this._hoverMultiTargetEdges.push(edge);
       }
     }
     // 更新 Section状态
