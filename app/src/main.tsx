@@ -152,6 +152,13 @@ async function renderApp(cli: boolean = false) {
     await getCurrentWindow().setSkipTaskbar(true);
     root.render(<></>);
   } else {
+    // Apply custom CSS
+    const customCss = await Settings.get("customCss");
+    if (customCss) {
+      const styleElement = document.createElement("style");
+      styleElement.textContent = customCss;
+      document.head.appendChild(styleElement);
+    }
     root.render(<Routes />);
   }
 }

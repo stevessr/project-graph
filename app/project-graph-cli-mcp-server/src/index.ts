@@ -191,6 +191,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               description: "Target camera scale in the portal file (for PortalNode, default: 1).",
             }, // Fixed key, added comma
             content: { type: "string", description: "Pen stroke data (required for PenStroke)." }, // Fixed key, no comma needed
+            parentNodeUuid: {
+              type: "string",
+              description: "Optional UUID of the parent node (e.g., a Section) to add this node to.",
+            }, // Added parentNodeUuid
           },
           required: ["path", "type"], // Only path and type are strictly required by the schema itself
         },
@@ -377,6 +381,30 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       // Add the fully constructed node
       mindMapData.entities.push(newNode as MindMapEntity); // Cast to full type
+
+      // --- Handle parent node association if parentNodeUuid is provided ---
+      if (typeof args.parentNodeUuid === "string" && args.parentNodeUuid) {
+        const parentNode = mindMapData.entities.find((entity) => entity.uuid === args.parentNodeUuid);
+
+        if (!parentNode) {
+          // If parent node not found, still add the new node but report a warning/error
+          console.warn(`Parent node with UUID '${args.parentNodeUuid}' not found.`);
+          // Optionally throw an error instead:
+          // throw new McpError(ErrorCode.InvalidParams, `Parent node with UUID '${args.parentNodeUuid}' not found.`);
+        } else if (parentNode.type !== "core:section") {
+          // If parent node is not a section, still add the new node but report a warning/error
+          console.warn(`Parent node with UUID '${args.parentNodeUuid}' is not a Section type. Cannot add child.`);
+          // Optionally throw an error instead:
+          // throw new McpError(ErrorCode.InvalidParams, `Parent node with UUID '${args.parentNodeUuid}' is not a Section type.`);
+        } else {
+          // Add the new node's UUID to the parent's children array
+          if (!parentNode.children) {
+            parentNode.children = [];
+          }
+          parentNode.children.push(newNodeUUID);
+        }
+      }
+      // --- End parent node handling ---
 
       // Write back to the file
       await fs.writeFile(filePath, JSON.stringify(mindMapData, null, 2)); // Pretty print JSON

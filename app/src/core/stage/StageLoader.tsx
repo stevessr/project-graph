@@ -1,5 +1,6 @@
 import { Serialized } from "../../types/node";
 import { v4 as uuidv4 } from "uuid";
+import { invoke } from "@tauri-apps/api/core";
 
 /**
  * 舞台加载
@@ -28,6 +29,13 @@ export namespace StageLoader {
     data = convertV14toV15(data);
     data = convertV15toV16(data);
     data = convertV16toV17(data);
+
+    // Send updated state to backend via Tauri command
+    const stateJson = JSON.stringify(data);
+    invoke("update_project_graph_state", { stateJson }).catch((e) =>
+      console.error("Failed to send state to backend:", e),
+    );
+
     return data as Serialized.File;
   }
 

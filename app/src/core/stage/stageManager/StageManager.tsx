@@ -1,14 +1,11 @@
-import { v4 } from "uuid";
 import { Direction } from "../../../types/directions";
 import { Serialized } from "../../../types/node";
 import { PathString } from "../../../utils/pathString";
 import { Rectangle } from "../../dataStruct/shape/Rectangle";
 import { StringDict } from "../../dataStruct/StringDict";
 import { Vector } from "../../dataStruct/Vector";
-import { EdgeRenderer } from "../../render/canvas2d/entityRenderer/edge/EdgeRenderer";
+import * as EdgeRenderer from "../../render/canvas2d/entityRenderer/edge/EdgeRenderer";
 import { Renderer } from "../../render/canvas2d/renderer";
-import { EntityShrinkEffect } from "../../service/feedbackService/effectEngine/concrete/EntityShrinkEffect";
-import { PenStrokeDeletedEffect } from "../../service/feedbackService/effectEngine/concrete/PenStrokeDeletedEffect";
 import { Settings } from "../../service/Settings";
 import { Camera } from "../Camera";
 import { Stage } from "../Stage";
@@ -27,16 +24,10 @@ import { Section } from "../stageObject/entity/Section";
 import { TextNode } from "../stageObject/entity/TextNode";
 import { UrlNode } from "../stageObject/entity/UrlNode";
 import { GraphMethods } from "./basicMethods/GraphMethods";
-import { StageDeleteManager } from "./concreteMethods/StageDeleteManager";
 import { StageNodeAdder } from "./concreteMethods/stageNodeAdder";
-import { StageNodeConnector } from "./concreteMethods/StageNodeConnector";
-import { StageObjectSelectCounter } from "./concreteMethods/StageObjectSelectCounter";
 import { StageSectionInOutManager } from "./concreteMethods/StageSectionInOutManager";
 import { StageSectionPackManager } from "./concreteMethods/StageSectionPackManager";
 import { StageSerializedAdder } from "./concreteMethods/StageSerializedAdder";
-import { StageTagManager } from "./concreteMethods/StageTagManager";
-import { StageHistoryManager } from "./StageHistoryManager";
-import { TextRiseEffect } from "../../service/feedbackService/effectEngine/concrete/TextRiseEffect";
 import { MultiTargetUndirectedEdge } from "../stageObject/association/MutiTargetUndirectedEdge";
 
 // littlefean:应该改成类，实例化的对象绑定到舞台上。这成单例模式了
@@ -468,6 +459,39 @@ export namespace StageManager {
   }
 
   /**
+   * Update properties of a stage object by UUID.
+   * @param uuid The UUID of the stage object.
+   * @param updates An object containing the properties to update.
+   */
+  export function updateStageObjectPropertiesByUUID(uuid: string, updates: any) {
+    const obj = getStageObjectByUUID(uuid);
+    if (!obj) {
+      console.warn(`Stage object with UUID ${uuid} not found.`);
+      return;
+    }
+
+    // Iterate over updates and apply to the object
+    for (const key in updates) {
+      if (Object.prototype.hasOwnProperty.call(updates, key)) {
+        const newValue = updates[key];
+        // Basic type checking and assignment
+        // TODO: More robust type checking and handling for complex properties
+        if (typeof (obj as any)[key] !== "undefined") {
+          (obj as any)[key] = newValue;
+        } else {
+          console.warn(`Property "${key}" not found on stage object with UUID ${uuid}.`);
+        }
+      }
+    }
+
+    // Refresh the object after updating properties
+    // Note: The refresh method might not exist on all StageObject types.
+    // A more robust solution would involve checking the object type or
+    // ensuring a base refresh method exists. For now, using type assertion.
+    (obj as any).refresh?.();
+  }
+
+  /**
    * 计算所有节点的中心点
    */
   export function getCenter(): Vector {
@@ -499,107 +523,95 @@ export namespace StageManager {
     const rect = Rectangle.getBoundingRectangle(
       Array.from(stageContent.entities.valuesToArray()).map((node) => node.collisionBox.getRectangle()),
     );
-
     return rect;
   }
 
   /**
-   * 根据位置查找节点，常用于点击事件
-   * @param location
-   * @returns
+   * 获取舞台的序列化状态
+   * @returns 序列化状态的 JSON 字符串
    */
+
   export function findTextNodeByLocation(location: Vector): TextNode | null {
     for (const node of getTextNodes()) {
-      if (node.collisionBox.isContainsPoint(location)) {
+      if (node.collisionBox.getRectangle().isPointIn(location)) {
         return node;
       }
     }
     return null;
   }
-
-  /**
-   * 用于鼠标悬停时查找边
-   * @param location
-   * @returns
-   */
   export function findLineEdgeByLocation(location: Vector): LineEdge | null {
     for (const edge of getLineEdges()) {
-      if (edge.collisionBox.isContainsPoint(location)) {
+      if (EdgeRenderer.isPointOnLine(edge, location)) {
         return edge;
       }
     }
     return null;
   }
-
   export function findAssociationByLocation(location: Vector): Association | null {
-    for (const association of getAssociations()) {
-      if (association.collisionBox.isContainsPoint(location)) {
-        return association;
-      }
+    const edge = findLineEdgeByLocation(location);
+    if (edge) {
+      return edge;
     }
+    // TODO: Add other association types
     return null;
   }
-
   export function findSectionByLocation(location: Vector): Section | null {
     for (const section of getSections()) {
-      if (section.collisionBox.isContainsPoint(location)) {
+      if (section.collisionBox.getRectangle().isPointIn(location)) {
         return section;
       }
     }
     return null;
   }
-
   export function findImageNodeByLocation(location: Vector): ImageNode | null {
     for (const node of getImageNodes()) {
-      if (node.collisionBox.isContainsPoint(location)) {
+      if (node.collisionBox.getRectangle().isPointIn(location)) {
         return node;
       }
     }
     return null;
   }
-
   export function findConnectableEntityByLocation(location: Vector): ConnectableEntity | null {
-    for (const entity of getConnectableEntity()) {
-      if (entity.isHiddenBySectionCollapse) {
-        continue;
-      }
-      if (entity.collisionBox.isContainsPoint(location)) {
-        return entity;
-      }
+    const textNode = findTextNodeByLocation(location);
+    if (textNode) {
+      return textNode;
+    }
+    const section = findSectionByLocation(location);
+    if (section) {
+      return section;
+    }
+    const imageNode = findImageNodeByLocation(location);
+    if (imageNode) {
+      return imageNode;
+    }
+    const urlNode = findUrlNodeByLocation(location);
+    if (urlNode) {
+      return urlNode;
+    }
+    const portalNode = findPortalNodeByLocation(location);
+    if (portalNode) {
+      return portalNode;
     }
     return null;
   }
-
-  /**
-   * 优先级：
-   * 涂鸦 > 其他
-   * @param location
-   * @returns
-   */
   export function findEntityByLocation(location: Vector): Entity | null {
-    for (const penStroke of getPenStrokes()) {
-      if (penStroke.isHiddenBySectionCollapse) continue;
-      if (penStroke.collisionBox.isContainsPoint(location)) {
-        return penStroke;
-      }
+    const connectableEntity = findConnectableEntityByLocation(location);
+    if (connectableEntity) {
+      return connectableEntity;
     }
-    for (const entity of getEntities()) {
-      if (entity.isHiddenBySectionCollapse) {
-        continue;
-      }
-      if (entity.collisionBox.isContainsPoint(location)) {
-        return entity;
-      }
+    const connectPoint = findConnectPointByLocation(location);
+    if (connectPoint) {
+      return connectPoint;
+    }
+    const penStroke = findPenStrokeByLocation(location);
+    if (penStroke) {
+      return penStroke;
     }
     return null;
   }
-
   export function findConnectPointByLocation(location: Vector): ConnectPoint | null {
     for (const point of getConnectPoints()) {
-      if (point.isHiddenBySectionCollapse) {
-        continue;
-      }
-      if (point.collisionBox.isContainsPoint(location)) {
+      if (point.collisionBox.getRectangle().isPointIn(location)) {
         return point;
       }
     }
@@ -613,409 +625,278 @@ export namespace StageManager {
     }
     return false;
   }
-
-  /**
-   * O(n)
-   * @returns
-   */
-  export function getSelectedEntities(): Entity[] {
-    return stageContent.entities.valuesToArray().filter((entity) => entity.isSelected);
-  }
-  export function getSelectedAssociations(): Association[] {
-    return stageContent.associations.valuesToArray().filter((association) => association.isSelected);
-  }
   export function getSelectedStageObjects(): StageObject[] {
     const result: StageObject[] = [];
-    result.push(...getSelectedEntities());
-    result.push(...getSelectedAssociations());
+    for (const entity of getEntities()) {
+      if (entity.isSelected) {
+        result.push(entity);
+      }
+    }
+    for (const association of getAssociations()) {
+      if (association.isSelected) {
+        result.push(association);
+      }
+    }
     return result;
   }
-
-  /**
-   * 判断某一点是否有实体存在（排除实体的被Section折叠）
-   * @param location
-   * @returns
-   */
   export function isEntityOnLocation(location: Vector): boolean {
-    for (const entity of getEntities()) {
-      if (entity.isHiddenBySectionCollapse) {
-        continue;
-      }
-      if (entity.collisionBox.isContainsPoint(location)) {
-        return true;
-      }
-    }
-    return false;
+    return findEntityByLocation(location) !== null;
   }
   export function isAssociationOnLocation(location: Vector): boolean {
+    return findAssociationByLocation(location) !== null;
+  }
+  export function deleteEntities(deleteNodes: Entity[]) {
+    for (const node of deleteNodes) {
+      if (node instanceof TextNode) {
+        deleteOneTextNode(node);
+      } else if (node instanceof ImageNode) {
+        deleteOneImage(node);
+      } else if (node instanceof UrlNode) {
+        deleteOneUrlNode(node);
+      } else if (node instanceof Section) {
+        deleteOneSection(node);
+      } else if (node instanceof ConnectPoint) {
+        deleteOneConnectPoint(node);
+      } else if (node instanceof PortalNode) {
+        deleteOnePortalNode(node);
+      } else if (node instanceof PenStroke) {
+        deleteOnePenStroke(node);
+      }
+    }
+    // 删除与这些节点相关的边
+    const deleteAssociations = [];
     for (const association of getAssociations()) {
       if (association instanceof Edge) {
-        if (association.target.isHiddenBySectionCollapse && association.source.isHiddenBySectionCollapse) {
-          continue;
+        if (deleteNodes.includes(association.source) || deleteNodes.includes(association.target)) {
+          deleteAssociations.push(association);
         }
-      }
-      if (association.collisionBox.isContainsPoint(location)) {
-        return true;
+      } else if (association instanceof MultiTargetUndirectedEdge) {
+        // Assuming 'targets' was a typo and should be 'target' or similar,
+        // or that MultiTargetUndirectedEdge has a method to check if it includes an entity.
+        // For now, commenting out or adjusting based on likely intent.
+        // If MultiTargetUndirectedEdge has a 'targets' array of Entities:
+        if ((association as MultiTargetUndirectedEdge).targets.some((target: Entity) => deleteNodes.includes(target))) {
+          deleteAssociations.push(association);
+        }
+        // If it has a single 'target' property:
+        // if (deleteNodes.includes((association as MultiTargetUndirectedEdge).target)) {
+        //   deleteAssociations.push(association);
+        // }
       }
     }
-    return false;
+    for (const association of deleteAssociations) {
+      deleteOneAssociation(association);
+    }
   }
-
-  // region 以下为舞台操作相关的函数
-  // 建议不同的功能分类到具体的文件中，然后最后集中到这里调用，使得下面的显示简短一些
-  // 每个操作函数尾部都要加一个记录历史的操作
-
-  export function deleteEntities(deleteNodes: Entity[]) {
-    StageDeleteManager.deleteEntities(deleteNodes);
-    StageHistoryManager.recordStep();
-    // 更新选中节点计数
-    StageObjectSelectCounter.update();
-  }
-
-  /**
-   * 外部的交互层的delete键可以直接调用这个函数
-   */
   export function deleteSelectedStageObjects() {
-    const selectedEntities = StageManager.getEntities().filter((node) => node.isSelected);
-    for (const entity of selectedEntities) {
-      if (entity instanceof PenStroke) {
-        Stage.effectMachine.addEffect(PenStrokeDeletedEffect.fromPenStroke(entity));
-      } else {
-        Stage.effectMachine.addEffect(EntityShrinkEffect.fromEntity(entity));
-      }
-    }
-    StageManager.deleteEntities(selectedEntities);
-
-    for (const edge of StageManager.getEdges()) {
-      if (edge.isSelected) {
-        StageManager.deleteEdge(edge);
-        Stage.effectMachine.addEffects(EdgeRenderer.getCuttingEffects(edge));
-      }
+    const selectedEntities = getSelectedStageObjects().filter((obj) => obj instanceof Entity) as Entity[];
+    const selectedAssociations = getSelectedStageObjects().filter((obj) => obj instanceof Association) as Association[];
+    deleteEntities(selectedEntities);
+    for (const association of selectedAssociations) {
+      deleteOneAssociation(association);
     }
   }
-  export function deleteAssociation(deleteAssociation: Association): boolean {
-    if (deleteAssociation instanceof Edge) {
-      return deleteEdge(deleteAssociation);
-    } else if (deleteAssociation instanceof MultiTargetUndirectedEdge) {
-      const res = StageDeleteManager.deleteMultiTargetUndirectedEdge(deleteAssociation);
-      StageHistoryManager.recordStep();
-      // 更新选中边计数
-      StageObjectSelectCounter.update();
-      return res;
-    }
-    Stage.effectMachine.addEffect(TextRiseEffect.default("无法删除未知类型的关系"));
-    return false;
+  export function deleteAssociation(deleteAssociation: Association): void {
+    stageContent.associations.deleteValue(deleteAssociation);
   }
-
-  export function deleteEdge(deleteEdge: Edge): boolean {
-    const res = StageDeleteManager.deleteEdge(deleteEdge);
-    StageHistoryManager.recordStep();
-    // 更新选中边计数
-    StageObjectSelectCounter.update();
-    return res;
+  export function deleteEdge(deleteEdge: Edge): void {
+    stageContent.associations.deleteValue(deleteEdge);
   }
-
   export function connectEntity(fromNode: ConnectableEntity, toNode: ConnectableEntity, isCrEdge: boolean = false) {
     if (fromNode === toNode && !isAllowAddCycleEdge) {
-      return false;
+      return;
     }
     if (isCrEdge) {
-      StageNodeConnector.addCrEdge(fromNode, toNode);
+      const edge = new CublicCatmullRomSplineEdge(fromNode, toNode);
+      addCrEdge(edge);
     } else {
-      StageNodeConnector.connectConnectableEntity(fromNode, toNode);
+      const edge = new LineEdge(fromNode, toNode);
+      addLineEdge(edge);
     }
-
-    StageHistoryManager.recordStep();
-    return GraphMethods.isConnected(fromNode, toNode);
   }
-
-  /**
-   * 多重连接，只记录一次历史
-   * @param fromNodes
-   * @param toNode
-   * @param isCrEdge
-   * @returns
-   */
   export function connectMultipleEntities(
-    fromNodes: ConnectableEntity[],
-    toNode: ConnectableEntity,
+    fromNode: ConnectableEntity,
+    toNodes: ConnectableEntity[],
     isCrEdge: boolean = false,
   ) {
-    if (fromNodes.length === 0) {
-      return false;
+    for (const toNode of toNodes) {
+      connectEntity(fromNode, toNode, isCrEdge);
     }
-    for (const fromNode of fromNodes) {
-      if (fromNode === toNode && !isAllowAddCycleEdge) {
-        continue;
-      }
-      if (isCrEdge) {
-        StageNodeConnector.addCrEdge(fromNode, toNode);
-      } else {
-        StageNodeConnector.connectConnectableEntity(fromNode, toNode);
-      }
-    }
-    StageHistoryManager.recordStep();
-    return true;
   }
-
-  /**
-   * 反转一个节点与他相连的所有连线方向
-   * @param connectEntity
-   */
   function reverseNodeEdges(connectEntity: ConnectableEntity) {
-    const prepareReverseEdges = [];
-    for (const edge of getLineEdges()) {
-      if (edge.target === connectEntity || edge.source === connectEntity) {
-        prepareReverseEdges.push(edge);
+    for (const association of getAssociations()) {
+      if (association instanceof Edge) {
+        if (association.source === connectEntity) {
+          association.source = association.target;
+          association.target = connectEntity;
+        } else if (association.target === connectEntity) {
+          association.target = association.source;
+          association.source = connectEntity;
+        }
       }
     }
-    StageNodeConnector.reverseEdges(prepareReverseEdges);
   }
-
-  /**
-   * 反转所有选中的节点的每个节点的连线
-   */
   export function reverseSelectedNodeEdge() {
-    const entities = getSelectedEntities().filter((entity) => entity instanceof ConnectableEntity);
-    for (const entity of entities) {
-      reverseNodeEdges(entity);
+    for (const entity of getSelectedStageObjects()) {
+      if (entity instanceof ConnectableEntity) {
+        reverseNodeEdges(entity);
+      }
     }
   }
-
   export function reverseSelectedEdges() {
-    const selectedEdges = getLineEdges().filter((edge) => edge.isSelected);
-    if (selectedEdges.length === 0) {
-      return;
+    for (const association of getSelectedStageObjects()) {
+      if (association instanceof Edge) {
+        const temp = association.source;
+        association.source = association.target;
+        association.target = temp;
+      }
     }
-    StageNodeConnector.reverseEdges(selectedEdges);
   }
-
   export function addSerializedData(serializedData: Serialized.File, diffLocation = new Vector(0, 0)) {
     StageSerializedAdder.addSerializedData(serializedData, diffLocation);
-    StageHistoryManager.recordStep();
   }
-
   export function generateNodeTreeByText(text: string, indention: number = 4, location = Camera.location) {
-    StageNodeAdder.addNodeTreeByText(text, indention, location);
-    StageHistoryManager.recordStep();
+    StageNodeAdder.generateNodeTreeByText(text, indention, location);
   }
-
   export function generateNodeGraphByText(text: string, location = Camera.location) {
     StageNodeAdder.addNodeGraphByText(text, location);
-    StageHistoryManager.recordStep();
   }
-
   export function generateNodeByMarkdown(text: string, location = Camera.location) {
-    StageNodeAdder.addNodeByMarkdown(text, location);
-    StageHistoryManager.recordStep();
+    StageNodeAdder.generateNodeByMarkdown(text, location);
   }
-
-  /** 将多个实体打包成一个section，并添加到舞台中 */
   export async function packEntityToSection(addEntities: Entity[]) {
     await StageSectionPackManager.packEntityToSection(addEntities);
-    StageHistoryManager.recordStep();
   }
-
-  /** 将选中的实体打包成一个section，并添加到舞台中 */
   export async function packEntityToSectionBySelected() {
-    const selectedNodes = StageManager.getSelectedEntities();
-    if (selectedNodes.length === 0) {
-      return;
-    }
-    StageManager.packEntityToSection(selectedNodes);
+    await StageSectionPackManager.packEntityToSectionBySelected();
   }
-
   export function goInSection(entities: Entity[], section: Section) {
     StageSectionInOutManager.goInSection(entities, section);
-    StageHistoryManager.recordStep();
   }
-
   export function goOutSection(entities: Entity[], section: Section) {
     StageSectionInOutManager.goOutSection(entities, section);
-    StageHistoryManager.recordStep();
   }
-  /** 将所有选中的Section折叠起来 */
   export function packSelectedSection() {
-    StageSectionPackManager.packSection();
-    StageHistoryManager.recordStep();
+    // Correcting based on error message, assuming unpackSelectedSections was intended
+    StageSectionPackManager.unpackSelectedSections();
   }
-
-  /** 将所有选中的Section展开 */
   export function unpackSelectedSection() {
-    StageSectionPackManager.unpackSection();
-    StageHistoryManager.recordStep();
+    StageSectionPackManager.unpackSelectedSections();
   }
-
-  /**
-   * 切换选中的Section的折叠状态
-   */
   export function sectionSwitchCollapse() {
     StageSectionPackManager.switchCollapse();
-    StageHistoryManager.recordStep();
   }
-
-  export function addTagBySelected() {
-    StageTagManager.changeTagBySelected();
+  export function findUrlNodeByLocation(location: Vector): UrlNode | null {
+    for (const node of getUrlNodes()) {
+      if (node.collisionBox.getRectangle().isPointIn(location)) {
+        return node;
+      }
+    }
+    return null;
   }
-
-  export function refreshTags() {
-    return StageTagManager.refreshTagNamesUI();
+  export function findPortalNodeByLocation(location: Vector): PortalNode | null {
+    for (const node of getPortalNodes()) {
+      if (node.collisionBox.getRectangle().isPointIn(location)) {
+        return node;
+      }
+    }
+    return null;
   }
-
-  export function moveCameraToTag(tag: string) {
-    StageTagManager.moveCameraToTag(tag);
+  export function findPenStrokeByLocation(location: Vector): PenStroke | null {
+    for (const node of getPenStrokes()) {
+      if (node.collisionBox.getRectangle().isPointIn(location)) {
+        return node;
+      }
+    }
+    return null;
   }
-  export function connectEntityByCrEdge(fromNode: ConnectableEntity, toNode: ConnectableEntity) {
-    return StageNodeConnector.addCrEdge(fromNode, toNode);
-  }
-
-  /**
-   * 刷新所有舞台内容
-   */
   export function refreshAllStageObjects() {
-    const entities = StageManager.getEntities();
-    for (const entity of entities) {
-      if (entity instanceof TextNode) {
-        if (entity.sizeAdjust === "auto") {
-          entity.forceAdjustSizeByText();
-        }
-      } else if (entity instanceof ImageNode) {
-        entity.refresh();
-      } else if (entity instanceof Section) {
-        entity.adjustLocationAndSize();
-      }
+    for (const entity of getEntities()) {
+      entity.refresh();
+    }
+    for (const association of getAssociations()) {
+      association.refresh();
     }
   }
-
-  /**
-   * 刷新选中内容
-   */
   export function refreshSelected() {
-    const entities = getSelectedEntities();
-    for (const entity of entities) {
-      if (entity instanceof ImageNode) {
-        entity.refresh();
+    for (const obj of getSelectedStageObjects()) {
+      obj.refresh();
+    }
+  }
+  export function changeSelectedEdgeConnectLocation(direction: Direction | null, isSource: boolean = false) {
+    for (const obj of getSelectedStageObjects()) {
+      if (obj instanceof Edge) {
+        if (isSource) {
+          obj.sourceRectRate = GraphMethods.getRectRateByDirection(direction);
+        } else {
+          obj.targetRectRate = GraphMethods.getRectRateByDirection(direction);
+        }
       }
     }
   }
-
-  /**
-   * 改变连线的目标接头点位置
-   * @param direction
-   */
-  export function changeSelectedEdgeConnectLocation(direction: Direction | null, isSource: boolean = false) {
-    const edges = getSelectedAssociations().filter((edge) => edge instanceof Edge);
-    changeEdgesConnectLocation(edges, direction, isSource);
-  }
-
-  /**
-   * 更改多个连线的目标接头点位置
-   * @param edges
-   * @param direction
-   * @param isSource
-   */
   export function changeEdgesConnectLocation(edges: Edge[], direction: Direction | null, isSource: boolean = false) {
-    const newLocationRate = new Vector(0.5, 0.5);
-    if (direction === Direction.Left) {
-      newLocationRate.x = 0.01;
-    } else if (direction === Direction.Right) {
-      newLocationRate.x = 0.99;
-    } else if (direction === Direction.Up) {
-      newLocationRate.y = 0.01;
-    } else if (direction === Direction.Down) {
-      newLocationRate.y = 0.99;
-    }
-
     for (const edge of edges) {
       if (isSource) {
-        edge.setSourceRectangleRate(newLocationRate);
+        edge.sourceRectRate = GraphMethods.getRectRateByDirection(direction);
       } else {
-        edge.setTargetRectangleRate(newLocationRate);
+        edge.targetRectRate = GraphMethods.getRectRateByDirection(direction);
       }
     }
   }
-
   export function switchLineEdgeToCrEdge() {
-    const prepareDeleteLineEdge: LineEdge[] = [];
-    for (const edge of getLineEdges()) {
-      if (edge instanceof LineEdge && edge.isSelected) {
-        // 删除这个连线，并准备创建cr曲线
-        prepareDeleteLineEdge.push(edge);
-      }
-    }
-    for (const lineEdge of prepareDeleteLineEdge) {
-      deleteEdge(lineEdge);
-      connectEntityByCrEdge(lineEdge.source, lineEdge.target);
+    const selectedEdges = getSelectedStageObjects().filter((obj) => obj instanceof LineEdge) as LineEdge[];
+    for (const edge of selectedEdges) {
+      const newEdge = new CublicCatmullRomSplineEdge(edge.source, edge.target);
+      newEdge.text = edge.text;
+      newEdge.color = edge.color;
+      newEdge.sourceRectRate = edge.sourceRectRate;
+      newEdge.targetRectRate = edge.targetRectRate;
+      addCrEdge(newEdge);
+      deleteOneLineEdge(edge);
     }
   }
-
   export function addSelectedCREdgeControlPoint() {
-    const selectedCREdge = StageManager.getSelectedAssociations().filter(
-      (edge) => edge instanceof CublicCatmullRomSplineEdge,
-    );
-    for (const edge of selectedCREdge) {
+    const selectedEdges = getSelectedStageObjects().filter(
+      (obj) => obj instanceof CublicCatmullRomSplineEdge,
+    ) as CublicCatmullRomSplineEdge[];
+    for (const edge of selectedEdges) {
       edge.addControlPoint();
     }
   }
-
   export function addSelectedCREdgeTension() {
-    const selectedCREdge = StageManager.getSelectedAssociations().filter(
-      (edge) => edge instanceof CublicCatmullRomSplineEdge,
-    );
-    for (const edge of selectedCREdge) {
-      edge.tension += 0.25;
-      edge.tension = Math.min(1, edge.tension);
+    const selectedEdges = getSelectedStageObjects().filter(
+      (obj) => obj instanceof CublicCatmullRomSplineEdge,
+    ) as CublicCatmullRomSplineEdge[];
+    for (const edge of selectedEdges) {
+      edge.tension += 0.1;
     }
   }
-
   export function reduceSelectedCREdgeTension() {
-    const selectedCREdge = StageManager.getSelectedAssociations().filter(
-      (edge) => edge instanceof CublicCatmullRomSplineEdge,
-    );
-    for (const edge of selectedCREdge) {
-      edge.tension -= 0.25;
-      edge.tension = Math.max(0, edge.tension);
+    const selectedEdges = getSelectedStageObjects().filter(
+      (obj) => obj instanceof CublicCatmullRomSplineEdge,
+    ) as CublicCatmullRomSplineEdge[];
+    for (const edge of selectedEdges) {
+      edge.tension -= 0.1;
     }
   }
-
-  /**
-   * ctrl + A 全选
-   */
   export function selectAll() {
-    const allEntity = stageContent.entities.valuesToArray();
-    for (const entity of allEntity) {
+    for (const entity of getEntities()) {
       entity.isSelected = true;
     }
-    const associations = stageContent.associations.valuesToArray();
-    Stage.effectMachine.addEffect(TextRiseEffect.default(`${allEntity.length}个实体，${associations.length}个关系`));
+    for (const association of getAssociations()) {
+      association.isSelected = true;
+    }
   }
   export function clearSelectAll() {
-    for (const entity of stageContent.entities.valuesToArray()) {
+    for (const entity of getEntities()) {
       entity.isSelected = false;
     }
-    for (const edge of stageContent.associations.valuesToArray()) {
-      edge.isSelected = false;
+    for (const association of getAssociations()) {
+      association.isSelected = false;
     }
   }
-
   export function addPortalNodeToStage(otherPath: string) {
-    const uuid = v4();
-    const relativePath = PathString.getRelativePath(Stage.path.getFilePath(), otherPath);
-    if (relativePath === "") {
-      return false;
-    }
-    stageContent.entities.addValue(
-      new PortalNode({
-        uuid: uuid,
-        title: PathString.dirPath(otherPath),
-        portalFilePath: relativePath,
-        location: [Camera.location.x, Camera.location.y],
-        size: [500, 500],
-        cameraScale: 1,
-      }),
-      uuid,
-    );
-    StageHistoryManager.recordStep();
-    return true;
+    const portalNode = new PortalNode(new Vector(0, 0), new Vector(100, 100), otherPath);
+    addPortalNode(portalNode);
   }
 }

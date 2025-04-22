@@ -124,6 +124,7 @@ export namespace Settings {
     aiApiKey: string;
     aiModelName: string; // Added model name setting
     aiCustomPrompt: string; // Added custom prompt setting
+    customCss: string; // Added custom CSS setting
   };
   export const defaultSettings: Settings = {
     language: "zh_CN",
@@ -233,6 +234,7 @@ export namespace Settings {
     aiApiKey: "",
     aiModelName: "default-model", // Added default model name
     aiCustomPrompt: "", // Added default custom prompt
+    customCss: "", // Added default custom CSS
   };
 
   export async function init() {

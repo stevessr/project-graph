@@ -21,7 +21,7 @@ export function SettingField({
   kind = "file",
 }: {
   settingKey: keyof Settings.Settings;
-  type?: "text" | "number" | "slider" | "switch" | "select" | "file" | "textarea";
+  type?: "text" | "number" | "slider" | "switch" | "select" | "file" | "textarea" | "password";
   min?: number;
   max?: number;
   step?: number;
@@ -85,6 +85,7 @@ export function SettingField({
           className="bg-field-group-bg text-settings-text h-24 w-48 rounded border p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-700"
         />
       )}
+      {type === "password" && <Input value={value} onChange={setValue} placeholder={placeholder} type="password" />}
     </Field>
   );
 }
