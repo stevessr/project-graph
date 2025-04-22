@@ -104,13 +104,33 @@ export namespace Serialized {
   // };
   export type Association = StageObject & {
     text: string;
+    color: Color;
   };
+  /**
+   * 无向边的箭头类型
+   * inner：--> xxx <--
+   * outer：<-- xxx -->
+   * none： --- xxx ---
+   */
+  export type UndirectedEdgeArrowType = "inner" | "outer" | "none";
+  /**
+   * 无向边的渲染方式
+   * line：内部连线式渲染
+   * convex：凸包连线式渲染
+   */
+  export type MultiTargetUndirectedEdgeRenderType = "line" | "convex";
   export type MultiTargetUndirectedEdge = Association & {
     type: "core:multi_target_undirected_edge";
     targets: string[];
-    color: Color;
+    arrow: UndirectedEdgeArrowType;
     rectRates: [number, number][]; // 默认中心 0.5, 0.5
+    centerRate: [number, number]; // 默认中心 0.5, 0.5
+    padding: number;
+    renderType: MultiTargetUndirectedEdgeRenderType;
   };
+  export function isMultiTargetUndirectedEdge(obj: StageObject): obj is MultiTargetUndirectedEdge {
+    return obj.type === "core:multi_target_undirected_edge";
+  }
   export type Edge = Association & {
     source: string;
     target: string;

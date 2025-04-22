@@ -25,7 +25,7 @@ import { TextRiseEffect } from "../../feedbackService/effectEngine/concrete/Text
 import { ViewFlashEffect } from "../../feedbackService/effectEngine/concrete/ViewFlashEffect";
 import { AutoLayoutFastTree } from "../autoLayoutEngine/autoLayoutFastTreeMode";
 import { MultiTargetUndirectedEdge } from "../../../stage/stageObject/association/MutiTargetUndirectedEdge";
-import { Dialog } from "../../../../components/dialog";
+import { Random } from "../../../algorithm/random";
 
 interface SecretKeyItem {
   name: string;
@@ -47,12 +47,12 @@ export class SecretKeysEngine {
     // 使用keyup，更省性能。防止按下某个键不动时，一直触发效果
     window.addEventListener("keyup", (event) => {
       this.pressedKeys.enqueue(event.key.toLowerCase());
-      const isTriggered = this.detectAndCall();
+      const { isTriggered, secretName, key } = this.detectAndCall();
       // console.log(this.pressedKeys.arrayList);
       if (isTriggered) {
         // 清空队列
         this.pressedKeys.clear();
-        Stage.effectMachine.addEffect(TextRiseEffect.default("触发了测试按键"));
+        Stage.effectMachine.addEffect(TextRiseEffect.default(`触发了秘籍键: 【${key}】\n${secretName}`));
       }
       // 将队列长度限制
       while (this.pressedKeys.length > SecretKeysEngine.maxPressedKeys) {
@@ -433,6 +433,9 @@ export class SecretKeysEngine {
       explain: "仅对文本节点生效，根据标点符号，空格、换行符等进行分割，将其分割成小块",
       func() {
         const selectedTextNodes = StageManager.getSelectedEntities().filter((node) => node instanceof TextNode);
+        selectedTextNodes.forEach((node) => {
+          node.isSelected = false;
+        });
         for (const node of selectedTextNodes) {
           const text = node.text;
           const seps = [" ", "\n", "\t", ".", ",", "，", "。", "、", "；", "：", "？", "！"];
@@ -445,8 +448,9 @@ export class SecretKeysEngine {
           const splitedTextList = text.split(regex).filter((item) => item !== "");
           // 将分割后的字符串添加到舞台
           const putLocation = node.collisionBox.getRectangle().location.clone();
+
+          const newNodes = [];
           for (const splitedText of splitedTextList) {
-            putLocation.y += 100;
             const newTextNode = new TextNode({
               uuid: v4(),
               text: splitedText,
@@ -455,8 +459,18 @@ export class SecretKeysEngine {
               color: node.color.clone().toArray(),
               // sizeAdjust: node.sizeAdjust,
             });
+            newNodes.push(newTextNode);
             StageManager.addTextNode(newTextNode);
+            putLocation.y += 100;
           }
+          // 向下紧密堆积一下
+          newNodes.forEach((newNode) => {
+            newNode.isSelected = true;
+          });
+          LayoutManualAlignManager.alignTopToBottomNoSpace();
+          newNodes.forEach((newNode) => {
+            newNode.isSelected = false;
+          });
         }
         // 删除原来的文本节点
         StageManager.deleteEntities(selectedTextNodes);
@@ -485,14 +499,14 @@ export class SecretKeysEngine {
         }
         mergeText = mergeText.trim();
 
-        const center = Rectangle.getBoundingRectangle(
+        const leftTop = Rectangle.getBoundingRectangle(
           selectedTextNodes.map((node) => node.collisionBox.getRectangle()),
-        ).center;
+        ).leftTop;
         const avgColor = averageColors(selectedTextNodes.map((node) => node.color));
         const newTextNode = new TextNode({
           uuid: v4(),
           text: mergeText,
-          location: [center.x, center.y],
+          location: [leftTop.x, leftTop.y],
           size: [400, 1],
           color: avgColor.toArray(),
           sizeAdjust: "manual",
@@ -606,28 +620,6 @@ export class SecretKeysEngine {
         }
       },
     },
-    "c r t + +": {
-      name: "将选中的CR曲线增加tension值",
-      func() {
-        const selectedCREdge = StageManager.getSelectedAssociations().filter(
-          (edge) => edge instanceof CublicCatmullRomSplineEdge,
-        );
-        for (const edge of selectedCREdge) {
-          edge.tension += 0.1;
-        }
-      },
-    },
-    "c r t - -": {
-      name: "将选中的CR曲线减少tension值",
-      func() {
-        const selectedCREdge = StageManager.getSelectedAssociations().filter(
-          (edge) => edge instanceof CublicCatmullRomSplineEdge,
-        );
-        for (const edge of selectedCREdge) {
-          edge.tension -= 0.1;
-        }
-      },
-    },
     "z e r o": {
       name: "将选中的实体移动到0,0位置",
       func() {
@@ -651,7 +643,7 @@ export class SecretKeysEngine {
         });
       },
     },
-    "m t u e": {
+    "= = =": {
       name: "将选中的可连接实体添加多源无向边",
       explain: "测试中",
       func() {
@@ -661,29 +653,99 @@ export class SecretKeysEngine {
         }
         // 开始添加多源无向边
         const multiTargetUndirectedEdge = MultiTargetUndirectedEdge.createFromSomeEntity(selectedNodes);
-        Dialog.show({
-          input: true,
-          title: "输入名称",
-          content: "您正在创建一个多源无向边，请输入多源无向边的名称",
-        }).then(({ button, value }) => {
-          if (button === "确定" && value) {
-            multiTargetUndirectedEdge.rename(value);
-          }
-        });
         StageManager.addAssociation(multiTargetUndirectedEdge);
+      },
+    },
+    "e e e e e": {
+      name: "详略交换",
+      explain:
+        "将所有选中的文本节点的详细信息和实际内容进行交换，连按5次e，主要用于直接粘贴进来的文本内容想写入详细信息\n\n注：将详细信息换入节点内容后滑动滚轮可能有概率丢失文字\n",
+      func() {
+        const selectedTextNodes = StageManager.getSelectedEntities().filter((node) => node instanceof TextNode);
+        for (const node of selectedTextNodes) {
+          const details = node.details;
+          const text = node.text;
+          node.details = text;
+          node.text = details;
+          // 刷新一下
+          node.forceAdjustSizeByText();
+        }
+        StageHistoryManager.recordStep();
+      },
+    },
+    "e m o j i * *": {
+      name: "生成超大量表情节点",
+      explain:
+        "高性能消耗！将摄像机移动到空旷地方，确保周围边长为4000px的正方形区域内都没有内容再按次指令，即可生成大量表情节点",
+      func() {
+        // 定义 Emoji 的 Unicode 范围（基于 Unicode 13.0）
+        const emojiRanges = [
+          [0x1f600, 0x1f64f], // Emoticons
+          [0x1f300, 0x1f5ff], // Symbols & Pictographs
+          [0x1f680, 0x1f6ff], // Transport & Map
+          [0x1f1e6, 0x1f1ff], // Flags
+          [0x2600, 0x26ff], // Miscellaneous Symbols
+          [0x2700, 0x27bf], // Dingbats
+          [0xfe00, 0xfe0f], // Variation Selectors
+          [0x1f900, 0x1f9ff], // Supplemental Symbols
+          [0x1fa70, 0x1faff], // Chess & Games
+        ];
+
+        // 生成 Emoji 的函数
+        function generateEmojis(): string[] {
+          const emojis: string[] = [];
+
+          for (const [start, end] of emojiRanges) {
+            for (let codePoint = start; codePoint <= end; codePoint++) {
+              try {
+                // 使用 fromCodePoint 处理 32 位编码
+                const emoji = String.fromCodePoint(codePoint);
+                emojis.push(emoji);
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              } catch (e) {
+                // 忽略无效码点（如代理对间隙）
+              }
+            }
+          }
+
+          return emojis;
+        }
+        const currentLocation = Camera.location.clone();
+        for (const emoji of generateEmojis()) {
+          const textNode = new TextNode({
+            uuid: v4(),
+            text: emoji,
+            location: currentLocation
+              .add(Random.randomVectorOnNormalCircle().multiply(Random.randomInt(50, 2000)))
+              .toArray(),
+            size: [100, 100],
+            color: [0, 0, 0, 0],
+            sizeAdjust: "auto",
+          });
+          StageManager.addTextNode(textNode);
+        }
+      },
+    },
+    "contextmenu e r r o r": {
+      name: "手动测试",
+      explain: "触发手动报错，用于观察红色的弹窗是否正常显示、内部报错文字是否可以复制等操作",
+      func() {
+        setTimeout(() => {
+          throw new Error("您用秘籍键触发了手动报错，用于观察红色的弹窗是否正常显示、内部报错文字是否可以复制等操作");
+        }, 1000);
       },
     },
   };
 
   // 监听按键 并触发相应效果，每次按键都会触发
-  detectAndCall(): boolean {
+  private detectAndCall(): { isTriggered: boolean; secretName: string; key: string } {
     const keys = this.pressedKeys.arrayList.join(" ");
     for (const key in this.keyPressedTable) {
       if (keys.includes(key)) {
         this.keyPressedTable[key].func();
-        return true;
+        return { isTriggered: true, secretName: this.keyPressedTable[key].name, key };
       }
     }
-    return false;
+    return { isTriggered: false, secretName: "", key: "" };
   }
 }

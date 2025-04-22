@@ -9,6 +9,8 @@ import {
   FolderSymlink,
   GitBranchPlus,
   LayoutDashboard,
+  Maximize2,
+  Minimize2,
   MousePointer,
   Package,
   PaintBucket,
@@ -16,8 +18,10 @@ import {
   Pencil,
   RefreshCcw,
   Repeat,
+  Repeat2,
   SaveAll,
   Shrink,
+  Slash,
   Spline,
   Square,
   Tag,
@@ -53,6 +57,7 @@ import ColorAutoPanel from "./_popup_panel/_color_auto_panel";
 import ColorPanel from "./_popup_panel/_color_panel";
 import GenerateNodePanel from "./_popup_panel/_generate_node_panel";
 import EdgeExtremePointPanel from "./_popup_panel/_edge_extreme_point_panel";
+import { MultiTargetUndirectedEdge } from "../core/stage/stageObject/association/MutiTargetUndirectedEdge";
 
 interface ToolbarItemProps {
   icon: React.ReactNode; // 定义 icon 的类型
@@ -191,6 +196,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
   const [isHaveSelectedTextNode, setIsHaveSelectedTextNode] = useState(false);
   const [isHaveSelectedSection, setIsHaveSelectedSection] = useState(false);
   const [isHaveSelectedEdge, setIsHaveSelectedEdge] = useState(false);
+  const [isHaveSelectedMultiTargetEdge, setIsHaveSelectedMultiTargetEdge] = useState(false);
   const [isHaveSelectedCREdge, setIsHaveSelectedCREdge] = useState(false);
 
   const [isDrawing, setIsDrawing] = useState(false);
@@ -201,12 +207,11 @@ export default function Toolbar({ className = "" }: { className?: string }) {
     setIsHaveSelectedEntity(StageObjectSelectCounter.selectedEntityCount > 0);
     setIsHaveSelectedEdge(StageObjectSelectCounter.selectedEdgeCount > 0);
     setIsHaveSelectedCREdge(StageObjectSelectCounter.selectedCREdgeCount > 0);
-    setIsHaveSelectedStageObject(
-      StageObjectSelectCounter.selectedEdgeCount + StageObjectSelectCounter.selectedEntityCount > 0,
-    );
+    setIsHaveSelectedStageObject(StageObjectSelectCounter.selectedStageObjectCount > 0);
     setIsHaveSelectedImageNode(StageObjectSelectCounter.selectedImageNodeCount > 0);
     setIsHaveSelectedTextNode(StageObjectSelectCounter.selectedTextNodeCount > 0);
     setIsHaveSelectedSection(StageObjectSelectCounter.selectedSectionCount > 0);
+    setIsHaveSelectedMultiTargetEdge(StageObjectSelectCounter.selectedMultiTargetUndirectedEdgeCount > 0);
     setIsCopyClearShow(!CopyEngine.isVirtualClipboardEmpty());
   };
 
@@ -313,9 +318,71 @@ export default function Toolbar({ className = "" }: { className?: string }) {
         </ToolbarGroup>
       )}
 
+      {/* 多源无向边 */}
+      {isHaveSelectedMultiTargetEdge && (
+        <ToolbarGroup groupTitle="多源无向边">
+          <ToolbarItem
+            description="箭头外向"
+            icon={<Maximize2 />}
+            handleFunction={() => {
+              const selectedMTUEdge = StageManager.getSelectedAssociations().filter(
+                (edge) => edge instanceof MultiTargetUndirectedEdge,
+              );
+              for (const multi_target_undirected_edge of selectedMTUEdge) {
+                multi_target_undirected_edge.arrow = "outer";
+              }
+              StageHistoryManager.recordStep();
+            }}
+          />
+          <ToolbarItem
+            description="无箭内向"
+            icon={<Minimize2 />}
+            handleFunction={() => {
+              const selectedMTUEdge = StageManager.getSelectedAssociations().filter(
+                (edge) => edge instanceof MultiTargetUndirectedEdge,
+              );
+              for (const multi_target_undirected_edge of selectedMTUEdge) {
+                multi_target_undirected_edge.arrow = "inner";
+              }
+              StageHistoryManager.recordStep();
+            }}
+          />
+          <ToolbarItem
+            description="无箭头"
+            icon={<Slash />}
+            handleFunction={() => {
+              const selectedMTUEdge = StageManager.getSelectedAssociations().filter(
+                (edge) => edge instanceof MultiTargetUndirectedEdge,
+              );
+              for (const multi_target_undirected_edge of selectedMTUEdge) {
+                multi_target_undirected_edge.arrow = "none";
+              }
+              StageHistoryManager.recordStep();
+            }}
+          />
+          <ToolbarItem
+            description="转换渲染形态"
+            icon={<Repeat2 />}
+            handleFunction={() => {
+              const selectedMTUEdge = StageManager.getSelectedAssociations().filter(
+                (edge) => edge instanceof MultiTargetUndirectedEdge,
+              );
+              for (const multi_target_undirected_edge of selectedMTUEdge) {
+                if (multi_target_undirected_edge.renderType === "line") {
+                  multi_target_undirected_edge.renderType = "convex";
+                } else if (multi_target_undirected_edge.renderType === "convex") {
+                  multi_target_undirected_edge.renderType = "line";
+                }
+              }
+              StageHistoryManager.recordStep();
+            }}
+          />
+        </ToolbarGroup>
+      )}
+
       {/* 连线对象 */}
       {isHaveSelectedEdge && (
-        <ToolbarGroup groupTitle="关系">
+        <ToolbarGroup groupTitle="有向边">
           <ToolbarItem
             description="反转选中连线方向"
             icon={<Repeat />}
@@ -394,6 +461,14 @@ export default function Toolbar({ className = "" }: { className?: string }) {
               StageManager.packEntityToSectionBySelected();
             }}
           />
+          <ToolbarItem
+            description="将实体详细信息第一行视为本地绝对路径，并打开文件/文件夹"
+            icon={<FolderSymlink />}
+            handleFunction={async () => {
+              // 打开文件或网页
+              openBrowserOrFile();
+            }}
+          />
         </ToolbarGroup>
       )}
 
@@ -434,14 +509,6 @@ export default function Toolbar({ className = "" }: { className?: string }) {
                   node.forceAdjustSizeByText();
                 }
               }
-            }}
-          />
-          <ToolbarItem
-            description="将内容视为本地绝对路径，并打开文件/文件夹"
-            icon={<FolderSymlink />}
-            handleFunction={async () => {
-              // 打开文件或网页
-              openBrowserOrFile();
             }}
           />
           <ToolbarItem

@@ -57,6 +57,7 @@ export namespace StageDumper {
       controlPoints: edge.getControlPoints().map((point) => [point.x, point.y]),
       alpha: edge.alpha,
       tension: edge.tension,
+      color: edge.color && edge.color.toArray(),
       sourceRectRate: [edge.sourceRectangleRate.x, edge.sourceRectangleRate.y],
       targetRectRate: [edge.targetRectangleRate.x, edge.targetRectangleRate.y],
     };
@@ -69,6 +70,10 @@ export namespace StageDumper {
       rectRates: edge.rectRates.map((v) => v.toArray()),
       uuid: edge.uuid,
       text: edge.text,
+      arrow: edge.arrow,
+      centerRate: edge.centerRate.toArray(),
+      padding: edge.padding,
+      renderType: edge.renderType,
     };
   }
   export function dumpConnectPoint(connectPoint: ConnectPoint): Serialized.ConnectPoint {

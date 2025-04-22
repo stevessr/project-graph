@@ -11,9 +11,13 @@ import { ConnectableEntity } from "../abstract/ConnectableEntity";
 import { CollisionBox } from "../collisionBox/collisionBox";
 import { getMultiLineTextSize } from "../../../../utils/font";
 import { Renderer } from "../../../render/canvas2d/renderer";
+import { HyperGraphMethods } from "../../stageManager/basicMethods/HyperGraphMethods";
 
 /**
  * 多端无向边
+ *
+ * 超边。
+ * 以后可以求最大强独立集
  */
 export class MultiTargetUndirectedEdge extends ConnectableAssociation {
   public uuid: string;
@@ -21,8 +25,7 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
   get collisionBox(): CollisionBox {
     // 计算多个节点的外接矩形的中心点
     const nodes = StageManager.getEntitiesByUUIDs(this.targetUUIDs);
-    const boundingRectangle = Rectangle.getBoundingRectangle(nodes.map((n) => n.collisionBox.getRectangle()));
-    const center = boundingRectangle.center;
+    const center = this.centerLocation;
 
     const shapeList: Shape[] = [];
     for (const node of nodes) {
@@ -36,12 +39,26 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
   public color: Color;
   public targetUUIDs: string[];
   public rectRates: Vector[];
+  public centerRate: Vector;
+  public arrow: Serialized.UndirectedEdgeArrowType = "none";
+  public renderType: Serialized.MultiTargetUndirectedEdgeRenderType = "line";
+  public padding: number;
 
   public rename(text: string) {
     this.text = text;
   }
   constructor(
-    { targets, text, uuid, color, rectRates }: Serialized.MultiTargetUndirectedEdge,
+    {
+      targets,
+      text,
+      uuid,
+      color,
+      rectRates,
+      arrow,
+      centerRate,
+      padding,
+      renderType,
+    }: Serialized.MultiTargetUndirectedEdge,
     /** true表示解析状态，false表示解析完毕 */
     public unknown = false,
   ) {
@@ -52,16 +69,29 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
     this.color = new Color(...color);
     this.targetUUIDs = targets;
     this.rectRates = rectRates.map((v) => new Vector(v[0], v[1]));
+    this.centerRate = new Vector(centerRate[0], centerRate[1]);
+    this.arrow = arrow;
+    this.renderType = renderType;
+    this.padding = padding;
   }
 
   /**
    * 获取中心点
    */
   public get centerLocation(): Vector {
+    if (this.targetUUIDs.length === 2) {
+      // 和lineEdge保持一样的逻辑
+      const twoNode = StageManager.getEntitiesByUUIDs(this.targetUUIDs);
+      const line = new Line(
+        twoNode[0].collisionBox.getRectangle().center,
+        twoNode[1].collisionBox.getRectangle().center,
+      );
+      return line.midPoint();
+    }
     const boundingRectangle = Rectangle.getBoundingRectangle(
       StageManager.getEntitiesByUUIDs(this.targetUUIDs).map((n) => n.collisionBox.getRectangle()),
     );
-    return boundingRectangle.center;
+    return boundingRectangle.getInnerLocationByRateVector(this.centerRate);
   }
 
   get textRectangle(): Rectangle {
@@ -71,6 +101,16 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
   }
 
   static createFromSomeEntity(entities: ConnectableEntity[]) {
+    // 自动计算padding
+    let padding = 10;
+    for (const entity of entities) {
+      const hyperEdges = HyperGraphMethods.getHyperEdgesByNode(entity);
+      if (hyperEdges.length > 0) {
+        const maxPadding = Math.max(...hyperEdges.map((e) => e.padding));
+        padding = Math.max(maxPadding + 10, padding);
+      }
+    }
+
     const targetUUIDs = entities.map((e) => e.uuid);
     return new MultiTargetUndirectedEdge({
       type: "core:multi_target_undirected_edge",
@@ -79,7 +119,11 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
       rectRates: entities.map((_) => [0.5, 0.5]),
       text: "",
       uuid: v4(),
+      arrow: "none",
+      centerRate: [0.5, 0.5],
       color: [0, 0, 0, 0],
+      padding,
+      renderType: "line",
     });
   }
 
