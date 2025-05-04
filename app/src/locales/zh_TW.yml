@@ -509,7 +509,7 @@ settings:
       none: 不渲染（節省性能）
       top: 頂部小字
       cover: 半透明覆蓋框體（最佳效果）
- autoBackupLimitCount:
+  autoBackupLimitCount:
     title: 自動備份最大數量
     description: "自動備份的最大數量，超過此數量將會刪除舊的備份文件\n"
 ai:
