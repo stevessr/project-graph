@@ -85,7 +85,7 @@ export default function PluginsPage() {
           {t("documentation")}
         </Button>
       </Field>
-<Field icon={<Terminal />} title={t("tabs.console")}>
+      <Field icon={<Terminal />} title={t("tabs.console")}>
         <Button
           onClick={() => {
             WebviewWindow.getByLabel("main")?.openDevtools();
