@@ -48,6 +48,12 @@ export default defineConfig(async () => ({
   },
   // endregion
 
+  build: {
+    rollupOptions: {
+      external: ["@tauri-apps/api"],
+    },
+  },
+
   // 2024年10月3日发现 pnpm build 会报错，
   // Top-level await is not available in the configured target environment
   // 添加下面的配置解决了

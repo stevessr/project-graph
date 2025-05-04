@@ -116,6 +116,63 @@ fn create_folder(path: String) -> bool {
     std::fs::create_dir_all(&path).is_ok()
 }
 
+use serde::{Deserialize, Serialize};
+use tauri_plugin_store::StoreBuilder;
+use tauri::State;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AiSettings {
+    pub api_endpoint: Option<String>,
+    pub api_key: Option<String>,
+    pub selected_model: Option<String>,
+    pub custom_prompts: Option<String>,
+}
+
+impl Default for AiSettings {
+    fn default() -> Self {
+        AiSettings {
+            api_endpoint: None,
+            api_key: None,
+            selected_model: None,
+            custom_prompts: None,
+        }
+    }
+}
+
+#[tauri::command]
+async fn save_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>, settings: AiSettings) -> Result<(), String> {
+    let mut store = StoreBuilder::new(".ai_settings.dat").build(app.clone());
+    store.load().map_err(|e| e.to_string())?;
+    store.insert("settings".to_string(), serde_json::to_value(settings).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    store.save().map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn load_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Result<AiSettings, String> {
+    let mut store = StoreBuilder::new(".ai_settings.dat").build(app.clone());
+    store.load().map_err(|e| e.to_string())?;
+    match store.get("settings") {
+        Some(value) => serde_json::from_value(value.clone()).map_err(|e| e.to_string()),
+        None => Ok(AiSettings::default()),
+    }
+}
+
+#[tauri::command]
+async fn fetch_ai_models<R: tauri::Runtime>(app: tauri::AppHandle<R>, url: String, api_key: Option<String>) -> Result<serde_json::Value, String> {
+    let client = app.get_plugin::<tauri_plugin_http::Http<R>>().map_err(|e| e.to_string())?.client();
+    let mut request = client.get(&url);
+
+    if let Some(key) = api_key {
+        request = request.header("Authorization", &format!("Bearer {}", key)).map_err(|e| e.to_string())?;
+    }
+
+    let response = request.send().await.map_err(|e| e.to_string())?;
+    let json_response = response.json().await.map_err(|e| e.to_string())?;
+
+    Ok(json_response)
+}
+
 #[tauri::command]
 fn write_stdout(content: String) {
     println!("{}", content);
@@ -195,6 +252,9 @@ pub fn run() {
             write_stdout,
             write_stderr,
             exit,
+            save_ai_settings,
+            load_ai_settings,
+            fetch_ai_models,
             #[cfg(desktop)]
             set_update_channel
         ])
