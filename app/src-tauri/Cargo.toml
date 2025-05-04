@@ -34,6 +34,6 @@ tauri-plugin-updater = "2"
 
 [features]
 # If you're using custom protocol, keep this:
-# custom-protocol = ["tauri/custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
 default = ["custom-protocol", "rustls-tls"] # Add rustls-tls feature flag here too
 rustls-tls = ["reqwest/rustls-tls"]
