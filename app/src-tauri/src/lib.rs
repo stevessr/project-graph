@@ -4,7 +4,6 @@ use std::io::Read;
 use base64::engine::general_purpose;
 use base64::Engine;
 
-use tauri::Manager;
 use tauri::Runtime;
 use tauri::Url;
 #[cfg(desktop)]
@@ -118,7 +117,6 @@ fn create_folder(path: String) -> bool {
 
 use serde::{Deserialize, Serialize};
 use tauri_plugin_store::StoreBuilder;
-use tauri::State;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AiSettings {
@@ -141,17 +139,35 @@ impl Default for AiSettings {
 
 #[tauri::command]
 async fn save_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>, settings: AiSettings) -> Result<(), String> {
-    let mut store = StoreBuilder::new(".ai_settings.dat").build(app.clone());
-    store.load().map_err(|e| e.to_string())?;
-    store.insert("settings".to_string(), serde_json::to_value(settings).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
-    store.save().map_err(|e| e.to_string())?;
+    // Build the store and handle potential build errors
+    let mut store = StoreBuilder::new(&app, ".ai_settings.dat")
+        .build()
+        .map_err(|e| format!("Failed to build store: {}", e))?; // More descriptive error
+
+    // Reload the store from disk and handle potential reload errors
+    store.reload()
+         .map_err(|e| format!("Failed to reload store: {}", e))?;
+
+    // 1. Serialize settings and handle potential serde error
+    let settings_value = serde_json::to_value(settings)
+        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
+
+    // 2. Set the value in the store and handle potential store error
+    store.set("settings".to_string(), settings_value)
+         .map_err(|e| format!("Failed to set value in store: {}", e))?; // Assuming store.set returns Result<(), Error>
+
+    // 3. Save the store to disk and handle potential save errors
+    store.save()
+         .map_err(|e| format!("Failed to save store: {}", e))?;
+
     Ok(())
 }
 
 #[tauri::command]
 async fn load_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Result<AiSettings, String> {
-    let mut store = StoreBuilder::new(".ai_settings.dat").build(app.clone());
-    store.load().map_err(|e| e.to_string())?;
+    #[allow(unused_mut)]
+    let mut store = StoreBuilder::new(&app, ".ai_settings.dat").build().map_err(|e| e.to_string())?;
+    store.reload().map_err(|e| e.to_string())?;
     match store.get("settings") {
         Some(value) => serde_json::from_value(value.clone()).map_err(|e| e.to_string()),
         None => Ok(AiSettings::default()),
@@ -159,16 +175,53 @@ async fn load_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Result
 }
 
 #[tauri::command]
-async fn fetch_ai_models<R: tauri::Runtime>(app: tauri::AppHandle<R>, url: String, api_key: Option<String>) -> Result<serde_json::Value, String> {
-    let client = app.get_plugin::<tauri_plugin_http::Http<R>>().map_err(|e| e.to_string())?.client();
-    let mut request = client.get(&url);
+async fn fetch_ai_models<R: tauri::Runtime>(
+    _app: tauri::AppHandle<R>, // Keep if needed for other things, otherwise remove or ignore
+    url: String,
+    api_key: Option<String>
+) -> Result<serde_json::Value, String> {
 
+    // Create a reqwest client
+    // You might want to create and manage a single client instance using Tauri's state management
+    // for better performance (connection pooling), but creating one per request is simpler to start.
+    let client = reqwest::Client::new();
+
+    // Start building the request
+    let mut request_builder = client.get(&url);
+
+    // Conditionally add the Authorization header
     if let Some(key) = api_key {
-        request = request.header("Authorization", &format!("Bearer {}", key)).map_err(|e| e.to_string())?;
+        let bearer_token = format!("Bearer {}", key);
+        // Attempt to create a HeaderValue. This validates the format.
+        match HeaderValue::from_str(&bearer_token) {
+            Ok(header_value) => {
+                request_builder = request_builder.header(AUTHORIZATION, header_value);
+            }
+            Err(e) => {
+                // Handle error if the constructed header value is invalid
+                return Err(format!("Invalid API key format for Authorization header: {}", e));
+            }
+        }
     }
 
-    let response = request.send().await.map_err(|e| e.to_string())?;
-    let json_response = response.json().await.map_err(|e| e.to_string())?;
+    // Send the request and await the response
+    let response = request_builder
+        .send()
+        .await
+        .map_err(|e| format!("Failed to send request to '{}': {}", url, e))?;
+
+    // Check if the request was successful (status code 2xx)
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());
+         return Err(format!("Request failed with status: {} - {}", status, error_body));
+    }
+
+    // Parse the response body as JSON
+    let json_response = response
+        .json::<serde_json::Value>() // Specify the type to deserialize into
+        .await
+        .map_err(|e| format!("Failed to parse JSON response: {}", e))?;
 
     Ok(json_response)
 }
