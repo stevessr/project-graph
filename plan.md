@@ -1,55 +1,102 @@
-# Tauri 构建错误修复计划
+# 修改 ai.tsx 样式计划
 
-## 问题描述
+**目标**: 修改 `app/src/pages/settings/ai.tsx` 文件，将原生的 `<input>`, `<select>`, 和 `<textarea>` 元素替换为项目内定义的 `<Input>` 和 `<Select>` 组件，以统一 UI 风格。
 
-根据提供的构建错误日志，项目在构建过程中遇到了多个错误，主要集中在 `app/src-tauri/src/lib.rs` 文件中对 `tauri-plugin-http` 和 `tauri-plugin-store` 插件的使用。
+**参考组件**:
+*   输入框 (`<input>`, `<textarea>`): `app/src/components/Input.tsx`
+*   选择框 (`<select>`): `app/src/components/Select.tsx`
 
-主要错误包括：
+**具体步骤**:
 
-- `tauri-plugin-store` 的 `StoreBuilder::new` 参数错误和 `build()` 返回的 `Result` 未正确处理，导致无法调用 `load`, `insert`, `save` 等方法。
-- `tauri-plugin-http` 的 `Http` struct 是私有的，无法直接通过 `get_plugin` 获取，需要使用相应的扩展 trait。
-- 存在未使用的导入 `tauri::State` 和 `tauri::Manager`。
+1.  **导入组件**: 在 `app/src/pages/settings/ai.tsx` 文件顶部添加导入语句：
+    ```typescript
+    import Input from "../../components/Input";
+    import Select from "../../components/Select";
+    ```
 
-## 详细计划
+2.  **替换 Input 元素**:
+    *   将第 188 行的 `<input type="text" ...>` 替换为 `<Input name="api_endpoint" ... />`。
+    *   将第 199 行的 `<input type="password" ...>` 替换为 `<Input type="password" name="api_key" ... />`。
+    *   传递 `value`, `onChange`, `placeholder` 等必要的 props。移除旧的 `className`。
 
-1.  **修改 `app/src-tauri/src/lib.rs` 文件。**
-2.  **移除未使用的导入:** 删除第 121 行的 `use tauri::State;`。
-3.  **导入 HTTP 扩展 trait:** 在文件顶部（例如在其他 `use` 语句之后）添加 `use tauri_plugin_http::HttpExt;`。
-4.  **修正 `save_ai_settings` 函数中的 `tauri-plugin-store` 用法:**
-    - 将第 144 行 `let mut store = StoreBuilder::new(".ai_settings.dat").build(app.clone());` 修改为正确构建 Store 并处理 Result 的代码。例如：
-      ```rust
-      let mut store = StoreBuilder::new(app.clone(), ".ai_settings.dat").build().map_err(|e| e.to_string())?;
-      ```
-    - 调整后续的 `store.load()`、`store.insert()` 和 `store.save()` 调用，确保它们是在获取到 `Store` 实例后调用的。
-5.  **修正 `load_ai_settings` 函数中的 `tauri-plugin-store` 用法:**
-    - 将第 153 行 `let mut store = StoreBuilder::new(".ai_settings.dat").build(app.clone());` 修改为正确构建 Store 并处理 Result 的代码。例如：
-      ```rust
-      let mut store = StoreBuilder::new(app.clone(), ".ai_settings.dat").build().map_err(|e| e.to_string())?;
-      ```
-    - 调整后续的 `store.load()` 和 `store.get()` 调用，确保它们是在获取到 `Store` 实例后调用的。
-6.  **修正 `fetch_ai_models` 函数中的 `tauri-plugin-http` 用法:**
-    - 将第 163 行 `let client = app.get_plugin::<tauri_plugin_http::Http<R>>().map_err(|e| e.to_string())?.client();` 修改为使用 `http()` 扩展方法获取客户端：`let client = app.http().map_err(|e| e.to_string())?.client();`。
-7.  **代码审查:** 在应用修改后，仔细检查代码，确保所有错误都已解决，并且代码逻辑正确。
+3.  **替换 Select 元素**:
+    *   将第 209 行的 `<select name="api_type" ...>` 替换为 `<Select name="api_type" ... />`。
+    *   将第 226 行的 `<select name="selected_model" ...>` 替换为 `<Select name="selected_model" ... />`。
+    *   传递 `value`, `onChange` 等必要的 props。
+    *   将原 `<option>` 元素转换为 `options` prop 需要的 `{ label: string, value: string }[]` 格式。
+        *   API Type:
+            ```javascript
+            options={[
+              // { value: "", label: t("ai.apiConfig.apiType.select"), disabled: true }, // 视 Select 组件能力调整
+              { value: "responses", label: "Responses API" },
+              { value: "chat", label: "Chat Completions" }
+            ]}
+            ```
+        *   Model:
+            ```javascript
+            options={[
+              { value: "", label: loading ? t("ai.apiConfig.model.loading") : t("ai.apiConfig.model.select") },
+              ...availableModels.map(model => ({ label: model, value: model }))
+            ]}
+            ```
+    *   移除旧的 `className`。
 
-## 计划图示
+4.  **替换 Textarea 元素**:
+    *   将第 258 行的 `<textarea name="custom_prompts_string" ...>` 替换为 `<Input multiline name="custom_prompts_string" ... />`。
+    *   将第 272 行的 `<textarea name="summary_prompt" ...>` 替换为 `<Input multiline name="summary_prompt" ... />`。
+    *   传递 `value`, `onChange`, `rows`, `placeholder` 等必要的 props。移除旧的 `className`。
+
+**可视化**:
 
 ```mermaid
 graph TD
-    A[收到构建错误日志和代码] --> B{分析错误和代码};
-    B --> C[识别 Store 插件错误];
-    B --> D[识别 Http 插件错误];
-    B --> E[识别未使用导入];
-    C --> F[StoreBuilder::new 参数错误];
-    C --> G[build() 返回 Result 未处理];
-    D --> H[尝试获取私有 struct Http];
-    D --> I[需要导入 HttpExt trait];
-    F & G --> J[修正 Store 初始化和方法调用];
-    H & I --> K[修正 Http 客户端获取];
-    E --> L[移除未使用导入];
-    J & K & L --> M[生成修复计划];
-    M --> N[向用户展示计划];
-    N --> O{用户确认计划?};
-    O -- 是 --> P[询问是否写入 Markdown];
-    P -- 是/否 --> Q[切换到 Code 模式执行];
-    O -- 否 --> M;
-```
+    subgraph "ai.tsx (当前)"
+        A1["<input type='text'> (L188)"]
+        A2["<input type='password'> (L199)"]
+        A3["<select> (L209)"]
+        A4["<select> (L226)"]
+        A5["<textarea> (L258)"]
+        A6["<textarea> (L272)"]
+    end
+
+    subgraph "app/src/components/"
+        B1[Input.tsx]
+        B2[Select.tsx]
+    end
+
+    subgraph "ai.tsx (计划)"
+        C1["<Input>"]
+        C2["<Input type='password'>"]
+        C3["<Select>"]
+        C4["<Select>"]
+        C5["<Input multiline>"]
+        C6["<Input multiline>"]
+    end
+
+    A1 --> C1
+    A2 --> C2
+    A3 --> C3
+    A4 --> C4
+    A5 --> C5
+    A6 --> C6
+
+    C1 -- imports & uses --> B1
+    C2 -- imports & uses --> B1
+    C3 -- imports & uses --> B2
+    C4 -- imports & uses --> B2
+    C5 -- imports & uses --> B1
+    C6 -- imports & uses --> B1
+
+    style A1 fill:#f9f,stroke:#333,stroke-width:1px
+    style A2 fill:#f9f,stroke:#333,stroke-width:1px
+    style A3 fill:#f9f,stroke:#333,stroke-width:1px
+    style A4 fill:#f9f,stroke:#333,stroke-width:1px
+    style A5 fill:#f9f,stroke:#333,stroke-width:1px
+    style A6 fill:#f9f,stroke:#333,stroke-width:1px
+
+    style C1 fill:#9cf,stroke:#333,stroke-width:1px
+    style C2 fill:#9cf,stroke:#333,stroke-width:1px
+    style C3 fill:#9cf,stroke:#333,stroke-width:1px
+    style C4 fill:#9cf,stroke:#333,stroke-width:1px
+    style C5 fill:#9cf,stroke:#333,stroke-width:1px
+    style C6 fill:#9cf,stroke:#333,stroke-width:1px
