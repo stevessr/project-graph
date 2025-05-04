@@ -1,10 +1,8 @@
 import { fetch } from "@tauri-apps/plugin-http";
 import { v4 as uuidv4 } from "uuid";
-import { Dialog } from "../../../../components/dialog";
 import { ArrayFunctions } from "../../../algorithm/arrayFunctions";
 import { Vector } from "../../../dataStruct/Vector";
 import { EdgeRenderer } from "../../../render/canvas2d/entityRenderer/edge/EdgeRenderer";
-import { FeatureFlags } from "../../../service/FeatureFlags";
 import { Settings } from "../../../service/Settings";
 import { Stage } from "../../Stage";
 import { TextNode } from "../../stageObject/entity/TextNode";
@@ -31,14 +29,6 @@ export namespace StageGeneratorAI {
   }
 
   async function realGenerateTextList(selectedTextNode: TextNode) {
-    if (!FeatureFlags.AI) {
-      Dialog.show({
-        type: "error",
-        title: "当前版本不支持AI功能",
-        content: "请使用官方版本，或在构建时添加API_BASE_URL环境变量",
-      });
-      return [];
-    }
     try {
       const treeParents: string[] = [];
       let currentNode = selectedTextNode;
