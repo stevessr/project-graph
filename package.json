@@ -45,5 +45,12 @@
       "sharp"
     ]
   },
-  "packageManager": "pnpm@10.6.5"
+  "packageManager": "pnpm@10.6.5",
+  "dependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/prismjs": "^1.26.5",
+    "js-yaml": "^4.1.0",
+    "prismjs": "^1.30.0",
+    "react-simple-code-editor": "^0.14.1"
+  }
 }

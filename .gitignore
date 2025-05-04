@@ -22,4 +22,5 @@ backup_*
 .DS_Store
 
 .vscode/settings.json
-AI_Feature_Plan.md
+*.md
+plan.md
