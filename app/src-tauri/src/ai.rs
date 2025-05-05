@@ -315,6 +315,59 @@ pub async fn save_prompt_version<R: tauri::Runtime>(
     Ok(())
 }
 
+#[tauri::command]
+pub async fn delete_prompt_version<R: tauri::Runtime>(
+   app: tauri::AppHandle<R>,
+   prompt_name: String,
+   timestamp: i64,
+) -> Result<(), String> {
+   #[allow(unused_mut)]
+   let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+       .build()
+       .map_err(|e| format!("Failed to build store: {}", e))?;
+
+   store.reload()
+        .map_err(|e| format!("Failed to reload store before deletion: {}", e))?;
+
+   let mut settings: AiSettings = match store.get("settings") {
+       Some(value) => serde_json::from_value(value.clone())
+           .map_err(|e| format!("Failed to deserialize settings: {}", e))?,
+       None => AiSettings::default(),
+   };
+
+   if let Some(collections) = settings.prompt_collections.as_mut() {
+       if let Some(collection) = collections.get_mut(&prompt_name) {
+           // Find the index of the version to remove
+           let initial_len = collection.versions.len();
+           collection.versions.retain(|version| version.timestamp != timestamp);
+
+           if collection.versions.len() == initial_len {
+               // No version was removed, maybe the timestamp didn't match
+               return Err(format!("Version with timestamp {} not found for prompt '{}'", timestamp, prompt_name));
+           }
+
+           // If the collection is now empty, remove the collection itself
+           if collection.versions.is_empty() {
+               collections.remove(&prompt_name);
+           }
+       } else {
+           return Err(format!("Prompt collection '{}' not found", prompt_name));
+       }
+   } else {
+       return Err("Prompt collections not initialized".to_string());
+   }
+
+   let settings_value = serde_json::to_value(settings)
+       .map_err(|e| format!("Failed to serialize settings after deletion: {}", e))?;
+
+   store.set("settings".to_string(), settings_value);
+
+   store.save()
+        .map_err(|e| format!("Failed to save store after deletion: {}", e))?;
+
+   Ok(())
+}
+
 
 #[tauri::command]
 pub async fn fetch_ai_models<R: tauri::Runtime>(

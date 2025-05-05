@@ -1,5 +1,4 @@
-import { fetch } from "@tauri-apps/plugin-http";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, fetch } from "../../../../utils/tauriApi";
 import { v4 as uuidv4 } from "uuid";
 import { ArrayFunctions } from "../../../algorithm/arrayFunctions";
 import { Vector } from "../../../dataStruct/Vector";

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke, fetch } from "../../utils/tauriApi";
 // Removed js-yaml, react-simple-code-editor, prismjs imports
 import { FieldGroup, Field } from "../../components/Field";
 import Button from "../../components/Button";
@@ -162,7 +162,9 @@ export default function AI() {
     try {
       // Assuming the API has an endpoint like /models that returns a JSON array of model names
       const modelsUrl = `${settings.api_endpoint}/models`; // Adjust URL as needed
-      const models: any = await invoke("fetch_ai_models", { url: modelsUrl, apiKey: settings.api_key });
+      const models: any = await fetch(modelsUrl, { headers: { Authorization: `Bearer ${settings.api_key}` } }).then(
+        (res) => res.json(),
+      );
       // Assuming the response is an array of strings or an object with a key containing an array
       if (Array.isArray(models)) {
         setAvailableModels(models.map(String)); // Ensure models are strings
@@ -424,16 +426,69 @@ export default function AI() {
               <Field title="选择版本" description="选择该提示词的历史版本">
                 {" "}
                 {/* TODO: Add translation */}
-                <Select
-                  name="selected_version"
-                  value={selectedVersionTimestamp?.toString() || ""} // Fix: Convert number to string for Select value
-                  onChange={(value) => handleVersionSelect(Number(value))}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  options={settings.prompt_collections[selectedPromptName].versions.map((version) => ({
-                    label: new Date(version.timestamp).toLocaleString(), // Format timestamp
-                    value: version.timestamp.toString(),
-                  }))}
-                />
+                <div className="flex items-center gap-2">
+                  {" "}
+                  {/* Add a flex container for select and button */}
+                  <Select
+                    name="selected_version"
+                    value={selectedVersionTimestamp?.toString() || ""} // Fix: Convert number to string for Select value
+                    onChange={(value) => handleVersionSelect(Number(value))}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    options={settings.prompt_collections[selectedPromptName].versions.map((version) => ({
+                      label: new Date(version.timestamp).toLocaleString(), // Format timestamp
+                      value: version.timestamp.toString(),
+                    }))}
+                  />
+                  {/* Add Delete Button */}
+                  {selectedVersionTimestamp !== null && ( // Only show delete button if a version is selected
+                    <Button
+                      onClick={async () => {
+                        if (selectedPromptName && selectedVersionTimestamp !== null) {
+                          if (window.confirm("确定要删除此版本吗？")) {
+                            {
+                              /* TODO: Add translation */
+                            }
+                            try {
+                              await invoke("delete_prompt_version", {
+                                promptName: selectedPromptName,
+                                timestamp: selectedVersionTimestamp,
+                              });
+                              alert("版本删除成功"); // TODO: Add translation
+                              // After deletion, reload settings and update UI
+                              const loadedSettings: AiSettings = await invoke("load_ai_settings");
+                              setSettings(loadedSettings);
+                              // Attempt to select the latest version of the same prompt, or clear if none left
+                              if (
+                                loadedSettings.prompt_collections &&
+                                loadedSettings.prompt_collections[selectedPromptName]?.versions.length > 0
+                              ) {
+                                const latestVersion = loadedSettings.prompt_collections[selectedPromptName].versions[0];
+                                setCustomPromptsString(formatNodesToLineString([latestVersion.content]));
+                                setSelectedVersionTimestamp(latestVersion.timestamp);
+                              } else {
+                                setCustomPromptsString("");
+                                setSelectedVersionTimestamp(null);
+                                // If the collection is now empty, also clear the selected prompt name
+                                if (
+                                  !loadedSettings.prompt_collections ||
+                                  !loadedSettings.prompt_collections[selectedPromptName]
+                                ) {
+                                  setSelectedPromptName(null);
+                                }
+                              }
+                            } catch (err) {
+                              console.error("删除版本失败", err); // TODO: Add translation
+                              alert(`删除版本失败: ${err}`); // TODO: Add translation
+                            }
+                          }
+                        }
+                      }}
+                      className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2" // Use Button component and apply styles
+                    >
+                      删除 {/* TODO: Add translation */}
+                    </Button>
+                  )}
+                </div>
               </Field>
             )}
         </div>

@@ -245,6 +245,7 @@ pub fn run() {
             ai::load_ai_settings,
             ai::fetch_ai_models,
             ai::save_prompt_version,
+            ai::delete_prompt_version,
             #[cfg(desktop)] // Keep the cfg attribute for the command itself
             set_update_channel
         ])

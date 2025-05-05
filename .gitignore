@@ -24,3 +24,6 @@ backup_*
 .vscode/settings.json
 *.md
 plan.md
+app/.tauri/neko.key
+.gitignore
+app/neko.jks
