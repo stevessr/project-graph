@@ -27,7 +27,14 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "deb", "dmg", "appimage", "rpm", "app"],
+    "targets": [
+      "nsis",
+      "deb",
+      "dmg",
+      "appimage",
+      "rpm",
+      "app"
+    ],
     "createUpdaterArtifacts": true,
     "category": "Productivity",
     "longDescription": "A simple tool to create topology diagrams.",
@@ -86,6 +93,20 @@
       "windows": {
         "installMode": "passive"
       }
-    }
+    },
+    "permissions": [
+      {
+        "identifier": "http:default",
+        "allow": [
+          {
+            "url": [
+              "https://*",
+              "http://*",
+              "http://localhost:*"
+            ]
+          }
+        ]
+      }
+    ]
   }
 }

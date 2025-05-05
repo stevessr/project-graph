@@ -59,6 +59,7 @@
     "clsx": "^2.1.1",
     "jotai": "^2.12.3",
     "jsdom": "^26.1.0",
+    "react-devtools": "^6.1.1",
     "sass-embedded": "^1.87.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^4.1.5",
