@@ -7,6 +7,26 @@ on:
         description: "The version number for the build"
         required: true
         type: string
+      android_key_path:
+        description: "The path to the Android key file, relative to app directory"
+        required: false
+        default: "neko.jks"
+        type: string
+      android_key_alias:
+        description: "The alias of the Android key"
+        required: false
+        default: "neko"
+        type: string
+      android_keystore_password:
+        description: "The password for the Android keystore"
+        required: false
+        type: string
+        default: "neko2233"
+      android_key_password:
+        description: "The password for the Android key"
+        required: false
+        type: string
+        default: "neko2233"
 
 jobs:
   build:
@@ -14,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest, windows-latest, macos-latest]
+        platform: [ubuntu-latest, windows-latest, macos-latest, android-ubuntu]
 
     steps:
       - name: Checkout code
@@ -28,7 +48,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "pnpm"
 
       - name: Install dependencies
@@ -37,15 +57,29 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Update app version in tauri.conf.json
+      - name: Setup Java
+        if: matrix.platform == 'android-ubuntu'
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Setup Android SDK
+        if: matrix.platform == 'android-ubuntu'
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android components
+        if: matrix.platform == 'android-ubuntu'
         run: |
-          if [[ "${{ matrix.platform }}" == "ubuntu-latest" ]]; then
-            sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"${{ github.event.inputs.version }}\"/" app/src-tauri/tauri.conf.json
-          elif [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
-            sed -i '' "s/\"version\": \"[^\"]*\"/\"version\": \"${{ github.event.inputs.version }}\"/" app/src-tauri/tauri.conf.json
-          elif [[ "${{ matrix.platform }}" == "windows-latest" ]]; then
-            (Get-Content -Path "app/src-tauri/tauri.conf.json" -Raw) -replace '"version": "[^"]*"', '"version": "${{ github.event.inputs.version }}"' | Set-Content -Path "app/src-tauri/tauri.conf.json"
-          fi
+          echo "y" | sdkmanager "platforms;android-34" "build-tools;34.0.0" "ndk;25.1.8937393"
+
+      - name: Set up Android signing secrets
+        if: matrix.platform == 'android-ubuntu'
+        run: |
+          echo "ANDROID_KEYSTORE_PATH=${{ github.event.inputs.android_key_path }}" >> $GITHUB_ENV
+          echo "ANDROID_KEYSTORE_ALIAS=${{ github.event.inputs.android_key_alias }}" >> $GITHUB_ENV
+          echo "ANDROID_KEYSTORE_PASSWORD=${{ github.event.inputs.android_keystore_password }}" >> $GITHUB_ENV
+          echo "ANDROID_KEY_PASSWORD=${{ github.event.inputs.android_key_password }}" >> $GITHUB_ENV
 
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-latest'
@@ -55,6 +89,16 @@ jobs:
 
       - name: Build Tauri app
         run: cd app && pnpm tauri build
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      - name: Build Tauri app for Android
+        if: matrix.platform == 'android-ubuntu'
+        run: cd app && pnpm tauri build --target android
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
       - name: Upload Ubuntu artifacts
         if: matrix.platform == 'ubuntu-latest'
@@ -76,3 +120,11 @@ jobs:
         with:
           name: macos-build-${{ github.event.inputs.version }}
           path: app/src-tauri/target/release/bundle/dmg/*.dmg
+
+      - name: Upload Android artifacts
+        if: matrix.platform == 'android-ubuntu'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build-${{ github.event.inputs.version }}
+          path: app/src-tauri/target/release/bundle/apk/*.apk # Or aab/*.aab depending on the output
+
