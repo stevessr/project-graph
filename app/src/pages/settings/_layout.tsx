@@ -81,6 +81,7 @@ export default function SettingsLayout() {
         </div>
         <div className="mx-auto max-w-[900px] flex-1 overflow-auto rounded-xl">
           <Outlet />
+          {/* <Introduction /> */}
         </div>
       </div>
     </div>

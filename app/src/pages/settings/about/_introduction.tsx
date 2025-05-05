@@ -8,6 +8,8 @@ import { Dialog } from "../../../components/dialog";
 import { cn } from "../../../utils/cn";
 
 export default function Introduction() {
+  console.log("Executing Introduction function");
+  console.log("Rendering Introduction component");
   const [checkingUpdate, setCheckingUpdate] = useState(true);
   const [update, setUpdate] = useState<Update | null>(null);
 
@@ -140,6 +142,7 @@ function UpdateAvailable({ update }: { update: Update | null }) {
 function Paragraph({ i18nKey }: { i18nKey: string }) {
   const { t } = useTranslation("about");
   const data = t(i18nKey, { returnObjects: true }) as string[];
+  console.log(`Paragraph i18nKey: ${i18nKey}`, data);
 
   return (
     <div className="flex flex-col gap-1">
