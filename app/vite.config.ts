@@ -31,9 +31,10 @@ export default defineConfig(async () => ({
   // tauri需要固定的端口
   server: {
     port: 1420,
+    //host: ["0.0.0.0", "127.0.0.1"],
     // 端口冲突时直接报错，不尝试下一个可用端口
     strictPort: true,
-    host: host || false,
+    host: host || "0.0.0.0",
     hmr: host
       ? {
           protocol: "ws",

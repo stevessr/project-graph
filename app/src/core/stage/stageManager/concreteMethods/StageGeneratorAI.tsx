@@ -73,18 +73,31 @@ export namespace StageGeneratorAI {
     children?: PromptNode[] | null;
   }
 
+  interface PromptCollection {
+    name: string;
+    versions: PromptVersion[];
+  }
+
+  interface PromptVersion {
+    content: PromptNode;
+    timestamp: number; // Use number for JS timestamp
+  }
+
   interface AiSettings {
     api_endpoint: string | null;
     api_key: string | null;
     selected_model: string | null;
-    custom_prompts: PromptNode[] | null; // Updated type
+    // Updated to use prompt_collections
+    prompt_collections: { [key: string]: PromptCollection } | null;
     api_type: string | null;
     summary_prompt?: string | null; // Add field for custom summary prompt
+    // Add fields for selected prompt
   }
 
   async function realGenerateTextList(selectedTextNode: TextNode) {
     try {
       const aiSettings: AiSettings = await invoke("load_ai_settings");
+      console.log("aiSettings", aiSettings);
       const openaiApiEndpoint = aiSettings.api_endpoint;
       const apiKey = aiSettings.api_key;
       const selectedModel = aiSettings.selected_model;
@@ -111,24 +124,16 @@ export namespace StageGeneratorAI {
         // Build messages based on structured prompts
         const messages: { role: string; content: string }[] = [];
 
-        if (aiSettings.custom_prompts && aiSettings.custom_prompts.length > 0) {
-          aiSettings.custom_prompts.forEach((node) => {
-            // Each 'node' represents a line from the input format
-            let messageContent = node.text; // Start with the parent text
+        let systemMessageContent = "";
+        console.log("aiSettings:", aiSettings);
 
-            // Append children text if they exist
-            if (node.children && node.children.length > 0) {
-              const childrenString = node.children.map((child) => child.text).join(", "); // Join children with comma
-              messageContent += `: ${childrenString}`; // Combine with parent using colon
-            }
-
-            // Add the combined content as a single system message
-            if (messageContent.trim()) {
-              messages.push({ role: "system", content: messageContent });
-            }
-            // Note: node_type and params from the PromptNode structure are currently ignored
-            // in this line-based format's message construction.
-          });
+        if (systemMessageContent) {
+          messages.push({ role: "system", content: systemMessageContent });
+        } else {
+          console.warn("No selected system prompt found or loaded. Using default system prompt.");
+          // Add a default system prompt if none is selected
+          systemMessageContent = "neko,一个联想家，请根据提供的词汇联想词汇，一行一个,仅仅输出联想即可"; // Default system prompt
+          messages.push({ role: "system", content: systemMessageContent });
         }
 
         // Add the current node's text as the final user message
@@ -141,16 +146,8 @@ export namespace StageGeneratorAI {
           messages: messages, // Use the constructed messages array
         };
 
-        // Old logic removed:
-        // // Add system prompt if available
-        // if (aiSettings.custom_prompts) {
-        //   body.messages.unshift({
-        //     role: "system",
-        //     content: aiSettings.custom_prompts, // This was incorrect for structured prompts
-        //   });
-        // }
-
         try {
+          // Make the API call
           responseData = await (
             await fetch(apiUrl, {
               method: "POST",
@@ -248,20 +245,6 @@ export namespace StageGeneratorAI {
           : import.meta.env.LR_API_BASE_URL! + "/ai/chat-completions";
 
         const messages: { role: string; content: string }[] = [];
-
-        // Add custom prompts if they exist (could be context or instructions)
-        if (aiSettings.custom_prompts && aiSettings.custom_prompts.length > 0) {
-          aiSettings.custom_prompts.forEach((node) => {
-            let messageContent = node.text;
-            if (node.children && node.children.length > 0) {
-              const childrenString = node.children.map((child) => child.text).join(", ");
-              messageContent += `: ${childrenString}`;
-            }
-            if (messageContent.trim()) {
-              messages.push({ role: "system", content: messageContent });
-            }
-          });
-        }
 
         // Determine the summary prompt to use
         const summaryPrompt = aiSettings.summary_prompt?.trim()

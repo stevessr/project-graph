@@ -564,7 +564,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             }}
           />
           <ToolbarItem
-            description={t("textNode.items.aiGenerateSummary")} // TODO: Add translation key
+            description={t("textNode.items.aiGenerateSummary")}
             icon={<ClipboardList />}
             handleFunction={() => {
               StageGeneratorAI.generateSummaryBySelected(); // Call the new function

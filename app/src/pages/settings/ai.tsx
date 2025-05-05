@@ -1,3 +1,4 @@
+import { Dialog } from "../../components/dialog";
 import React, { useState, useEffect } from "react";
 import { invoke, fetch } from "../../utils/tauriApi";
 // Removed js-yaml, react-simple-code-editor, prismjs imports
@@ -38,7 +39,8 @@ interface AiSettings {
   prompt_collections?: Record<string, PromptCollection> | null; // HashMap<String, PromptCollection> in Rust
   api_type?: string | null;
   summary_prompt?: string | null; // Add field for custom summary prompt
-  // custom_prompts?: PromptNode[] | null; // Temporarily keep for potential frontend migration handling if needed
+  // custom_prompts?: string | null; // Optional: line-based string for custom prompts
+  custom_prompts?: PromptNode[] | null; // Match backend type Option<Vec<PromptNode>>
 }
 
 export default function AI() {
@@ -52,6 +54,7 @@ export default function AI() {
     prompt_collections: {}, // Initialize as empty object
     api_type: "chat", // Set default to "chat"
     summary_prompt: null, // Initialize summary prompt
+    custom_prompts: null, // Initialize custom prompts
   });
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -141,6 +144,12 @@ export default function AI() {
           setSelectedPromptName(null);
           setSelectedVersionTimestamp(null);
         }
+
+        // If customPromptsString is still empty after checking prompt_collections,
+        // load from loadedSettings.custom_prompts if available.
+        if (customPromptsString === "" && loadedSettings.custom_prompts) {
+          setCustomPromptsString(formatNodesToLineString(loadedSettings.custom_prompts));
+        }
       } catch (err) {
         console.error(t("ai.saveFailure"), err); // Use translation
         setError(`${t("ai.loadFailure")} ${err}`); // Add translation key
@@ -203,7 +212,7 @@ export default function AI() {
       }));
     }
   };
-  const handleSaveSettings = async () => {
+  const handleSavePromptVersion = async () => {
     try {
       // Parse the line format string back into structured data before saving
       const parsedPrompts = parseLineFormat(customPromptsString);
@@ -212,7 +221,9 @@ export default function AI() {
       if (selectedPromptName && parsedPrompts && parsedPrompts.length > 0) {
         // Assuming the first node in the parsed prompts is the main content
         await invoke("save_prompt_version", { promptName: selectedPromptName, content: parsedPrompts[0] });
-        alert(t("ai.saveSuccess")); // Use translation
+        await Dialog.show({
+          title: t("ai.saveSuccess"), // TODO: Add specific translation for version save success?
+        });
         // After saving a new version, reload settings to update the UI
         const loadedSettings: AiSettings = await invoke("load_ai_settings");
         setSettings(loadedSettings);
@@ -225,19 +236,84 @@ export default function AI() {
           setSelectedVersionTimestamp(latestVersion.timestamp);
         }
       } else {
-        // If no prompt is selected or content is empty, save other settings
-        // Note: This path will now primarily handle saving non-prompt settings like API key, endpoint, etc.
-        const settingsToSave: AiSettings = {
-          api_endpoint: settings.api_endpoint,
-          api_key: settings.api_key,
-          selected_model: settings.selected_model,
-          api_type: settings.api_type,
-          summary_prompt: settings.summary_prompt,
-          // Do NOT include prompt_collections here, as they are managed by save_prompt_version
-          prompt_collections: settings.prompt_collections, // Keep existing collections when saving other settings
-        };
-        await invoke("save_ai_settings", { settings: settingsToSave });
-        alert(t("ai.saveSuccess")); // Use translation
+        // Handle case where no prompt is selected or content is empty
+        await Dialog.show({
+          title: t("ai.selectPromptToSaveVersion"), // TODO: Add translation key
+        });
+      }
+    } catch (err) {
+      console.error("保存提示词版本失败", err); // TODO: Translate console error
+      alert(t("ai.saveVersionFailure", { error: err })); // TODO: Add translation key
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      const settingsToSave: AiSettings = {
+        api_endpoint: settings.api_endpoint,
+        api_key: settings.api_key,
+        selected_model: settings.selected_model,
+        api_type: settings.api_type,
+        summary_prompt: settings.summary_prompt,
+        prompt_collections: settings.prompt_collections, // Start with the current collections
+        // Parse the line format string into PromptNode[] for the custom_prompts field
+        custom_prompts: parseLineFormat(customPromptsString),
+      };
+
+      // If a prompt and version are selected, update the content of the selected version
+      if (
+        selectedPromptName &&
+        selectedVersionTimestamp !== null &&
+        settingsToSave.prompt_collections &&
+        settingsToSave.prompt_collections[selectedPromptName]
+      ) {
+        const collection = settingsToSave.prompt_collections[selectedPromptName];
+        const versionIndex = collection.versions.findIndex((v) => v.timestamp === selectedVersionTimestamp);
+        // settingsToSave.custom_prompts = customPromptsString; // Removed: This field is Option<Vec<PromptNode>> in backend, not string
+        if (versionIndex !== -1) {
+          const parsedContent = parseLineFormat(customPromptsString);
+          // Update the content of the selected version in the settingsToSave object
+          // Ensure we don't mutate the original state directly
+          const updatedVersion = {
+            ...collection.versions[versionIndex],
+            content: parsedContent && parsedContent.length > 0 ? parsedContent[0] : { text: "" },
+          };
+          const newVersions = [...collection.versions];
+          newVersions[versionIndex] = updatedVersion;
+          const updatedCollection = { ...collection, versions: newVersions };
+          settingsToSave.prompt_collections = {
+            ...settingsToSave.prompt_collections,
+            [selectedPromptName]: updatedCollection,
+          };
+        }
+      }
+      console.log("Saving settings:", settingsToSave); // Debug log
+      await invoke("save_ai_settings", { settings: settingsToSave });
+      await Dialog.show({
+        title: t("ai.saveSuccess"), // Use translation
+      });
+      // After saving, reload settings to ensure UI is in sync with backend state
+      const loadedSettings: AiSettings = await invoke("load_ai_settings");
+      setSettings(loadedSettings);
+      // Re-select the previously selected prompt and version to maintain context
+      // This might require finding the updated version in the reloaded settings
+      if (
+        selectedPromptName &&
+        selectedVersionTimestamp !== null &&
+        loadedSettings.prompt_collections &&
+        loadedSettings.prompt_collections[selectedPromptName]
+      ) {
+        const updatedCollection = loadedSettings.prompt_collections[selectedPromptName];
+        const updatedVersion = updatedCollection.versions.find((v) => v.timestamp === selectedVersionTimestamp);
+        if (updatedVersion) {
+          setCustomPromptsString(formatNodesToLineString([updatedVersion.content]));
+          // setSelectedVersionTimestamp remains the same
+        } else {
+          // Handle case where the version might have been deleted or not found after reload (unlikely in this scenario)
+          setCustomPromptsString("");
+          setSelectedPromptName(null); // Clear selected prompt if version not found
+          setSelectedVersionTimestamp(null);
+        }
       }
     } catch (err) {
       console.error(t("ai.saveFailure"), err); // Use translation
@@ -275,18 +351,27 @@ export default function AI() {
   // Function to handle creating a new prompt collection
   const handleCreateNewPrompt = async () => {
     if (!newPromptName.trim()) {
-      alert("提示词名称不能为空"); // TODO: Add translation
+      await Dialog.show({
+        title: t("ai.promptNameCannotBeEmpty"),
+      });
       return;
     }
     if (settings.prompt_collections && settings.prompt_collections[newPromptName.trim()]) {
-      alert(`提示词 "${newPromptName.trim()}" 已存在`); // TODO: Add translation
+      await Dialog.show({
+        title: t("ai.promptAlreadyExists", { name: newPromptName.trim() }),
+      });
       return;
     }
 
     try {
       // Create a new empty prompt collection in the backend
       await invoke("save_prompt_version", { promptName: newPromptName.trim(), content: { text: "" } }); // Save an empty initial version
-      alert(`提示词 "${newPromptName.trim()}" 创建成功`); // TODO: Add translation
+      await Dialog.show({
+        title: t("ai.saveSuccess"),
+      });
+      await Dialog.show({
+        title: t("ai.promptCreatedSuccessfully", { name: newPromptName.trim() }),
+      });
 
       // Reload settings to update the UI with the new prompt
       const loadedSettings: AiSettings = await invoke("load_ai_settings");
@@ -299,8 +384,10 @@ export default function AI() {
 
       setNewPromptName(""); // Clear the input field
     } catch (err) {
-      console.error("创建提示词失败", err); // TODO: Add translation
-      alert(`创建提示词失败: ${err}`); // TODO: Add translation
+      console.error("创建提示词失败", err); // TODO: Translate console error
+      await Dialog.show({
+        title: t("ai.createPromptFailed", { error: err }),
+      });
     }
   };
 
@@ -391,7 +478,7 @@ export default function AI() {
               value={newPromptName}
               onChange={setNewPromptName}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="新提示词名称" // TODO: Add translation
+              placeholder={t("ai.newPromptNamePlaceholder")}
             />
             <Button
               onClick={handleCreateNewPrompt}
@@ -411,9 +498,10 @@ export default function AI() {
               name="selected_prompt"
               value={selectedPromptName || ""}
               onChange={(value) => handlePromptSelect(value)}
+              disabled={true}
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               options={[
-                { value: "", label: "选择一个提示词" }, // TODO: Add translation
+                { value: "", label: t("ai.selectAPrompt") },
                 ...(settings.prompt_collections
                   ? Object.keys(settings.prompt_collections).map((name) => ({ label: name, value: name }))
                   : []),
@@ -444,16 +532,23 @@ export default function AI() {
                     <Button
                       onClick={async () => {
                         if (selectedPromptName && selectedVersionTimestamp !== null) {
-                          if (window.confirm("确定要删除此版本吗？")) {
-                            {
-                              /* TODO: Add translation */
-                            }
+                          const confirmed = await Dialog.show({
+                            title: t("ai.confirmDeleteVersion"),
+                            buttons: [
+                              { text: "取消", color: "white" },
+                              { text: "确定", color: "red" },
+                            ],
+                          });
+                          if (confirmed.button === "确定") {
+                            // Check if user clicked "确定" button text
                             try {
                               await invoke("delete_prompt_version", {
                                 promptName: selectedPromptName,
                                 timestamp: selectedVersionTimestamp,
                               });
-                              alert("版本删除成功"); // TODO: Add translation
+                              await Dialog.show({
+                                title: t("ai.versionDeletedSuccessfully"),
+                              });
                               // After deletion, reload settings and update UI
                               const loadedSettings: AiSettings = await invoke("load_ai_settings");
                               setSettings(loadedSettings);
@@ -477,8 +572,8 @@ export default function AI() {
                                 }
                               }
                             } catch (err) {
-                              console.error("删除版本失败", err); // TODO: Add translation
-                              alert(`删除版本失败: ${err}`); // TODO: Add translation
+                              console.error("删除版本失败", err); // TODO: Translate console error
+                              alert(t("ai.deleteVersionFailed", { error: err }));
                             }
                           }
                         }
@@ -488,6 +583,16 @@ export default function AI() {
                       删除 {/* TODO: Add translation */}
                     </Button>
                   )}
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={handleSavePromptVersion}
+                      disabled={!selectedPromptName || !customPromptsString.trim()}
+                      className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                      <Save size={14} className="mr-1" />
+                      新版本 {/* TODO: Add translation key */}
+                    </Button>
+                  </div>
                 </div>
               </Field>
             )}
@@ -497,7 +602,6 @@ export default function AI() {
           {/* Use translation */}
           {/* Reverted back to textarea */}
           <Input
-            multiline
             name="custom_prompts_string" // Use new name for handler
             rows={10}
             value={customPromptsString} // Bind to string state
@@ -516,7 +620,6 @@ export default function AI() {
         {/* Add Field for Custom Summary Prompt */}
         <Field title={t("ai.prompts.summaryPrompt.title")} description={t("ai.prompts.summaryPrompt.description")}>
           <Input
-            multiline
             name="summary_prompt" // Name matches the state key
             rows={3} // Adjust rows as needed
             value={settings.summary_prompt || ""} // Bind to state

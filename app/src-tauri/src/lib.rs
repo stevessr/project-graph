@@ -1,3 +1,4 @@
+use tauri::Manager;
 // Removed the `use std::io::Read;` line as requested.
 use std::env;
 // Keep other imports

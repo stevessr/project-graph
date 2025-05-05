@@ -45,9 +45,7 @@ pub struct AiSettings {
     pub prompt_collections: Option<HashMap<String, PromptCollection>>,
     pub api_type: Option<String>, // Add api_type
     pub summary_prompt: Option<String>, // Add field for custom summary prompt
-    // 旧的 custom_prompts 字段需要考虑移除或迁移
-    #[serde(skip_serializing_if = "Option::is_none")] // 暂时保留旧字段以便数据迁移，但不序列化
-    pub custom_prompts: Option<Vec<PromptNode>>,
+    pub custom_prompts: Option<String>,
 }
 
 impl Default for AiSettings {
@@ -60,7 +58,7 @@ impl Default for AiSettings {
             prompt_collections: Some(HashMap::new()),
             api_type: None,
             summary_prompt: None,
-            custom_prompts: None, // 旧字段默认值
+            custom_prompts: Some(String::new()),
         }
     }
 }
@@ -96,171 +94,19 @@ pub async fn load_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Re
     store.reload()
          .map_err(|e| format!("Failed to reload store: {}", e))?;
 
-    // CORRECTED LINE: Directly use the Option returned by get()
     let loaded_settings_value = store.get("settings");
 
     match loaded_settings_value {
-        // Added .cloned() here because from_value takes ownership, and we might need
-        // the value again in the Err branch for the second deserialization attempt.
         Some(value) => {
-            // Attempt to deserialize into the new structure
-            match serde_json::from_value::<AiSettings>(value.clone()) { // Clone value here
-                Ok(mut settings) => {
-                    // Check for old format and migrate if necessary
-                    // Check if old field exists AND new field is None or empty
-                    if settings.custom_prompts.is_some() && (settings.prompt_collections.is_none() || settings.prompt_collections.as_ref().map_or(true, |m| m.is_empty())) {
-                        println!("Attempting migration from custom_prompts..."); // Log migration attempt
-                        let mut new_collections = settings.prompt_collections.unwrap_or_else(HashMap::new); // Start with existing or new map
-
-                        if let Some(old_prompts) = settings.custom_prompts.take() { // Take ownership
-                            for (i, prompt_node) in old_prompts.into_iter().enumerate() {
-                                let prompt_name = format!("Migrated Prompt {}", i + 1); // Default name
-                                // Ensure migrated prompts don't overwrite existing ones with the same default name
-                                let unique_prompt_name = if new_collections.contains_key(&prompt_name) {
-                                    format!("{} ({})", prompt_name, SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis())
-                                } else {
-                                    prompt_name
-                                };
-
-                                let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)
-                                    .map_err(|e| format!("Failed to get timestamp: {}", e))?
-                                    .as_millis() as i64;
-
-                                let version = PromptVersion {
-                                    content: prompt_node,
-                                    timestamp,
-                                };
-
-                                let collection = PromptCollection {
-                                    name: unique_prompt_name.clone(),
-                                    versions: vec![version],
-                                };
-                                new_collections.insert(unique_prompt_name, collection);
-                            }
-                        }
-                        settings.prompt_collections = Some(new_collections);
-                        // Ensure the old field is None after migration attempt
-                        settings.custom_prompts = None;
-
-
-                        // Save the migrated settings immediately
-                        println!("Saving migrated settings..."); // Log save attempt
-                        let migrated_settings_value = serde_json::to_value(&settings)
-                            .map_err(|e| format!("Failed to serialize migrated settings: {}", e))?;
-                        store.set("settings".to_string(), migrated_settings_value);
-                        if let Err(save_err) = store.save() {
-                             // Log the error but potentially continue with the migrated settings in memory
-                             eprintln!("Failed to save migrated settings immediately: {}", save_err);
-                             // Consider if you should return an error here or just log it.
-                             // Returning error might be safer:
-                             // return Err(format!("Failed to save migrated settings: {}", save_err));
-                        } else {
-                             println!("Successfully saved migrated settings."); // Log success
-                        }
-
-                    } else if settings.custom_prompts.is_some() {
-                        // If prompt_collections already exists and has data, just remove the old field
-                        settings.custom_prompts = None;
-                         // Optionally save immediately to remove the redundant field from storage
-                        println!("Removing redundant custom_prompts field from settings...");
-                        let updated_settings_value = serde_json::to_value(&settings)
-                            .map_err(|e| format!("Failed to serialize settings after removing redundant field: {}", e))?;
-                        store.set("settings".to_string(), updated_settings_value);
-                        if let Err(save_err) = store.save() {
-                             eprintln!("Failed to save settings after removing redundant field: {}", save_err);
-                             // Decide how to handle this error (log, return Err, etc.)
-                        } else {
-                             println!("Successfully saved settings after removing redundant field.");
-                        }
-                    }
-                    Ok(settings)
-                }
-                Err(e) => {
-                     // If deserialization to new structure fails, try old structure for migration
-                    println!("Deserialization into AiSettings failed ({}), attempting fallback to OldAiSettings...", e); // Log fallback attempt
-                    match serde_json::from_value::<OldAiSettings>(value) { // Use the original 'value' here
-                         Ok(old_settings) => {
-                            println!("Successfully deserialized into OldAiSettings, proceeding with migration..."); // Log success
-                            let mut new_collections = HashMap::new();
-                            if let Some(old_prompts) = old_settings.custom_prompts {
-                                for (i, prompt_node) in old_prompts.into_iter().enumerate() {
-                                    let prompt_name = format!("Migrated Prompt {}", i + 1);
-                                     // Check for uniqueness again, though less likely in fresh migration
-                                     let unique_prompt_name = if new_collections.contains_key(&prompt_name) {
-                                        format!("{} ({})", prompt_name, SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis())
-                                    } else {
-                                        prompt_name
-                                    };
-
-                                    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)
-                                        .map_err(|e| format!("Failed to get timestamp: {}", e))?
-                                        .as_millis() as i64;
-
-                                    let version = PromptVersion {
-                                        content: prompt_node,
-                                        timestamp,
-                                    };
-
-                                    let collection = PromptCollection {
-                                        name: unique_prompt_name.clone(),
-                                        versions: vec![version],
-                                    };
-                                    new_collections.insert(unique_prompt_name, collection);
-                                }
-                            }
-
-                            let migrated_settings = AiSettings {
-                                api_endpoint: old_settings.api_endpoint,
-                                api_key: old_settings.api_key,
-                                selected_model: old_settings.selected_model,
-                                prompt_collections: Some(new_collections),
-                                api_type: old_settings.api_type,
-                                summary_prompt: old_settings.summary_prompt,
-                                custom_prompts: None, // Ensure old field is None in new structure
-                            };
-
-                            // Save the migrated settings
-                            println!("Saving migrated settings from OldAiSettings fallback..."); // Log save
-                            let migrated_settings_value = serde_json::to_value(&migrated_settings)
-                                .map_err(|e| format!("Failed to serialize migrated settings (from old format): {}", e))?;
-                            store.set("settings".to_string(), migrated_settings_value);
-                             if let Err(save_err) = store.save() {
-                                eprintln!("Failed to save migrated settings (from old format): {}", save_err);
-                                // Decide how to handle this error
-                                // return Err(format!("Failed to save migrated settings (from old format): {}", save_err));
-                             } else {
-                                 println!("Successfully saved migrated settings from old format."); // Log success
-                             }
-
-                            Ok(migrated_settings)
-                         }
-                         Err(migrate_err) => {
-                            // If both deserialization attempts fail, return the original error
-                             eprintln!("Fallback deserialization into OldAiSettings also failed: {}", migrate_err); // Log final failure
-                            Err(format!("Failed to deserialize settings. New format error: [{}]. Old format error: [{}]", e, migrate_err))
-                         }
-                    }
-                }
-            }
+            serde_json::from_value::<AiSettings>(value.clone())
+                .map_err(|e| format!("Failed to deserialize settings: {}", e))
         }
         None => {
-            println!("No existing AI settings found, returning default."); // Log default case
-            Ok(AiSettings::default()) // Return default if no settings found
+            println!("No existing AI settings found, returning default.");
+            Ok(AiSettings::default())
         }
     }
 }
-
-// Helper struct for deserializing old settings format during migration
-#[derive(Debug, Serialize, Deserialize)]
-struct OldAiSettings {
-    pub api_endpoint: Option<String>,
-    pub api_key: Option<String>,
-    pub selected_model: Option<String>,
-    pub custom_prompts: Option<Vec<PromptNode>>,
-    pub api_type: Option<String>,
-    pub summary_prompt: Option<String>,
-}
-
 
 #[tauri::command]
 pub async fn save_prompt_version<R: tauri::Runtime>(

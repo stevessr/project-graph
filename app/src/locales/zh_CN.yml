@@ -583,6 +583,7 @@ settings:
         select: 选择模型
         refreshing: 正在刷新...
         refresh: 刷新模型
+      selectPrompt: 选择一个提示词
     prompts:
       title: 自定义提示词
       systemPrompt:
@@ -593,13 +594,24 @@ settings:
         description: 输入用于AI生成摘要的自定义提示词。如果留空，将使用默认提示词。
         placeholder: 例如：“请将以下文本总结为一段话：”
         lintFormatHint: "提示：每行应以“- ”开头。"
-      lintFormatHint: "提示：每行应以“- ”开头。"
       lineFormatPlaceholder: "每行输入一个提示，以“- ”开头"
+      lineFormatHint: "提示：每行应以“- ”开头。"
     save: 保存设置
     saveSuccess: 设置保存成功！
     saveFailure: 保存设置失败：
     fetchFailure: 获取模型失败：
     parseFailure: 无法解析API响应中的模型。
+    promptNameCannotBeEmpty: 提示词名称不能为空
+    promptAlreadyExists: 提示词 "{{name}}" 已存在
+    promptCreatedSuccessfully: 提示词 "{{name}}" 创建成功
+    createPromptFailed: 创建提示词失败 "{{error}}"
+    newPromptNamePlaceholder: 新提示词名称
+    selectAPrompt: 选择一个提示词
+    confirmDeleteVersion: 确定要删除此版本吗？
+    versionDeletedSuccessfully: 版本删除成功
+    deleteVersionFailed: 删除版本失败 "{{error}}"
+common:
+  confirm: 确定
 plugins:
   welcome:
     title: 欢迎使用插件系统
@@ -1270,3 +1282,5 @@ keyBinds:
   penStrokeWidthDecrease:
     title: 涂鸦笔画变细
     description: 按下后，笔画变细
+
+confirm: 确认
