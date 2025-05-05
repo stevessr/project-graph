@@ -216,6 +216,53 @@ pub async fn delete_prompt_version<R: tauri::Runtime>(
 
 
 #[tauri::command]
+pub async fn update_prompt_version<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    prompt_name: String,
+    timestamp: i64,
+    content: PromptNode,
+) -> Result<(), String> {
+    #[allow(unused_mut)]
+    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+        .build()
+        .map_err(|e| format!("Failed to build store: {}", e))?;
+
+    store.reload()
+         .map_err(|e| format!("Failed to reload store before update: {}", e))?;
+
+    let mut settings: AiSettings = match store.get("settings") {
+        Some(value) => serde_json::from_value(value.clone())
+            .map_err(|e| format!("Failed to deserialize settings: {}", e))?,
+        None => AiSettings::default(),
+    };
+
+    if let Some(collections) = settings.prompt_collections.as_mut() {
+        if let Some(collection) = collections.get_mut(&prompt_name) {
+            // Find the version to update by timestamp
+            if let Some(version) = collection.versions.iter_mut().find(|v| v.timestamp == timestamp) {
+                version.content = content;
+            } else {
+                return Err(format!("Version with timestamp {} not found for prompt '{}'", timestamp, prompt_name));
+            }
+        } else {
+            return Err(format!("Prompt collection '{}' not found", prompt_name));
+        }
+    } else {
+        return Err("Prompt collections not initialized".to_string());
+    }
+
+    let settings_value = serde_json::to_value(settings)
+        .map_err(|e| format!("Failed to serialize settings after update: {}", e))?;
+
+    store.set("settings".to_string(), settings_value);
+
+    store.save()
+         .map_err(|e| format!("Failed to save store after update: {}", e))?;
+
+    Ok(())
+}
+
+#[tauri::command]
 pub async fn fetch_ai_models<R: tauri::Runtime>(
     _app: tauri::AppHandle<R>, // Parameter kept but marked unused if not needed
     url: String,

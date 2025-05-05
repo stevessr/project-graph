@@ -157,6 +157,15 @@ fn exit(code: i32) {
     std::process::exit(code);
 }
 
+#[tauri::command]
+fn open_devtools<R: Runtime>(app: tauri::AppHandle<R>) {
+    if let Some(webview_window) = app.get_webview_window("main") {
+        let _ = webview_window.open_devtools();
+    } else {
+        eprintln!("Could not get main webview window 'main' to open devtools");
+    }
+}
+
 #[cfg(desktop)]
 #[tauri::command]
 async fn set_update_channel<R: Runtime>(
@@ -247,8 +256,10 @@ pub fn run() {
             ai::fetch_ai_models,
             ai::save_prompt_version,
             ai::delete_prompt_version,
+            ai::update_prompt_version, // Register the new command
             #[cfg(desktop)] // Keep the cfg attribute for the command itself
-            set_update_channel
+            set_update_channel,
+            open_devtools
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -88,7 +88,6 @@ settings:
     plugins: 插件
     scripts: 脚本
     themes: 主题
-    console: 打开控制台
   language:
     title: 语言
     options:
@@ -610,6 +609,7 @@ settings:
     confirmDeleteVersion: 确定要删除此版本吗？
     versionDeletedSuccessfully: 版本删除成功
     deleteVersionFailed: 删除版本失败 "{{error}}"
+    updateVersionSuccess: 版本更新成功
 common:
   confirm: 确定
 plugins:
@@ -622,6 +622,13 @@ plugins:
   install: 安装插件
   uninstall: 卸载
   documentation: 文档
+  open: 打开
+  core:
+    title: 核心插件
+    description: |
+      提供应用的核心功能
+      作者：Project Graph 开发者
+    console:  控制台
 
 app:
   unsaved: "(未保存)"
