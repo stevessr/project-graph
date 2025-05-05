@@ -98,6 +98,7 @@ settings:
     plugins: Plugins
     themes: Themes
     scripts: Scripts
+    console: Open Console
   language:
     title: Language
     options:
@@ -576,6 +577,8 @@ appMenu:
       new: New Draft
       newFile: new File
       open: Open
+      lintFormatHint: "Hint: Each line should start with a '-' followed by a space."
+      lineFormatPlaceholder: "Enter each hint on a new line, starting with '- '"
       save: Save
       saveAs: Save As
       recent: Recent Files

@@ -1,6 +1,8 @@
 import { open as openFile } from "@tauri-apps/plugin-dialog";
 import { open } from "@tauri-apps/plugin-shell";
 import { BookOpen, Box, PartyPopper, Plug, X } from "lucide-react";
+import { Terminal } from "lucide-react";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useTranslation } from "react-i18next";
 import Button from "../../components/Button";
 import { Field } from "../../components/Field";
@@ -81,6 +83,15 @@ export default function PluginsPage() {
         <Button onClick={() => open("https://project-graph.top")}>
           <BookOpen />
           {t("documentation")}
+        </Button>
+      </Field>
+      <Field icon={<Terminal />} title={t("tabs.console")}>
+        <Button
+          onClick={() => {
+            WebviewWindow.getByLabel("main")?.openDevtools();
+          }}
+        >
+          {t("open")}
         </Button>
       </Field>
 

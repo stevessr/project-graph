@@ -1,7 +1,7 @@
 {
   "name": "@pg/app",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.114514",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -47,7 +47,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@modyfi/vite-plugin-yaml": "^1.1.0",
+    "@modyfi/vite-plugin-yaml": "^1.1.1",
     "@tailwindcss/vite": "^4.0.0",
     "@tauri-apps/cli": "^2.1.0",
     "@types/lodash": "^4.17.15",

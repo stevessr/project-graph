@@ -5,6 +5,7 @@ import {
   ChevronsLeftRightEllipsis,
   ChevronsRightLeft,
   ClipboardPaste,
+  ClipboardList, // Import ClipboardList icon
   FolderSymlink,
   GitBranchPlus,
   LayoutDashboard,
@@ -555,10 +556,18 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             }}
           />
           <ToolbarItem
-            description={t("textNode.items.aiGenerateNewNode") + "（已欠费，有待更新）"}
+            description={t("textNode.items.aiGenerateNewNode")}
             icon={<BrainCircuit />}
             handleFunction={() => {
               StageGeneratorAI.generateNewTextNodeBySelected();
+              StageHistoryManager.recordStep();
+            }}
+          />
+          <ToolbarItem
+            description={t("textNode.items.aiGenerateSummary")} // TODO: Add translation key
+            icon={<ClipboardList />}
+            handleFunction={() => {
+              StageGeneratorAI.generateSummaryBySelected(); // Call the new function
               StageHistoryManager.recordStep();
             }}
           />

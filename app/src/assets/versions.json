@@ -48,5 +48,10 @@
     "version": "1.7",
     "name": "控弦绘影之织",
     "name_en": "CR Precision Weave"
+  },
+  {
+    "version": "0.0.0",
+    "name": "喵",
+    "name_en": "cat"
   }
 ]
