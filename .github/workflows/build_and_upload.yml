@@ -141,6 +141,19 @@ jobs:
           rustup target add i686-linux-android
           rustup target add x86_64-linux-android
 
+      - name: Install Android SDK Components (NDK, Platform Tools, Build Tools)
+        if: matrix.platform == 'ubuntu-latest'
+        # Use sdkmanager (provided by setup-android) to install required components
+        # NDK 25.1.8937393 is often recommended for Tauri
+        # Adjust android-34 and build-tools;34.0.0 if your project targets differently
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" "ndk;25.1.8937393" "platform-tools"
+          # Explicitly set NDK_HOME for subsequent steps
+          echo "NDK_HOME=$ANDROID_HOME/ndk/25.1.8937393" >> $GITHUB_ENV
+        env:
+          # Ensure ANDROID_HOME is available within this step's environment
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+
       - name: Build Tauri app for Android
         if: matrix.platform == 'ubuntu-latest'
         run: cd app && pnpm tauri android build
