@@ -1,6 +1,24 @@
 {
   "identifier": "desktop-capability",
-  "platforms": ["macOS", "windows", "linux"],
-  "windows": ["main"],
-  "permissions": ["cli:default", "updater:default"]
+  "platforms": [
+    "macOS",
+    "windows",
+    "linux"
+  ],
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "cli:default",
+    "updater:default",
+    "fs:default",
+    "fs:allow-create",
+    "fs:write-all",
+    "fs:read-all",
+    "core:webview:default",
+    "core:webview:allow-create-webview",
+    "core:webview:allow-create-webview-window",
+    "core:webview:allow-get-all-webviews",
+    "core:webview:allow-internal-toggle-devtools"
+  ]
 }

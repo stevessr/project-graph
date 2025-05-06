@@ -66,7 +66,7 @@ impl Default for AiSettings {
 #[tauri::command]
 pub async fn save_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>, settings: AiSettings) -> Result<(), String> {
     #[allow(unused_mut)]
-    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+    let mut store = StoreBuilder::new(app.app_handle(), "ai_settings.json")
         .build()
         .map_err(|e| format!("Failed to build store: {}", e))?;
 
@@ -87,7 +87,7 @@ pub async fn save_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>, setti
 #[tauri::command]
 pub async fn load_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Result<AiSettings, String> {
     #[allow(unused_mut)]
-    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+    let mut store = StoreBuilder::new(app.app_handle(), "ai_settings.json")
         .build()
         .map_err(|e| format!("Failed to build store: {}", e))?;
 
@@ -109,13 +109,54 @@ pub async fn load_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Re
 }
 
 #[tauri::command]
+pub async fn load_ai_setting_with_param<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    setting_key: String,
+) -> Result<Option<serde_json::Value>, String> {
+    #[allow(unused_mut)]
+    let mut store = StoreBuilder::new(app.app_handle(), "ai_settings.json")
+        .build()
+        .map_err(|e| format!("Failed to build store: {}", e))?;
+
+    store.reload()
+         .map_err(|e| format!("Failed to reload store: {}", e))?;
+
+    let loaded_settings_value = store.get("settings");
+
+    match loaded_settings_value {
+        Some(value) => {
+            let settings: AiSettings = serde_json::from_value(value.clone())
+                .map_err(|e| format!("Failed to deserialize settings: {}", e))?;
+
+            // Use a match statement to return the value based on the key
+            let setting_value = match setting_key.as_str() {
+                "api_endpoint" => settings.api_endpoint.map(|v| serde_json::to_value(v).unwrap_or(serde_json::Value::Null)),
+                "api_key" => settings.api_key.map(|v| serde_json::to_value(v).unwrap_or(serde_json::Value::Null)),
+                "selected_model" => settings.selected_model.map(|v| serde_json::to_value(v).unwrap_or(serde_json::Value::Null)),
+                "prompt_collections" => settings.prompt_collections.map(|v| serde_json::to_value(v).unwrap_or(serde_json::Value::Null)),
+                "api_type" => settings.api_type.map(|v| serde_json::to_value(v).unwrap_or(serde_json::Value::Null)),
+                "summary_prompt" => settings.summary_prompt.map(|v| serde_json::to_value(v).unwrap_or(serde_json::Value::Null)),
+                "custom_prompts" => settings.custom_prompts.map(|v| serde_json::to_value(v).unwrap_or(serde_json::Value::Null)),
+                _ => None, // Return None if the key is not recognized
+            };
+
+            Ok(setting_value)
+        }
+        None => {
+            println!("No existing AI settings found, returning None for key: {}", setting_key);
+            Ok(None) // Return None if no settings are found
+        }
+    }
+}
+
+#[tauri::command]
 pub async fn save_prompt_version<R: tauri::Runtime>(
     app: tauri::AppHandle<R>,
     prompt_name: String,
     content: PromptNode,
 ) -> Result<(), String> {
     #[allow(unused_mut)]
-    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+    let mut store = StoreBuilder::new(app.app_handle(), "ai_settings.json")
         .build()
         .map_err(|e| format!("Failed to build store: {}", e))?;
 
@@ -168,7 +209,7 @@ pub async fn delete_prompt_version<R: tauri::Runtime>(
    timestamp: i64,
 ) -> Result<(), String> {
    #[allow(unused_mut)]
-   let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+   let mut store = StoreBuilder::new(app.app_handle(), "ai_settings.json")
        .build()
        .map_err(|e| format!("Failed to build store: {}", e))?;
 
@@ -223,7 +264,7 @@ pub async fn update_prompt_version<R: tauri::Runtime>(
     content: PromptNode,
 ) -> Result<(), String> {
     #[allow(unused_mut)]
-    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+    let mut store = StoreBuilder::new(app.app_handle(), "ai_settings.json")
         .build()
         .map_err(|e| format!("Failed to build store: {}", e))?;
 

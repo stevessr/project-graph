@@ -36,6 +36,56 @@ export default function PGCanvas() {
   const [isWindowCollapsing] = useAtom(isWindowCollapsingAtom);
   const [isClassroomMode] = useAtom(isClassroomModeAtom);
 
+  let frameId = -1;
+  let loopInterval: NodeJS.Timeout;
+
+  const tick = () => {
+    if (!Stage.isWindowFocused) {
+      return;
+    }
+
+    // 决定是否渲染画面
+    if (Renderer.isPauseRenderWhenManipulateOvertime) {
+      if (!Controller.isManipulateOverTime()) {
+        Renderer.frameTick();
+      }
+    } else {
+      Renderer.frameTick();
+    }
+
+    Stage.logicTick();
+    // i++;
+  };
+
+  // 开启定时器
+  const startTick = (isCompatibilityMode: boolean) => {
+    if (isCompatibilityMode) {
+      // setInterval 模式
+
+      loopInterval = setInterval(() => {
+        tick();
+        // console.log("interval tick");
+      }, 1000 / 60);
+      console.log("开启interval模式", loopInterval, typeof loopInterval);
+    } else {
+      // requestAnimationFrame 模式
+
+      const loop = () => {
+        frameId = requestAnimationFrame(loop);
+        tick();
+        // console.log("requestAnimationFrame tick");
+      };
+      frameId = requestAnimationFrame(loop);
+      console.log("开启requestAnimationFrame模式", frameId, typeof frameId);
+    }
+  };
+
+  // 确保在切换模式时，准确关闭当前正在运行的定时器
+  const destroyTick = () => {
+    clearInterval(loopInterval);
+    cancelAnimationFrame(frameId);
+  };
+
   useEffect(() => {
     Settings.watch("windowBackgroundAlpha", (value) => {
       setBgAlpha(value);
@@ -99,62 +149,9 @@ export default function PGCanvas() {
     Settings.watch("compatibilityMode", (value) => {
       setCompatibilityMode(value);
       console.log(value, "compatibilityMode");
-      destroyTick(value);
+      destroyTick();
       startTick(value);
     });
-
-    const tick = () => {
-      if (!Stage.isWindowFocused) {
-        return;
-      }
-
-      // 决定是否渲染画面
-      if (Renderer.isPauseRenderWhenManipulateOvertime) {
-        if (!Controller.isManipulateOverTime()) {
-          Renderer.frameTick();
-        }
-      } else {
-        Renderer.frameTick();
-      }
-
-      Stage.logicTick();
-      // i++;
-    };
-
-    let frameId = -1;
-    let loopInterval: NodeJS.Timeout;
-
-    // 开启定时器
-    const startTick = (isCompatibilityMode: boolean) => {
-      if (isCompatibilityMode) {
-        // setInterval 模式
-
-        loopInterval = setInterval(() => {
-          tick();
-          // console.log("interval tick");
-        }, 1000 / 60);
-        console.log("开启interval模式", loopInterval, typeof loopInterval);
-      } else {
-        // requestAnimationFrame 模式
-
-        const loop = () => {
-          frameId = requestAnimationFrame(loop);
-          tick();
-          // console.log("requestAnimationFrame tick");
-        };
-        frameId = requestAnimationFrame(loop);
-        console.log("开启requestAnimationFrame模式", frameId, typeof frameId);
-      }
-    };
-
-    // BUG: 似乎不能准确的关闭当前正在运行的定时器，造成多开，帧数虚高卡顿
-    const destroyTick = (isCompatibilityMode: boolean) => {
-      if (isCompatibilityMode) {
-        clearInterval(loopInterval);
-      } else {
-        cancelAnimationFrame(frameId);
-      }
-    };
 
     // 清理事件监听器
     return () => {
@@ -163,9 +160,15 @@ export default function PGCanvas() {
       window.removeEventListener("focus", handleFocus);
       window.removeEventListener("blur", handleBlur);
       Controller.destroy();
-      destroyTick(compatibilityMode);
+      destroyTick(); // 在组件卸载时清除定时器
     };
   }, []);
+
+  // 在 compatibilityMode 变化时，先销毁旧的定时器，再开启新的定时器
+  useEffect(() => {
+    destroyTick();
+    startTick(compatibilityMode);
+  }, [compatibilityMode]);
 
   return (
     <>

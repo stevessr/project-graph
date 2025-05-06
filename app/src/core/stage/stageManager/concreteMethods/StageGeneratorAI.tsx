@@ -66,42 +66,13 @@ export namespace StageGeneratorAI {
 
   // Re-define PromptNode here to avoid potential circular dependencies
   // or manage imports carefully if defined centrally.
-  interface PromptNode {
-    text: string;
-    node_type?: string | null;
-    params?: any | null;
-    children?: PromptNode[] | null;
-  }
-
-  interface PromptCollection {
-    name: string;
-    versions: PromptVersion[];
-  }
-
-  interface PromptVersion {
-    content: PromptNode;
-    timestamp: number; // Use number for JS timestamp
-  }
-
-  interface AiSettings {
-    api_endpoint: string | null;
-    api_key: string | null;
-    selected_model: string | null;
-    // Updated to use prompt_collections
-    prompt_collections: { [key: string]: PromptCollection } | null;
-    api_type: string | null;
-    summary_prompt?: string | null; // Add field for custom summary prompt
-    // Add fields for selected prompt
-  }
 
   async function realGenerateTextList(selectedTextNode: TextNode) {
     try {
-      const aiSettings: AiSettings = await invoke("load_ai_settings");
-      console.log("aiSettings", aiSettings);
-      const openaiApiEndpoint = aiSettings.api_endpoint;
-      const apiKey = aiSettings.api_key;
-      const selectedModel = aiSettings.selected_model;
-      const apiType = aiSettings.api_type; // Get api_type
+      const openaiApiEndpoint = await invoke("load_ai_setting_with_param", { settingKey: "api_endpoint" });
+      const apiKey = await invoke("load_ai_setting_with_param", { settingKey: "api_key" });
+      const selectedModel = await invoke("load_ai_setting_with_param", { settingKey: "selected_model" });
+      const apiType = await invoke("load_ai_setting_with_param", { settingKey: "api_type" }); // Get api_type
 
       let apiUrl: string;
       let body: any;
@@ -125,7 +96,19 @@ export namespace StageGeneratorAI {
         const messages: { role: string; content: string }[] = [];
 
         let systemMessageContent = "";
-        console.log("aiSettings:", aiSettings);
+
+        // --- Start of corrected logic: Load and apply custom system prompt from custom_prompt field ---
+        const customPrompts = (await invoke("load_ai_setting_with_param", { settingKey: "custom_prompts" })) as
+          | string
+          | null;
+        if (customPrompts && customPrompts.trim() !== "") {
+          systemMessageContent = customPrompts;
+          console.log("Using custom system prompt from custom_prompts field:", systemMessageContent);
+        } else {
+          console.log("No custom_prompt found or it is empty. systemMessageContent remains empty.");
+          systemMessageContent = ""; // Ensure it's explicitly empty if not set
+        }
+        // --- End of corrected logic ---
 
         if (systemMessageContent) {
           messages.push({ role: "system", content: systemMessageContent });
@@ -220,11 +203,10 @@ export namespace StageGeneratorAI {
   // Modified to accept an array of nodes
   async function realGenerateSummary(selectedTextNodes: TextNode[]): Promise<string> {
     try {
-      const aiSettings: AiSettings = await invoke("load_ai_settings");
-      const openaiApiEndpoint = aiSettings.api_endpoint;
-      const apiKey = aiSettings.api_key;
-      const selectedModel = aiSettings.selected_model;
-      const apiType = aiSettings.api_type;
+      const openaiApiEndpoint = await invoke("load_ai_setting_with_param", { settingKey: "api_endpoint" });
+      const apiKey = await invoke("load_ai_setting_with_param", { settingKey: "api_key" });
+      const selectedModel = await invoke("load_ai_setting_with_param", { settingKey: "selected_model" });
+      const apiType = await invoke("load_ai_setting_with_param", { settingKey: "api_type" });
 
       let apiUrl: string;
       let body: any;
@@ -247,12 +229,14 @@ export namespace StageGeneratorAI {
         const messages: { role: string; content: string }[] = [];
 
         // Determine the summary prompt to use
-        const summaryPrompt = aiSettings.summary_prompt?.trim()
-          ? aiSettings.summary_prompt
+        const summaryPrompt = (
+          (await invoke("load_ai_setting_with_param", { settingKey: "summary_prompt" })) as string | null
+        )?.trim()
+          ? ((await invoke("load_ai_setting_with_param", { settingKey: "summary_prompt" })) as string | null)
           : "用简洁的语言概括以下内容："; // Default prompt
 
         // Add the determined instruction for summarization
-        messages.push({ role: "system", content: summaryPrompt });
+        messages.push({ role: "system", content: summaryPrompt ?? "" }); // Ensure content is string
 
         // --- Construct detailed user message content ---
         let userMessageContent = "以下是选中的节点及其内容：\n";

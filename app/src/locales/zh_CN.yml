@@ -575,6 +575,8 @@ settings:
         title: API 类型
         description: 选择要使用的AI API类型。
         select: 选择API类型
+        responses: Responses API
+        chat: Chat Completions
       model:
         title: 模型
         description: 选择要使用的AI模型。
@@ -584,10 +586,21 @@ settings:
         refresh: 刷新模型
       selectPrompt: 选择一个提示词
     prompts:
-      title: 自定义提示词
-      systemPrompt:
-        title: 系统提示词
-        description: 输入用于AI的自定义系统提示词。
+      create:
+        title: 创建提示词
+        description: 创建一个新的提示词。
+        name: 提示词名称
+        placeholder: 输入提示词名称
+        button: 创建
+      selectCollection:
+        title: 自定义提示词
+        placeholder: 选择一个提示词集合
+        description: 选择一个提示词集合以进行编辑或删除。
+      contentEditor:
+        title: 提示词编辑
+        description: 编辑提示词。
+        placeholder: 输入提示词内容
+        hint: 提示：每行应以“- ”开头。
       summaryPrompt:
         title: 摘要提示词
         description: 输入用于AI生成摘要的自定义提示词。如果留空，将使用默认提示词。
@@ -595,6 +608,7 @@ settings:
         lintFormatHint: "提示：每行应以“- ”开头。"
       lineFormatPlaceholder: "每行输入一个提示，以“- ”开头"
       lineFormatHint: "提示：每行应以“- ”开头。"
+      createPromptFailed: 创建提示词失败 "{{error}}"
     save: 保存设置
     saveSuccess: 设置保存成功！
     saveFailure: 保存设置失败：
@@ -610,6 +624,10 @@ settings:
     versionDeletedSuccessfully: 版本删除成功
     deleteVersionFailed: 删除版本失败 "{{error}}"
     updateVersionSuccess: 版本更新成功
+    saveVersionErrorLog: 保存提示词版本失败
+    selectPromptToSaveVersion: 选择提示词和版本进行更新
+    contentCannotBeEmpty: 内容不能为空
+    saveFailureLog: 保存设置失败：
 common:
   confirm: 确定
 plugins:
@@ -623,6 +641,12 @@ plugins:
   uninstall: 卸载
   documentation: 文档
   open: 打开
+  openUrl:
+    title: 打开链接
+    description: |
+      打开插件的文档或其他链接
+    placeholder: 输入链接
+    button: 打开链接(没做好)
   core:
     title: 核心插件
     description: |

@@ -213,6 +213,7 @@ pub fn run() {
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_fs::init()) // Register the filesystem plugin
         .setup(|app| {
             #[cfg(debug_assertions)]
             {
@@ -257,6 +258,7 @@ pub fn run() {
             ai::save_prompt_version,
             ai::delete_prompt_version,
             ai::update_prompt_version, // Register the new command
+            ai::load_ai_setting_with_param, // Register the new command
             #[cfg(desktop)] // Keep the cfg attribute for the command itself
             set_update_channel,
             open_devtools

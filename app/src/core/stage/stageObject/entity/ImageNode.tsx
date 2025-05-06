@@ -1,6 +1,5 @@
 import { join } from "@tauri-apps/api/path";
 import { Serialized } from "../../../../types/node";
-import { readFileBase64 } from "../../../../utils/fs";
 import { PathString } from "../../../../utils/pathString";
 import { Rectangle } from "../../../dataStruct/shape/Rectangle";
 import { Vector } from "../../../dataStruct/Vector";
@@ -48,12 +47,10 @@ export class ImageNode extends ConnectableEntity {
     this._isSelected = value;
   }
 
-  private _base64String: string = "";
-
   /**
    * 图片的三种状态
    */
-  public state: "loading" | "success" | "unknownError" | "encodingError" = "loading";
+  public state: "loading" | "success" | "unknownError" = "loading";
 
   public errorDetails: string = "";
 
@@ -91,43 +88,42 @@ export class ImageNode extends ConnectableEntity {
       new Rectangle(new Vector(...location), new Vector(...size).multiply(this.scaleNumber)),
     ]);
     this.state = "loading";
-    // 初始化创建的时候，开始获取base64String
+    // 初始化创建的时候，开始获取图片元素
     if (!Stage.path.isDraft()) {
-      this.updateBase64StringByPath(PathString.dirPath(Stage.path.getFilePath()));
+      this.updateImageElementByPath(PathString.dirPath(Stage.path.getFilePath()));
     } else {
       // 一般只有在粘贴板粘贴时和初次打开文件时才调用这里
       // 所以这里只可能时初次打开文件时还是草稿的状态
 
       setTimeout(() => {
-        this.updateBase64StringByPath(PathString.dirPath(Stage.path.getFilePath()));
+        this.updateImageElementByPath(PathString.dirPath(Stage.path.getFilePath()));
       }, 1000);
     }
   }
 
   /**
-   *
+   * 根据图片路径更新图片元素
    * @param folderPath 工程文件所在路径文件夹，不加尾部斜杠
    * @returns
    */
-  public updateBase64StringByPath(folderPath: string) {
+  public updateImageElementByPath(folderPath: string) {
     if (this.path === "") {
       return;
     }
 
-    join(folderPath, this.path)
-      .then((path) => readFileBase64(path))
-      .then((res) => {
-        // 获取base64String成功
+    this.state = "loading"; // Set state to loading immediately
 
-        this._base64String = res;
+    join(folderPath, this.path)
+      .then((path) => {
         const imageElement = new Image();
         this._imageElement = imageElement;
-        imageElement.src = `data:image/png;base64,${this._base64String}`;
+        // Directly set the image src to the file path
+        // Assuming direct file path works in Tauri webview
+        imageElement.src = path;
+
         imageElement.onload = () => {
           // 图片加载成功
-
           // 调整碰撞箱大小
-
           this.rectangle.size = new Vector(
             imageElement.width * this.scaleNumber,
             imageElement.height * this.scaleNumber,
@@ -135,29 +131,24 @@ export class ImageNode extends ConnectableEntity {
           this.originImageSize = new Vector(imageElement.width, imageElement.height);
           this.state = "success";
         };
-        imageElement.onerror = () => {
-          this.state = "encodingError";
-          this.errorDetails = "图片编码错误";
+        imageElement.onerror = (error) => {
+          // Handle image loading errors
+          this.state = "unknownError"; // Or a new state like "loadingError"
+          this.errorDetails = `图片加载错误: ${error}`; // More specific error message
         };
       })
-
       .catch((_err) => {
-        // 获取base64String失败
-        // TODO: 图片上显示ErrorDetails信息
+        // Handle errors in joining path or other initial issues
         this.state = "unknownError";
-        this.errorDetails = _err.toString();
+        this.errorDetails = `处理图片路径时出错: ${_err.toString()}`;
       });
-  }
-
-  public get base64String() {
-    return this._base64String;
   }
 
   /**
    * 刷新，这个方法用于重新从路径中加载图片
    */
   public refresh() {
-    this.updateBase64StringByPath(PathString.dirPath(Stage.path.getFilePath()));
+    this.updateImageElementByPath(PathString.dirPath(Stage.path.getFilePath()));
   }
 
   public scaleUpdate(scaleDiff: number) {

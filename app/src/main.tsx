@@ -37,6 +37,8 @@ import "./polyfills/roundRect";
 import { exists } from "./utils/fs";
 import { exit, writeStderr } from "./utils/otherApi";
 import { getCurrentWindow, isDesktop, isFrame, isWeb, isWindows } from "./utils/platform";
+import { writeFile } from "@tauri-apps/plugin-fs"; // Corrected: Import writeFile only once
+import { invoke } from "@tauri-apps/api/core"; // Corrected: Import invoke only once
 
 const router = createMemoryRouter(routes);
 const Routes = () => <RouterProvider router={router} />;
@@ -121,6 +123,19 @@ async function loadStartFile() {
     const file = new TextDecoder().decode(Uint8Array.from(atob(fileBase64), (m) => m.codePointAt(0)!));
     FileLoader.loadStageByData(StageLoader.validate(JSON.parse(file)), "/frame.json");
     Camera.reset();
+
+    // 在舞台数据成功加载后保存 AI 设置到项目根目录
+    try {
+      const aiSettings = await invoke("load_ai_settings");
+      const settingsJson = JSON.stringify(aiSettings, null, 2);
+      const settingsData = new TextEncoder().encode(settingsJson); // Convert string to Uint8Array
+      // 使用相对路径写入项目根目录, 移除 dir 选项
+      await writeFile("ai_settings.json", settingsData);
+      console.log("AI settings saved successfully to project root after loading stage data.");
+    } catch (error) {
+      console.error("Failed to save AI settings after loading stage data:", error);
+    }
+
     return;
   }
   if (isDesktop && !isWeb) {
@@ -156,6 +171,18 @@ async function loadStartFile() {
       // 更改顶部路径名称
       RecentFileManager.openFileByPathWhenAppStart(path);
     }, 1000);
+
+    // 在舞台数据成功加载后保存 AI 设置到项目根目录
+    try {
+      const aiSettings = await invoke("load_ai_settings");
+      const settingsJson = JSON.stringify(aiSettings, null, 2);
+      const settingsData = new TextEncoder().encode(settingsJson); // Convert string to Uint8Array
+      // 使用相对路径写入项目根目录, 移除 dir 选项
+      await writeFile("ai_settings.json", settingsData);
+      console.log("AI settings saved successfully to project root after loading stage data.");
+    } catch (error) {
+      console.error("Failed to save AI settings after loading stage data:", error);
+    }
   } else {
     // 自动打开路径不存在
     Stage.effectMachine.addEffect(new TextRiseEffect(`打开工程失败，${path}不存在！`));

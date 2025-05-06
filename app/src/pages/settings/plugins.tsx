@@ -1,6 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open as openFile } from "@tauri-apps/plugin-dialog";
-import { open } from "@tauri-apps/plugin-shell";
 import { BookOpen, Box, PartyPopper, Plug, X } from "lucide-react";
 import { Terminal } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -8,11 +7,15 @@ import Button from "../../components/Button";
 import { Field } from "../../components/Field";
 import Switch from "../../components/Switch";
 import { readTextFile } from "../../utils/fs";
-// import { parsePluginCode } from "../../core/plugin/PluginCodeParseData";
-// import { Dialog } from "../../components/dialog";
+import { Window } from "@tauri-apps/api/window";
+import { Webview } from "@tauri-apps/api/webview";
+
+import { useState } from "react"; // Add useState import
 
 export default function PluginsPage() {
   const { t } = useTranslation("plugins");
+
+  const [url, setUrl] = useState(""); // Add url state
 
   /**
    * 从本地安装插件
@@ -42,7 +45,7 @@ export default function PluginsPage() {
     //     title: "Error",
     //     content: error,
     //     type: "error",
-    //   });
+    //     });
     //   return;
     // }
 
@@ -90,6 +93,50 @@ export default function PluginsPage() {
           onClick={() => invoke("open_devtools")} // Call the new Tauri command
         >
           {t("open")}
+        </Button>
+      </Field>
+
+      {/* New URL Opener Section */}
+      <Field icon={<BookOpen />} title={t("openUrl.title")} description={t("openUrl.description")}>
+        <input
+          type="text"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder={t("openUrl.placeholder")}
+          className="mr-2 w-full rounded border p-2" // Added w-full and mr-2 for better layout
+        />
+        <Button
+          onClick={async () => {
+            if (url) {
+              try {
+                // Generate a unique label for the new window
+                const label = `${Date.now()}`;
+                const appWindow = new Window(label);
+                const webview = new Webview(appWindow, label, {
+                  url: url,
+                  x: 0,
+                  y: 0,
+                  width: 800,
+                  height: 600,
+                  devtools: true,
+                });
+                console.log("webview", webview);
+                webview.once("tauri://created", function () {
+                  // webview successfully created
+                });
+                // Optional: Handle window events (e.g., error loading)
+                webview.once("tauri://error", function (e) {
+                  console.error(`Failed to create webview window ${label}:`, e);
+                  // Optionally show an error to the user
+                });
+              } catch (error) {
+                console.error("Failed to open URL in new window:", error);
+                // Optionally show a user-friendly error message here
+              }
+            }
+          }}
+        >
+          {t("openUrl.button")}
         </Button>
       </Field>
 
