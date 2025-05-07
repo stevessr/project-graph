@@ -1,5 +1,64 @@
 import { z } from "zod";
 
+// 定义与后端 Rust 结构体对应的 TypeScript 类型
+
+export interface PromptNode {
+  text: string;
+  node_type?: string;
+  params?: any; // Use any for serde_json::Value for simplicity
+  children?: PromptNode[];
+}
+
+export interface PromptVersion {
+  content: PromptNode;
+  timestamp: number; // i64 in Rust maps to number in TS
+}
+
+export interface PromptCollection {
+  name: string;
+  versions: PromptVersion[];
+}
+
+export interface AiSettings {
+  api_endpoint?: string;
+  api_key?: string;
+  selected_model?: string;
+  prompt_collections?: Record<string, PromptCollection>; // HashMap<String, PromptCollection> in Rust
+  api_type?: string;
+  summary_prompt?: string;
+  // custom_prompts?: PromptNode[]; // Temporarily keep for potential frontend migration handling if needed, but not part of the target structure
+}
+
+// 定义 Zod schema for the types
+const PromptNodeSchema: z.ZodSchema<PromptNode> = z.lazy(() =>
+  z.object({
+    text: z.string(),
+    node_type: z.string().optional(),
+    params: z.any().optional(), // Use z.any() for serde_json::Value
+    children: z.array(PromptNodeSchema).optional(),
+  }),
+);
+
+const PromptVersionSchema: z.ZodSchema<PromptVersion> = z.object({
+  content: PromptNodeSchema,
+  timestamp: z.number(),
+});
+
+const PromptCollectionSchema: z.ZodSchema<PromptCollection> = z.object({
+  name: z.string(),
+  versions: z.array(PromptVersionSchema),
+});
+
+const AiSettingsSchema: z.ZodSchema<AiSettings> = z.object({
+  api_endpoint: z.string().optional(),
+  api_key: z.string().optional(),
+  selected_model: z.string().optional(),
+  prompt_collections: z.record(z.string(), PromptCollectionSchema).optional(),
+  api_type: z.string().optional(),
+  summary_prompt: z.string().optional(),
+  // custom_prompts: z.array(PromptNodeSchema).optional(), // Temporarily keep for potential frontend migration handling
+});
+
 // 定义允许插件调用的 API 方法类型
 export const apiTypes = {
   hello: [[z.string()], z.void()],
@@ -7,6 +66,10 @@ export const apiTypes = {
   setCameraLocation: [[z.number(), z.number()], z.void()],
   getPressingKey: [[], z.array(z.string())],
   openDialog: [[z.string(), z.string()], z.void()],
+  // Add AI related commands
+  load_ai_settings: [[], AiSettingsSchema], // Returns AiSettings
+  save_ai_settings: [[AiSettingsSchema], z.void()], // Takes AiSettings
+  save_prompt_version: [[z.string(), PromptNodeSchema], z.void()], // Takes prompt_name and content
 } as const;
 
 type Zod2Interface<T> = {
