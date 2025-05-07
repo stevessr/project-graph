@@ -25,3 +25,4 @@ backup_*
 *.md
 app/.tauri/neko.key
 app/neko.jks
+app/src-tauri/ai_settings.json
