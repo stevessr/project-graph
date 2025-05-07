@@ -48,9 +48,9 @@ export class ImageNode extends ConnectableEntity {
   }
 
   /**
-   * 图片的三种状态
+   * 图片的四种状态
    */
-  public state: "loading" | "success" | "unknownError" = "loading";
+  public state: "loading" | "success" | "unknownError" | "loadingError" = "loading";
 
   public errorDetails: string = "";
 
@@ -123,18 +123,27 @@ export class ImageNode extends ConnectableEntity {
 
         imageElement.onload = () => {
           // 图片加载成功
-          // 调整碰撞箱大小
-          this.rectangle.size = new Vector(
-            imageElement.width * this.scaleNumber,
-            imageElement.height * this.scaleNumber,
-          );
-          this.originImageSize = new Vector(imageElement.width, imageElement.height);
-          this.state = "success";
+          imageElement
+            .decode()
+            .then(() => {
+              // 调整碰撞箱大小
+              this.rectangle.size = new Vector(
+                imageElement.width * this.scaleNumber,
+                imageElement.height * this.scaleNumber,
+              );
+              this.originImageSize = new Vector(imageElement.width, imageElement.height);
+              this.state = "success";
+            })
+            .catch((decodeError) => {
+              // Handle image decoding errors
+              this.state = "loadingError";
+              this.errorDetails = `图片解码错误: ${decodeError}`;
+            });
         };
         imageElement.onerror = (error) => {
           // Handle image loading errors
-          this.state = "unknownError"; // Or a new state like "loadingError"
-          this.errorDetails = `图片加载错误: ${error}`; // More specific error message
+          this.state = "loadingError";
+          this.errorDetails = `图片加载错误: ${error.toString()}`; // More specific error message, ensure error is string
         };
       })
       .catch((_err) => {

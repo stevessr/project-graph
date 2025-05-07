@@ -2,7 +2,7 @@ import { Angry, MousePointerClick, RefreshCcw, Smile, Tags, Telescope } from "lu
 import React from "react";
 import { Dialog } from "../../components/dialog";
 import IconButton from "../../components/IconButton";
-import { StageManager } from "../../core/stage/stageManager/StageManager";
+import { Stage } from "../../core/stage/Stage";
 import { cn } from "../../utils/cn";
 
 /**
@@ -19,7 +19,7 @@ export default function TagPanel({ open = false, className = "" }: { open: boole
   const [isPerspective, setIsPerspective] = React.useState(false);
 
   function refreshTagNameList() {
-    setTagNameList(StageManager.refreshTags());
+    setTagNameList(Stage.stageManager.refreshTags());
   }
 
   React.useEffect(() => {
@@ -29,21 +29,21 @@ export default function TagPanel({ open = false, className = "" }: { open: boole
   const handleMoveCameraToTag = (tagUUID: string) => {
     return () => {
       // 跳转到对应位置
-      StageManager.moveCameraToTag(tagUUID);
+      Stage.stageManager.moveCameraToTag(tagUUID);
     };
   };
 
   const handleMoveUp = (tagUUID: string) => {
     return () => {
       // 向上移动标签
-      StageManager.TagOptions.moveUpTag(tagUUID);
+      Stage.stageManager.moveUpTag(tagUUID);
       refreshTagNameList();
     };
   };
   const handleMoveDown = (tagUUID: string) => {
     return () => {
       // 向下移动标签
-      StageManager.TagOptions.moveDownTag(tagUUID);
+      Stage.stageManager.moveDownTag(tagUUID);
       refreshTagNameList();
     };
   };
@@ -51,7 +51,7 @@ export default function TagPanel({ open = false, className = "" }: { open: boole
   const handleMouseEnterTag = (tagUUID: string) => {
     return () => {
       if (isMouseEnterMoveCameraAble) {
-        StageManager.moveCameraToTag(tagUUID);
+        Stage.stageManager.moveCameraToTag(tagUUID);
       } else {
         console.warn("禁止滑动");
       }
@@ -60,13 +60,16 @@ export default function TagPanel({ open = false, className = "" }: { open: boole
 
   const handleClickAddTag = () => {
     // 检查是否有选中的entity或连线
-    if (StageManager.getSelectedEntities().length === 0 && StageManager.getSelectedAssociations().length === 0) {
+    if (
+      Stage.stageManager.getSelectedEntities().length === 0 &&
+      Stage.stageManager.getSelectedAssociations().length === 0
+    ) {
       Dialog.show({
         title: "请先选中舞台上的物体",
         content: "选中后再点此按钮，即可添标签",
       });
     }
-    StageManager.addTagBySelected();
+    Stage.stageManager.addTagBySelected();
     refreshTagNameList();
   };
 

@@ -1,7 +1,8 @@
 import { Vector } from "../../../dataStruct/Vector";
 import { Entity } from "../../stageObject/abstract/StageEntity";
 import { Section } from "../../stageObject/entity/Section";
-import { StageManager } from "../StageManager";
+// StageManager type is implicitly available via Stage.stageManager
+import { Stage } from "../../Stage"; // Added import for Stage instance
 
 export namespace SectionMethods {
   /**
@@ -11,7 +12,7 @@ export namespace SectionMethods {
    */
   export function getFatherSections(entity: Entity): Section[] {
     const result = [];
-    for (const section of StageManager.getSections()) {
+    for (const section of Stage.stageManager.getSections()) {
       if (section.children.includes(entity)) {
         result.push(section);
       }
@@ -27,7 +28,7 @@ export namespace SectionMethods {
    */
   export function getFatherSectionsList(entity: Entity): Section[] {
     const result = [];
-    for (const section of StageManager.getSections()) {
+    for (const section of Stage.stageManager.getSections()) {
       if (isEntityInSection_fake(entity, section)) {
         result.push(section);
       }
@@ -44,7 +45,7 @@ export namespace SectionMethods {
    */
   export function getSectionsByInnerLocation(location: Vector): Section[] {
     const sections: Section[] = [];
-    for (const section of StageManager.getSections()) {
+    for (const section of Stage.stageManager.getSections()) {
       if (section.isCollapsed || section.isHiddenBySectionCollapse) {
         continue;
       }
@@ -235,7 +236,7 @@ export namespace SectionMethods {
     for (const entity of selectedEntities) {
       dfs(entity);
     }
-    return StageManager.getEntitiesByUUIDs(Array.from(entityUUIDSet));
+    return Stage.stageManager.getEntitiesByUUIDs(Array.from(entityUUIDSet));
   }
 
   export function getSortedSectionsByZ(sections: Section[]): Section[] {

@@ -5,7 +5,7 @@ import { LineEdge } from "../../stageObject/association/LineEdge";
 import { ConnectPoint } from "../../stageObject/entity/ConnectPoint";
 import { GraphMethods } from "../basicMethods/GraphMethods";
 import { StageHistoryManager } from "../StageHistoryManager";
-import { StageManager } from "../StageManager";
+import { Stage } from "../../Stage";
 
 /**
  * 集成所有连线相关的功能
@@ -17,7 +17,7 @@ export namespace StageNodeConnector {
    * @param toNode
    */
   function isConnectable(fromNode: ConnectableEntity, toNode: ConnectableEntity): boolean {
-    if (StageManager.isEntityExists(fromNode.uuid) && StageManager.isEntityExists(toNode.uuid)) {
+    if (Stage.stageManager.isEntityExists(fromNode.uuid) && Stage.stageManager.isEntityExists(toNode.uuid)) {
       if (fromNode.uuid === toNode.uuid && fromNode instanceof ConnectPoint) {
         return false;
       }
@@ -59,9 +59,9 @@ export namespace StageNodeConnector {
       sourceRectRate: sourceRectRate || [0.5, 0.5],
     });
 
-    StageManager.addLineEdge(newEdge);
+    Stage.stageManager.addLineEdge(newEdge);
 
-    StageManager.updateReferences();
+    Stage.stageManager.updateReferences();
   }
 
   export function addCrEdge(fromNode: ConnectableEntity, toNode: ConnectableEntity): void {
@@ -69,8 +69,8 @@ export namespace StageNodeConnector {
       return;
     }
     const newEdge = CublicCatmullRomSplineEdge.fromTwoEntity(fromNode, toNode);
-    StageManager.addCrEdge(newEdge);
-    StageManager.updateReferences();
+    Stage.stageManager.addCrEdge(newEdge);
+    Stage.stageManager.updateReferences();
   }
 
   // 将多个节点之间全连接
@@ -85,7 +85,7 @@ export namespace StageNodeConnector {
       edge.setSourceRectangleRate(edge.targetRectangleRate);
       edge.setTargetRectangleRate(oldSourceRectRage);
     });
-    StageManager.updateReferences();
+    Stage.stageManager.updateReferences();
   }
 
   /**
@@ -99,7 +99,7 @@ export namespace StageNodeConnector {
       return;
     }
     edge.target = newTarget;
-    StageManager.updateReferences();
+    Stage.stageManager.updateReferences();
   }
 
   /**
@@ -107,7 +107,7 @@ export namespace StageNodeConnector {
    * @param newTarget
    */
   export function changeSelectedEdgeTarget(newTarget: ConnectableEntity) {
-    const selectedEdges = StageManager.getSelectedStageObjects().filter((obj) => obj instanceof LineEdge);
+    const selectedEdges = Stage.stageManager.getSelectedStageObjects().filter((obj) => obj instanceof LineEdge);
     for (const edge of selectedEdges) {
       if (edge instanceof LineEdge) {
         changeEdgeTarget(edge, newTarget);

@@ -6,7 +6,6 @@ import { StageAutoAlignManager } from "../../../../stage/stageManager/concreteMe
 import { StageEntityMoveManager } from "../../../../stage/stageManager/concreteMethods/StageEntityMoveManager";
 import { StageObjectSelectCounter } from "../../../../stage/stageManager/concreteMethods/StageObjectSelectCounter";
 import { StageHistoryManager } from "../../../../stage/stageManager/StageHistoryManager";
-import { StageManager } from "../../../../stage/stageManager/StageManager";
 import { RectangleNoteEffect } from "../../../feedbackService/effectEngine/concrete/RectangleNoteEffect";
 import { RectangleRenderEffect } from "../../../feedbackService/effectEngine/concrete/RectangleRenderEffect";
 import { Controller } from "../Controller";
@@ -50,11 +49,13 @@ class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
       } else if (Controller.pressingKeySet.has("shift")) {
         // shift 按下，只选中节点
         clickedStageObject.isSelected = true;
-        const rectangles = StageManager.getSelectedEntities().map((entity) => entity.collisionBox.getRectangle());
+        const rectangles = Stage.stageManager
+          .getSelectedEntities()
+          .map((entity: any) => entity.collisionBox.getRectangle());
         const boundingRectangle = Rectangle.getBoundingRectangle(rectangles);
         Stage.effectMachine.addEffect(RectangleRenderEffect.fromShiftClickSelect(boundingRectangle));
         Stage.effectMachine.addEffect(RectangleNoteEffect.fromShiftClickSelect(boundingRectangle));
-        for (const entity of StageManager.getStageObject()) {
+        for (const entity of Stage.stageManager.getStageObject()) {
           if (entity.collisionBox.isIntersectsWithRectangle(boundingRectangle)) {
             entity.isSelected = true;
           }
@@ -66,7 +67,7 @@ class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
         // 直接点击
         if (!clickedStageObject.isSelected) {
           // 清空所有其他节点的选中状态
-          StageManager.getStageObject().forEach((stageObject) => {
+          Stage.stageManager.getStageObject().forEach((stageObject: any) => {
             if (stageObject === clickedStageObject) {
               return;
             }
@@ -97,7 +98,7 @@ class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
     const worldLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
     const diffLocation = worldLocation.subtract(ControllerEntityClickSelectAndMove.lastMoveLocation);
 
-    if (StageManager.isHaveEntitySelected()) {
+    if (Stage.stageManager.isHaveEntitySelected()) {
       // 移动节点
       this.isMovingEntity = true;
       // 暂不监听alt键。因为windows下切换窗口时，alt键释放监听不到

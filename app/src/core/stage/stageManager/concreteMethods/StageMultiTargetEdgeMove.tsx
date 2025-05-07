@@ -1,7 +1,7 @@
 import { Rectangle } from "../../../dataStruct/shape/Rectangle";
 import { Vector } from "../../../dataStruct/Vector";
 import { MultiTargetUndirectedEdge } from "../../stageObject/association/MutiTargetUndirectedEdge";
-import { StageManager } from "../StageManager";
+import { Stage } from "../../Stage";
 
 /**
  * 多源无向边移动中心点
@@ -13,7 +13,7 @@ export namespace StageMultiTargetEdgeMove {
    * @param diffLocation 鼠标移动向量
    */
   export function moveMultiTargetEdge(diffLocation: Vector) {
-    for (const association of StageManager.getSelectedAssociations()) {
+    for (const association of Stage.stageManager.getSelectedAssociations()) {
       if (!(association instanceof MultiTargetUndirectedEdge)) {
         continue;
       }
@@ -24,7 +24,7 @@ export namespace StageMultiTargetEdgeMove {
       // const endMouseDragLocation = startMouseDragLocation.add(diffLocation);
 
       const boundingRectangle = Rectangle.getBoundingRectangle(
-        StageManager.getEntitiesByUUIDs(association.targetUUIDs).map((n) => n.collisionBox.getRectangle()),
+        Stage.stageManager.getEntitiesByUUIDs(association.targetUUIDs).map((n) => n.collisionBox.getRectangle()),
       );
       // 当前的中心点
       const currentCenter = association.centerLocation;

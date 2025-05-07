@@ -26,8 +26,9 @@ import { useEffect, useState } from "react";
 import { Dialog } from "../../components/dialog";
 import { Settings } from "../../core/service/Settings";
 import { GraphMethods } from "../../core/stage/stageManager/basicMethods/GraphMethods";
-import { StageManager } from "../../core/stage/stageManager/StageManager";
+import { Stage } from "../../core/stage/Stage";
 import { ConnectableEntity } from "../../core/stage/stageObject/abstract/ConnectableEntity";
+import { Entity } from "../../core/stage/stageObject/abstract/StageEntity";
 import { cn } from "../../utils/cn";
 import { ToolbarItem } from "../_toolbar";
 import { StageAutoAlignManager } from "../../core/stage/stageManager/concreteMethods/StageAutoAlignManager";
@@ -59,7 +60,7 @@ export default function AlignNodePanel() {
 
   const isSelectedIsTreeRoot = (handleTreeRootFunc: (root: ConnectableEntity) => void) => {
     return () => {
-      const selected = StageManager.getSelectedEntities();
+      const selected = Stage.stageManager.getSelectedEntities();
       if (selected.length !== 1) {
         Dialog.show({
           title: "选择节点数量不正确",
@@ -217,7 +218,9 @@ export default function AlignNodePanel() {
           description="将树形结构变成框嵌套结构"
           icon={<SquareSquare />}
           handleFunction={() => {
-            const selectedNodes = StageManager.getSelectedEntities().filter((node) => node instanceof TextNode);
+            const selectedNodes = Stage.stageManager
+              .getSelectedEntities()
+              .filter((node: Entity) => node instanceof TextNode);
             if (selectedNodes.length !== 1) {
               Dialog.show({
                 title: "选择节点数量不为1",
@@ -232,7 +235,9 @@ export default function AlignNodePanel() {
           description="将选中的框和实体 密集堆积 （还在开发中）"
           icon={<LayoutTemplate />}
           handleFunction={() => {
-            const selectedNodes = StageManager.getSelectedEntities().filter((node) => node instanceof TextNode);
+            const selectedNodes = Stage.stageManager
+              .getSelectedEntities()
+              .filter((node: Entity) => node instanceof TextNode);
             if (selectedNodes.length === 1) {
               return;
             }

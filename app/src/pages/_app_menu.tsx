@@ -46,7 +46,6 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera } from "../core/stage/Camera";
 import { StageDumper } from "../core/stage/StageDumper";
-import { StageManager } from "../core/stage/stageManager/StageManager";
 import {
   fileAtom,
   isClassroomModeAtom,
@@ -94,8 +93,8 @@ export default function AppMenu({ className = "", open = false }: { className?: 
    * 新建草稿
    */
   const onNewDraft = () => {
-    if (StageSaveManager.isSaved() || StageManager.isEmpty()) {
-      StageManager.destroy();
+    if (StageSaveManager.isSaved() || Stage.stageManager.isEmpty()) {
+      Stage.stageManager.destroy();
       setFile("Project Graph");
       Camera.reset();
     } else {
@@ -114,7 +113,7 @@ export default function AppMenu({ className = "", open = false }: { className?: 
           {
             text: "丢弃当前并直接新开",
             onClick: () => {
-              StageManager.destroy();
+              Stage.stageManager.destroy();
               setFile("Project Graph");
               Camera.reset();
             },
@@ -187,7 +186,7 @@ export default function AppMenu({ className = "", open = false }: { className?: 
     RecentFileManager.addRecentFileByPath(filePath);
     // 创建文件
     try {
-      StageManager.destroy();
+      Stage.stageManager.destroy();
       setFile(filePath);
       Camera.reset();
     } catch {
@@ -201,9 +200,9 @@ export default function AppMenu({ className = "", open = false }: { className?: 
 
   const onOpen = async () => {
     if (!StageSaveManager.isSaved()) {
-      if (StageManager.isEmpty()) {
+      if (Stage.stageManager.isEmpty()) {
         //空项目不需要保存
-        StageManager.destroy();
+        Stage.stageManager.destroy();
         openFileByDialogWindow();
       } else if (Stage.path.isDraft()) {
         Dialog.show({
@@ -215,7 +214,7 @@ export default function AppMenu({ className = "", open = false }: { className?: 
             {
               text: "丢弃并打开新文件",
               onClick: () => {
-                StageManager.destroy();
+                Stage.stageManager.destroy();
                 openFileByDialogWindow();
               },
             },
@@ -352,7 +351,7 @@ export default function AppMenu({ className = "", open = false }: { className?: 
   };
 
   const onExportTreeText = async () => {
-    const selectedNodes = StageManager.getSelectedEntities().filter((entity) => entity instanceof TextNode);
+    const selectedNodes = Stage.stageManager.getSelectedEntities().filter((entity: any) => entity instanceof TextNode);
     if (selectedNodes.length === 0) {
       Dialog.show({
         title: "没有选中节点",
@@ -369,7 +368,7 @@ export default function AppMenu({ className = "", open = false }: { className?: 
   };
 
   const onSaveMarkdownNew = async () => {
-    const selectedNodes = StageManager.getSelectedEntities().filter((entity) => entity instanceof TextNode);
+    const selectedNodes = Stage.stageManager.getSelectedEntities().filter((entity: any) => entity instanceof TextNode);
     if (selectedNodes.length === 0) {
       Dialog.show({
         title: "没有选中节点",
@@ -555,7 +554,7 @@ export default function AppMenu({ className = "", open = false }: { className?: 
         <Col
           icon={<RefreshCcwDot />}
           onClick={() => {
-            StageManager.refreshAllStageObjects();
+            Stage.stageManager.refreshAllStageObjects();
           }}
           details="刷新当前舞台所有实体，例如图片重新加载，实体大小重新计算等"
         >
@@ -616,7 +615,7 @@ export default function AppMenu({ className = "", open = false }: { className?: 
                   text: "清空",
                   color: "red",
                   onClick: () => {
-                    StageManager.destroy();
+                    Stage.stageManager.destroy();
                     Camera.reset();
                   },
                 },
@@ -731,7 +730,7 @@ export default function AppMenu({ className = "", open = false }: { className?: 
           <Col
             icon={<TestTube2 />}
             onClick={() => {
-              StageManager.destroy();
+              Stage.stageManager.destroy();
             }}
           >
             废了

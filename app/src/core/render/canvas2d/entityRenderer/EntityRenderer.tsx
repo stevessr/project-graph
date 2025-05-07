@@ -34,6 +34,11 @@ export namespace EntityRenderer {
   let sectionSortedZIndex: Section[] = [];
   export let sectionBitTitleRenderType: Settings.Settings["sectionBitTitleRenderType"] = "cover";
 
+  // 用于内存优化的模块级别数组，避免每帧创建新数组
+  const _sectionsToRender: Section[] = [];
+  const _penStrokesToRender: PenStroke[] = [];
+  const _otherEntitiesToRender: Entity[] = [];
+
   export function init() {
     Settings.watch("sectionBitTitleRenderType", (value) => {
       sectionBitTitleRenderType = value;
@@ -45,21 +50,21 @@ export namespace EntityRenderer {
    * 为了防止每帧都调用导致排序，为了提高性能
    * 决定：每隔几秒更新一次
    */
-  export function sortSectionsByZIndex() {
-    const sections = StageManager.getSections();
+  export function sortSectionsByZIndex(stageManager: StageManager) {
+    const sections = stageManager.getSections();
     sections.sort((a, b) => a.collisionBox.getRectangle().top - b.collisionBox.getRectangle().top);
     sectionSortedZIndex = sections;
   }
 
   let tickNumber = 0;
 
-  export function renderAllSectionsBackground(viewRectangle: Rectangle) {
-    if (sectionSortedZIndex.length != StageManager.getSections().length) {
-      sortSectionsByZIndex();
+  export function renderAllSectionsBackground(viewRectangle: Rectangle, stageManager: StageManager) {
+    if (sectionSortedZIndex.length != stageManager.getSections().length) {
+      sortSectionsByZIndex(stageManager);
     } else {
       // 假设fps=60，则10秒更新一次
       if (tickNumber % 600 === 0) {
-        sortSectionsByZIndex();
+        sortSectionsByZIndex(stageManager);
       }
     }
     // 1 遍历所有section实体，画底部颜色
@@ -70,7 +75,7 @@ export namespace EntityRenderer {
       SectionRenderer.renderBackgroundColor(section);
     }
     // 2 遍历所有传送门,渲染黑底
-    for (const portalNode of StageManager.getPortalNodes()) {
+    for (const portalNode of stageManager.getPortalNodes()) {
       if (Renderer.isOverView(viewRectangle, portalNode)) {
         continue;
       }
@@ -107,38 +112,45 @@ export namespace EntityRenderer {
    * 统一渲染所有实体
    * 返回实际渲染的实体数量
    */
-  export function renderAllEntities(viewRectangle: Rectangle) {
+  export function renderAllEntities(viewRectangle: Rectangle, stageManager: StageManager) {
     let renderedNodes = 0;
 
-    // 2 遍历所有非section实体 / 非涂鸦实体
-    for (const entity of StageManager.getEntities()) {
-      if (entity instanceof Section) {
-        continue;
+    // 清空模块级别数组，准备存储本帧需要渲染的实体
+    _sectionsToRender.length = 0;
+    _penStrokesToRender.length = 0;
+    _otherEntitiesToRender.length = 0;
+
+    // 遍历所有实体，进行视口剔除并分类
+    const allEntities = stageManager.getEntities();
+    for (const entity of allEntities) {
+      if (!Renderer.isOverView(viewRectangle, entity)) {
+        // 实体在视口内
+        if (entity instanceof Section) {
+          _sectionsToRender.push(entity);
+        } else if (entity instanceof PenStroke) {
+          _penStrokesToRender.push(entity);
+        } else {
+          _otherEntitiesToRender.push(entity);
+        }
       }
-      if (entity instanceof PenStroke) {
-        continue;
-      }
-      // 视线之外不画
-      if (Renderer.isOverView(viewRectangle, entity)) {
-        continue;
-      }
+    }
+
+    // 第一次遍历：渲染普通实体
+    for (const entity of _otherEntitiesToRender) {
       EntityRenderer.renderEntity(entity);
       renderedNodes++;
     }
-    // 3 遍历所有section实体，画顶部大文字
-    for (const section of StageManager.getSections()) {
-      if (Renderer.isOverView(viewRectangle, section)) {
-        continue;
-      }
-      SectionRenderer.render(section);
+
+    // 第二次遍历：渲染 Sections
+    for (const section of _sectionsToRender) {
+      EntityRenderer.renderEntity(section);
     }
-    // 4 遍历所有涂鸦实体
-    for (const penStroke of StageManager.getPenStrokes()) {
-      if (Renderer.isOverView(viewRectangle, penStroke)) {
-        continue;
-      }
+
+    // 第三次遍历：渲染 PenStrokes
+    for (const penStroke of _penStrokesToRender) {
       EntityRenderer.renderEntity(penStroke);
     }
+
     return renderedNodes;
   }
 
@@ -251,7 +263,7 @@ export namespace EntityRenderer {
         Renderer.transformWorld2View(imageNode.rectangle.location),
         imageNode.scaleNumber,
       );
-    } else if (imageNode.state === "encodingError" || imageNode.state === "unknownError") {
+    } else if (imageNode.state === "loadingError" || imageNode.state === "unknownError") {
       TextRenderer.renderTextFromCenter(
         imageNode.uuid,
         Renderer.transformWorld2View(imageNode.rectangle.topCenter),
@@ -271,9 +283,9 @@ export namespace EntityRenderer {
           20 * Camera.currentScale,
           Color.Red,
         );
-      } else if (imageNode.state === "encodingError") {
+      } else if (imageNode.state === "loadingError") {
         TextRenderer.renderTextFromCenter(
-          "图片base64编码错误",
+          "图片加载或解码错误", // 更通用的错误信息
           Renderer.transformWorld2View(imageNode.rectangle.center),
           20 * Camera.currentScale,
           Color.Red,

@@ -1,8 +1,8 @@
+import { Stage } from "../../Stage";
 import { Color } from "../../../dataStruct/Color";
 import { ProgressNumber } from "../../../dataStruct/ProgressNumber";
 import { Vector } from "../../../dataStruct/Vector";
 import { LineEffect } from "../../../service/feedbackService/effectEngine/concrete/LineEffect";
-import { Stage } from "../../Stage";
 import { ConnectableEntity } from "../../stageObject/abstract/ConnectableEntity";
 import { GraphMethods } from "../basicMethods/GraphMethods";
 import { StageManager } from "../StageManager";
@@ -19,7 +19,7 @@ export namespace StageNodeRotate {
    * @param diffLocation
    */
   export function moveEdges(lastMoveLocation: Vector, diffLocation: Vector) {
-    for (const edge of StageManager.getLineEdges()) {
+    for (const edge of Stage.stageManager.getLineEdges()) {
       if (edge.isSelected) {
         const startMouseDragLocation = lastMoveLocation.clone();
         const endMouseDragLocation = startMouseDragLocation.add(diffLocation);
@@ -30,13 +30,13 @@ export namespace StageNodeRotate {
         if (Number.isNaN(degrees)) {
           degrees = 0;
         }
-        const sourceEntity = StageManager.getConnectableEntityByUUID(edge.source.uuid);
-        const targetEntity = StageManager.getConnectableEntityByUUID(edge.target.uuid);
+        const sourceEntity = Stage.stageManager.getConnectableEntityByUUID(edge.source.uuid);
+        const targetEntity = Stage.stageManager.getConnectableEntityByUUID(edge.target.uuid);
 
         if (sourceEntity && targetEntity) {
           rotateNodeDfs(
-            StageManager.getConnectableEntityByUUID(edge.source.uuid)!,
-            StageManager.getConnectableEntityByUUID(edge.target.uuid)!,
+            Stage.stageManager.getConnectableEntityByUUID(edge.source.uuid)!,
+            Stage.stageManager.getConnectableEntityByUUID(edge.target.uuid)!,
             degrees,
             [edge.source.uuid],
           );
@@ -75,7 +75,7 @@ export namespace StageNodeRotate {
         continue;
       }
       visitedUUIDs.push(child.uuid);
-      const childNode = StageManager.getConnectableEntityByUUID(child.uuid);
+      const childNode = Stage.stageManager.getConnectableEntityByUUID(child.uuid);
       if (!childNode) {
         console.error("child node not found");
         continue;

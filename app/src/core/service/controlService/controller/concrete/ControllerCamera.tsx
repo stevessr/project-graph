@@ -10,7 +10,6 @@ import { Vector } from "../../../../dataStruct/Vector";
 import { Renderer } from "../../../../render/canvas2d/renderer";
 import { Camera } from "../../../../stage/Camera";
 import { LeftMouseModeEnum, Stage } from "../../../../stage/Stage";
-import { StageManager } from "../../../../stage/stageManager/StageManager";
 import { EntityCreateFlashEffect } from "../../../feedbackService/effectEngine/concrete/EntityCreateFlashEffect";
 import { MouseTipFeedbackEffect } from "../../../feedbackService/effectEngine/concrete/MouseTipFeedbackEffect";
 import { TextRiseEffect } from "../../../feedbackService/effectEngine/concrete/TextRiseEffect";
@@ -134,7 +133,7 @@ export class ControllerCameraClass extends ControllerClass {
 
     if (this.isUsingMouseGrabMove && Stage.autoRefreshStageByMouseAction) {
       // 开始刷新舞台
-      StageManager.refreshAllStageObjects();
+      Stage.stageManager.refreshAllStageObjects();
     }
 
     // 2025年4月28日：实验性内容
@@ -181,7 +180,7 @@ export class ControllerCameraClass extends ControllerClass {
       // 还要保证这个鼠标位置没有悬浮在什么东西上
       const mouseLocation = new Vector(event.clientX, event.clientY);
       const worldLocation = Renderer.transformView2World(mouseLocation);
-      const entity = StageManager.findEntityByLocation(worldLocation);
+      const entity = Stage.stageManager.findEntityByLocation(worldLocation);
       if (Stage.connectMachine.isUsing) {
         return;
       }
@@ -303,7 +302,7 @@ export class ControllerCameraClass extends ControllerClass {
       }
     } else if (Controller.pressingKeySet.has("control")) {
       // 不要在节点上滚动
-      const entity = StageManager.findEntityByLocation(worldLocation);
+      const entity = Stage.stageManager.findEntityByLocation(worldLocation);
       if (entity !== null) {
         // 给这个entity一个特效
         Stage.effectMachine.addEffect(EntityCreateFlashEffect.fromRectangle(entity.collisionBox.getRectangle()));

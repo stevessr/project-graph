@@ -7,7 +7,6 @@ import { EdgeRenderer } from "../../../../render/canvas2d/entityRenderer/edge/Ed
 import { Renderer } from "../../../../render/canvas2d/renderer";
 import { LeftMouseModeEnum, Stage } from "../../../../stage/Stage";
 import { GraphMethods } from "../../../../stage/stageManager/basicMethods/GraphMethods";
-import { StageManager } from "../../../../stage/stageManager/StageManager";
 import { Association } from "../../../../stage/stageObject/abstract/Association";
 import { Entity } from "../../../../stage/stageObject/abstract/StageEntity";
 import { Edge } from "../../../../stage/stageObject/association/Edge";
@@ -70,8 +69,8 @@ class CuttingControllerClass extends ControllerClass {
     const pressWorldLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
     this.lastMoveLocation = pressWorldLocation.clone();
 
-    const isClickedEntity = StageManager.isEntityOnLocation(pressWorldLocation);
-    const isClickedAssociation = StageManager.isAssociationOnLocation(pressWorldLocation);
+    const isClickedEntity = Stage.stageManager.isEntityOnLocation(pressWorldLocation);
+    const isClickedAssociation = Stage.stageManager.isAssociationOnLocation(pressWorldLocation);
 
     if (!isClickedEntity && !isClickedAssociation) {
       // 开始绘制切断线
@@ -130,7 +129,7 @@ class CuttingControllerClass extends ControllerClass {
       }
     }
     // 开始删除孤立质点
-    StageManager.deleteEntities(prepareDeleteConnectPoints);
+    Stage.stageManager.deleteEntities(prepareDeleteConnectPoints);
   }
 
   public mouseUpFunction(mouseUpWindowLocation: Vector) {
@@ -145,7 +144,7 @@ class CuttingControllerClass extends ControllerClass {
 
     // 删除连线
     for (const edge of this.warningAssociations) {
-      StageManager.deleteAssociation(edge);
+      Stage.stageManager.deleteAssociation(edge);
       if (edge instanceof Edge) {
         if (edge instanceof LineEdge) {
           Stage.effectMachine.addEffects(EdgeRenderer.getCuttingEffects(edge));
@@ -153,7 +152,7 @@ class CuttingControllerClass extends ControllerClass {
       }
     }
     // 删除实体
-    StageManager.deleteEntities(this.warningEntity);
+    Stage.stageManager.deleteEntities(this.warningEntity);
     // 删除产生的孤立质点
     this.clearIsolationPoint();
     // 特效
@@ -162,7 +161,7 @@ class CuttingControllerClass extends ControllerClass {
     this.warningEntity = [];
     this.warningSections = [];
 
-    StageManager.updateReferences();
+    Stage.stageManager.updateReferences();
 
     this.warningAssociations = [];
 
@@ -213,7 +212,7 @@ class CuttingControllerClass extends ControllerClass {
 
     this.twoPointsMap = {};
 
-    for (const entity of StageManager.getEntities()) {
+    for (const entity of Stage.stageManager.getEntities()) {
       // if (entity instanceof Section) {
       //   continue; // Section的碰撞箱比较特殊
       // }
@@ -239,7 +238,7 @@ class CuttingControllerClass extends ControllerClass {
       }
     }
     this.warningSections = [];
-    for (const section of StageManager.getSections()) {
+    for (const section of Stage.stageManager.getSections()) {
       if (section.isHiddenBySectionCollapse) {
         continue; // 隐藏的节点不参与碰撞检测
       }
@@ -249,7 +248,7 @@ class CuttingControllerClass extends ControllerClass {
     }
 
     this.warningAssociations = [];
-    for (const edge of StageManager.getAssociations()) {
+    for (const edge of Stage.stageManager.getAssociations()) {
       if (edge instanceof Edge && edge.isHiddenBySectionCollapse) {
         continue; // 连线被隐藏了
       }

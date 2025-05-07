@@ -47,10 +47,10 @@ export default function PGCanvas() {
     // 决定是否渲染画面
     if (Renderer.isPauseRenderWhenManipulateOvertime) {
       if (!Controller.isManipulateOverTime()) {
-        Renderer.frameTick();
+        Renderer.frameTick(Stage.stageManager);
       }
     } else {
-      Renderer.frameTick();
+      Renderer.frameTick(Stage.stageManager);
     }
 
     Stage.logicTick();

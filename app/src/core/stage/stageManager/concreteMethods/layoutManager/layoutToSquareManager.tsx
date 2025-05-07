@@ -1,15 +1,16 @@
 import { Rectangle } from "../../../../dataStruct/shape/Rectangle";
 import { Vector } from "../../../../dataStruct/Vector";
 import { StageHistoryManager } from "../../StageHistoryManager";
-import { StageManager } from "../../StageManager";
 import { StageEntityMoveManager } from "../StageEntityMoveManager";
+import { Stage } from "../../../Stage";
+import { Entity } from "../../../stageObject/abstract/Entity";
 
 export namespace LayoutToSquareManager {
   /**
    * 将所有选中的节点尽可能摆放排列成正方形
    */
   export function layoutToSquare() {
-    const nodes = Array.from(StageManager.getEntities()).filter((node) => node.isSelected);
+    const nodes = Array.from(Stage.stageManager.getEntities()).filter((node): node is Entity => node.isSelected);
     const n = nodes.length;
     if (n <= 1) return;
 
@@ -71,7 +72,7 @@ export namespace LayoutToSquareManager {
    * 有待优化
    */
   export function layoutToTightSquare() {
-    const entities = Array.from(StageManager.getEntities()).filter((entity) => entity.isSelected);
+    const entities = Array.from(Stage.stageManager.getEntities()).filter((entity): entity is Entity => entity.isSelected);
     if (entities.length === 0) return;
 
     // 获取所有实体的包围盒并建立布局信息
@@ -84,79 +85,67 @@ export namespace LayoutToSquareManager {
     layoutItems.sort((a, b) => b.rect.width * b.rect.height - a.rect.width * a.rect.height);
 
     // 初始化布局参数
-    let layoutWidth = 0;
-    let layoutHeight = 0;
-    const placedRects: Rectangle[] = [];
     const spacing = 5; // 最小间距
 
-    // 核心布局算法
+    // 核心布局算法 - 替换为更高效的贪心行填充算法
+    let currentX = 0;
+    let currentY = 0;
+    let currentRowHeight = 0;
+    let currentLayoutWidth = 0;
+
+    // 计算目标行宽，基于最优列数和单元格尺寸
+    const n = entities.length;
+    const { cols } = getOptimalRowsCols(n);
+    // 计算所有节点的最大宽度和高度
+    let maxWidth = 0,
+      maxHeight = 0;
+    entities.forEach((entity) => {
+      const rect = entity.collisionBox.getRectangle();
+      maxWidth = Math.max(maxWidth, rect.size.x);
+      maxHeight = Math.max(maxHeight, rect.size.y);
+    });
+    const cellSize = Math.max(maxWidth, maxHeight) + spacing;
+    const targetRowWidth = cols * cellSize;
+
+
     layoutItems.forEach((item) => {
       const currentRect = item.rect;
-      let bestPosition: Vector | null = null;
 
-      // 扫描现有空间寻找合适位置（三次方时间复杂度）
-      for (let y = 0; y <= layoutHeight; y += spacing) {
-        for (let x = 0; x <= layoutWidth; x += spacing) {
-          const testRect = new Rectangle(new Vector(x, y), currentRect.size.clone());
-
-          // 检查是否与已有元素碰撞
-          const collision = placedRects.some((placed) => testRect.isCollideWith(placed.expandFromCenter(spacing)));
-
-          if (!collision) {
-            // 优先选择最靠左上的位置
-            if (!bestPosition || y < bestPosition.y || (y === bestPosition.y && x < bestPosition.x)) {
-              bestPosition = new Vector(x, y);
-            }
-          }
-        }
+      // 如果当前行放不下，则换行
+      if (currentX + currentRect.width + spacing > targetRowWidth && currentX > 0) {
+        currentX = 0;
+        currentY += currentRowHeight + spacing;
+        currentRowHeight = 0;
       }
 
-      // 如果没有找到合适位置则扩展布局
-      if (!bestPosition) {
-        bestPosition = new Vector(layoutWidth, 0);
-        layoutWidth += currentRect.width + spacing;
-        layoutHeight = Math.max(layoutHeight, currentRect.height);
-      }
+      // 放置当前矩形
+      currentRect.location = new Vector(currentX, currentY);
 
-      // 更新实际布局边界
-      const right = bestPosition.x + currentRect.width;
-      const bottom = bestPosition.y + currentRect.height;
-      layoutWidth = Math.max(layoutWidth, right);
-      layoutHeight = Math.max(layoutHeight, bottom);
-
-      // 记录最终位置
-      currentRect.location = bestPosition;
-      placedRects.push(currentRect);
+      // 更新当前行信息和总布局宽度
+      currentX += currentRect.width + spacing;
+      currentRowHeight = Math.max(currentRowHeight, currentRect.height);
+      currentLayoutWidth = Math.max(currentLayoutWidth, currentX);
     });
 
+    // 最终布局高度
+    const currentLayoutHeight = currentY + currentRowHeight;
+
     // 平衡宽高比（最大1.5:1）
-    const [finalWidth, finalHeight] = balanceLayoutRatio(layoutWidth, layoutHeight);
+
+    // 平衡宽高比（最大1.5:1）
 
     // 计算原始包围盒中心
     const originalBounds = Rectangle.getBoundingRectangle(entities.map((e) => e.collisionBox.getRectangle()));
     const originalCenter = originalBounds.center;
 
     // 计算布局中心偏移量
-    const offset = originalCenter.subtract(new Vector(finalWidth / 2, finalHeight / 2));
+    const offset = originalCenter.subtract(new Vector(currentLayoutWidth / 2, currentLayoutHeight / 2));
 
     // 应用布局位置
     layoutItems.forEach((item) => {
       const targetPos = item.rect.location.add(offset);
       StageEntityMoveManager.moveEntityToUtils(item.entity, targetPos);
     });
-
-    // 辅助函数：平衡布局比例
-    function balanceLayoutRatio(width: number, height: number, maxRatio = 1.5): [number, number] {
-      const ratio = width / height;
-
-      if (ratio > maxRatio) {
-        return [width, width / maxRatio];
-      }
-      if (1 / ratio > maxRatio) {
-        return [height * maxRatio, height];
-      }
-      return [width, height];
-    }
 
     StageHistoryManager.recordStep();
   }

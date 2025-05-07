@@ -4,7 +4,6 @@ import { LeftMouseModeEnum, Stage } from "../../../../stage/Stage";
 import { SectionMethods } from "../../../../stage/stageManager/basicMethods/SectionMethods";
 import { StageNodeAdder } from "../../../../stage/stageManager/concreteMethods/stageNodeAdder";
 import { StageObjectSelectCounter } from "../../../../stage/stageManager/concreteMethods/StageObjectSelectCounter";
-import { StageManager } from "../../../../stage/stageManager/StageManager";
 import { Section } from "../../../../stage/stageObject/entity/Section";
 import { Controller } from "../Controller";
 import { ControllerClass } from "../ControllerClass";
@@ -30,7 +29,10 @@ ControllerEntityCreate.mouseDoubleClick = (event: MouseEvent) => {
   const pressLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
 
   // 排除：在实体上双击或者在线上双击
-  if (StageManager.isEntityOnLocation(pressLocation) || StageManager.isAssociationOnLocation(pressLocation)) {
+  if (
+    Stage.stageManager.isEntityOnLocation(pressLocation) ||
+    Stage.stageManager.isAssociationOnLocation(pressLocation)
+  ) {
     return;
   }
 

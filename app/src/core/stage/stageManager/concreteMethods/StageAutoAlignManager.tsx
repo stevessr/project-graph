@@ -11,7 +11,7 @@ import { Stage } from "../../Stage";
 import { ConnectableEntity } from "../../stageObject/abstract/ConnectableEntity";
 import { Entity } from "../../stageObject/abstract/StageEntity";
 import { GraphMethods } from "../basicMethods/GraphMethods";
-import { StageManager } from "../StageManager";
+// import { StageManager } from "../StageManager"; // Removed static import
 
 /**
  * 自动对齐和布局管理器
@@ -21,7 +21,7 @@ export namespace StageAutoAlignManager {
    * 对齐到网格
    */
   export function alignAllSelectedToGrid() {
-    const selectedEntities = StageManager.getSelectedEntities();
+    const selectedEntities = Stage.stageManager.getSelectedEntities();
     for (const selectedEntity of selectedEntities) {
       if (selectedEntity.isAlignExcluded) {
         // 涂鸦对象不参与对齐
@@ -36,9 +36,9 @@ export namespace StageAutoAlignManager {
    * 用于鼠标松开的时候自动移动位置一小段距离
    */
   export function alignAllSelected() {
-    const selectedEntities = StageManager.getSelectedEntities();
+    const selectedEntities = Stage.stageManager.getSelectedEntities();
     const viewRectangle = Renderer.getCoverWorldRectangle();
-    const otherEntities = StageManager.getEntities()
+    const otherEntities = Stage.stageManager.getEntities()
       .filter((entity) => !entity.isSelected)
       .filter((entity) => entity.collisionBox.getRectangle().isAbsoluteIn(viewRectangle));
     for (const selectedEntity of selectedEntities) {
@@ -55,9 +55,9 @@ export namespace StageAutoAlignManager {
    * 用于鼠标移动的时候显示对齐的效果
    */
   export function preAlignAllSelected() {
-    const selectedEntities = StageManager.getSelectedEntities();
+    const selectedEntities = Stage.stageManager.getSelectedEntities();
     const viewRectangle = Renderer.getCoverWorldRectangle();
-    const otherEntities = StageManager.getEntities()
+    const otherEntities = Stage.stageManager.getEntities()
       .filter((entity) => !entity.isSelected)
       .filter((entity) => entity.collisionBox.getRectangle().isAbsoluteIn(viewRectangle));
     for (const selectedEntity of selectedEntities) {

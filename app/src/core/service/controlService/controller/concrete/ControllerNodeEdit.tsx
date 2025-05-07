@@ -6,7 +6,6 @@ import { Vector } from "../../../../dataStruct/Vector";
 import { Renderer } from "../../../../render/canvas2d/renderer";
 import { Stage } from "../../../../stage/Stage";
 import { StageDumper } from "../../../../stage/StageDumper";
-import { StageManager } from "../../../../stage/stageManager/StageManager";
 import { PortalNode } from "../../../../stage/stageObject/entity/PortalNode";
 import { TextNode } from "../../../../stage/stageObject/entity/TextNode";
 import { UrlNode } from "../../../../stage/stageObject/entity/UrlNode";
@@ -28,7 +27,7 @@ ControllerNodeEdit.mouseDoubleClick = (event: MouseEvent) => {
   }
 
   const pressLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
-  const clickedEntity = StageManager.findEntityByLocation(pressLocation);
+  const clickedEntity = Stage.stageManager.findEntityByLocation(pressLocation);
 
   if (clickedEntity === null) {
     return;
@@ -81,7 +80,7 @@ ControllerNodeEdit.mouseDoubleClick = (event: MouseEvent) => {
         const absolutePath = PathString.dirPath(Stage.path.getFilePath());
         const newPath = PathString.relativePathToAbsolutePath(absolutePath, relativePath);
         // 取消选择所有节点
-        StageManager.clearSelectAll();
+        Stage.stageManager.clearSelectAll();
         // 切换前保存一下
         StageSaveManager.saveHandleWithoutCurrentPath(StageDumper.dump(), false);
         // 开始传送
@@ -101,7 +100,7 @@ ControllerNodeEdit.mouseup = (event: MouseEvent) => {
   }
 
   const pressLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
-  for (const entity of StageManager.getEntities()) {
+  for (const entity of Stage.stageManager.getEntities()) {
     // 必须有详细信息才显示详细信息按钮，进而点进去，否则会误触
     if (entity.isMouseInDetailsButton(pressLocation) && entity.details) {
       editNodeDetails(entity);
@@ -119,7 +118,7 @@ ControllerNodeEdit.mousemove = (event: MouseEvent) => {
   }
 
   const location = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
-  for (const node of StageManager.getTextNodes()) {
+  for (const node of Stage.stageManager.getTextNodes()) {
     node.isMouseHover = false;
     if (node.collisionBox.isContainsPoint(location)) {
       node.isMouseHover = true;

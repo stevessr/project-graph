@@ -6,7 +6,8 @@ import { MultiTargetUndirectedEdge } from "../../stageObject/association/MutiTar
 import { ImageNode } from "../../stageObject/entity/ImageNode";
 import { Section } from "../../stageObject/entity/Section";
 import { TextNode } from "../../stageObject/entity/TextNode";
-import { StageManager } from "../StageManager";
+// StageManager type is implicitly available via Stage.stageManager
+import { Stage } from "../../Stage"; // Added import for Stage instance
 
 /**
  * 实时记录选中的各种类型的对象的数量
@@ -51,7 +52,7 @@ export namespace StageObjectSelectCounter {
     selectedAssociationCount = 0;
     selectedMultiTargetUndirectedEdgeCount = 0;
 
-    for (const stageObject of StageManager.getStageObject()) {
+    for (const stageObject of Stage.stageManager.getStageObject()) {
       if (!stageObject.isSelected) {
         continue;
       }

@@ -86,7 +86,6 @@ async function loadSyncModules() {
   StageHistoryManager.init();
   StageStyleManager.init();
   MouseLocation.init();
-  StageManager.init();
   // 可以稍微晚几秒再初始化都没事的模块
   SoundService.init();
   KeyboardOnlyEngine.init();
@@ -112,6 +111,19 @@ async function loadLanguageFiles() {
   });
 }
 
+async function saveAiSettingsToProjectRoot() {
+  try {
+    const aiSettings = await invoke("load_ai_settings");
+    const settingsJson = JSON.stringify(aiSettings, null, 2);
+    const settingsData = new TextEncoder().encode(settingsJson); // Convert string to Uint8Array
+    // 使用相对路径写入项目根目录, 移除 dir 选项
+    await writeFile("ai_settings.json", settingsData);
+    console.log("AI settings saved successfully to project root.");
+  } catch (error) {
+    console.error("Failed to save AI settings:", error);
+  }
+}
+
 /** 加载用户自定义的工程文件，或者从启动参数中获取 */
 async function loadStartFile() {
   let path = "";
@@ -125,16 +137,7 @@ async function loadStartFile() {
     Camera.reset();
 
     // 在舞台数据成功加载后保存 AI 设置到项目根目录
-    try {
-      const aiSettings = await invoke("load_ai_settings");
-      const settingsJson = JSON.stringify(aiSettings, null, 2);
-      const settingsData = new TextEncoder().encode(settingsJson); // Convert string to Uint8Array
-      // 使用相对路径写入项目根目录, 移除 dir 选项
-      await writeFile("ai_settings.json", settingsData);
-      console.log("AI settings saved successfully to project root after loading stage data.");
-    } catch (error) {
-      console.error("Failed to save AI settings after loading stage data:", error);
-    }
+    await saveAiSettingsToProjectRoot();
 
     return;
   }
@@ -173,16 +176,7 @@ async function loadStartFile() {
     }, 1000);
 
     // 在舞台数据成功加载后保存 AI 设置到项目根目录
-    try {
-      const aiSettings = await invoke("load_ai_settings");
-      const settingsJson = JSON.stringify(aiSettings, null, 2);
-      const settingsData = new TextEncoder().encode(settingsJson); // Convert string to Uint8Array
-      // 使用相对路径写入项目根目录, 移除 dir 选项
-      await writeFile("ai_settings.json", settingsData);
-      console.log("AI settings saved successfully to project root after loading stage data.");
-    } catch (error) {
-      console.error("Failed to save AI settings after loading stage data:", error);
-    }
+    await saveAiSettingsToProjectRoot();
   } else {
     // 自动打开路径不存在
     Stage.effectMachine.addEffect(new TextRiseEffect(`打开工程失败，${path}不存在！`));

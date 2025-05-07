@@ -4,7 +4,6 @@ import { Vector } from "../../../../dataStruct/Vector";
 import { EdgeRenderer } from "../../../../render/canvas2d/entityRenderer/edge/EdgeRenderer";
 import { Renderer } from "../../../../render/canvas2d/renderer";
 import { LeftMouseModeEnum, Stage } from "../../../../stage/Stage";
-import { StageManager } from "../../../../stage/stageManager/StageManager";
 import { ConnectableEntity } from "../../../../stage/stageObject/abstract/ConnectableEntity";
 import { ConnectPoint } from "../../../../stage/stageObject/entity/ConnectPoint";
 import { RectangleNoteEffect } from "../../../feedbackService/effectEngine/concrete/RectangleNoteEffect";
@@ -57,21 +56,21 @@ class ControllerNodeConnectionClass extends ControllerClass {
     // 如果是左键，则检查是否在连接的过程中按下
     if (this.isConnecting()) {
       const clickedConnectableEntity: ConnectableEntity | null =
-        StageManager.findConnectableEntityByLocation(pressWorldLocation);
+        Stage.stageManager.findConnectableEntityByLocation(pressWorldLocation);
       if (clickedConnectableEntity === null) {
         // 是否是在Section内部双击
         const sections = SectionMethods.getSectionsByInnerLocation(pressWorldLocation);
 
         const pointUUID = StageNodeAdder.addConnectPoint(pressWorldLocation, sections);
-        const connectPoint = StageManager.getConnectableEntityByUUID(pointUUID) as ConnectPoint;
+        const connectPoint = Stage.stageManager.getConnectableEntityByUUID(pointUUID) as ConnectPoint;
 
         for (const fromEntity of this.connectFromEntities) {
-          StageManager.connectEntity(fromEntity, connectPoint);
+          Stage.stageManager.connectEntity(fromEntity, connectPoint);
           this.addConnectEffect(fromEntity, connectPoint);
         }
         this.connectFromEntities = [connectPoint];
         // 选中这个质点
-        for (const entity of StageManager.getConnectableEntity()) {
+        for (const entity of Stage.stageManager.getConnectableEntity()) {
           if (entity.isSelected) {
             entity.isSelected = false;
           }
@@ -110,14 +109,14 @@ class ControllerNodeConnectionClass extends ControllerClass {
     this.mouseLocations = [pressWorldLocation.clone()];
 
     const clickedConnectableEntity: ConnectableEntity | null =
-      StageManager.findConnectableEntityByLocation(pressWorldLocation);
+      Stage.stageManager.findConnectableEntityByLocation(pressWorldLocation);
     if (clickedConnectableEntity === null) {
       return;
     }
 
     // 右键点击了某个节点
     this.connectFromEntities = [];
-    for (const node of StageManager.getConnectableEntity()) {
+    for (const node of Stage.stageManager.getConnectableEntity()) {
       if (node.isSelected) {
         this.connectFromEntities.push(node);
       }
@@ -138,7 +137,7 @@ class ControllerNodeConnectionClass extends ControllerClass {
      */
     if (this.connectFromEntities.includes(clickedConnectableEntity)) {
       // 多重连接
-      for (const node of StageManager.getConnectableEntity()) {
+      for (const node of Stage.stageManager.getConnectableEntity()) {
         if (node.isSelected) {
           // 特效
           Stage.effectMachine.addEffect(
@@ -200,7 +199,7 @@ class ControllerNodeConnectionClass extends ControllerClass {
     }
     // 连接线
     let isFindConnectToNode = false;
-    for (const entity of StageManager.getConnectableEntity()) {
+    for (const entity of Stage.stageManager.getConnectableEntity()) {
       if (entity.collisionBox.isContainsPoint(worldLocation)) {
         // 找到了连接的节点，吸附上去
         this.connectToEntity = entity;
@@ -236,7 +235,7 @@ class ControllerNodeConnectionClass extends ControllerClass {
 
   private mouseUp(event: MouseEvent) {
     const releaseWorldLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
-    const releaseTargetEntity = StageManager.findConnectableEntityByLocation(releaseWorldLocation);
+    const releaseTargetEntity = Stage.stageManager.findConnectableEntityByLocation(releaseWorldLocation);
 
     // 根据轨迹判断方向
     const [sourceDirection, targetDirection] = this.getConnectDirectionByMouseTrack();
@@ -262,9 +261,9 @@ class ControllerNodeConnectionClass extends ControllerClass {
       const newConnectFromEntities = this.connectFromEntities;
 
       addTextNodeByLocation(releaseWorldLocation, true, (uuid) => {
-        const createdNode = StageManager.getTextNodeByUUID(uuid) as ConnectableEntity;
+        const createdNode = Stage.stageManager.getTextNodeByUUID(uuid) as ConnectableEntity;
         for (const fromEntity of newConnectFromEntities) {
-          const connectResult = StageManager.connectEntity(fromEntity, createdNode);
+          const connectResult = Stage.stageManager.connectEntity(fromEntity, createdNode);
           if (connectResult) {
             this.addConnectEffect(fromEntity, createdNode);
           }
@@ -349,14 +348,14 @@ class ControllerNodeConnectionClass extends ControllerClass {
    */
   private clickMultiConnect(releaseWorldLocation: Vector) {
     // 右键点击位置和抬起位置重叠，说明是右键单击事件，没有发生拖拽现象
-    const releaseTargetEntity = StageManager.findConnectableEntityByLocation(releaseWorldLocation);
+    const releaseTargetEntity = Stage.stageManager.findConnectableEntityByLocation(releaseWorldLocation);
     if (!releaseTargetEntity) {
       return;
     }
-    const selectedEntities = StageManager.getConnectableEntity().filter((entity) => entity.isSelected);
+    const selectedEntities = Stage.stageManager.getConnectableEntity().filter((entity) => entity.isSelected);
     // 还要保证当前舞台有节点被选中
     // 连线
-    StageManager.connectMultipleEntities(selectedEntities, releaseTargetEntity);
+    Stage.stageManager.connectMultipleEntities(selectedEntities, releaseTargetEntity);
 
     for (const selectedEntity of selectedEntities) {
       this.addConnectEffect(selectedEntity, releaseTargetEntity);
@@ -411,7 +410,7 @@ class ControllerNodeConnectionClass extends ControllerClass {
         break;
     }
     // 连线
-    StageManager.connectMultipleEntities(
+    Stage.stageManager.connectMultipleEntities(
       this.connectFromEntities,
       connectToEntity,
       isPressC,

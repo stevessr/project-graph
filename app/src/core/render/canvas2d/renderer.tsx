@@ -174,7 +174,7 @@ export namespace Renderer {
    * 建议此函数内部的调用就像一个清单一样，全是函数（这些函数都不是export的）。
    * @returns
    */
-  export function frameTick() {
+  export function frameTick(stageManager: StageManager) {
     updateFPS();
     const viewRectangle = getCoverWorldRectangle();
     Camera.frameTick();
@@ -191,18 +191,18 @@ export namespace Renderer {
         for (let xi = -1; xi <= 1; xi++) {
           Camera.location.x = originCameraLocation.x + xi * LimitX;
           Camera.location.y = originCameraLocation.y + yi * LimitY;
-          renderMainStageElements(viewRectangle);
+          renderMainStageElements(viewRectangle, stageManager);
         }
       }
       Camera.location = originCameraLocation;
       renderCycleSpaceBorder();
     } else {
       // 正常模式渲染
-      renderMainStageElements(viewRectangle);
+      renderMainStageElements(viewRectangle, stageManager);
     }
 
     // 不随摄像机移动的渲染要素
-    renderViewElements(viewRectangle);
+    renderViewElements(viewRectangle, stageManager);
   }
 
   function renderCycleSpaceBorder() {
@@ -217,23 +217,23 @@ export namespace Renderer {
     );
   }
 
-  function renderViewElements(viewRectangle: Rectangle) {
+  function renderViewElements(viewRectangle: Rectangle, stageManager: StageManager) {
     renderDraggingFileTips();
     renderSpecialKeys();
     renderCenterPointer();
     renderPrivacyBoard(viewRectangle);
-    renderDebugDetails();
+    renderDebugDetails(stageManager);
   }
 
-  function renderMainStageElements(viewRectangle: Rectangle) {
+  function renderMainStageElements(viewRectangle: Rectangle, stageManager: StageManager) {
     // 先渲染主场景
-    renderStageElementsWithoutReactions(viewRectangle);
+    renderStageElementsWithoutReactions(viewRectangle, stageManager);
     isRenderingChildStage = true;
     const cameraOldScale = Camera.currentScale;
     // 再渲染所有子场景
-    for (const key of StageManager.getAllChildStageKeys()) {
+    for (const key of stageManager.getAllChildStageKeys()) {
       // key就是绝对路径
-      const cameraData = StageManager.getChildStageCameraData(key);
+      const cameraData = stageManager.getChildStageCameraData(key);
       let diffLocation = Vector.getZero();
       const cameraOldLocation = Camera.location.clone();
       if (cameraData) {
@@ -245,17 +245,17 @@ export namespace Renderer {
       }
 
       // 加载子场景
-      StageManager.storeMainStage(); // 先保存主场景
-      StageManager.destroy();
-      StageManager.storeChildStageToMainStage(key); // 把子场景加到主场景位置上
+      stageManager.storeMainStage(); // 先保存主场景
+      stageManager.destroy();
+      stageManager.storeChildStageToMainStage(key); // 把子场景加到主场景位置上
       const viewChildRectangleLocation = Camera.location.clone().add(cameraData.location.subtract(cameraOldLocation));
       const childStageViewRectangle = new Rectangle(
         viewChildRectangleLocation,
         cameraData.size.multiply(cameraData.zoom),
       );
-      renderStageElementsWithoutReactions(childStageViewRectangle); // 再渲染主场景
-      StageManager.destroy();
-      StageManager.restoreMainStage(); // 还原主场景位置
+      renderStageElementsWithoutReactions(childStageViewRectangle, stageManager); // 再渲染主场景
+      stageManager.destroy();
+      stageManager.restoreMainStage(); // 还原主场景位置
       Camera.location = Camera.location.subtract(diffLocation);
       Camera.currentScale = cameraOldScale;
     }
@@ -266,9 +266,9 @@ export namespace Renderer {
     renderHoverCollisionBox();
     renderSelectingRectangle();
     renderCuttingLine();
-    renderConnectingLine();
-    renderKeyboardOnly();
-    rendererLayerMovingLine();
+    renderConnectingLine(stageManager);
+    renderKeyboardOnly(stageManager);
+    rendererLayerMovingLine(stageManager);
     renderClipboard();
     renderEffects();
     searchContentHighlightRenderer(frameIndex);
@@ -276,12 +276,12 @@ export namespace Renderer {
   }
 
   // 渲染一切实体相关的要素
-  function renderStageElementsWithoutReactions(viewRectangle: Rectangle) {
-    EntityRenderer.renderAllSectionsBackground(viewRectangle);
-    renderEdges(viewRectangle);
-    renderEntities(viewRectangle);
+  function renderStageElementsWithoutReactions(viewRectangle: Rectangle, stageManager: StageManager) {
+    EntityRenderer.renderAllSectionsBackground(viewRectangle, stageManager);
+    renderEdges(viewRectangle, stageManager);
+    renderEntities(viewRectangle, stageManager);
     EntityRenderer.renderAllSectionsBigTitle(viewRectangle);
-    renderTags();
+    renderTags(stageManager);
     // debug
 
     // debugRender();
@@ -395,12 +395,12 @@ export namespace Renderer {
   }
 
   /** 手动连接线 */
-  function renderConnectingLine() {
+  function renderConnectingLine(stageManager: StageManager) {
     if (Stage.connectMachine.isUsing) {
       // 如果鼠标位置没有和任何节点相交
       let connectTargetNode = null;
       const mouseLocation = transformView2World(MouseLocation.vector());
-      for (const node of StageManager.getConnectableEntity()) {
+      for (const node of stageManager.getConnectableEntity()) {
         if (node.collisionBox.isContainsPoint(mouseLocation)) {
           connectTargetNode = node;
           break;
@@ -433,10 +433,10 @@ export namespace Renderer {
   /**
    * 渲染和纯键盘操作相关的功能
    */
-  function renderKeyboardOnly() {
+  function renderKeyboardOnly(stageManager: StageManager) {
     if (KeyboardOnlyGraphEngine.isCreating()) {
       const isHaveEntity = KeyboardOnlyGraphEngine.isTargetLocationHaveEntity();
-      for (const node of StageManager.getTextNodes()) {
+      for (const node of stageManager.getTextNodes()) {
         if (node.isSelected) {
           {
             const startLocation = node.rectangle.center;
@@ -480,7 +480,7 @@ export namespace Renderer {
   }
 
   /** 层级移动时，渲染移动指向线 */
-  function rendererLayerMovingLine() {
+  function rendererLayerMovingLine(stageManager: StageManager) {
     if (!ControllerLayerMoving.isEnabled) {
       return;
     }
@@ -492,7 +492,7 @@ export namespace Renderer {
     if (Controller.pressingKeySet.size !== 1) {
       return;
     }
-    if (StageManager.getSelectedEntities().length === 0) {
+    if (stageManager.getSelectedEntities().length === 0) {
       return;
     }
     let lineWidth = 8;
@@ -500,7 +500,7 @@ export namespace Renderer {
       lineWidth = 16;
     }
 
-    const selectedEntities = StageManager.getSelectedEntities();
+    const selectedEntities = stageManager.getSelectedEntities();
     for (const selectedEntity of selectedEntities) {
       const startLocation = selectedEntity.collisionBox.getRectangle().center;
       const endLocation = Controller.mouseLocation;
@@ -600,9 +600,9 @@ export namespace Renderer {
   }
 
   /** 画所有被标签了的节点的特殊装饰物和缩小视野时的直观显示 */
-  function renderTags() {
-    for (const tagString of StageManager.TagOptions.getTagUUIDs()) {
-      const tagObject = StageManager.getStageObjectByUUID(tagString);
+  function renderTags(stageManager: StageManager) {
+    for (const tagString of stageManager.getTagUUIDs()) {
+      const tagObject = stageManager.getStageObjectByUUID(tagString);
       if (!tagObject) {
         continue;
       }
@@ -619,13 +619,13 @@ export namespace Renderer {
       );
     }
   }
-  function renderEntities(viewRectangle: Rectangle) {
-    renderedNodes = EntityRenderer.renderAllEntities(viewRectangle);
+  function renderEntities(viewRectangle: Rectangle, stageManager: StageManager) {
+    renderedNodes = EntityRenderer.renderAllEntities(viewRectangle, stageManager);
   }
 
-  function renderEdges(viewRectangle: Rectangle) {
+  function renderEdges(viewRectangle: Rectangle, stageManager: StageManager) {
     renderedEdges = 0;
-    for (const association of StageManager.getAssociations()) {
+    for (const association of stageManager.getAssociations()) {
       if (isOverView(viewRectangle, association)) {
         continue;
       }
@@ -782,7 +782,7 @@ export namespace Renderer {
   }
 
   /** 画debug信息 */
-  function renderDebugDetails() {
+  function renderDebugDetails(stageManager: StageManager) {
     if (!isShowDebug || isFrame) {
       return;
     }
@@ -796,9 +796,9 @@ export namespace Renderer {
       `location: ${Camera.location.x}, ${Camera.location.y}`,
       `window: ${w}x${h}`,
       `effect count: ${Stage.effectMachine.effectsCount}`,
-      `node count: ${renderedNodes} , ${StageManager.getTextNodes().length}`,
-      `edge count: ${renderedEdges} , ${StageManager.getLineEdges().length}`,
-      `section count: ${StageManager.getSections().length}`,
+      `node count: ${renderedNodes} , ${stageManager.getTextNodes().length}`,
+      `edge count: ${renderedEdges} , ${stageManager.getLineEdges().length}`,
+      `section count: ${stageManager.getSections().length}`,
       `selected count: ${StageObjectSelectCounter.toDebugString()}`,
       `pressingKeys: ${Controller.pressingKeysString()}`,
       `鼠标按下情况: ${Controller.isMouseDown}`,
@@ -814,7 +814,7 @@ export namespace Renderer {
       `delta: ${deltaTime.toFixed(2)}`,
       `path: ${Stage.path.getFilePath()}`,
       `autoSave: ${Stage.autoSaveEngine.toString()}`,
-      `isEnableEntityCollision: ${StageManager.isEnableEntityCollision}`,
+      `isEnableEntityCollision: ${stageManager.isEnableEntityCollision}`,
     ];
     for (const [k, v] of Object.entries(timings)) {
       detailsData.push(`render time:${k}: ${v.toFixed(2)}`);
@@ -901,11 +901,14 @@ export namespace Renderer {
    * @returns
    */
   export function transformWorld2View(worldLocation: Vector): Vector {
-    return worldLocation
-      .subtract(Camera.location)
-      .multiply(Camera.currentScale)
-      .add(new Vector(w / 2, h / 2))
-      .add(Camera.shakeLocation);
+    const viewLocation = new Vector(0, 0);
+    viewLocation.x = worldLocation.x - Camera.location.x;
+    viewLocation.y = worldLocation.y - Camera.location.y;
+    viewLocation.x *= Camera.currentScale;
+    viewLocation.y *= Camera.currentScale;
+    viewLocation.x += w / 2 + Camera.shakeLocation.x;
+    viewLocation.y += h / 2 + Camera.shakeLocation.y;
+    return viewLocation;
   }
 
   /**
@@ -916,11 +919,16 @@ export namespace Renderer {
    * @returns
    */
   export function transformView2World(viewLocation: Vector): Vector {
-    return viewLocation
-      .subtract(Camera.shakeLocation)
-      .subtract(new Vector(w / 2, h / 2))
-      .multiply(1 / Camera.currentScale)
-      .add(Camera.location);
+    const worldLocation = new Vector(0, 0);
+    worldLocation.x = viewLocation.x - Camera.shakeLocation.x;
+    worldLocation.y = viewLocation.y - Camera.shakeLocation.y;
+    worldLocation.x -= w / 2;
+    worldLocation.y -= h / 2;
+    worldLocation.x *= 1 / Camera.currentScale;
+    worldLocation.y *= 1 / Camera.currentScale;
+    worldLocation.x += Camera.location.x;
+    worldLocation.y += Camera.location.y;
+    return worldLocation;
   }
 
   /**

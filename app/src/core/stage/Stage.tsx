@@ -20,6 +20,7 @@ import { ContentSearchEngine } from "../service/dataManageService/contentSearchE
 import { EffectMachine } from "../service/feedbackService/effectEngine/effectMachine";
 import { Settings } from "../service/Settings";
 import { Camera } from "./Camera";
+import { StageManager } from "./stageManager/StageManager";
 
 export enum LeftMouseModeEnum {
   selectAndMove = "selectAndMove",
@@ -37,6 +38,9 @@ export enum LeftMouseModeEnum {
  * 但这个里面主要存一些动态的属性，以及特效交互等信息
  */
 export namespace Stage {
+  /** 舞台管理器 */
+  export const stageManager = new StageManager();
+
   /** 左键模式 */
   export let leftMouseMode: LeftMouseModeEnum = LeftMouseModeEnum.selectAndMove;
   export function changeLeftMouseFunction(mode: LeftMouseModeEnum) {

@@ -4,7 +4,6 @@ import { Renderer } from "../../../../render/canvas2d/renderer";
 import { LeftMouseModeEnum, Stage } from "../../../../stage/Stage";
 import { SectionMethods } from "../../../../stage/stageManager/basicMethods/SectionMethods";
 import { StageObjectSelectCounter } from "../../../../stage/stageManager/concreteMethods/StageObjectSelectCounter";
-import { StageManager } from "../../../../stage/stageManager/StageManager";
 import { StageObject } from "../../../../stage/stageObject/abstract/StageObject";
 import { Edge } from "../../../../stage/stageObject/association/Edge";
 import { Section } from "../../../../stage/stageObject/entity/Section";
@@ -65,8 +64,8 @@ class ControllerRectangleSelectClass extends ControllerClass {
       return;
     }
 
-    const isHaveEdgeSelected = StageManager.getAssociations().some((association) => association.isSelected);
-    const isHaveEntitySelected = StageManager.getEntities().some((entity) => entity.isSelected);
+    const isHaveEdgeSelected = Stage.stageManager.getAssociations().some((association: any) => association.isSelected);
+    const isHaveEntitySelected = Stage.stageManager.getEntities().some((entity: any) => entity.isSelected);
 
     // 现在的情况：在空白的地方按下左键
 
@@ -84,7 +83,7 @@ class ControllerRectangleSelectClass extends ControllerClass {
         // 不取消选择
       } else {
         // 取消选择所
-        StageManager.getStageObject().forEach((stageObject) => {
+        Stage.stageManager.getStageObject().forEach((stageObject: any) => {
           stageObject.isSelected = false;
         });
       }
@@ -96,7 +95,7 @@ class ControllerRectangleSelectClass extends ControllerClass {
     this.selectEndLocation = pressWorldLocation.clone();
     this.selectingRectangle = new Rectangle(pressWorldLocation.clone(), Vector.getZero());
 
-    const clickedAssociation = StageManager.findAssociationByLocation(pressWorldLocation);
+    const clickedAssociation = Stage.stageManager.findAssociationByLocation(pressWorldLocation);
     if (clickedAssociation !== null) {
       // 在连线身上按下
       this._isUsing = false;
@@ -139,14 +138,14 @@ class ControllerRectangleSelectClass extends ControllerClass {
       // 移动过程中不先暴力清除
     } else {
       // 先清空所有已经选择了的
-      StageManager.getStageObject().forEach((stageObject) => {
+      Stage.stageManager.getStageObject().forEach((stageObject: any) => {
         stageObject.isSelected = false;
       });
     }
 
     if (Controller.pressingKeySet.has("control")) {
       // 交叉选择，没的变有，有的变没
-      for (const entity of StageManager.getEntities()) {
+      for (const entity of Stage.stageManager.getEntities()) {
         if (entity.isHiddenBySectionCollapse) {
           continue;
         }
@@ -158,7 +157,7 @@ class ControllerRectangleSelectClass extends ControllerClass {
           }
         }
       }
-      for (const association of StageManager.getAssociations()) {
+      for (const association of Stage.stageManager.getAssociations()) {
         if (this.isSelectWithEntity(association)) {
           if (Controller.lastSelectedEdgeUUID.has(association.uuid)) {
             association.isSelected = false;
@@ -174,7 +173,7 @@ class ControllerRectangleSelectClass extends ControllerClass {
 
       // Entity
       if (!isHaveEntity) {
-        for (const otherEntities of StageManager.getEntities()) {
+        for (const otherEntities of Stage.stageManager.getEntities()) {
           // if (otherEntities instanceof Section) {
           //   continue;
           // }
@@ -192,7 +191,7 @@ class ControllerRectangleSelectClass extends ControllerClass {
       // Edge
       if (!isHaveEntity) {
         // 如果已经有节点被选择了，则不能再选择边了
-        for (const edge of StageManager.getAssociations()) {
+        for (const edge of Stage.stageManager.getAssociations()) {
           if (edge instanceof Edge && edge.isHiddenBySectionCollapse) {
             continue;
           }
@@ -250,14 +249,14 @@ class ControllerRectangleSelectClass extends ControllerClass {
     this._isUsing = false;
     // 将所有选择到的增加到上次选择的节点中
     Controller.lastSelectedEntityUUID.clear();
-    for (const node of StageManager.getEntities()) {
+    for (const node of Stage.stageManager.getEntities()) {
       if (node.isSelected) {
         Controller.lastSelectedEntityUUID.add(node.uuid);
       }
     }
 
     Controller.lastSelectedEdgeUUID.clear();
-    for (const edge of StageManager.getLineEdges()) {
+    for (const edge of Stage.stageManager.getLineEdges()) {
       if (edge.isSelected) {
         Controller.lastSelectedEdgeUUID.add(edge.uuid);
       }
@@ -272,8 +271,10 @@ class ControllerRectangleSelectClass extends ControllerClass {
  *  法则：永远不能同时框选一个东西和它包含在内部的东西。
  */
 function selectedEntityNormalizing() {
-  const entities = StageManager.getSelectedEntities();
-  const shallowerSections = SectionMethods.shallowerSection(entities.filter((entity) => entity instanceof Section));
+  const entities = Stage.stageManager.getSelectedEntities();
+  const shallowerSections = SectionMethods.shallowerSection(
+    entities.filter((entity: any) => entity instanceof Section),
+  );
   const shallowerEntities = SectionMethods.shallowerNotSectionEntities(entities);
   for (const entity of entities) {
     if (entity instanceof Section) {

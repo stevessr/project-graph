@@ -7,7 +7,6 @@ import { LineCuttingEffect } from "../../../service/feedbackService/effectEngine
 import { RectangleNoteEffect } from "../../../service/feedbackService/effectEngine/concrete/RectangleNoteEffect";
 import { StageStyleManager } from "../../../service/feedbackService/stageStyle/StageStyleManager";
 import { Camera } from "../../Camera";
-import { Stage } from "../../Stage";
 import { ConnectableEntity } from "../../stageObject/abstract/ConnectableEntity";
 import { StageObject } from "../../stageObject/abstract/StageObject";
 import { Edge } from "../../stageObject/association/Edge";
@@ -18,7 +17,7 @@ import { Section } from "../../stageObject/entity/Section";
 import { TextNode } from "../../stageObject/entity/TextNode";
 import { UrlNode } from "../../stageObject/entity/UrlNode";
 import { GraphMethods } from "../basicMethods/GraphMethods";
-import { StageManager } from "../StageManager";
+import { Stage } from "../../Stage";
 
 export namespace StageTagManager {
   /**
@@ -27,12 +26,12 @@ export namespace StageTagManager {
    * 目前先仅支持TextNode
    */
   export function changeTagBySelected() {
-    for (const selectedEntities of StageManager.getSelectedStageObjects()) {
+    for (const selectedEntities of Stage.stageManager.getSelectedStageObjects()) {
       // 若有则删，若无则加
-      if (StageManager.TagOptions.hasTag(selectedEntities.uuid)) {
-        StageManager.TagOptions.removeTag(selectedEntities.uuid);
+      if (Stage.stageManager.hasTag(selectedEntities.uuid)) {
+        Stage.stageManager.removeTag(selectedEntities.uuid);
       } else {
-        StageManager.TagOptions.addTag(selectedEntities.uuid);
+        Stage.stageManager.addTag(selectedEntities.uuid);
       }
     }
   }
@@ -43,10 +42,10 @@ export namespace StageTagManager {
    */
   export function refreshTagNamesUI() {
     const res: { tagName: string; uuid: string; color: [number, number, number, number] }[] = [];
-    const tagUUIDs = StageManager.TagOptions.getTagUUIDs();
+    const tagUUIDs = Stage.stageManager.getTagUUIDs();
     const tagObjectList: StageObject[] = [];
     for (const tagUUID of tagUUIDs) {
-      const stageObject = StageManager.getStageObjectByUUID(tagUUID);
+      const stageObject = Stage.stageManager.getStageObjectByUUID(tagUUID);
       if (stageObject) {
         tagObjectList.push(stageObject);
       }
@@ -100,7 +99,7 @@ export namespace StageTagManager {
    * @returns
    */
   export function moveCameraToTag(tagUUID: string) {
-    const tagObject = StageManager.getStageObjectByUUID(tagUUID);
+    const tagObject = Stage.stageManager.getStageObjectByUUID(tagUUID);
     if (!tagObject) {
       return;
     }

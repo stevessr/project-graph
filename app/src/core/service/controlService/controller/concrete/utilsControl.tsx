@@ -10,7 +10,6 @@ import { SectionMethods } from "../../../../stage/stageManager/basicMethods/Sect
 import { StageNodeAdder } from "../../../../stage/stageManager/concreteMethods/stageNodeAdder";
 import { StageObjectSelectCounter } from "../../../../stage/stageManager/concreteMethods/StageObjectSelectCounter";
 import { StageHistoryManager } from "../../../../stage/stageManager/StageHistoryManager";
-import { StageManager } from "../../../../stage/stageManager/StageManager";
 import { Entity } from "../../../../stage/stageObject/abstract/StageEntity";
 import { StageObject } from "../../../../stage/stageObject/abstract/StageObject";
 import { Edge } from "../../../../stage/stageObject/association/Edge";
@@ -274,7 +273,7 @@ export const editTextNodeHookGlobal = {
  * 通过快捷键的方式来打开Entity的详细信息编辑
  */
 export function editNodeDetailsByKeyboard() {
-  const nodes = StageManager.getEntities().filter((node) => node.isSelected);
+  const nodes = Stage.stageManager.getEntities().filter((node: Entity) => node.isSelected);
   if (nodes.length === 0) {
     Stage.effectMachine.addEffect(TextRiseEffect.default("请先选择一个节点，才能编辑详细信息"));
     return;
@@ -312,7 +311,7 @@ export function addTextNodeFromCurrentSelectedNode(direction: Direction, selectC
 }
 
 function textNodeInEditModeByUUID(uuid: string) {
-  const createNode = StageManager.getTextNodeByUUID(uuid);
+  const createNode = Stage.stageManager.getTextNodeByUUID(uuid);
   if (createNode === null) {
     // 说明 创建了立刻删掉了
     return;
@@ -329,7 +328,7 @@ function textNodeInEditModeByUUID(uuid: string) {
  * @param clickedLocation
  */
 export function getClickedStageObject(clickedLocation: Vector) {
-  let clickedStageObject: StageObject | null = StageManager.findEntityByLocation(clickedLocation);
+  let clickedStageObject: StageObject | null = Stage.stageManager.findEntityByLocation(clickedLocation);
   // 补充：在宏观视野下，框应该被很轻松的点击
   if (clickedStageObject === null && Camera.currentScale < Section.bigTitleCameraScale) {
     const clickedSections = SectionMethods.getSectionsByInnerLocation(clickedLocation);
@@ -338,7 +337,7 @@ export function getClickedStageObject(clickedLocation: Vector) {
     }
   }
   if (clickedStageObject === null) {
-    for (const association of StageManager.getAssociations()) {
+    for (const association of Stage.stageManager.getAssociations()) {
       if (association instanceof LineEdge) {
         if (association.target.isHiddenBySectionCollapse && association.source.isHiddenBySectionCollapse) {
           continue;
@@ -358,7 +357,7 @@ export function getClickedStageObject(clickedLocation: Vector) {
  * @param clickedLocation
  */
 export function isClickedResizeRect(clickedLocation: Vector): boolean {
-  const selectedEntities = StageManager.getSelectedStageObjects();
+  const selectedEntities = Stage.stageManager.getSelectedStageObjects();
 
   for (const selectedEntity of selectedEntities) {
     if (selectedEntity instanceof TextNode) {

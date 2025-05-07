@@ -44,7 +44,6 @@ import { StageStyleManager } from "../core/service/feedbackService/stageStyle/St
 import { LeftMouseModeEnum, Stage } from "../core/stage/Stage";
 import { StageDumper } from "../core/stage/StageDumper";
 import { StageHistoryManager } from "../core/stage/stageManager/StageHistoryManager";
-import { StageManager } from "../core/stage/stageManager/StageManager";
 import { StageGeneratorAI } from "../core/stage/stageManager/concreteMethods/StageGeneratorAI";
 import { StageNodeConnector } from "../core/stage/stageManager/concreteMethods/StageNodeConnector";
 import { StageObjectSelectCounter } from "../core/stage/stageManager/concreteMethods/StageObjectSelectCounter";
@@ -300,14 +299,14 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("stageObjects.items.delete")}
             icon={<Trash2 />}
             handleFunction={() => {
-              StageManager.deleteSelectedStageObjects();
+              Stage.stageManager.deleteSelectedStageObjects();
             }}
           />
           <ToolbarItem
             description={t("stageObjects.items.tag")}
             icon={<Tag />}
             handleFunction={() => {
-              StageManager.addTagBySelected();
+              Stage.stageManager.addTagBySelected();
             }}
           />
         </ToolbarGroup>
@@ -320,7 +319,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("multiTargetUndirectedEdges.items.switchToEdge")}
             icon={<MoveUpRight />}
             handleFunction={() => {
-              StageManager.switchUndirectedEdgeToEdge();
+              Stage.stageManager.switchUndirectedEdgeToEdge();
               StageHistoryManager.recordStep();
             }}
           />
@@ -328,9 +327,9 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("multiTargetUndirectedEdges.items.arrowExterior")}
             icon={<Maximize2 />}
             handleFunction={() => {
-              const selectedMTUEdge = StageManager.getSelectedAssociations().filter(
-                (edge) => edge instanceof MultiTargetUndirectedEdge,
-              );
+              const selectedMTUEdge = Stage.stageManager
+                .getSelectedAssociations()
+                .filter((edge) => edge instanceof MultiTargetUndirectedEdge);
               for (const multi_target_undirected_edge of selectedMTUEdge) {
                 multi_target_undirected_edge.arrow = "outer";
               }
@@ -341,9 +340,9 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("multiTargetUndirectedEdges.items.arrowInterior")}
             icon={<Minimize2 />}
             handleFunction={() => {
-              const selectedMTUEdge = StageManager.getSelectedAssociations().filter(
-                (edge) => edge instanceof MultiTargetUndirectedEdge,
-              );
+              const selectedMTUEdge = Stage.stageManager
+                .getSelectedAssociations()
+                .filter((edge) => edge instanceof MultiTargetUndirectedEdge);
               for (const multi_target_undirected_edge of selectedMTUEdge) {
                 multi_target_undirected_edge.arrow = "inner";
               }
@@ -354,9 +353,9 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("multiTargetUndirectedEdges.items.noArrow")}
             icon={<Slash />}
             handleFunction={() => {
-              const selectedMTUEdge = StageManager.getSelectedAssociations().filter(
-                (edge) => edge instanceof MultiTargetUndirectedEdge,
-              );
+              const selectedMTUEdge = Stage.stageManager
+                .getSelectedAssociations()
+                .filter((edge) => edge instanceof MultiTargetUndirectedEdge);
               for (const multi_target_undirected_edge of selectedMTUEdge) {
                 multi_target_undirected_edge.arrow = "none";
               }
@@ -367,9 +366,9 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("multiTargetUndirectedEdges.items.switchRenderState")}
             icon={<RefreshCcw />}
             handleFunction={() => {
-              const selectedMTUEdge = StageManager.getSelectedAssociations().filter(
-                (edge) => edge instanceof MultiTargetUndirectedEdge,
-              );
+              const selectedMTUEdge = Stage.stageManager
+                .getSelectedAssociations()
+                .filter((edge) => edge instanceof MultiTargetUndirectedEdge);
               for (const multi_target_undirected_edge of selectedMTUEdge) {
                 if (multi_target_undirected_edge.renderType === "line") {
                   multi_target_undirected_edge.renderType = "convex";
@@ -390,7 +389,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("edge.items.switchDirection")}
             icon={<Repeat />}
             handleFunction={() => {
-              const selectedEdges = StageManager.getLineEdges().filter((edge) => edge.isSelected);
+              const selectedEdges = Stage.stageManager.getLineEdges().filter((edge) => edge.isSelected);
               StageNodeConnector.reverseEdges(selectedEdges);
               StageHistoryManager.recordStep();
             }}
@@ -399,7 +398,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("edge.items.switchToCrEdge") + "还在开发中，不推荐使用"}
             icon={<Spline />}
             handleFunction={() => {
-              StageManager.switchLineEdgeToCrEdge();
+              Stage.stageManager.switchLineEdgeToCrEdge();
               StageHistoryManager.recordStep();
             }}
           />
@@ -407,7 +406,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("edge.items.switchToUndirectedEdge")}
             icon={<ChevronsLeftRightEllipsis />}
             handleFunction={() => {
-              StageManager.switchEdgeToUndirectedEdge();
+              Stage.stageManager.switchEdgeToUndirectedEdge();
               StageHistoryManager.recordStep();
             }}
           />
@@ -427,7 +426,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("crEdge.items.addControlPoint")}
             icon={<GitBranchPlus />}
             handleFunction={() => {
-              StageManager.addSelectedCREdgeControlPoint();
+              Stage.stageManager.addSelectedCREdgeControlPoint();
               StageHistoryManager.recordStep();
             }}
           />
@@ -435,7 +434,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("crEdge.items.tensionIncrease")}
             icon={<ChevronsRightLeft />}
             handleFunction={() => {
-              StageManager.addSelectedCREdgeTension();
+              Stage.stageManager.addSelectedCREdgeTension();
               StageHistoryManager.recordStep();
             }}
           />
@@ -443,7 +442,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("crEdge.items.tensionDecrease")}
             icon={<ChevronsLeftRightEllipsis />}
             handleFunction={() => {
-              StageManager.reduceSelectedCREdgeTension();
+              Stage.stageManager.reduceSelectedCREdgeTension();
               StageHistoryManager.recordStep();
             }}
           />
@@ -469,7 +468,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("entity.items.packSection")}
             icon={<Square />}
             handleFunction={() => {
-              StageManager.packEntityToSectionBySelected();
+              Stage.stageManager.packEntityToSectionBySelected();
             }}
           />
 
@@ -477,9 +476,9 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("entity.items.createMultiTargetEdgeConvex")}
             icon={<SquareDashed />}
             handleFunction={async () => {
-              const selectedNodes = StageManager.getSelectedEntities().filter(
-                (node) => node instanceof ConnectableEntity,
-              );
+              const selectedNodes = Stage.stageManager
+                .getSelectedEntities()
+                .filter((node) => node instanceof ConnectableEntity);
               if (selectedNodes.length <= 1) {
                 Stage.effectMachine.addEffect(new TextRiseEffect("至少选择两个可连接节点"));
                 return;
@@ -487,22 +486,22 @@ export default function Toolbar({ className = "" }: { className?: string }) {
               const multiTargetUndirectedEdge = MultiTargetUndirectedEdge.createFromSomeEntity(selectedNodes);
               multiTargetUndirectedEdge.text = "group";
               multiTargetUndirectedEdge.renderType = "convex";
-              StageManager.addAssociation(multiTargetUndirectedEdge);
+              Stage.stageManager.addAssociation(multiTargetUndirectedEdge);
             }}
           />
           <ToolbarItem
             description={t("entity.items.createMultiTargetEdgeLine")}
             icon={<Merge />}
             handleFunction={async () => {
-              const selectedNodes = StageManager.getSelectedEntities().filter(
-                (node) => node instanceof ConnectableEntity,
-              );
+              const selectedNodes = Stage.stageManager
+                .getSelectedEntities()
+                .filter((node) => node instanceof ConnectableEntity);
               if (selectedNodes.length <= 1) {
                 Stage.effectMachine.addEffect(new TextRiseEffect("至少选择两个可连接节点"));
                 return;
               }
               const multiTargetUndirectedEdge = MultiTargetUndirectedEdge.createFromSomeEntity(selectedNodes);
-              StageManager.addAssociation(multiTargetUndirectedEdge);
+              Stage.stageManager.addAssociation(multiTargetUndirectedEdge);
             }}
           />
           <ToolbarItem
@@ -523,7 +522,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("imageNode.items.refresh")}
             icon={<RefreshCcw />}
             handleFunction={() => {
-              StageManager.refreshSelected();
+              Stage.stageManager.refreshSelected();
             }}
           />
           <ToolbarItem
@@ -543,7 +542,9 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("textNode.items.switchWidthAdjustMode")}
             icon={<WrapText />}
             handleFunction={() => {
-              const selectedTextNodes = StageManager.getSelectedEntities().filter((node) => node instanceof TextNode);
+              const selectedTextNodes = Stage.stageManager
+                .getSelectedEntities()
+                .filter((node) => node instanceof TextNode);
               for (const node of selectedTextNodes) {
                 if (node.sizeAdjust === "auto") {
                   node.sizeAdjust = "manual";
@@ -581,7 +582,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             description={t("section.items.checkoutFolderState") + "（还在开发中，暂时不推荐使用）"}
             icon={<Package />}
             handleFunction={() => {
-              StageManager.sectionSwitchCollapse();
+              Stage.stageManager.sectionSwitchCollapse();
             }}
           />
         </ToolbarGroup>
@@ -648,7 +649,7 @@ const onSaveSelectedNew = async () => {
 
   try {
     const selectedNodes = [];
-    for (const node of StageManager.getTextNodes()) {
+    for (const node of Stage.stageManager.getTextNodes()) {
       if (node.isSelected) {
         selectedNodes.push(node);
       }

@@ -1,7 +1,6 @@
 import { Vector } from "../../../../dataStruct/Vector";
 import { Renderer } from "../../../../render/canvas2d/renderer";
 import { LeftMouseModeEnum, Stage } from "../../../../stage/Stage";
-import { StageManager } from "../../../../stage/stageManager/StageManager";
 import { Controller } from "../Controller";
 import { ControllerClass } from "../ControllerClass";
 
@@ -36,7 +35,7 @@ export class ControllerPenStrokeControl extends ControllerClass {
     if (Stage.leftMouseMode === LeftMouseModeEnum.selectAndMove) {
       // 检查鼠标是否悬浮在笔迹上
       const location = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
-      for (const node of StageManager.getPenStrokes()) {
+      for (const node of Stage.stageManager.getPenStrokes()) {
         node.isMouseHover = false;
         if (node.collisionBox.isContainsPoint(location)) {
           node.isMouseHover = true;

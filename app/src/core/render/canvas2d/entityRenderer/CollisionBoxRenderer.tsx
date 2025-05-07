@@ -17,7 +17,8 @@ import { WorldRenderUtils } from "../utilsRenderer/WorldRenderUtils";
  */
 export namespace CollisionBoxRenderer {
   export function render(collideBox: CollisionBox, color: Color) {
-    const scale = Camera.currentScale > 0.02 ? Camera.currentScale : Camera.currentScale * 20;
+    // Adjust scale for visibility at low zoom levels, preventing excessively thick lines.
+    const scale = Camera.currentScale > 0.05 ? Camera.currentScale : 1;
     for (const shape of collideBox.shapeList) {
       if (shape instanceof Rectangle) {
         ShapeRenderer.renderRect(

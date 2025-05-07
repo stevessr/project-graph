@@ -6,7 +6,6 @@ import { ConnectableEntity } from "../../stageObject/abstract/ConnectableEntity"
 import { Entity } from "../../stageObject/abstract/StageEntity";
 import { GraphMethods } from "../basicMethods/GraphMethods";
 import { SectionMethods } from "../basicMethods/SectionMethods";
-import { StageManager } from "../StageManager";
 import { StageSectionInOutManager } from "./StageSectionInOutManager";
 
 /**
@@ -38,7 +37,7 @@ export namespace StageEntityMoveManager {
     //   }
     // }
     if (isAutoAdjustSection) {
-      for (const section of StageManager.getSections()) {
+      for (const section of Stage.stageManager.getSections()) {
         if (section.isHaveChildrenByUUID(nodeUUID)) {
           section.adjustLocationAndSize();
         }
@@ -65,7 +64,7 @@ export namespace StageEntityMoveManager {
       // 代表想要走出当前section
       const currentFatherSections = SectionMethods.getFatherSections(entity);
       if (currentFatherSections.length !== 0) {
-        StageManager.goOutSection([entity], currentFatherSections[0]);
+        Stage.stageManager.goOutSection([entity], currentFatherSections[0]);
       }
     } else {
       StageSectionInOutManager.goInSections([entity], targetSections);
@@ -90,7 +89,7 @@ export namespace StageEntityMoveManager {
   export function moveEntityToUtils(entity: Entity, location: Vector) {
     entity.moveTo(location);
     const nodeUUID = entity.uuid;
-    for (const section of StageManager.getSections()) {
+    for (const section of Stage.stageManager.getSections()) {
       if (section.isHaveChildrenByUUID(nodeUUID)) {
         section.adjustLocationAndSize();
       }
@@ -103,7 +102,7 @@ export namespace StageEntityMoveManager {
    * @param isAutoAdjustSection
    */
   export function moveSelectedEntities(delta: Vector, isAutoAdjustSection: boolean = true) {
-    for (const node of StageManager.getEntities()) {
+    for (const node of Stage.stageManager.getEntities()) {
       if (node.isSelected) {
         moveEntityUtils(node, delta, isAutoAdjustSection);
       }
@@ -116,7 +115,7 @@ export namespace StageEntityMoveManager {
    * @param delta
    */
   export function jumpMoveSelectedConnectableEntities(delta: Vector) {
-    for (const node of StageManager.getConnectableEntity()) {
+    for (const node of Stage.stageManager.getConnectableEntity()) {
       if (node.isSelected) {
         jumpMoveEntityUtils(node, delta);
       }
@@ -128,7 +127,7 @@ export namespace StageEntityMoveManager {
    * @param delta
    */
   export function moveConnectableEntitiesWithChildren(delta: Vector) {
-    for (const node of StageManager.getConnectableEntity()) {
+    for (const node of Stage.stageManager.getConnectableEntity()) {
       if (node.isSelected) {
         moveWithChildren(node, delta);
       }
