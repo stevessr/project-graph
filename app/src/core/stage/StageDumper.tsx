@@ -3,7 +3,7 @@ import { SectionMethods } from "./stageManager/basicMethods/SectionMethods";
 import { StageManager } from "./stageManager/StageManager";
 import { Association } from "./stageObject/abstract/Association";
 import { Entity } from "./stageObject/abstract/StageEntity";
-import { CublicCatmullRomSplineEdge } from "./stageObject/association/CublicCatmullRomSplineEdge";
+import { CubicCatmullRomSplineEdge } from "./stageObject/association/CubicCatmullRomSplineEdge";
 import { LineEdge } from "./stageObject/association/LineEdge";
 import { MultiTargetUndirectedEdge } from "./stageObject/association/MutiTargetUndirectedEdge";
 import { ConnectPoint } from "./stageObject/entity/ConnectPoint";
@@ -49,7 +49,7 @@ export namespace StageDumper {
       targetRectRate: [edge.targetRectangleRate.x, edge.targetRectangleRate.y],
     };
   }
-  export function dumpCrEdge(edge: CublicCatmullRomSplineEdge): Serialized.CublicCatmullRomSplineEdge {
+  export function dumpCrEdge(edge: CubicCatmullRomSplineEdge): Serialized.CubicCatmullRomSplineEdge {
     return {
       source: edge.source.uuid,
       target: edge.target.uuid,
@@ -193,7 +193,7 @@ export namespace StageDumper {
   export function dumpOneAssociation(association: Association): Serialized.CoreAssociation {
     if (association instanceof LineEdge) {
       return dumpEdge(association);
-    } else if (association instanceof CublicCatmullRomSplineEdge) {
+    } else if (association instanceof CubicCatmullRomSplineEdge) {
       return dumpCrEdge(association);
     } else if (association instanceof MultiTargetUndirectedEdge) {
       return dumpMTUEdge(association);
@@ -297,7 +297,7 @@ export namespace StageDumper {
         if (entities.includes(edge.source) && entities.includes(edge.target)) {
           result.push(dumpEdge(edge));
         }
-      } else if (edge instanceof CublicCatmullRomSplineEdge) {
+      } else if (edge instanceof CubicCatmullRomSplineEdge) {
         if (entities.includes(edge.source) && entities.includes(edge.target)) {
           result.push(dumpCrEdge(edge));
         }

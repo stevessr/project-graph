@@ -156,6 +156,7 @@ const MapOtherFunction: OtherFunctionMap = {
   [LogicNodeNameEnum.REPLACE_GLOBAL_CONTENT]: NodeLogic.replaceGlobalContent,
   [LogicNodeNameEnum.SEARCH_CONTENT]: NodeLogic.searchContent,
   [LogicNodeNameEnum.DELETE_PEN_STROKE_BY_COLOR]: NodeLogic.deletePenStrokeByColor,
+  [LogicNodeNameEnum.DELAY_COPY]: NodeLogic.delayCopy,
 };
 
 /**
@@ -200,6 +201,8 @@ export function autoComputeEngineTick(tickNumber: number) {
   )) {
     computeEdge(edge);
   }
+  NodeLogic.step++;
+  // 逻辑引擎执行一步，计数器+1
 }
 
 export function isTextNodeLogic(node: TextNode): boolean {
@@ -261,6 +264,15 @@ function computeTextNode(node: TextNode) {
   for (const name of Object.keys(MapOtherFunction)) {
     if (node.text === name) {
       // 发现了一个特殊节点
+      if (name === LogicNodeNameEnum.DELAY_COPY) {
+        // 延迟复制要传逻辑节点本身的uuid
+        const result = MapOtherFunction[name](
+          [...AutoComputeUtils.getParentEntities(node), node],
+          AutoComputeUtils.getChildTextNodes(node),
+        );
+        AutoComputeUtils.generateMultiResult(node, result);
+        continue;
+      }
       const result = MapOtherFunction[name](
         AutoComputeUtils.getParentEntities(node),
         AutoComputeUtils.getChildTextNodes(node),

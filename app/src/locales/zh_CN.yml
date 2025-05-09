@@ -566,6 +566,16 @@ settings:
     title: 按钮点击开关按钮时关闭的声音
     description: |
       按钮点击开关按钮时关闭的声音文件路径
+  agreeTerms:
+    title: 同意用户协议
+    description: |
+      请您仔细阅读并同意用户协议
+  allowTelemetry:
+    title: 参与用户体验改进计划
+    description: |
+      如果您启用此项，我们会收集您的使用数据，帮助我们改进软件
+      发送的数据仅用于统计，不会包含您的个人隐私信息
+      您的数据会在中国香港的云服务器上存储，不会发送到国外
   ai:
     title: AI设置
     apiConfig:
@@ -778,6 +788,66 @@ startFilePanel:
     clearList: 清空列表
     showAbsolutePath: 显示绝对路径
     showFileTime: 显示文件时间
+
+controlSettingsGroup:
+  mouse:
+    title: 鼠标设置
+  touchpad:
+    title: 触摸板设置
+  cameraMove:
+    title: 视野移动设置
+  cameraZoom:
+    title: 视野缩放设置
+  rectangleSelect:
+    title: 框选设置
+  textNode:
+    title: 文本节点设置
+  edge:
+    title: 连线设置
+  generateNode:
+    title: 通过键盘生长节点设置
+  gamepad:
+    title: 游戏手柄设置
+
+visualSettingsGroup:
+  basic:
+    title: 基础设置
+  background:
+    title: 背景设置
+  node:
+    title: 节点样式设置
+  edge:
+    title: 连线样式设置
+  section:
+    title: “框”的样式设置
+  entityDetails:
+    title: 实体详情设置
+  help:
+    title: 遇到问题时相关的设置
+  miniWindow:
+    title: 迷你窗口设置
+  testingFunctions:
+    title: 实验性功能
+    description: |
+      如果您不了解下面的设置，请不要修改它们。否则您会感觉出现灵异事件
+
+performanceSettingsGroup:
+  memory:
+    title: 内存相关性能设置
+    description: |
+      以下设置项和内存有关，建议根据您的计算机配置进行调整
+  cpu:
+    title: CPU相关性能设置
+    description: |
+      以下设置项和CPU有关，建议根据您的计算机配置进行调整
+  render:
+    title: 渲染相关性能设置
+    description: |
+      以下设置项和渲染有关，建议根据您的计算机配置进行调整
+  dev:
+    title: 还在开发中的功能
+    description: |
+      以下设置项还在开发，不建议修改
 
 effects:
   CircleChangeRadiusEffect:
@@ -1091,6 +1161,12 @@ keyBinds:
       在按下该键不松开的同时按下“I J K L”键自由调整生长位置
       松开后，生长完成
       使用此功能前先确保已选中一个节点
+  treeGraphAdjust:
+    title: 调整当前节点所在树形结构的树形排布
+    description: |
+      主要用于关闭了键盘生长节点时触发的树形排布调整时使用
+      可以通过此快捷键手动触发布局调整
+
   masterBrakeCheckout:
     title: 手刹：开启/关闭通过按键控制摄像机移动
     description: |

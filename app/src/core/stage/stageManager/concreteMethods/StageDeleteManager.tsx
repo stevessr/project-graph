@@ -17,33 +17,41 @@ import { UrlNode } from "../../stageObject/entity/UrlNode";
 import { SectionMethods } from "../basicMethods/SectionMethods";
 import { StageManager } from "../StageManager";
 import { StageSectionInOutManager } from "./StageSectionInOutManager";
+import { NodeLogic } from "../../../service/dataGenerateService/autoComputeEngine/functions/nodeLogic";
 
 /**
  * 包含一切删除舞台上的元素的方法
  */
 export namespace StageDeleteManager {
+  type DeleteHandler<T extends Entity> = (entity: T) => void;
+  type Constructor<T> = { new (...args: any[]): T };
+  const _deleteHandlers = new Map<Constructor<Entity>, DeleteHandler<Entity>>();
+  // 类型注册器，保证一个类型对应一个函数，绝对类型安全，同时可扩展
+  function registerHandler<T extends Entity>(constructor: Constructor<T>, handler: DeleteHandler<T>) {
+    _deleteHandlers.set(constructor, handler as DeleteHandler<Entity>);
+  }
+
+  registerHandler(TextNode, deleteTextNode);
+  registerHandler(Section, deleteSection);
+  registerHandler(ConnectPoint, deleteConnectPoint);
+  registerHandler(ImageNode, deleteImageNode);
+  registerHandler(UrlNode, deleteUrlNode);
+  registerHandler(PortalNode, deletePortalNode);
+  registerHandler(PenStroke, deletePenStroke);
+  registerHandler(SvgNode, deleteSvgNode);
+
   export function deleteEntities(deleteNodes: Entity[]) {
-    // TODO: 这里应该优化，否则每次新加内容就得些一个类型判断
     for (const entity of deleteNodes) {
-      if (entity instanceof TextNode) {
-        deleteTextNode(entity);
-      } else if (entity instanceof Section) {
-        deleteSection(entity);
-      } else if (entity instanceof ConnectPoint) {
-        deleteConnectPoint(entity);
-      } else if (entity instanceof ImageNode) {
-        deleteImageNode(entity);
-      } else if (entity instanceof UrlNode) {
-        deleteUrlNode(entity);
-      } else if (entity instanceof PortalNode) {
-        deletePortalNode(entity);
-      } else if (entity instanceof PenStroke) {
-        deletePenStroke(entity);
-      } else if (entity instanceof SvgNode) {
-        deleteSvgNode(entity);
-      }
+      const handler = findDeleteHandler(entity);
+      handler?.(entity);
     }
-    // StageManager.updateReferences();
+  }
+
+  function findDeleteHandler(entity: Entity) {
+    for (const [ctor, handler] of _deleteHandlers) {
+      if (entity instanceof ctor) return handler;
+    }
+    console.warn(`No delete handler for ${entity.constructor.name}`);
   }
 
   function deleteSvgNode(entity: SvgNode) {
@@ -122,6 +130,8 @@ export namespace StageDeleteManager {
   function deleteTextNode(entity: TextNode) {
     // 先判断这个node是否在nodes里
     if (StageManager.getTextNodes().includes(entity)) {
+      // 删除逻辑节点存储的状态
+      if (NodeLogic.delayStates.has(entity.uuid)) NodeLogic.delayStates.delete(entity.uuid);
       // 从数组中去除
       StageManager.deleteOneTextNode(entity);
       // 增加特效

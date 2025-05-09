@@ -11,6 +11,7 @@ import {
   Move,
   Network,
   PanelsTopLeft,
+  Scan,
   SendToBack,
   Spline,
   SquareDashed,
@@ -84,7 +85,7 @@ export const shortcutKeysGroups: ShortcutKeysGroup[] = [
   },
   {
     title: "select",
-    icon: <Move />,
+    icon: <Scan />,
     keys: [
       "selectUp",
       "selectDown",
@@ -113,7 +114,7 @@ export const shortcutKeysGroups: ShortcutKeysGroup[] = [
   {
     title: "generateTextNodeInTree",
     icon: <Network className="-rotate-90" />,
-    keys: ["generateNodeTreeWithDeepMode", "generateNodeTreeWithBroadMode", "generateNodeGraph"],
+    keys: ["generateNodeTreeWithDeepMode", "generateNodeTreeWithBroadMode", "generateNodeGraph", "treeGraphAdjust"],
   },
   {
     title: "generateTextNodeRoundedSelectedNode",

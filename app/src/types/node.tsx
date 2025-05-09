@@ -159,10 +159,10 @@ export namespace Serialized {
   export function isLineEdge(obj: StageObject): obj is LineEdge {
     return obj.type === "core:line_edge";
   }
-  export function isCublicCatmullRomSplineEdge(obj: StageObject): obj is CublicCatmullRomSplineEdge {
+  export function isCubicCatmullRomSplineEdge(obj: StageObject): obj is CubicCatmullRomSplineEdge {
     return obj.type === "core:cublic_catmull_rom_spline_edge";
   }
-  export type CublicCatmullRomSplineEdge = Edge & {
+  export type CubicCatmullRomSplineEdge = Edge & {
     type: "core:cublic_catmull_rom_spline_edge";
     text: string;
     controlPoints: Vector[];
@@ -174,7 +174,7 @@ export namespace Serialized {
   export function isCoreEntity(obj: StageObject): obj is CoreEntity {
     return obj.type.startsWith("core:");
   }
-  export type CoreAssociation = LineEdge | CublicCatmullRomSplineEdge | MultiTargetUndirectedEdge;
+  export type CoreAssociation = LineEdge | CubicCatmullRomSplineEdge | MultiTargetUndirectedEdge;
 
   export type File = {
     version: typeof StageDumper.latestVersion;
