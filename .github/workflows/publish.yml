@@ -39,7 +39,7 @@ on:
         type: string
         description: The path to the Android key file, relative to app_root
         required: false
-        default: "upload.jks"
+        default: "neko.jks"
       aur_package_name:
         type: string
         description: The name of the AUR package.
@@ -68,7 +68,7 @@ on:
         type: string
         description: The alias of the Android key.
         required: false
-        default: "upload"
+        default: "neko"
     secrets:
       TURBO_TOKEN:
         description: Authenticate Turbo to enable Remote Cache.

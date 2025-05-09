@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "./tauriApi";
 import { PathString } from "./pathString";
 import { isWeb } from "./platform";
 

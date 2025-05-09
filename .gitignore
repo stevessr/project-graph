@@ -22,3 +22,7 @@ backup_*
 .DS_Store
 
 .vscode/settings.json
+*.md
+app/.tauri/neko.key
+app/neko.jks
+app/src-tauri/ai_settings.json

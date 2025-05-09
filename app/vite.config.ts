@@ -31,9 +31,10 @@ export default defineConfig(async () => ({
   // tauri需要固定的端口
   server: {
     port: 1420,
+    //host: ["0.0.0.0", "127.0.0.1"],
     // 端口冲突时直接报错，不尝试下一个可用端口
     strictPort: true,
-    host: host || false,
+    host: host || "0.0.0.0",
     hmr: host
       ? {
           protocol: "ws",
@@ -47,6 +48,12 @@ export default defineConfig(async () => ({
     },
   },
   // endregion
+
+  build: {
+    rollupOptions: {
+      external: ["@tauri-apps/api"],
+    },
+  },
 
   // 2024年10月3日发现 pnpm build 会报错，
   // Top-level await is not available in the configured target environment
