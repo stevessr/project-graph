@@ -84,14 +84,9 @@ export abstract class Entity extends StageObject {
     }
 
     // 两者相交，需要调整位置
-    const overlapSize = selfRectangle.getOverlapSize(otherRectangle);
-    let moveDelta;
-    if (Math.abs(overlapSize.x) < Math.abs(overlapSize.y)) {
-      moveDelta = new Vector(overlapSize.x * Math.sign(otherRectangle.center.x - selfRectangle.center.x), 0);
-    } else {
-      moveDelta = new Vector(0, overlapSize.y * Math.sign(otherRectangle.center.y - selfRectangle.center.y));
-    }
-    other.move(moveDelta);
+    // 两者相交，需要调整位置
+    // Removed overlapSize calculation, moveDelta calculation and recursive move call to prevent Maximum call stack size exceeded.
+    // Collision response needs to be handled non-recursively by the caller (updateOtherEntityLocationByMove)
   }
   /**
    * 是不是因为所在的Section被折叠而隐藏了

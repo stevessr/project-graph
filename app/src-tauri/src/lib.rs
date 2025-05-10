@@ -4,6 +4,7 @@ use std::env;
 // Keep other imports
 
 mod ai;
+mod android_permissions;
 
 use base64::engine::general_purpose;
 use base64::Engine;
@@ -166,6 +167,12 @@ fn open_devtools<R: Runtime>(app: tauri::AppHandle<R>) {
     }
 }
 
+#[tauri::command]
+fn scan_android_app_permissions(manifest_path: String, source_code_paths: Vec<String>, file_extensions: Vec<String>) -> Result<Vec<String>, String> {
+    android_permissions::scan_android_permissions(&manifest_path, &source_code_paths, &file_extensions)
+        .map_err(|e| format!("Failed to scan android permissions: {}", e))
+}
+
 #[cfg(desktop)]
 #[tauri::command]
 async fn set_update_channel<R: Runtime>(
@@ -263,4 +270,156 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*; // To import scan_android_app_permissions and other items from lib.rs
+    use std::io::Write;
+    use tempfile::tempdir; // For creating temporary directories and files for tests
+
+    #[test]
+    fn test_lib_scan_android_app_permissions_success() -> Result<(), String> {
+        let src_dir = tempdir().map_err(|e| format!("Failed to create temp src dir: {}", e))?;
+        let manifest_dir = tempdir().map_err(|e| format!("Failed to create temp manifest dir: {}", e))?;
+
+        // Create dummy AndroidManifest.xml
+        let manifest_path = manifest_dir.path().join("AndroidManifest.xml");
+        let mut manifest_file = std::fs::File::create(&manifest_path)
+            .map_err(|e| format!("Failed to create manifest file: {}", e))?;
+        writeln!(manifest_file, r#"
+            <?xml version="1.0" encoding="utf-8"?>
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+                <uses-permission android:name="android.permission.INTERNET" />
+            </manifest>
+        "#).map_err(|e| format!("Failed to write to manifest file: {}", e))?;
+
+        // Create dummy source file that uses CAMERA permission
+        let code_file_path = src_dir.path().join("main.rs");
+        let mut code_file = std::fs::File::create(&code_file_path)
+            .map_err(|e| format!("Failed to create code file: {}", e))?;
+        writeln!(code_file, "fn main() {{ let _ = openCamera(); }}") // Uses CAMERA
+            .map_err(|e| format!("Failed to write to code file: {}", e))?;
+
+        let source_code_paths = vec![src_dir.path().to_str().unwrap().to_string()];
+        let file_extensions = vec!["rs".to_string()];
+
+        let missing_permissions = scan_android_app_permissions(
+            manifest_path.to_str().unwrap().to_string(),
+            source_code_paths,
+            file_extensions
+        )?;
+
+        assert_eq!(missing_permissions.len(), 1);
+        assert!(missing_permissions.contains(&"android.permission.CAMERA".to_string()));
+        Ok(())
+    }
+
+    #[test]
+    fn test_lib_scan_android_app_permissions_manifest_not_found() {
+        let src_dir = tempdir().unwrap();
+        let source_code_paths = vec![src_dir.path().to_str().unwrap().to_string()];
+        let file_extensions = vec!["rs".to_string()];
+
+        let result = scan_android_app_permissions(
+            "non_existent_manifest.xml".to_string(),
+            source_code_paths,
+            file_extensions
+        );
+        assert!(result.is_err());
+        if let Err(e) = result {
+            assert!(e.contains("Failed to scan android permissions"));
+            assert!(e.contains("No such file or directory") || e.contains("cannot find the path") || e.contains("os error 2"));
+        }
+    }
+
+    #[test]
+    fn test_lib_scan_android_app_permissions_empty_manifest() -> Result<(), String> {
+        let src_dir = tempdir().map_err(|e| format!("Failed to create temp src dir: {}", e))?;
+        let manifest_dir = tempdir().map_err(|e| format!("Failed to create temp manifest dir: {}", e))?;
+
+        let manifest_path = manifest_dir.path().join("AndroidManifest.xml");
+        std::fs::File::create(&manifest_path).map_err(|e| format!("Failed to create empty manifest file: {}", e))?; // Empty manifest
+
+        let code_file_path = src_dir.path().join("main.rs");
+        let mut code_file = std::fs::File::create(&code_file_path).map_err(|e| format!("Failed to create code file: {}", e))?;
+        writeln!(code_file, "fn main() {{ let _ = readContacts(); }}") // Uses READ_CONTACTS
+            .map_err(|e| format!("Failed to write to code file: {}", e))?;
+
+        let source_code_paths = vec![src_dir.path().to_str().unwrap().to_string()];
+        let file_extensions = vec!["rs".to_string()];
+
+        let missing_permissions = scan_android_app_permissions(
+            manifest_path.to_str().unwrap().to_string(),
+            source_code_paths,
+            file_extensions
+        )?;
+
+        assert_eq!(missing_permissions.len(), 1);
+        assert!(missing_permissions.contains(&"android.permission.READ_CONTACTS".to_string()));
+        Ok(())
+    }
+
+    #[test]
+    fn test_lib_scan_android_app_permissions_no_declared_some_used() -> Result<(), String> {
+        let src_dir = tempdir().map_err(|e| format!("Failed to create temp src dir: {}", e))?;
+        let manifest_dir = tempdir().map_err(|e| format!("Failed to create temp manifest dir: {}", e))?;
+
+        let manifest_path = manifest_dir.path().join("AndroidManifest.xml");
+        let mut manifest_file = std::fs::File::create(&manifest_path).map_err(|e| format!("Failed to create manifest file: {}", e))?;
+        writeln!(manifest_file, r#"<manifest xmlns:android="http://schemas.android.com/apk/res/android"></manifest>"#) // No permissions
+            .map_err(|e| format!("Failed to write to manifest file: {}", e))?;
+
+        let code_file_path = src_dir.path().join("main.rs");
+        let mut code_file = std::fs::File::create(&code_file_path).map_err(|e| format!("Failed to create code file: {}", e))?;
+        writeln!(code_file, "fn main() {{ let _ = getLocation(); let _ = writeExternalStorage(); }}") // Uses two permissions
+            .map_err(|e| format!("Failed to write to code file: {}", e))?;
+
+        let source_code_paths = vec![src_dir.path().to_str().unwrap().to_string()];
+        let file_extensions = vec!["rs".to_string()];
+
+        let missing_permissions = scan_android_app_permissions(
+            manifest_path.to_str().unwrap().to_string(),
+            source_code_paths,
+            file_extensions
+        )?;
+
+        assert_eq!(missing_permissions.len(), 2);
+        assert!(missing_permissions.contains(&"android.permission.ACCESS_FINE_LOCATION".to_string()));
+        assert!(missing_permissions.contains(&"android.permission.WRITE_EXTERNAL_STORAGE".to_string()));
+        Ok(())
+    }
+
+    #[test]
+    fn test_lib_scan_android_app_permissions_all_used_are_declared() -> Result<(), String> {
+        let src_dir = tempdir().map_err(|e| format!("Failed to create temp src dir: {}", e))?;
+        let manifest_dir = tempdir().map_err(|e| format!("Failed to create temp manifest dir: {}", e))?;
+
+        let manifest_path = manifest_dir.path().join("AndroidManifest.xml");
+        let mut manifest_file = std::fs::File::create(&manifest_path).map_err(|e| format!("Failed to create manifest file: {}", e))?;
+        writeln!(manifest_file, r#"
+            <?xml version="1.0" encoding="utf-8"?>
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+                <uses-permission android:name="android.permission.CAMERA" />
+                <uses-permission android:name="android.permission.READ_CONTACTS" />
+            </manifest>
+        "#).map_err(|e| format!("Failed to write to manifest file: {}", e))?;
+
+        let code_file_path = src_dir.path().join("main.rs");
+        let mut code_file = std::fs::File::create(&code_file_path).map_err(|e| format!("Failed to create code file: {}", e))?;
+        writeln!(code_file, "fn main() {{ let _ = openCamera(); let _ = readContacts(); }}") // Uses declared permissions
+            .map_err(|e| format!("Failed to write to code file: {}", e))?;
+
+        let source_code_paths = vec![src_dir.path().to_str().unwrap().to_string()];
+        let file_extensions = vec!["rs".to_string()];
+
+        let missing_permissions = scan_android_app_permissions(
+            manifest_path.to_str().unwrap().to_string(),
+            source_code_paths,
+            file_extensions
+        )?;
+
+        assert!(missing_permissions.is_empty());
+        Ok(())
+    }
 }

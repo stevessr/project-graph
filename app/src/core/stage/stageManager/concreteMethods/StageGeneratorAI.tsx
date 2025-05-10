@@ -84,20 +84,19 @@ export namespace StageGeneratorAI {
   }
 
   interface AiSettings {
-    api_endpoint: string | null;
-    api_key: string | null;
-    selected_model: string | null;
-    // Updated to use prompt_collections
-    prompt_collections: { [key: string]: PromptCollection } | null;
-    api_type: string | null;
+    api_endpoint?: string | null;
+    api_key?: string | null;
+    selected_model?: string | null;
+    prompt_collections?: Record<string, PromptCollection> | null; // HashMap<String, PromptCollection> in Rust
+    api_type?: string | null;
     summary_prompt?: string | null; // Add field for custom summary prompt
-    // Add fields for selected prompt
+    custom_prompts?: string | null;
   }
 
   async function realGenerateTextList(selectedTextNode: TextNode) {
     try {
       const aiSettings: AiSettings = await invoke("load_ai_settings");
-      console.log("aiSettings", aiSettings);
+      //console.log("aiSettings", aiSettings);
       const openaiApiEndpoint = aiSettings.api_endpoint;
       const apiKey = aiSettings.api_key;
       const selectedModel = aiSettings.selected_model;
@@ -127,11 +126,14 @@ export namespace StageGeneratorAI {
         let systemMessageContent = "";
         console.log("aiSettings:", aiSettings);
 
-        if (systemMessageContent) {
+        // Use custom_prompts if available and not empty, otherwise use default
+        if (aiSettings.custom_prompts) {
+          // Check for truthiness (not null, undefined, or empty string)
+          systemMessageContent = aiSettings.custom_prompts;
           messages.push({ role: "system", content: systemMessageContent });
         } else {
           console.warn("No selected system prompt found or loaded. Using default system prompt.");
-          // Add a default system prompt if none is selected
+          // Add a default system prompt if none is selected or it's empty
           systemMessageContent = "neko,一个联想家，请根据提供的词汇联想词汇，一行一个,仅仅输出联想即可"; // Default system prompt
           messages.push({ role: "system", content: systemMessageContent });
         }

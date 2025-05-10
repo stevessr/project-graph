@@ -33,3 +33,10 @@ export const isWindowCollapsingAtom = atom(false);
  * （老师专用）
  */
 export const isClassroomModeAtom = atom(false);
+
+/**
+ * AI 设置
+ */
+export const aiSettingsAtom = atom({
+  includeParentNodeInfo: true,
+});

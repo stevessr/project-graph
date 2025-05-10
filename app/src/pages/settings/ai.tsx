@@ -32,7 +32,7 @@ interface PromptCollection {
 }
 
 // Define the structure for AI settings (should match the Rust struct)
-interface AiSettings {
+export interface AiSettings {
   api_endpoint?: string | null;
   api_key?: string | null;
   selected_model?: string | null;
@@ -40,6 +40,7 @@ interface AiSettings {
   api_type?: string | null;
   summary_prompt?: string | null; // Add field for custom summary prompt
   custom_prompts?: string | null;
+  include_parent_node_info?: boolean | null; // Add new field
 }
 
 export default function AI() {
@@ -54,6 +55,7 @@ export default function AI() {
     api_type: "chat", // Set default to "chat"
     summary_prompt: null, // Initialize summary prompt
     custom_prompts: null, // Initialize custom prompts
+    include_parent_node_info: true, // Initialize new field with default true
   });
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -154,8 +156,8 @@ export default function AI() {
           setCustomPromptsString(loadedSettings.custom_prompts);
         }
       } catch (err) {
-        console.error(t("ai.saveFailure"), err); // Use translation
-        setError(`${t("ai.loadFailure")} ${err}`); // Add translation key
+        console.error(t("ai.loadFailure"), err); // Use translation
+        setError(t("ai.loadFailure")); // Use translation
       }
     };
 
@@ -189,7 +191,7 @@ export default function AI() {
       }
     } catch (err) {
       console.error(t("ai.fetchFailure"), err); // Use translation
-      setError(`${t("ai.fetchFailure")} ${err}`); // Use translation
+      setError(t("ai.fetchFailure")); // Use translation
       setAvailableModels([]);
     } finally {
       setLoading(false);
@@ -202,11 +204,18 @@ export default function AI() {
 
   // Unified input handler
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
 
     if (name === "custom_prompts_string") {
       // Handle the textarea specifically
       setCustomPromptsString(value);
+    } else if (type === "checkbox" && e.target instanceof HTMLInputElement) {
+      // Handle checkbox input and check instance
+      const target = e.target as HTMLInputElement; // Explicitly cast to HTMLInputElement
+      setSettings((prevSettings) => ({
+        ...prevSettings,
+        [name]: target.checked, // Access checked safely
+      }));
     } else {
       // Handle other settings fields
       setSettings((prevSettings) => ({
@@ -246,7 +255,9 @@ export default function AI() {
       }
     } catch (err) {
       console.error("保存提示词版本失败", err); // TODO: Translate console error
-      alert(t("ai.saveVersionFailure", { error: err })); // TODO: Add translation key
+      await Dialog.show({
+        title: t("ai.saveVersionFailure"), // TODO: Add translation key
+      });
     }
   };
 
@@ -347,7 +358,9 @@ export default function AI() {
       }
     } catch (err) {
       console.error(t("ai.saveFailure"), err); // Use translation
-      alert(`${t("ai.saveFailure")} ${err}`); // Use translation
+      await Dialog.show({
+        title: t("ai.saveFailure"), // Use translation
+      });
     }
   };
 
@@ -416,7 +429,7 @@ export default function AI() {
     } catch (err) {
       console.error("创建提示词失败", err); // TODO: Translate console error
       await Dialog.show({
-        title: t("ai.createPromptFailed", { error: err }),
+        title: t("ai.createPromptFailed"), // TODO: Add translation key
       });
     }
   };
@@ -493,6 +506,20 @@ export default function AI() {
               {loading ? t("ai.apiConfig.model.refreshing") : <Download size={16} />} {/* Use translation */}
             </Button>
           </div>
+        </Field>
+        {/* Add Include Parent Node Info Switch */}
+        <Field title={t("ai.includeParentNodeInfo.title")} description={t("ai.includeParentNodeInfo.description")}>
+          <input
+            type="checkbox"
+            name="include_parent_node_info"
+            checked={settings.include_parent_node_info ?? true} // Default to true if null/undefined
+            onChange={(e) =>
+              handleInputChange({
+                target: { name: "include_parent_node_info", type: "checkbox", checked: e.target.checked },
+              } as React.ChangeEvent<HTMLInputElement>)
+            }
+            className="form-checkbox h-5 w-5 text-indigo-600" // Basic styling, can be improved
+          />
         </Field>
       </FieldGroup>
       <FieldGroup title={t("ai.prompts.title")} icon={<FileText />}>

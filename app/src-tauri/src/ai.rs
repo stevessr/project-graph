@@ -5,6 +5,8 @@ use tauri::Manager;
 use tauri_plugin_store::StoreBuilder;
 use std::collections::HashMap; // 引入 HashMap
 use std::time::{SystemTime, UNIX_EPOCH}; // 引入时间相关模块
+use log::error; // Add logging
+
 
 // Define struct for structured prompt nodes
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -46,6 +48,7 @@ pub struct AiSettings {
     pub api_type: Option<String>, // Add api_type
     pub summary_prompt: Option<String>, // Add field for custom summary prompt
     pub custom_prompts: Option<String>,
+    pub include_parent_node_info: Option<bool>, // Add new field
 }
 
 impl Default for AiSettings {
@@ -60,6 +63,7 @@ impl Default for AiSettings {
             summary_prompt: None,
             custom_prompts: Some(String::new()),
         }
+        include_parent_node_info: Some(true), // Default to true
     }
 }
 
@@ -68,18 +72,30 @@ pub async fn save_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>, setti
     #[allow(unused_mut)]
     let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
         .build()
-        .map_err(|e| format!("Failed to build store: {}", e))?;
+        .map_err(|e| {
+            error!("Failed to build store for saving settings: {}", e);
+            "Failed to initialize settings storage.".to_string()
+        })?;
 
     store.reload()
-         .map_err(|e| format!("Failed to reload store before saving: {}", e))?;
+         .map_err(|e| {
+             error!("Failed to reload store before saving settings: {}", e);
+             "Failed to load existing settings.".to_string()
+         })?;
 
     let settings_value = serde_json::to_value(settings)
-        .map_err(|e| format!("Failed to serialize settings: {}", e))?;
+        .map_err(|e| {
+            error!("Failed to serialize settings: {}", e);
+            "Failed to process settings data.".to_string()
+        })?;
 
     store.set("settings".to_string(), settings_value);
 
     store.save()
-         .map_err(|e| format!("Failed to save store: {}", e))?;
+         .map_err(|e| {
+             error!("Failed to save settings: {}", e);
+             "Failed to save settings.".to_string()
+         })?;
 
     Ok(())
 }
@@ -89,17 +105,33 @@ pub async fn load_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Re
     #[allow(unused_mut)]
     let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
         .build()
-        .map_err(|e| format!("Failed to build store: {}", e))?;
+        .map_err(|e| {
+            error!("Failed to build store for loading settings: {}", e);
+            "Failed to initialize settings storage.".to_string()
+        })?;
 
     store.reload()
-         .map_err(|e| format!("Failed to reload store: {}", e))?;
+         .map_err(|e| {
+             error!("Failed to reload store before loading settings: {}", e);
+             "Failed to load settings.".to_string()
+         })?;
 
     let loaded_settings_value = store.get("settings");
 
     match loaded_settings_value {
         Some(value) => {
-            serde_json::from_value::<AiSettings>(value.clone())
-                .map_err(|e| format!("Failed to deserialize settings: {}", e))
+            let mut settings: AiSettings = serde_json::from_value::<AiSettings>(value.clone())
+                .map_err(|e| {
+                    error!("Failed to deserialize settings: {}", e);
+                    "Failed to process settings data.".to_string()
+                })?;
+            
+            // Ensure include_parent_node_info has a default value if not present in the file
+            if settings.include_parent_node_info.is_none() {
+                settings.include_parent_node_info = Some(true);
+            }
+
+            Ok(settings)
         }
         None => {
             println!("No existing AI settings found, returning default.");
@@ -269,6 +301,8 @@ pub async fn fetch_ai_models<R: tauri::Runtime>(
     api_key: Option<String>
 ) -> Result<serde_json::Value, String> {
 
+    log::info!("Fetching AI models from: {}", url); // Add logging for the URL
+
     let client = reqwest::Client::new();
     let mut request_builder = client.get(&url);
 
@@ -281,8 +315,8 @@ pub async fn fetch_ai_models<R: tauri::Runtime>(
                     request_builder = request_builder.header(AUTHORIZATION, header_value);
                 }
                 Err(e) => {
-                    // Return an error if the key is invalid for a header
-                    return Err(format!("Invalid API key format for Authorization header: {}", e));
+                    error!("Invalid API key format for Authorization header: {}", e);
+                    return Err("Invalid API key format.".to_string());
                 }
             }
         }
@@ -291,19 +325,26 @@ pub async fn fetch_ai_models<R: tauri::Runtime>(
     let response = request_builder
         .send()
         .await
-        .map_err(|e| format!("Failed to send request to '{}': {}", url, e))?;
+        .map_err(|e| {
+            error!("Failed to send request to '{}': {}", url, e);
+            "Failed to connect to the AI service.".to_string()
+        })?;
 
     if !response.status().is_success() {
         let status = response.status();
         // Try to get error body text, provide fallback message
         let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());
-         return Err(format!("Request failed with status {}: {}", status, error_body));
+         error!("Request to '{}' failed with status {}: {}", url, status, error_body);
+         return Err(format!("Request failed with status {}.", status));
     }
 
     let json_response = response
         .json::<serde_json::Value>()
         .await
-        .map_err(|e| format!("Failed to parse JSON response: {}", e))?;
+        .map_err(|e| {
+            error!("Failed to parse JSON response from '{}': {}", url, e);
+            "Failed to process response from AI service.".to_string()
+        })?;
 
     Ok(json_response)
 }

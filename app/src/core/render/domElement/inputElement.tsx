@@ -29,7 +29,7 @@ export namespace InputElement {
     style: Partial<CSSStyleDeclaration> = {},
   ): Promise<string> {
     return new Promise((resolve) => {
-      const inputElement = document.createElement("input");
+      let inputElement: HTMLInputElement | null = document.createElement("input");
       inputElement.type = "text";
       inputElement.value = defaultValue;
 
@@ -44,21 +44,25 @@ export namespace InputElement {
       inputElement.focus();
       inputElement.select();
       const removeElement = () => {
-        if (document.body.contains(inputElement)) {
+        // 确保 inputElement 仍然附加到 document.body 并且元素存在
+        if (inputElement && inputElement.parentNode === document.body) {
           try {
             // 暂时关闭频繁弹窗报错。
             document.body.removeChild(inputElement);
           } catch (error) {
             console.error(error);
           }
+          inputElement = null; // 设置为 null 防止重复移除
         }
       };
       const adjustSize = () => {
-        inputElement.style.width = `${inputElement.scrollWidth + 2}px`;
+        if (inputElement) {
+          inputElement.style.width = `${inputElement.scrollWidth + 2}px`;
+        }
       };
 
       const onOutsideClick = (event: Event) => {
-        if (!inputElement.contains(event.target as Node)) {
+        if (inputElement && !inputElement.contains(event.target as Node)) {
           resolve(inputElement.value);
           onChange(inputElement.value);
           document.body.removeEventListener("mousedown", onOutsideClick);
@@ -66,10 +70,12 @@ export namespace InputElement {
         }
       };
       const onOutsideWheel = () => {
-        resolve(inputElement.value);
-        onChange(inputElement.value);
-        document.body.removeEventListener("mousedown", onOutsideClick);
-        removeElement();
+        if (inputElement) {
+          resolve(inputElement.value);
+          onChange(inputElement.value);
+          document.body.removeEventListener("mousedown", onOutsideClick);
+          removeElement();
+        }
       };
 
       // 初始化
@@ -81,26 +87,33 @@ export namespace InputElement {
       }, 10);
 
       inputElement.addEventListener("input", () => {
-        onChange(inputElement.value);
-        adjustSize();
+        if (inputElement) {
+          onChange(inputElement.value);
+          adjustSize();
+        }
       });
       inputElement.addEventListener("blur", () => {
-        resolve(inputElement.value);
-        onChange(inputElement.value);
-        document.body.removeEventListener("mousedown", onOutsideClick);
-        removeElement();
-      });
-      inputElement.addEventListener("keydown", (event) => {
-        event.stopPropagation();
-        if (event.key === "Enter") {
+        if (inputElement) {
           resolve(inputElement.value);
           onChange(inputElement.value);
           document.body.removeEventListener("mousedown", onOutsideClick);
           removeElement();
         }
-        if (event.key === "Tab") {
-          // 防止tab切换到其他按钮
-          event.preventDefault();
+      });
+      inputElement.addEventListener("keydown", (event) => {
+        event.stopPropagation();
+        if (inputElement) {
+          // Add null check here
+          if (event.key === "Enter") {
+            resolve(inputElement.value);
+            onChange(inputElement.value);
+            document.body.removeEventListener("mousedown", onOutsideClick);
+            removeElement();
+          }
+          if (event.key === "Tab") {
+            // 防止tab切换到其他按钮
+            event.preventDefault();
+          }
         }
       });
     });
@@ -122,7 +135,7 @@ export namespace InputElement {
     limitWidth = 100,
   ): Promise<string> {
     return new Promise((resolve) => {
-      const textareaElement = document.createElement("textarea");
+      let textareaElement: HTMLTextAreaElement | null = document.createElement("textarea");
       textareaElement.value = defaultValue;
 
       textareaElement.id = "textarea-element";
@@ -147,18 +160,20 @@ export namespace InputElement {
       }
       // 以上这两部必须在appendChild之后执行
       const removeElement = () => {
-        if (document.body.contains(textareaElement)) {
+        // 确保 textareaElement 仍然附加到 document.body 并且元素存在
+        if (textareaElement && textareaElement.parentNode === document.body) {
           try {
             // 暂时关闭频繁弹窗报错。
             document.body.removeChild(textareaElement);
           } catch (error) {
             console.error(error);
           }
+          textareaElement = null; // 设置为 null 防止重复移除
         }
       };
 
       const onOutsideClick = (event: Event) => {
-        if (!textareaElement.contains(event.target as Node)) {
+        if (textareaElement && !textareaElement.contains(event.target as Node)) {
           resolve(textareaElement.value);
           onChange(textareaElement.value, textareaElement);
           document.body.removeEventListener("mousedown", onOutsideClick);
@@ -166,10 +181,12 @@ export namespace InputElement {
         }
       };
       const onOutsideWheel = () => {
-        resolve(textareaElement.value);
-        onChange(textareaElement.value, textareaElement);
-        document.body.removeEventListener("mousedown", onOutsideClick);
-        removeElement();
+        if (textareaElement) {
+          resolve(textareaElement.value);
+          onChange(textareaElement.value, textareaElement);
+          document.body.removeEventListener("mousedown", onOutsideClick);
+          removeElement();
+        }
       };
       setTimeout(() => {
         document.body.addEventListener("mousedown", onOutsideClick);
@@ -179,76 +196,94 @@ export namespace InputElement {
 
       // 自动调整textarea的高度和宽度
       const adjustSize = () => {
-        // 重置高度和宽度以获取正确的scrollHeight和scrollWidth
-        textareaElement.style.height = "auto";
-        textareaElement.style.height = `${textareaElement.scrollHeight}px`;
-        textareaElement.style.width = `${textareaElement.scrollWidth + 2}px`;
+        if (textareaElement) {
+          // Add null check here
+          // 重置高度和宽度以获取正确的scrollHeight和scrollWidth
+          textareaElement.style.height = "auto";
+          textareaElement.style.height = `${textareaElement.scrollHeight}px`;
+          textareaElement.style.width = `${textareaElement.scrollWidth + 2}px`;
+        }
       };
       setTimeout(() => {
         adjustSize(); // 初始化时调整大小
       }, 20);
       textareaElement.addEventListener("input", () => {
-        onChange(textareaElement.value, textareaElement);
-        adjustSize();
+        if (textareaElement) {
+          // Add null check here
+          onChange(textareaElement.value, textareaElement);
+          adjustSize();
+        }
       });
       textareaElement.addEventListener("blur", () => {
-        resolve(textareaElement.value);
-        onChange(textareaElement.value, textareaElement);
-        document.body.removeEventListener("mousedown", onOutsideClick);
-        removeElement();
-      });
-      textareaElement.addEventListener("keydown", (event) => {
-        event.stopPropagation();
-        if (event.key === "Tab") {
-          // 防止tab切换到其他按钮
-          event.preventDefault();
-          // 改成插入一个制表符
-          const start = textareaElement.selectionStart;
-          const end = textareaElement.selectionEnd;
-          textareaElement.value =
-            textareaElement.value.substring(0, start) + "\t" + textareaElement.value.substring(end);
-          textareaElement.selectionStart = start + 1;
-          textareaElement.selectionEnd = start + 1;
-        } else if (event.key === "Escape") {
-          // Escape 是通用的取消编辑的快捷键
+        if (textareaElement) {
+          // Add null check here
           resolve(textareaElement.value);
           onChange(textareaElement.value, textareaElement);
           document.body.removeEventListener("mousedown", onOutsideClick);
           removeElement();
         }
+      });
+      textareaElement.addEventListener("keydown", (event) => {
+        event.stopPropagation();
+        if (textareaElement) {
+          // Add null check here
+          if (event.key === "Tab") {
+            // 防止tab切换到其他按钮
+            event.preventDefault();
+            // 改成插入一个制表符
+            const start = textareaElement.selectionStart;
+            const end = textareaElement.selectionEnd;
+            textareaElement.value =
+              textareaElement.value.substring(0, start) + "\t" + textareaElement.value.substring(end);
+            textareaElement.selectionStart = start + 1;
+            textareaElement.selectionEnd = start + 1;
+          } else if (event.key === "Escape") {
+            // Escape 是通用的取消编辑的快捷键
+            resolve(textareaElement.value);
+            onChange(textareaElement.value, textareaElement);
+            document.body.removeEventListener("mousedown", onOutsideClick);
+            removeElement();
+          }
 
-        const breakLine = () => {
-          const start = textareaElement.selectionStart;
-          const end = textareaElement.selectionEnd;
-          textareaElement.value =
-            textareaElement.value.substring(0, start) + "\n" + textareaElement.value.substring(end);
-          textareaElement.selectionStart = start + 1;
-          textareaElement.selectionEnd = start + 1;
-          // 调整
-          adjustSize(); // 调整textarea
-          onChange(textareaElement.value, textareaElement); // 调整canvas渲染上去的框大小
-        };
+          const breakLine = () => {
+            if (textareaElement) {
+              // Add null check here
+              const start = textareaElement.selectionStart;
+              const end = textareaElement.selectionEnd;
+              textareaElement.value =
+                textareaElement.value.substring(0, start) + "\n" + textareaElement.value.substring(end);
+              textareaElement.selectionStart = start + 1;
+              textareaElement.selectionEnd = start + 1;
+              // 调整
+              adjustSize(); // 调整textarea
+              onChange(textareaElement.value, textareaElement); // 调整canvas渲染上去的框大小
+            }
+          };
 
-        const exitEditMode = () => {
-          resolve(textareaElement.value);
-          onChange(textareaElement.value, textareaElement);
-          document.body.removeEventListener("mousedown", onOutsideClick);
-          removeElement();
-        };
+          const exitEditMode = () => {
+            if (textareaElement) {
+              // Add null check here
+              resolve(textareaElement.value);
+              onChange(textareaElement.value, textareaElement);
+              document.body.removeEventListener("mousedown", onOutsideClick);
+              removeElement();
+            }
+          };
 
-        if (event.key === "Enter") {
-          event.preventDefault();
-          const enterKeyDetail = getEnterKey(event);
-          if (textNodeExitEditMode === enterKeyDetail) {
-            // 用户想退出编辑
-            exitEditMode();
-            addSuccessEffect();
-          } else if (textNodeContentLineBreak === enterKeyDetail) {
-            // 用户想换行
-            breakLine();
-          } else {
-            // 用户可能记错了快捷键
-            addFailEffect();
+          if (event.key === "Enter") {
+            event.preventDefault();
+            const enterKeyDetail = getEnterKey(event);
+            if (textNodeExitEditMode === enterKeyDetail) {
+              // 用户想退出编辑
+              exitEditMode();
+              addSuccessEffect();
+            } else if (textNodeContentLineBreak === enterKeyDetail) {
+              // 用户想换行
+              breakLine();
+            } else {
+              // 用户可能记错了快捷键
+              addFailEffect();
+            }
           }
         }
       });

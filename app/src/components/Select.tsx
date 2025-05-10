@@ -65,7 +65,7 @@ export default function Select({
       <div
         className={cn(
           // w-max: 防止下拉框在页面右侧时，宽度不够而缩小
-          "border-select-popup-border bg-select-popup-bg shadow-select-popup-shadow fixed z-[104] flex w-max origin-top -translate-x-1/2 scale-0 flex-col rounded-lg border p-2 opacity-0 shadow-lg",
+          "border-select-popup-border bg-select-popup-bg shadow-select-popup-shadow fixed z-[104] flex max-h-60 w-max origin-top -translate-x-1/2 scale-0 flex-col overflow-y-auto rounded-lg border p-2 opacity-0 shadow-lg",
           {
             "scale-100 opacity-100": showDropdown,
           },

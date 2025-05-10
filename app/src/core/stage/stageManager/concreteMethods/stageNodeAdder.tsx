@@ -353,6 +353,10 @@ export namespace StageNodeAdder {
 
   export function addNodeByMarkdown(markdownText: string, diffLocation: Vector = Vector.getZero()) {
     const markdownJson = parseMarkdownToJSON(markdownText);
+    if (!markdownJson || markdownJson.length === 0) {
+      // If markdownJson is empty or null, there's nothing to process.
+      return;
+    }
     // 遍历markdownJson
     const dfsMarkdownNode = (markdownNode: MarkdownNode, deepLevel: number) => {
       // visit
