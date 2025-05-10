@@ -62,8 +62,8 @@ impl Default for AiSettings {
             api_type: None,
             summary_prompt: None,
             custom_prompts: Some(String::new()),
+            include_parent_node_info: Some(true), // Default to true
         }
-        include_parent_node_info: Some(true), // Default to true
     }
 }
 
