@@ -91,13 +91,14 @@ export namespace StageGeneratorAI {
     prompt_collections: { [key: string]: PromptCollection } | null;
     api_type: string | null;
     summary_prompt?: string | null; // Add field for custom summary prompt
+    custom_prompts?: string | null; // Add field for custom prompts
     // Add fields for selected prompt
   }
 
   async function realGenerateTextList(selectedTextNode: TextNode) {
     try {
       const aiSettings: AiSettings = await invoke("load_ai_settings");
-      console.log("aiSettings", aiSettings);
+      //console.log("aiSettings", aiSettings);
       const openaiApiEndpoint = aiSettings.api_endpoint;
       const apiKey = aiSettings.api_key;
       const selectedModel = aiSettings.selected_model;
@@ -124,8 +125,8 @@ export namespace StageGeneratorAI {
         // Build messages based on structured prompts
         const messages: { role: string; content: string }[] = [];
 
-        let systemMessageContent = "";
-        console.log("aiSettings:", aiSettings);
+        let systemMessageContent = aiSettings?.custom_prompts;
+        //console.log("aiSettings:", aiSettings);
 
         if (systemMessageContent) {
           messages.push({ role: "system", content: systemMessageContent });
