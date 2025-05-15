@@ -108,6 +108,10 @@ export class ControllerClass {
     const touch = {
       ...(event.touches[event.touches.length - 1] as unknown as MouseEvent),
       button: 0, // 通过对象展开实现相对安全的属性合并
+
+      // 尝试修复华为触摸屏的笔记本报错问题
+      clientX: event.touches[event.touches.length - 1].clientX,
+      clientY: event.touches[event.touches.length - 1].clientY,
     } as MouseEvent;
     if (event.touches.length > 1) {
       Stage.selectMachine.shutDown();
@@ -117,18 +121,33 @@ export class ControllerClass {
 
   private _touchmove = (event: TouchEvent) => {
     event.preventDefault();
+    this.onePointTouchMoveLocation = new Vector(
+      event.touches[event.touches.length - 1].clientX,
+      event.touches[event.touches.length - 1].clientY,
+    );
     const touch = {
       ...(event.touches[event.touches.length - 1] as unknown as MouseEvent),
       button: 0, // 通过对象展开实现相对安全的属性合并
+
+      // 尝试修复华为触摸屏的笔记本报错问题
+      clientX: this.onePointTouchMoveLocation.x,
+      clientY: this.onePointTouchMoveLocation.y,
     } as MouseEvent;
     this.mousemove(touch);
   };
+
+  // 由于touchend事件没有位置检测，所以只能延用touchmove的位置
+  private onePointTouchMoveLocation: Vector = Vector.getZero();
 
   private _touchend = (event: TouchEvent) => {
     event.preventDefault();
     const touch = {
       ...(event.touches[event.touches.length - 1] as unknown as MouseEvent),
       button: 0, // 通过对象展开实现相对安全的属性合并
+
+      // 尝试修复华为触摸屏的笔记本报错问题
+      clientX: this.onePointTouchMoveLocation.x,
+      clientY: this.onePointTouchMoveLocation.y,
     } as MouseEvent;
     this._mouseup(touch);
   };
