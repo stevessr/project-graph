@@ -70,7 +70,8 @@ const el = document.getElementById("root")!;
     UserState.init(),
   ]);
   // 这些东西依赖上面的东西，所以单独一个Promise.all
-  await Promise.all([loadLanguageFiles(), loadSyncModules(), loadStartFile(), ShortcutKeysRegister.registerKeyBinds()]);
+  await Promise.all([loadLanguageFiles(), loadStartFile(), ShortcutKeysRegister.registerKeyBinds()]);
+  await loadSyncModules();
   await renderApp(isCliMode);
   if (isCliMode) {
     try {

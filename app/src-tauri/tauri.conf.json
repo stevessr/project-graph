@@ -1,6 +1,6 @@
 {
   "productName": "Project Graph",
-  "version": "0.0.0-dev",
+  "version": "0.0.114514-dev",
   "identifier": "liren.project-graph",
   "build": {
     "beforeDevCommand": "",
@@ -42,7 +42,11 @@
     "windows": {
       "nsis": {
         "displayLanguageSelector": true,
-        "languages": ["SimpChinese", "TradChinese", "English"],
+        "languages": [
+          "SimpChinese",
+          "TradChinese",
+          "English"
+        ],
         "sidebarImage": "nsis/left.bmp",
         "headerImage": "nsis/project-graph-install.bmp",
         "installerHooks": "nsis/installer.nsh"
@@ -55,6 +59,9 @@
       "appimage": {
         "bundleMediaFramework": true
       }
+    },
+    "android": {
+      "minSdkVersion": 28
     }
   },
   "plugins": {
@@ -75,7 +82,7 @@
       ]
     },
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEIyQzM3OTE1QjgwRTRCNzEKUldSeFN3NjRGWG5Ec2hVb05sWGZhVmpJdEVCR2cwNmM4UXlISEN5eHJBeFlCQkF3VjV6Z0tEY08K",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEYwQzNFOEU3OTZGOUVCNkYKUldSdjYvbVc1K2pEOExMMkJCa01JOTFUZkNnRGxkbHRpRFJKSkJaalNtTkVxQlpGaTBQbDVPNysK",
       "endpoints": [
         "https://release.project-graph.top/update/{{target}}/{{arch}}/{{current_version}}"
       ],
