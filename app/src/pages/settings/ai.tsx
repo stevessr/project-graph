@@ -1,60 +1,35 @@
 import { Dialog } from "../../components/dialog";
 import React, { useState, useEffect } from "react";
+import {
+  AiSettings,
+  ApiConfig,
+  // PromptCollection, // Removed unused import
+  // PromptVersion, // Removed unused import
+  PromptContentNode, // Renamed from PromptNode in types
+} from "../../types/aiSettings";
 import { invoke, fetch } from "../../utils/tauriApi";
-// Removed js-yaml, react-simple-code-editor, prismjs imports
 import { FieldGroup, Field } from "../../components/Field";
 import Button from "../../components/Button";
-import { Brain, Download, Save, FileText } from "lucide-react";
+import { Brain, Download, Save, FileText, RotateCcw, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 
-// Define the structure for a single prompt node (matches Rust struct)
-interface PromptNode {
-  text: string;
-  node_type?: string | null; // Optional type, matches Rust Option<String>
-  params?: any | null; // Optional params, matches Rust Option<serde_json::Value>
-  children?: PromptNode[] | null; // Optional children, matches Rust Option<Vec<PromptNode>>
-}
-
-// Define the structure for a specific version of a prompt (matches Rust struct)
-interface PromptVersion {
-  content: PromptNode;
-  timestamp: number; // i64 in Rust maps to number in TS
-}
-
-// Define the structure for a collection of prompt versions (matches Rust struct)
-interface PromptCollection {
-  name: string; // 提示词的名称，用于标识和显示
-  versions: PromptVersion[]; // 存储该提示词的所有版本
-  // Optional: can add a field to mark the current active version
-}
-
-// Define the structure for AI settings (should match the Rust struct)
-interface AiSettings {
-  api_endpoint?: string | null;
-  api_key?: string | null;
-  selected_model?: string | null;
-  prompt_collections?: Record<string, PromptCollection> | null; // HashMap<String, PromptCollection> in Rust
-  api_type?: string | null;
-  summary_prompt?: string | null; // Add field for custom summary prompt
-  custom_prompts?: string | null;
-}
+// Interface definitions are now imported from "../../types/aiSettings"
 
 export default function AI() {
   const { t } = useTranslation("settings"); // Use the translation hook
 
   // Update initial state to match the new AiSettings structure
   const [settings, setSettings] = useState<AiSettings>({
-    api_endpoint: null,
-    api_key: null,
-    selected_model: null,
-    prompt_collections: {}, // Initialize as empty object
-    api_type: "chat", // Set default to "chat"
-    summary_prompt: null, // Initialize summary prompt
-    custom_prompts: null, // Initialize custom prompts
+    api_configs: [],
+    active_config_id: null,
+    prompt_collections: {},
+    summary_prompt: null,
+    custom_prompts: null,
   });
+  const [activeApiConfig, setActiveApiConfig] = useState<ApiConfig | null>(null);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,18 +45,18 @@ export default function AI() {
   // --- Helper functions for parsing/formatting the new line format ---
 
   // Parses the line format string into PromptNode array
-  const parseLineFormat = (text: string): PromptNode[] | null => {
+  const parseLineFormat = (text: string): PromptContentNode[] | null => {
     if (!text || !text.trim()) {
       return null;
     }
     const lines = text.split("\n").filter((line) => line.trim() !== "");
-    const nodes: PromptNode[] = [];
+    const nodes: PromptContentNode[] = [];
     lines.forEach((line) => {
       const parts = line.split(":");
       const parentText = parts[0]?.trim();
       if (!parentText) return; // Skip lines without parent text
 
-      const parentNode: PromptNode = { text: parentText, children: null };
+      const parentNode: PromptContentNode = { text: parentText, children: null };
       if (parts.length > 1 && parts[1]?.trim()) {
         const childTexts = parts[1]
           .split(/[,、]/)
@@ -96,8 +71,8 @@ export default function AI() {
     return nodes.length > 0 ? nodes : null;
   };
 
-  // Formats PromptNode array back into the line format string
-  const formatNodesToLineString = (nodes: PromptNode[] | null): string => {
+  // Formats PromptContentNode array back into the line format string
+  const formatNodesToLineString = (nodes: PromptContentNode[] | null): string => {
     if (!nodes) {
       return "";
     }
@@ -116,29 +91,51 @@ export default function AI() {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const loadedSettings: AiSettings = await invoke("load_ai_settings");
-        setSettings(loadedSettings);
+        const loadedSettingsFromBackend: AiSettings = await invoke("load_ai_settings");
+
+        // Fix: Provide a default value for api_type if it's missing
+        if (loadedSettingsFromBackend.api_configs) {
+          loadedSettingsFromBackend.api_configs = loadedSettingsFromBackend.api_configs.map((config) => {
+            if (!config.api_type) {
+              // Default to "chat" if api_type is missing for backward compatibility.
+              return { ...config, api_type: "chat" };
+            }
+            return config;
+          });
+        }
+
+        setSettings(loadedSettingsFromBackend);
+
+        let currentActiveConfig: ApiConfig | null = null;
+        if (loadedSettingsFromBackend.active_config_id && loadedSettingsFromBackend.api_configs) {
+          currentActiveConfig =
+            loadedSettingsFromBackend.api_configs.find((c) => c.id === loadedSettingsFromBackend.active_config_id) ||
+            null;
+        } else if (loadedSettingsFromBackend.api_configs && loadedSettingsFromBackend.api_configs.length > 0) {
+          currentActiveConfig = loadedSettingsFromBackend.api_configs[0];
+        }
+        setActiveApiConfig(currentActiveConfig);
 
         // Handle loading prompt collections and selecting the latest version of the first one
-        if (loadedSettings.prompt_collections && Object.keys(loadedSettings.prompt_collections).length > 0) {
-          const promptNames = Object.keys(loadedSettings.prompt_collections);
+        if (
+          loadedSettingsFromBackend.prompt_collections &&
+          Object.keys(loadedSettingsFromBackend.prompt_collections).length > 0
+        ) {
+          const promptNames = Object.keys(loadedSettingsFromBackend.prompt_collections);
           const firstPromptName = promptNames[0];
-          const firstPromptCollection = loadedSettings.prompt_collections[firstPromptName];
+          const firstPromptCollection = loadedSettingsFromBackend.prompt_collections[firstPromptName];
 
           if (firstPromptCollection && firstPromptCollection.versions.length > 0) {
-            // Assuming versions are sorted by timestamp descending in backend
             const latestVersion = firstPromptCollection.versions[0];
-            setCustomPromptsString(formatNodesToLineString([latestVersion.content])); // formatNodesToLineString expects an array
+            setCustomPromptsString(formatNodesToLineString([latestVersion.content]));
             setSelectedPromptName(firstPromptName);
             setSelectedVersionTimestamp(latestVersion.timestamp);
           } else {
-            // Handle case where collection exists but has no versions
             setCustomPromptsString("");
             setSelectedPromptName(firstPromptName);
             setSelectedVersionTimestamp(null);
           }
         } else {
-          // Handle case where prompt_collections is empty or null/undefined
           setCustomPromptsString("");
           setSelectedPromptName(null);
           setSelectedVersionTimestamp(null);
@@ -148,23 +145,23 @@ export default function AI() {
         // load from loadedSettings.custom_prompts if available.
         if (
           customPromptsString === "" &&
-          loadedSettings.custom_prompts !== null &&
-          loadedSettings.custom_prompts !== undefined
+          loadedSettingsFromBackend.custom_prompts !== null &&
+          loadedSettingsFromBackend.custom_prompts !== undefined
         ) {
-          setCustomPromptsString(loadedSettings.custom_prompts);
+          setCustomPromptsString(loadedSettingsFromBackend.custom_prompts);
         }
       } catch (err) {
-        console.error(t("ai.saveFailure"), err); // Use translation
+        console.error(t("ai.loadFailure"), err); // Use translation
         setError(`${t("ai.loadFailure")} ${err}`); // Add translation key
       }
     };
 
     loadSettings();
-  }, [t]);
+  }, [t, customPromptsString]); // Added customPromptsString to dependencies to avoid stale closure issues
 
   // Fetch models when api_endpoint or api_key changes, or on manual refresh
   const fetchModels = async () => {
-    if (!settings.api_endpoint) {
+    if (!activeApiConfig || !activeApiConfig.endpoint_url) {
       setAvailableModels([]);
       return;
     }
@@ -172,24 +169,24 @@ export default function AI() {
     setLoading(true);
     setError(null);
     try {
-      // Assuming the API has an endpoint like /models that returns a JSON array of model names
-      const modelsUrl = `${settings.api_endpoint}/models`; // Adjust URL as needed
-      const models: any = await fetch(modelsUrl, { headers: { Authorization: `Bearer ${settings.api_key}` } }).then(
-        (res) => res.json(),
-      );
-      // Assuming the response is an array of strings or an object with a key containing an array
+      const modelsUrl = `${activeApiConfig.endpoint_url}/models`;
+      const headers: Record<string, string> = {};
+      if (activeApiConfig.api_key) {
+        headers["Authorization"] = `Bearer ${activeApiConfig.api_key}`;
+      }
+      const models: any = await fetch(modelsUrl, { headers }).then((res) => res.json());
+
       if (Array.isArray(models)) {
-        setAvailableModels(models.map(String)); // Ensure models are strings
+        setAvailableModels(models.map(String));
       } else if (models && typeof models === "object" && models.data && Array.isArray(models.data)) {
-        // Handle common OpenAI-like response structure
         setAvailableModels(models.data.map((m: any) => m.id).map(String));
       } else {
-        setError(t("ai.parseFailure")); // Use translation
+        setError(t("ai.parseFailure"));
         setAvailableModels([]);
       }
     } catch (err) {
-      console.error(t("ai.fetchFailure"), err); // Use translation
-      setError(`${t("ai.fetchFailure")} ${err}`); // Use translation
+      console.error(t("ai.fetchFailure"), err);
+      setError(`${t("ai.fetchFailure")} ${err}`);
       setAvailableModels([]);
     } finally {
       setLoading(false);
@@ -198,17 +195,31 @@ export default function AI() {
 
   useEffect(() => {
     fetchModels();
-  }, [settings.api_endpoint, settings.api_key]); // Refetch models when endpoint or key changes
+  }, [activeApiConfig, t]); // Refetch models when activeApiConfig changes
 
   // Unified input handler
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
     if (name === "custom_prompts_string") {
-      // Handle the textarea specifically
       setCustomPromptsString(value);
+    } else if (name === "summary_prompt") {
+      setSettings((prevSettings) => ({
+        ...prevSettings,
+        summary_prompt: value === "" ? null : value,
+      }));
+    } else if (["endpoint_url", "api_key", "api_type", "default_model", "name", "notes"].includes(name)) {
+      // Update activeApiConfig for API specific fields
+      setActiveApiConfig((prevConfig) => {
+        if (!prevConfig) return null; // Should ideally not happen if UI is enabled
+        return {
+          ...prevConfig,
+          [name]: value === "" && name !== "name" ? null : value, // name cannot be null
+        };
+      });
     } else {
-      // Handle other settings fields
+      // Fallback for any other settings fields directly on AiSettings (if any)
+      // This part might need review if other direct AiSettings fields are added
       setSettings((prevSettings) => ({
         ...prevSettings,
         [name]: value === "" ? null : value,
@@ -307,48 +318,106 @@ export default function AI() {
 
   const handleSaveSettings = async () => {
     try {
-      const settingsToSave: AiSettings = {
-        api_endpoint: settings.api_endpoint,
-        api_key: settings.api_key,
-        selected_model: settings.selected_model,
-        api_type: settings.api_type,
+      // Construct settings to send to backend.
+      // The UI currently edits one active API configuration at a time.
+      // If activeApiConfig is null but the user has made changes in the UI fields,
+      // we might need to create a new config or decide how to handle this.
+      // For now, we assume if activeApiConfig is being edited, it exists.
+
+      const apiConfigsToSend: ApiConfig[] = settings.api_configs || [];
+      let activeConfigIdToSend: string | null = settings.active_config_id;
+
+      if (activeApiConfig) {
+        // If an activeApiConfig is being edited, update it in the list or add it if new
+        const existingConfigIndex = apiConfigsToSend.findIndex((c) => c.id === activeApiConfig.id);
+        if (existingConfigIndex > -1) {
+          apiConfigsToSend[existingConfigIndex] = activeApiConfig;
+        } else {
+          // This case implies activeApiConfig was somehow detached or is new.
+          // For simplicity, we'll assume the UI ensures activeApiConfig.id is valid
+          // or a new one is generated before this point if creating a new config.
+          // If the UI doesn't support creating new API configs directly through these fields,
+          // this branch might not be hit.
+          apiConfigsToSend.push(activeApiConfig);
+        }
+        activeConfigIdToSend = activeApiConfig.id;
+      }
+      // If no activeApiConfig, but UI fields were somehow populated and saved,
+      // this logic would need to handle creating a new ApiConfig.
+      // Current UI flow seems to load an existing config into activeApiConfig.
+
+      const settingsToSaveBackend: AiSettings = {
+        api_configs: apiConfigsToSend,
+        active_config_id: activeConfigIdToSend,
+        prompt_collections: settings.prompt_collections,
         summary_prompt: settings.summary_prompt,
-        prompt_collections: settings.prompt_collections, // Start with the current collections
-        // Assign the custom_prompts string directly
         custom_prompts: customPromptsString === "" ? null : customPromptsString,
       };
-      console.log("Saving settings:", settingsToSave); // Debug log
-      await invoke("save_ai_settings", { settings: settingsToSave });
+
+      console.log("Saving settings to backend:", settingsToSaveBackend);
+      await invoke("save_ai_settings", { settings: settingsToSaveBackend });
       await Dialog.show({
-        title: t("ai.saveSuccess"), // Use translation
+        title: t("ai.saveSuccess"),
       });
+
       // After saving, reload settings to ensure UI is in sync with backend state
-      const loadedSettings: AiSettings = await invoke("load_ai_settings");
-      setSettings(loadedSettings);
+      const loadedSettingsFromBackend: AiSettings = await invoke("load_ai_settings");
+      setSettings(loadedSettingsFromBackend); // Update the main settings state
+
+      // Update activeApiConfig based on the reloaded settings
+      let newActiveApiConfig: ApiConfig | null = null;
+      if (loadedSettingsFromBackend.active_config_id && loadedSettingsFromBackend.api_configs) {
+        newActiveApiConfig =
+          loadedSettingsFromBackend.api_configs.find((c) => c.id === loadedSettingsFromBackend.active_config_id) ||
+          null;
+      } else if (loadedSettingsFromBackend.api_configs && loadedSettingsFromBackend.api_configs.length > 0) {
+        // Fallback to the first config if no active_config_id is set but configs exist
+        newActiveApiConfig = loadedSettingsFromBackend.api_configs[0];
+        // Optionally, update the active_config_id in the backend here if desired,
+        // or let the user explicitly set an active config.
+      }
+      setActiveApiConfig(newActiveApiConfig);
+
       // Re-select the previously selected prompt and version to maintain context
-      // This might require finding the updated version in the reloaded settings
       if (
         selectedPromptName &&
         selectedVersionTimestamp !== null &&
-        loadedSettings.prompt_collections &&
-        loadedSettings.prompt_collections[selectedPromptName]
+        loadedSettingsFromBackend.prompt_collections &&
+        loadedSettingsFromBackend.prompt_collections[selectedPromptName]
       ) {
-        const updatedCollection = loadedSettings.prompt_collections[selectedPromptName];
+        const updatedCollection = loadedSettingsFromBackend.prompt_collections[selectedPromptName];
         const updatedVersion = updatedCollection.versions.find((v) => v.timestamp === selectedVersionTimestamp);
         if (updatedVersion) {
           setCustomPromptsString(formatNodesToLineString([updatedVersion.content]));
-          // setSelectedVersionTimestamp remains the same
         } else {
-          // Handle case where the version might have been deleted or not found after reload (unlikely in this scenario)
           setCustomPromptsString("");
-          setSelectedPromptName(null); // Clear selected prompt if version not found
+          setSelectedPromptName(null);
           setSelectedVersionTimestamp(null);
+        }
+      } else if (loadedSettingsFromBackend.custom_prompts) {
+        setCustomPromptsString(loadedSettingsFromBackend.custom_prompts);
+      } else if (
+        // If no specific prompt was selected, try to load the latest of the first collection
+        loadedSettingsFromBackend.prompt_collections &&
+        Object.keys(loadedSettingsFromBackend.prompt_collections).length > 0
+      ) {
+        const firstPromptName = Object.keys(loadedSettingsFromBackend.prompt_collections)[0];
+        const firstPromptCollection = loadedSettingsFromBackend.prompt_collections[firstPromptName];
+        if (firstPromptCollection && firstPromptCollection.versions.length > 0) {
+          const latestVersion = firstPromptCollection.versions[0];
+          setCustomPromptsString(formatNodesToLineString([latestVersion.content]));
+          setSelectedPromptName(firstPromptName);
+          setSelectedVersionTimestamp(latestVersion.timestamp);
         }
       }
     } catch (err) {
-      console.error(t("ai.saveFailure"), err); // Use translation
-      alert(`${t("ai.saveFailure")} ${err}`); // Use translation
+      console.error(t("ai.saveFailure"), err);
+      alert(`${t("ai.saveFailure")} ${err}`);
     }
+  };
+
+  const reset_ai_settings = async () => {
+    invoke("reset_ai_settings");
   };
 
   // Function to handle prompt selection from the list/dropdown
@@ -434,9 +503,9 @@ export default function AI() {
           {/* Use translation */}
           <Input
             name="api_endpoint"
-            value={settings.api_endpoint || ""}
+            value={activeApiConfig?.endpoint_url || ""}
             onChange={(value) =>
-              handleInputChange({ target: { name: "api_endpoint", value } } as React.ChangeEvent<HTMLInputElement>)
+              handleInputChange({ target: { name: "endpoint_url", value } } as React.ChangeEvent<HTMLInputElement>)
             }
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
@@ -446,7 +515,7 @@ export default function AI() {
           <Input
             type="password"
             name="api_key"
-            value={settings.api_key || ""}
+            value={activeApiConfig?.api_key || ""}
             onChange={(value) =>
               handleInputChange({ target: { name: "api_key", value } } as React.ChangeEvent<HTMLInputElement>)
             }
@@ -457,7 +526,7 @@ export default function AI() {
         <Field title={t("ai.apiConfig.apiType.title")} description={t("ai.apiConfig.apiType.description")}>
           <Select
             name="api_type"
-            value={settings.api_type || ""}
+            value={activeApiConfig?.api_type || ""}
             onChange={(value) =>
               handleInputChange({ target: { name: "api_type", value } } as React.ChangeEvent<HTMLSelectElement>)
             }
@@ -465,6 +534,7 @@ export default function AI() {
             options={[
               { value: "responses", label: "Responses API" },
               { value: "chat", label: "Chat Completions" },
+              { value: "gemini", label: "Gemini" },
             ]}
           />
         </Field>
@@ -474,12 +544,12 @@ export default function AI() {
           <div className="flex items-center gap-2">
             <Select
               name="selected_model"
-              value={settings.selected_model || ""}
+              value={activeApiConfig?.default_model || ""}
               onChange={(value) =>
-                handleInputChange({ target: { name: "selected_model", value } } as React.ChangeEvent<HTMLSelectElement>)
+                handleInputChange({ target: { name: "default_model", value } } as React.ChangeEvent<HTMLSelectElement>)
               }
               disabled={loading || availableModels.length === 0}
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className="ai-model-select block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               options={[
                 { value: "", label: loading ? t("ai.apiConfig.model.loading") : t("ai.apiConfig.model.select") },
                 ...availableModels.map((model) => ({ label: model, value: model })),
@@ -487,7 +557,7 @@ export default function AI() {
             />
             <Button
               onClick={fetchModels}
-              disabled={loading || !settings.api_endpoint}
+              disabled={loading || !activeApiConfig?.endpoint_url}
               className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" // Use Button component and apply styles
             >
               {loading ? t("ai.apiConfig.model.refreshing") : <Download size={16} />} {/* Use translation */}
@@ -515,7 +585,8 @@ export default function AI() {
               disabled={!newPromptName.trim()}
               className="inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" // Use Button component and apply styles
             >
-              创建 {/* TODO: Add translation */}
+              <Plus />
+              创建
             </Button>
           </div>
         </Field>
@@ -628,7 +699,7 @@ export default function AI() {
                   <div className="flex justify-end">
                     <Button
                       onClick={handleSavePromptVersion}
-                      disabled={!selectedPromptName || !customPromptsString.trim()}
+                      disabled={!(!selectedPromptName || !customPromptsString.trim())}
                       className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                       <Save size={14} className="mr-1" />
@@ -680,6 +751,13 @@ export default function AI() {
         >
           <Save size={16} className="mr-2" />
           {t("ai.save")} {/* Use translation */}
+        </Button>
+        <Button
+          onClick={reset_ai_settings}
+          className="focus::ring-indigo-500 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2"
+        >
+          <RotateCcw size={16} className="mr-2" />
+          {t("ai.reset")} {/* Use translation */}
         </Button>
       </div>
     </div>

@@ -267,6 +267,7 @@ export default function App() {
         <>
           {/* 叠加层，显示窗口控件 */}
           <div
+            id="top-menu-bar-container"
             className={cn(
               "pointer-events-none absolute left-0 top-0 z-40 flex w-full gap-2 *:pointer-events-auto",
               {

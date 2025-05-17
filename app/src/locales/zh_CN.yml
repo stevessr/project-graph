@@ -615,6 +615,7 @@ settings:
       lineFormatPlaceholder: "每行输入一个提示，以“- ”开头"
       lineFormatHint: "提示：每行应以“- ”开头。"
     save: 保存设置
+    reset: 清除设置
     saveSuccess: 设置保存成功！
     saveFailure: 保存设置失败：
     fetchFailure: 获取模型失败：

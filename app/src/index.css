@@ -145,3 +145,31 @@
     text-shadow: none !important;
   }
 }
+
+@media (max-width: 768px) {
+  #top-menu-bar-container {
+    justify-content: center !important;
+  }
+  /* 确保标题在移动端不占用空间，以便按钮可以完全居中 */
+  #top-menu-bar-container > button[data-tauri-drag-region] {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Fix for AI model select dropdown overflow */
+.ai-model-select .select-options, /* Common class for options container */
+.ai-model-select + div[role="listbox"], /* For headless UI patterns */
+.ai-model-select ~ div[class*="menu"], /* For libraries that render menu as sibling */
+.ai-model-select ul, /* If options are in a UL */
+.ai-model-select div[class*="options"], /* Generic options container */
+.ai-model-select div[class*="list"] { /* Generic list container */
+  max-height: 70vh; /* Or any other suitable max-height */
+  overflow-y: auto;
+}
+
+/* Added for border-select-popup-border height limit and scroll */
+div.border-select-popup-border {
+  max-height: 300px; /* Or a more specific value based on design */
+  overflow-y: auto;
+}

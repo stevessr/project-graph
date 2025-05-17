@@ -1,5 +1,6 @@
 import { invoke, fetch } from "../../../../utils/tauriApi";
 import { v4 as uuidv4 } from "uuid";
+import { AiSettings } from "../../../../types/aiSettings"; // Added import
 import { ArrayFunctions } from "../../../algorithm/arrayFunctions";
 import { Vector } from "../../../dataStruct/Vector";
 import { EdgeRenderer } from "../../../render/canvas2d/entityRenderer/edge/EdgeRenderer";
@@ -66,46 +67,29 @@ export namespace StageGeneratorAI {
 
   // Re-define PromptNode here to avoid potential circular dependencies
   // or manage imports carefully if defined centrally.
-  interface PromptNode {
-    text: string;
-    node_type?: string | null;
-    params?: any | null;
-    children?: PromptNode[] | null;
-  }
+  // Removed PromptNode, PromptCollection and PromptVersion interfaces as they are not used here or imported
 
-  interface PromptCollection {
-    name: string;
-    versions: PromptVersion[];
-  }
-
-  interface PromptVersion {
-    content: PromptNode;
-    timestamp: number; // Use number for JS timestamp
-  }
-
-  interface AiSettings {
-    api_endpoint: string | null;
-    api_key: string | null;
-    selected_model: string | null;
-    // Updated to use prompt_collections
-    prompt_collections: { [key: string]: PromptCollection } | null;
-    api_type: string | null;
-    summary_prompt?: string | null; // Add field for custom summary prompt
-    custom_prompts?: string | null; // Add field for custom prompts
-    // Add fields for selected prompt
-  }
+  // Removed old AiSettings interface
 
   async function realGenerateTextList(selectedTextNode: TextNode) {
     try {
       const aiSettings: AiSettings = await invoke("load_ai_settings");
-      //console.log("aiSettings", aiSettings);
-      const openaiApiEndpoint = aiSettings.api_endpoint;
-      const apiKey = aiSettings.api_key;
-      const selectedModel = aiSettings.selected_model;
-      const apiType = aiSettings.api_type; // Get api_type
+      console.log("aiSettings", aiSettings);
 
-      let apiUrl: string;
-      let body: any;
+      const activeConfig = aiSettings.api_configs.find((config) => config.id === aiSettings.active_config_id);
+
+      if (!activeConfig) {
+        console.error("No active API configuration found.");
+        return ["Error: No active API configuration found."];
+      }
+
+      const apiKey = activeConfig.api_key;
+      const selectedModel = activeConfig.default_model;
+
+      const apiUrl: string = activeConfig.endpoint_url
+        ? `${activeConfig.endpoint_url}/chat/completions` // Use user specified /chat/completions endpoint
+        : import.meta.env.LR_API_BASE_URL! + "/chat/completions"; // Fallback to default chat completions URL;
+      // let body: any; // Removed unused variable
       let responseData: any;
 
       const headers: HeadersInit = {
@@ -116,101 +100,61 @@ export namespace StageGeneratorAI {
         headers["Authorization"] = `Bearer ${apiKey}`; // Add Authorization header
       }
 
-      if (apiType === "chat") {
-        // Chat Completions API
-        apiUrl = openaiApiEndpoint
-          ? `${openaiApiEndpoint}/chat/completions` // Use user specified /chat/completions endpoint
-          : import.meta.env.LR_API_BASE_URL! + "/ai/chat-completions"; // Fallback to default chat completions URL
+      // Build messages based on structured prompts
+      const messages: { role: string; content: string }[] = [];
 
-        // Build messages based on structured prompts
-        const messages: { role: string; content: string }[] = [];
+      let systemMessageContent = aiSettings?.custom_prompts;
+      //console.log("aiSettings:", aiSettings);
 
-        let systemMessageContent = aiSettings?.custom_prompts;
-        //console.log("aiSettings:", aiSettings);
-
-        if (systemMessageContent) {
-          messages.push({ role: "system", content: systemMessageContent });
-        } else {
-          console.warn("No selected system prompt found or loaded. Using default system prompt.");
-          // Add a default system prompt if none is selected
-          systemMessageContent = "neko,一个联想家，请根据提供的词汇联想词汇，一行一个,仅仅输出联想即可"; // Default system prompt
-          messages.push({ role: "system", content: systemMessageContent });
-        }
-
-        // Add the current node's text as the final user message
-        messages.push({
-          role: "user",
-          content: selectedTextNode.text,
-        });
-        body = {
-          model: selectedModel, // Add model field
-          messages: messages, // Use the constructed messages array
-        };
-
-        try {
-          // Make the API call
-          responseData = await (
-            await fetch(apiUrl, {
-              method: "POST",
-              headers: headers,
-              body: JSON.stringify(body),
-            })
-          ).json();
-
-          // Assuming chat completions response structure has choices[0].message.content
-          // We need to extract the generated text and return it as an array of strings
-          if (
-            responseData &&
-            responseData.choices &&
-            responseData.choices.length > 0 &&
-            responseData.choices[0].message
-          ) {
-            // Split the response content by newline characters to create a child node for each line.
-            const content = responseData.choices[0].message.content;
-            return content.split("\n").filter((line: string) => line.trim() !== ""); // Split by newline and remove empty lines
-          } else {
-            console.error("Unexpected chat completions response structure:", responseData);
-            return ["Error: Unexpected chat completions response structure"];
-          }
-        } catch (e) {
-          console.error("Chat completions API error:", e);
-          return ["Error: Chat completions API error"];
-        }
+      if (systemMessageContent) {
+        messages.push({ role: "system", content: systemMessageContent });
       } else {
-        // Default to Responses API (or if apiType is "responses")
-        apiUrl = openaiApiEndpoint
-          ? `${openaiApiEndpoint}/responses` // Use user specified /responses endpoint
-          : import.meta.env.LR_API_BASE_URL! + "/ai/extend-word"; // Fallback to default responses URL
+        console.warn("No selected system prompt found or loaded. Using default system prompt.");
+        // Add a default system prompt if none is selected
+        systemMessageContent = "neko,一个联想家，请根据提供的词汇联想词汇，一行一个,仅仅输出联想即可"; // Default system prompt
+        messages.push({ role: "system", content: systemMessageContent });
+      }
 
-        body = {
-          input: selectedTextNode.text, // Use input field
-        };
+      // Add the current node's text as the final user message
+      messages.push({
+        role: "user",
+        content: selectedTextNode.text,
+      });
+      const finalBody = {
+        model: selectedModel, // Add model field
+        messages: messages, // Use the constructed messages array
+      };
 
-        // Add model field if available
-        if (selectedModel) {
-          body.model = selectedModel;
+      console.log("Final request body:", finalBody);
+      console.log("API URL:", apiUrl);
+      try {
+        // Make the API call
+        responseData = await (
+          await fetch(apiUrl, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(finalBody),
+          })
+        ).json();
+
+        // Assuming chat completions response structure has choices[0].message.content
+        // We need to extract the generated text and return it as an array of strings
+        if (
+          responseData &&
+          responseData.choices &&
+          responseData.choices.length > 0 &&
+          responseData.choices[0].message
+        ) {
+          // Split the response content by newline characters to create a child node for each line.
+          const content = responseData.choices[0].message.content;
+          return content.split("\n").filter((line: string) => line.trim() !== ""); // Split by newline and remove empty lines
+        } else {
+          console.error("Unexpected chat completions response structure:", responseData);
+          return ["Error: Unexpected chat completions response structure"];
         }
-
-        try {
-          responseData = await (
-            await fetch(apiUrl, {
-              method: "POST",
-              headers: headers,
-              body: JSON.stringify(body),
-            })
-          ).json();
-
-          // Assuming responses API returns { words: string[] }
-          if (responseData && Array.isArray(responseData.words)) {
-            return responseData.words.map(String); // Ensure models are strings
-          } else {
-            console.error("Unexpected responses API response structure:", responseData);
-            return ["Error: Unexpected responses API response structure"];
-          }
-        } catch (e) {
-          console.error("Responses API error:", e);
-          return ["Error: Responses API error"];
-        }
+      } catch (e) {
+        console.error("Chat completions API error:", e);
+        return ["Error: Chat completions API error"];
       }
     } catch (e) {
       console.error("Error loading AI settings or processing API response:", e);
@@ -222,109 +166,197 @@ export namespace StageGeneratorAI {
   async function realGenerateSummary(selectedTextNodes: TextNode[]): Promise<string> {
     try {
       const aiSettings: AiSettings = await invoke("load_ai_settings");
-      const openaiApiEndpoint = aiSettings.api_endpoint;
-      const apiKey = aiSettings.api_key;
-      const selectedModel = aiSettings.selected_model;
-      const apiType = aiSettings.api_type;
+      const activeConfig = aiSettings.api_configs.find((config) => config.id === aiSettings.active_config_id);
 
-      let apiUrl: string;
-      let body: any;
-      let responseData: any;
-
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
-      };
-
-      if (apiKey) {
-        headers["Authorization"] = `Bearer ${apiKey}`;
+      if (!activeConfig) {
+        console.error("No active API configuration found for summary.");
+        return "Error: No active API configuration found for summary.";
       }
 
-      // Primarily use chat API for summarization
-      if (apiType === "chat") {
-        apiUrl = openaiApiEndpoint
-          ? `${openaiApiEndpoint}/chat/completions`
-          : import.meta.env.LR_API_BASE_URL! + "/ai/chat-completions";
+      const apiKey = activeConfig.api_key;
+      const selectedModel = activeConfig.default_model;
+      const apiType = activeConfig.api_type;
 
-        const messages: { role: string; content: string }[] = [];
+      let apiUrl: string;
+      let requestBody: any;
+      const requestHeaders: HeadersInit = { "Content-Type": "application/json" };
+      let responseData: any;
+      let rawResponseText = ""; // For debugging
 
-        // Determine the summary prompt to use
-        const summaryPrompt = aiSettings.summary_prompt?.trim()
-          ? aiSettings.summary_prompt
-          : "用简洁的语言概括以下内容："; // Default prompt
+      // --- Construct messages array for chat/gemini ---
+      const messages: { role: string; content: string }[] = [];
+      const summaryPrompt = aiSettings.summary_prompt?.trim()
+        ? aiSettings.summary_prompt
+        : "用简洁的语言概括以下内容：";
+      messages.push({ role: "system", content: summaryPrompt });
 
-        // Add the determined instruction for summarization
-        messages.push({ role: "system", content: summaryPrompt });
-
-        // --- Construct detailed user message content ---
-        let userMessageContent = "以下是选中的节点及其内容：\n";
-        const selectedNodeUUIDs = selectedTextNodes.map((node) => node.uuid); // Added parentheses
-
-        selectedTextNodes.forEach((node) => {
-          // Added parentheses and newline/indent
-          userMessageContent += `- ${node.uuid}: ${node.text}\n`;
-        });
-
-        userMessageContent += "\n以下是这些节点之间的连接关系：\n";
-        let connectionsFound = false;
-        StageManager.getLineEdges().forEach((edge) => {
-          // Added parentheses and newline/indent
-          const sourceSelected = selectedNodeUUIDs.includes(edge.source.uuid);
-          const targetSelected = selectedNodeUUIDs.includes(edge.target.uuid);
-
-          // Only include connections *between* selected nodes
-          if (sourceSelected && targetSelected) {
-            userMessageContent += `- ${edge.source.uuid} -> ${edge.target.uuid}\n`;
-            connectionsFound = true;
-          }
-        });
-
-        if (!connectionsFound) {
-          userMessageContent += "(选中的节点之间没有连接关系)\n";
+      let userMessageContent = "以下是选中的节点及其内容：\n";
+      const selectedNodeUUIDs = selectedTextNodes.map((node) => node.uuid);
+      selectedTextNodes.forEach((node) => {
+        userMessageContent += `- ${node.uuid}: ${node.text}\n`;
+      });
+      userMessageContent += "\n以下是这些节点之间的连接关系：\n";
+      let connectionsFound = false;
+      StageManager.getLineEdges().forEach((edge) => {
+        const sourceSelected = selectedNodeUUIDs.includes(edge.source.uuid);
+        const targetSelected = selectedNodeUUIDs.includes(edge.target.uuid);
+        if (sourceSelected && targetSelected) {
+          userMessageContent += `- ${edge.source.uuid} -> ${edge.target.uuid}\n`;
+          connectionsFound = true;
         }
+      });
+      if (!connectionsFound) {
+        userMessageContent += "(选中的节点之间没有连接关系)\n";
+      }
+      userMessageContent += "\n请根据以上节点内容和它们之间的连接关系进行总结。";
+      messages.push({ role: "user", content: userMessageContent });
+      // --- End of messages construction ---
 
-        userMessageContent += "\n请根据以上节点内容和它们之间的连接关系进行总结。";
-        // --- End of detailed user message content construction ---
-        // Add the constructed user message
-        messages.push({
-          role: "user",
-          content: userMessageContent,
+      switch (apiType) {
+        case "gemini":
+          if (!selectedModel) {
+            console.error("Gemini API requires a model to be selected for summary.");
+            return "Error: Gemini model not selected for summary.";
+          }
+          if (!activeConfig.endpoint_url) {
+            console.error("Gemini API requires an endpoint URL for summary.");
+            return "Error: Gemini endpoint URL not configured for summary.";
+          }
+          apiUrl = `${activeConfig.endpoint_url}/models/${selectedModel}:generateContent`;
+          if (apiKey) {
+            apiUrl += `?key=${apiKey}`;
+          } else {
+            console.error("Gemini API requires an API key for summary.");
+            return "Error: Gemini API key not configured for summary.";
+          }
+          {
+            // Added block scope for lexical declaration
+            let geminiPromptContent = "";
+            if (messages.length > 0 && messages[0].role === "system") {
+              geminiPromptContent = messages[0].content; // System prompt
+              if (messages.length > 1 && messages[1].role === "user") {
+                geminiPromptContent += "\n\n" + messages[1].content; // User prompt
+              }
+            } else if (messages.length > 0 && messages[0].role === "user") {
+              geminiPromptContent = messages[0].content;
+            } else {
+              geminiPromptContent = userMessageContent; // Fallback to constructed user message
+            }
+            requestBody = {
+              contents: [{ role: "user", parts: [{ text: geminiPromptContent }] }],
+            };
+          }
+          break;
+
+        case "responses":
+          // 'responses' API type is generally not suitable for summarization as designed.
+          // Returning an error or specific message.
+          console.warn("Summarization is not supported for 'responses' API type.");
+          return "Error: Summarization not supported for 'responses' API type.";
+
+        case "chat":
+        default:
+          apiUrl = activeConfig.endpoint_url
+            ? `${activeConfig.endpoint_url}/chat/completions`
+            : import.meta.env.LR_API_BASE_URL! + "/chat/completions"; // Fallback
+          if (apiKey) {
+            requestHeaders["Authorization"] = `Bearer ${apiKey}`;
+          }
+          requestBody = {
+            model: selectedModel,
+            messages: messages,
+          };
+          break;
+      }
+
+      console.log("API Type (Summary):", apiType);
+      console.log("Final request body (Summary):", requestBody);
+      console.log("API URL (Summary):", apiUrl);
+      console.log("Request Headers (Summary):", requestHeaders);
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: requestHeaders,
+          body: JSON.stringify(requestBody),
         });
-
-        body = {
-          model: selectedModel,
-          messages: messages,
-        };
 
         try {
-          responseData = await (
-            await fetch(apiUrl, {
-              method: "POST",
-              headers: headers,
-              body: JSON.stringify(body),
-            })
-          ).json();
-
-          if (
-            responseData &&
-            responseData.choices &&
-            responseData.choices.length > 0 &&
-            responseData.choices[0].message &&
-            responseData.choices[0].message.content
-          ) {
-            return responseData.choices[0].message.content; // Return the summary string
-          } else {
-            console.error("Unexpected chat completions response structure for summary:", responseData);
-            return "Error: Unexpected chat completions response structure";
-          }
-        } catch (e) {
-          console.error("Chat completions API error during summary:", e);
-          return "Error: Chat completions API error";
+          rawResponseText = await response.clone().text();
+        } catch (textError) {
+          console.warn("Could not get raw text from summary response:", textError);
         }
-      } else {
-        // Fallback or alternative API logic for summarization if needed
-        // For now, return an error if not using chat API, as 'responses' endpoint is for word extension
-        console.warn("Summarization currently only supported via 'chat' API type.");
-        return "Error: Summarization requires 'chat' API type in settings";
+
+        if (!response.ok) {
+          console.error(
+            `${apiType} API summary request failed with status ${response.status}: ${response.statusText}`,
+            "\nURL:",
+            apiUrl,
+            "\nRaw response:",
+            rawResponseText,
+          );
+          return `Error: ${apiType} API summary request failed (${response.status})`;
+        }
+
+        if (rawResponseText.trim() === "") {
+          console.error(
+            `${apiType} API summary returned empty content.`,
+            "\nURL:",
+            apiUrl,
+            "\nRaw response:",
+            `"${rawResponseText}"`,
+          );
+          return `Error: ${apiType} API summary returned no content`;
+        }
+
+        responseData = await response.json();
+
+        switch (apiType) {
+          case "gemini":
+            if (
+              responseData &&
+              responseData.candidates &&
+              responseData.candidates.length > 0 &&
+              responseData.candidates[0].content &&
+              responseData.candidates[0].content.parts &&
+              responseData.candidates[0].content.parts.length > 0
+            ) {
+              return responseData.candidates[0].content.parts[0].text;
+            } else {
+              console.error("Unexpected Gemini response structure for summary:", responseData, "Raw:", rawResponseText);
+              return "Error: Unexpected Gemini response structure for summary";
+            }
+          // 'responses' case handled above, will not reach here.
+          case "chat":
+          default:
+            if (
+              responseData &&
+              responseData.choices &&
+              responseData.choices.length > 0 &&
+              responseData.choices[0].message &&
+              responseData.choices[0].message.content
+            ) {
+              return responseData.choices[0].message.content;
+            } else {
+              console.error(
+                "Unexpected Chat API response structure for summary:",
+                responseData,
+                "Raw:",
+                rawResponseText,
+              );
+              return "Error: Unexpected Chat API response structure for summary";
+            }
+        }
+      } catch (e) {
+        console.error(
+          `${apiType} API error during summary processing:`,
+          e,
+          "\nURL:",
+          apiUrl,
+          "\nRaw response attempt:",
+          rawResponseText,
+        );
+        return `Error: Failed to process ${apiType} API summary response`;
       }
     } catch (e) {
       console.error("Error loading AI settings or processing summary API response:", e);

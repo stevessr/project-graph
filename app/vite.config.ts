@@ -70,6 +70,8 @@ export default defineConfig(async () => ({
 
   test: {
     environment: "jsdom",
+    globals: true, // To make mocks available globally easily
+    setupFiles: ["./vitest.setup.ts"], // Optional: for global mocks
     include: ["./tests/**/*.test.tsx"],
     env: {
       LR_VITEST: "true",
