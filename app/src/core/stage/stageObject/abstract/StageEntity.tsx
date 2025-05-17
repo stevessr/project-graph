@@ -12,7 +12,7 @@ export abstract class Entity extends StageObject {
    * 将某个物体移动某个距离
    * @param delta
    */
-  abstract move(delta: Vector): void;
+  abstract move(delta: Vector, skipCollisionResolution?: boolean): void;
 
   /**
    * 是否忽略自动对齐功能
@@ -91,7 +91,7 @@ export abstract class Entity extends StageObject {
     } else {
       moveDelta = new Vector(0, overlapSize.y * Math.sign(otherRectangle.center.y - selfRectangle.center.y));
     }
-    other.move(moveDelta);
+    other.move(moveDelta, true); // <-- 新的调用，传递 true 以跳过下一轮碰撞解决
   }
   /**
    * 是不是因为所在的Section被折叠而隐藏了

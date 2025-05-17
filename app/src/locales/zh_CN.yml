@@ -615,6 +615,7 @@ settings:
       lineFormatPlaceholder: "每行输入一个提示，以“- ”开头"
       lineFormatHint: "提示：每行应以“- ”开头。"
     save: 保存设置
+    reset: 清除设置
     saveSuccess: 设置保存成功！
     saveFailure: 保存设置失败：
     fetchFailure: 获取模型失败：
@@ -629,6 +630,16 @@ settings:
     versionDeletedSuccessfully: 版本删除成功
     deleteVersionFailed: 删除版本失败 "{{error}}"
     updateVersionSuccess: 版本更新成功
+    newPromptTitle: 创建提示词
+    newPromptDescription: 输入新提示词的名称并创建
+    createPromptButton: 创建
+    selectPromptTitle: 选择提示词
+    selectPromptDescription: 从已保存的提示词中选择
+    selectVersionTitle: 选择版本
+    selectVersionDescription: 选择该提示词的历史版本
+    deleteVersionButton: 删除
+    updateVersionButton: 更新
+    saveNewVersionButton: 新版本
 common:
   confirm: 确定
 plugins:

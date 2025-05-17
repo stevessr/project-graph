@@ -1,110 +1,195 @@
+// src/ai.rs
+// Add this line to import types from the new module
+mod types;
+use types::{AiSettings, ApiConfig, PromptCollection, PromptNode, PromptVersion};
+
 use reqwest::header::{HeaderValue, AUTHORIZATION};
-use serde::{Deserialize, Serialize};
-use serde_json; // Used for serde_json::Value and to_value/from_value
+use std::collections::HashMap;
+use serde_json;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::Manager;
 use tauri_plugin_store::StoreBuilder;
-use std::collections::HashMap; // 引入 HashMap
-use std::time::{SystemTime, UNIX_EPOCH}; // 引入时间相关模块
+use uuid::Uuid; // Still needed for add_api_config to generate new IDs
 
-// Define struct for structured prompt nodes
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PromptNode {
-    pub text: String,
-    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
-    pub node_type: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub params: Option<serde_json::Value>, // Change to serde_json::Value
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub children: Option<Vec<PromptNode>>,
-}
-
-// Define struct for a specific version of a prompt
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PromptVersion {
-    pub content: PromptNode, // 保留 PromptNode 以支持结构化提示词
-    pub timestamp: i64,      // 使用 Unix 时间戳 (毫秒) 记录修改时间
-    // 可选：未来可以添加如版本说明等字段
-}
-
-// Define struct for a collection of prompt versions
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PromptCollection {
-    pub name: String, // 提示词的名称，用于标识和显示
-    pub versions: Vec<PromptVersion>, // 存储该提示词的所有版本
-    // 可选：可以增加一个字段标记当前活动版本
-}
-
-
-// Define AiSettings struct ONCE
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct AiSettings {
-    pub api_endpoint: Option<String>,
-    pub api_key: Option<String>,
-    pub selected_model: Option<String>,
-    // 新增字段，用于存储版本化的提示词
-    pub prompt_collections: Option<HashMap<String, PromptCollection>>,
-    pub api_type: Option<String>, // Add api_type
-    pub summary_prompt: Option<String>, // Add field for custom summary prompt
-    pub custom_prompts: Option<String>,
-}
-
-impl Default for AiSettings {
-    fn default() -> Self {
-        AiSettings {
-            api_endpoint: None,
-            api_key: None,
-            selected_model: None,
-            // 初始化 prompt_collections 为空的 HashMap
-            prompt_collections: Some(HashMap::new()),
-            api_type: None,
-            summary_prompt: None,
-            custom_prompts: Some(String::new()),
-        }
-    }
-}
+// --- Struct definitions and impl Default for AiSettings are REMOVED from here ---
 
 #[tauri::command]
-pub async fn save_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>, settings: AiSettings) -> Result<(), String> {
+pub async fn save_ai_settings<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    settings: AiSettings, // Uses imported AiSettings
+) -> Result<(), String> {
     #[allow(unused_mut)]
-    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.json")
         .build()
         .map_err(|e| format!("Failed to build store: {}", e))?;
 
-    store.reload()
-         .map_err(|e| format!("Failed to reload store before saving: {}", e))?;
-
-    let settings_value = serde_json::to_value(settings)
+    let settings_value = serde_json::to_value(settings) // Uses imported AiSettings
         .map_err(|e| format!("Failed to serialize settings: {}", e))?;
 
     store.set("settings".to_string(), settings_value);
 
-    store.save()
-         .map_err(|e| format!("Failed to save store: {}", e))?;
+    store
+        .save()
+        .map_err(|e| format!("Failed to save store: {}", e))?;
 
     Ok(())
 }
 
 #[tauri::command]
-pub async fn load_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Result<AiSettings, String> {
+pub async fn load_ai_settings<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+) -> Result<AiSettings, String> { // Returns imported AiSettings
     #[allow(unused_mut)]
-    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.json")
         .build()
         .map_err(|e| format!("Failed to build store: {}", e))?;
 
-    store.reload()
-         .map_err(|e| format!("Failed to reload store: {}", e))?;
+    store
+        .reload()
+        .map_err(|e| format!("Failed to reload store: {}", e))?;
 
     let loaded_settings_value = store.get("settings");
 
     match loaded_settings_value {
-        Some(value) => {
-            serde_json::from_value::<AiSettings>(value.clone())
-                .map_err(|e| format!("Failed to deserialize settings: {}", e))
-        }
+        Some(value) => serde_json::from_value::<AiSettings>(value.clone()) // Deserializes to imported AiSettings
+            .map_err(|e| format!("Failed to deserialize settings: {}", e)),
         None => {
             println!("No existing AI settings found, returning default.");
-            Ok(AiSettings::default())
+            Ok(AiSettings::default()) // Uses imported AiSettings::default()
         }
+    }
+}
+
+#[tauri::command]
+pub async fn get_all_api_configs<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+) -> Result<Vec<ApiConfig>, String> { // Returns Vec of imported ApiConfig
+    let settings = load_ai_settings(app).await?;
+    Ok(settings.api_configs)
+}
+
+#[tauri::command]
+pub async fn add_api_config<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    mut new_config: ApiConfig, // Uses imported ApiConfig
+) -> Result<(), String> {
+    let mut settings = load_ai_settings(app.clone()).await?;
+
+    if new_config.id.is_empty() {
+        new_config.id = Uuid::new_v4().to_string();
+    } else {
+        if settings.api_configs.iter().any(|c| c.id == new_config.id) {
+            return Err(format!(
+                "API Configuration with ID '{}' already exists.",
+                new_config.id
+            ));
+        }
+    }
+
+    if settings
+        .api_configs
+        .iter()
+        .any(|c| c.name == new_config.name)
+    {
+        return Err(format!(
+            "API Configuration with name '{}' already exists.",
+            new_config.name
+        ));
+    }
+
+    settings.api_configs.push(new_config);
+    save_ai_settings(app, settings).await
+}
+
+#[tauri::command]
+pub async fn edit_api_config<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    updated_config: ApiConfig, // Uses imported ApiConfig
+) -> Result<(), String> {
+    let original_settings = load_ai_settings(app.clone()).await?;
+
+    let name_exists = original_settings
+        .api_configs
+        .iter()
+        .any(|config| config.id != updated_config.id && config.name == updated_config.name);
+
+    if name_exists {
+        return Err(format!(
+            "Another API Configuration with name '{}' already exists.",
+            updated_config.name
+        ));
+    }
+    let mut mutable_settings = original_settings;
+
+    if let Some(config_to_update) = mutable_settings
+        .api_configs
+        .iter_mut()
+        .find(|c| c.id == updated_config.id)
+    {
+        *config_to_update = updated_config;
+        save_ai_settings(app, mutable_settings).await
+    } else {
+        Err(format!(
+            "API Configuration with ID '{}' not found for update.",
+            updated_config.id // Use updated_config.id for the error message consistency
+        ))
+    }
+}
+
+#[tauri::command]
+pub async fn delete_api_config<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    config_id: String,
+) -> Result<(), String> {
+    let mut settings = load_ai_settings(app.clone()).await?;
+    let initial_len = settings.api_configs.len();
+    settings.api_configs.retain(|c| c.id != config_id);
+
+    if settings.api_configs.len() == initial_len {
+        return Err(format!(
+            "API Configuration with ID '{}' not found.",
+            config_id
+        ));
+    }
+
+    if settings.active_config_id.as_deref() == Some(&config_id) {
+        settings.active_config_id = if settings.api_configs.is_empty() {
+            None
+        } else {
+            Some(settings.api_configs[0].id.clone())
+        };
+    }
+
+    save_ai_settings(app, settings).await
+}
+
+#[tauri::command]
+pub async fn set_active_api_config<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    config_id: String,
+) -> Result<(), String> {
+    let mut settings = load_ai_settings(app.clone()).await?;
+
+    if !settings.api_configs.iter().any(|c| c.id == config_id) {
+        return Err(format!(
+            "API Configuration with ID '{}' not found.",
+            config_id
+        ));
+    }
+
+    settings.active_config_id = Some(config_id);
+    save_ai_settings(app, settings).await
+}
+
+#[tauri::command]
+pub async fn get_active_api_config<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+) -> Result<Option<ApiConfig>, String> { // Returns Option of imported ApiConfig
+    let settings = load_ai_settings(app).await?;
+
+    match settings.active_config_id {
+        Some(id) => Ok(settings.api_configs.into_iter().find(|c| c.id == id)),
+        None => Ok(None),
     }
 }
 
@@ -112,15 +197,16 @@ pub async fn load_ai_settings<R: tauri::Runtime>(app: tauri::AppHandle<R>) -> Re
 pub async fn save_prompt_version<R: tauri::Runtime>(
     app: tauri::AppHandle<R>,
     prompt_name: String,
-    content: PromptNode,
+    content: PromptNode, // Uses imported PromptNode
 ) -> Result<(), String> {
     #[allow(unused_mut)]
-    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.json")
         .build()
         .map_err(|e| format!("Failed to build store: {}", e))?;
 
-    store.reload()
-         .map_err(|e| format!("Failed to reload store before saving: {}", e))?;
+    store
+        .reload()
+        .map_err(|e| format!("Failed to reload store before saving: {}", e))?;
 
     let mut settings: AiSettings = match store.get("settings") {
         Some(value) => serde_json::from_value(value.clone())
@@ -128,107 +214,54 @@ pub async fn save_prompt_version<R: tauri::Runtime>(
         None => AiSettings::default(),
     };
 
-    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH)
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
         .map_err(|e| format!("Failed to get timestamp: {}", e))?
         .as_millis() as i64;
 
-    let new_version = PromptVersion {
-        content,
-        timestamp,
-    };
+    let new_version = PromptVersion { content, timestamp }; // Uses imported PromptVersion
 
-    let collections = settings.prompt_collections.get_or_insert_with(HashMap::new);
+    let collections = settings.prompt_collections.get_or_insert_with(HashMap::new); // HashMap still needed here as it's used to construct the default
 
-    let collection = collections.entry(prompt_name.clone())
-        .or_insert_with(|| PromptCollection {
+    let collection = collections
+        .entry(prompt_name.clone())
+        .or_insert_with(|| PromptCollection { // Uses imported PromptCollection
             name: prompt_name,
             versions: Vec::new(),
         });
 
     collection.versions.push(new_version);
 
-    // Sort versions by timestamp descending (latest first)
-    collection.versions.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+    collection
+        .versions
+        .sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
 
     let settings_value = serde_json::to_value(settings)
         .map_err(|e| format!("Failed to serialize settings: {}", e))?;
 
     store.set("settings".to_string(), settings_value);
 
-    store.save()
-         .map_err(|e| format!("Failed to save store: {}", e))?;
+    store
+        .save()
+        .map_err(|e| format!("Failed to save store: {}", e))?;
 
     Ok(())
 }
 
 #[tauri::command]
 pub async fn delete_prompt_version<R: tauri::Runtime>(
-   app: tauri::AppHandle<R>,
-   prompt_name: String,
-   timestamp: i64,
-) -> Result<(), String> {
-   #[allow(unused_mut)]
-   let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
-       .build()
-       .map_err(|e| format!("Failed to build store: {}", e))?;
-
-   store.reload()
-        .map_err(|e| format!("Failed to reload store before deletion: {}", e))?;
-
-   let mut settings: AiSettings = match store.get("settings") {
-       Some(value) => serde_json::from_value(value.clone())
-           .map_err(|e| format!("Failed to deserialize settings: {}", e))?,
-       None => AiSettings::default(),
-   };
-
-   if let Some(collections) = settings.prompt_collections.as_mut() {
-       if let Some(collection) = collections.get_mut(&prompt_name) {
-           // Find the index of the version to remove
-           let initial_len = collection.versions.len();
-           collection.versions.retain(|version| version.timestamp != timestamp);
-
-           if collection.versions.len() == initial_len {
-               // No version was removed, maybe the timestamp didn't match
-               return Err(format!("Version with timestamp {} not found for prompt '{}'", timestamp, prompt_name));
-           }
-
-           // If the collection is now empty, remove the collection itself
-           if collection.versions.is_empty() {
-               collections.remove(&prompt_name);
-           }
-       } else {
-           return Err(format!("Prompt collection '{}' not found", prompt_name));
-       }
-   } else {
-       return Err("Prompt collections not initialized".to_string());
-   }
-
-   let settings_value = serde_json::to_value(settings)
-       .map_err(|e| format!("Failed to serialize settings after deletion: {}", e))?;
-
-   store.set("settings".to_string(), settings_value);
-
-   store.save()
-        .map_err(|e| format!("Failed to save store after deletion: {}", e))?;
-
-   Ok(())
-}
-
-
-#[tauri::command]
-pub async fn update_prompt_version<R: tauri::Runtime>(
     app: tauri::AppHandle<R>,
     prompt_name: String,
     timestamp: i64,
-    content: PromptNode,
 ) -> Result<(), String> {
     #[allow(unused_mut)]
-    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.dat")
+    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.json")
         .build()
         .map_err(|e| format!("Failed to build store: {}", e))?;
 
-    store.reload()
-         .map_err(|e| format!("Failed to reload store before update: {}", e))?;
+    store
+        .reload()
+        .map_err(|e| format!("Failed to reload store before deletion: {}", e))?;
 
     let mut settings: AiSettings = match store.get("settings") {
         Some(value) => serde_json::from_value(value.clone())
@@ -238,11 +271,75 @@ pub async fn update_prompt_version<R: tauri::Runtime>(
 
     if let Some(collections) = settings.prompt_collections.as_mut() {
         if let Some(collection) = collections.get_mut(&prompt_name) {
-            // Find the version to update by timestamp
-            if let Some(version) = collection.versions.iter_mut().find(|v| v.timestamp == timestamp) {
+            let initial_len = collection.versions.len();
+            collection
+                .versions
+                .retain(|version| version.timestamp != timestamp);
+
+            if collection.versions.len() == initial_len {
+                return Err(format!(
+                    "Version with timestamp {} not found for prompt '{}'",
+                    timestamp, prompt_name
+                ));
+            }
+
+            if collection.versions.is_empty() {
+                collections.remove(&prompt_name);
+            }
+        } else {
+            return Err(format!("Prompt collection '{}' not found", prompt_name));
+        }
+    } else {
+        return Err("Prompt collections not initialized".to_string());
+    }
+
+    let settings_value = serde_json::to_value(settings)
+        .map_err(|e| format!("Failed to serialize settings after deletion: {}", e))?;
+
+    store.set("settings".to_string(), settings_value);
+
+    store
+        .save()
+        .map_err(|e| format!("Failed to save store after deletion: {}", e))?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn update_prompt_version<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    prompt_name: String,
+    timestamp: i64,
+    content: PromptNode, // Uses imported PromptNode
+) -> Result<(), String> {
+    #[allow(unused_mut)]
+    let mut store = StoreBuilder::new(app.app_handle(), ".ai_settings.json")
+        .build()
+        .map_err(|e| format!("Failed to build store: {}", e))?;
+
+    store
+        .reload()
+        .map_err(|e| format!("Failed to reload store before update: {}", e))?;
+
+    let mut settings: AiSettings = match store.get("settings") {
+        Some(value) => serde_json::from_value(value.clone())
+            .map_err(|e| format!("Failed to deserialize settings: {}", e))?,
+        None => AiSettings::default(),
+    };
+
+    if let Some(collections) = settings.prompt_collections.as_mut() {
+        if let Some(collection) = collections.get_mut(&prompt_name) {
+            if let Some(version) = collection
+                .versions
+                .iter_mut()
+                .find(|v| v.timestamp == timestamp)
+            {
                 version.content = content;
             } else {
-                return Err(format!("Version with timestamp {} not found for prompt '{}'", timestamp, prompt_name));
+                return Err(format!(
+                    "Version with timestamp {} not found for prompt '{}'",
+                    timestamp, prompt_name
+                ));
             }
         } else {
             return Err(format!("Prompt collection '{}' not found", prompt_name));
@@ -256,33 +353,34 @@ pub async fn update_prompt_version<R: tauri::Runtime>(
 
     store.set("settings".to_string(), settings_value);
 
-    store.save()
-         .map_err(|e| format!("Failed to save store after update: {}", e))?;
+    store
+        .save()
+        .map_err(|e| format!("Failed to save store after update: {}", e))?;
 
     Ok(())
 }
 
 #[tauri::command]
 pub async fn fetch_ai_models<R: tauri::Runtime>(
-    _app: tauri::AppHandle<R>, // Parameter kept but marked unused if not needed
+    _app: tauri::AppHandle<R>,
     url: String,
-    api_key: Option<String>
+    api_key: Option<String>,
 ) -> Result<serde_json::Value, String> {
-
     let client = reqwest::Client::new();
     let mut request_builder = client.get(&url);
 
     if let Some(key) = api_key {
         if !key.trim().is_empty() {
             let bearer_token = format!("Bearer {}", key);
-            // Use match for better error handling on header value creation
             match HeaderValue::from_str(&bearer_token) {
                 Ok(header_value) => {
                     request_builder = request_builder.header(AUTHORIZATION, header_value);
                 }
                 Err(e) => {
-                    // Return an error if the key is invalid for a header
-                    return Err(format!("Invalid API key format for Authorization header: {}", e));
+                    return Err(format!(
+                        "Invalid API key format for Authorization header: {}",
+                        e
+                    ));
                 }
             }
         }
@@ -295,9 +393,14 @@ pub async fn fetch_ai_models<R: tauri::Runtime>(
 
     if !response.status().is_success() {
         let status = response.status();
-        // Try to get error body text, provide fallback message
-        let error_body = response.text().await.unwrap_or_else(|_| "Failed to read error body".to_string());
-         return Err(format!("Request failed with status {}: {}", status, error_body));
+        let error_body = response
+            .text()
+            .await
+            .unwrap_or_else(|_| "Failed to read error body".to_string());
+        return Err(format!(
+            "Request failed with status {}: {}",
+            status, error_body
+        ));
     }
 
     let json_response = response
@@ -306,4 +409,13 @@ pub async fn fetch_ai_models<R: tauri::Runtime>(
         .map_err(|e| format!("Failed to parse JSON response: {}", e))?;
 
     Ok(json_response)
+}
+
+#[tauri::command]
+pub async fn reset_ai_settings<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+) -> Result<(), String> {
+    println!("Resetting AI settings to default.");
+    let default_settings = AiSettings::default(); // Uses imported AiSettings::default()
+    save_ai_settings(app, default_settings).await
 }

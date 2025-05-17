@@ -308,7 +308,15 @@ pub fn run() {
             ai::fetch_ai_models,
             ai::save_prompt_version,
             ai::delete_prompt_version,
-            ai::update_prompt_version, // Register the new command
+            ai::update_prompt_version,
+            // New AI API config commands
+            ai::get_all_api_configs,
+            ai::add_api_config,
+            ai::edit_api_config,
+            ai::delete_api_config,
+            ai::set_active_api_config,
+            ai::get_active_api_config,
+            ai::reset_ai_settings,
             #[cfg(desktop)] // Keep the cfg attribute for the command itself
             set_update_channel,
             open_devtools
