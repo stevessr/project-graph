@@ -11,11 +11,20 @@ export const apiTypes = {
   getCameraLocation: [[], z.tuple([z.number(), z.number()])],
   setCameraLocation: [[z.number(), z.number()], z.void()],
   getPressingKey: [[], z.array(z.string())],
+  clearPressingKey: [[], z.void()],
+  getPressingKeySequence: [[], z.array(z.string())],
+  clearPressingKeySequence: [[], z.void()],
   openDialog: [[z.string(), z.string()], z.void()],
+  addDebugText: [[z.string()], z.void()],
   getCurrentStageJson: [[], z.string()],
   getCurrentStageSelectedObjectsUUIDs: [[], z.array(z.string())],
-  createTextOnLocation: [[z.number(), z.number(), z.string()], z.void()],
+  createTextOnLocation: [[z.number(), z.number(), z.string()], z.string()],
+  connectEntityByTwoUUID: [[z.string(), z.string()], z.boolean()],
 } as const;
+
+export function getAllAPIMethods(): (keyof typeof apiTypes)[] {
+  return Object.keys(apiTypes) as (keyof typeof apiTypes)[];
+}
 
 type Zod2Interface<T> = {
   [K in keyof T]: T[K] extends readonly [
