@@ -9,6 +9,8 @@ export type Path =
   | `/settings`
   | `/settings/about`
   | `/settings/ai`
+  | `/settings/ai/ApiConfigSection`
+  | `/settings/ai/PromptManagementSection`
   | `/settings/automation`
   | `/settings/control`
   | `/settings/effects`

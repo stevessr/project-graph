@@ -630,6 +630,16 @@ settings:
     versionDeletedSuccessfully: 版本删除成功
     deleteVersionFailed: 删除版本失败 "{{error}}"
     updateVersionSuccess: 版本更新成功
+    newPromptTitle: 创建提示词
+    newPromptDescription: 输入新提示词的名称并创建
+    createPromptButton: 创建
+    selectPromptTitle: 选择提示词
+    selectPromptDescription: 从已保存的提示词中选择
+    selectVersionTitle: 选择版本
+    selectVersionDescription: 选择该提示词的历史版本
+    deleteVersionButton: 删除
+    updateVersionButton: 更新
+    saveNewVersionButton: 新版本
 common:
   confirm: 确定
 plugins:
