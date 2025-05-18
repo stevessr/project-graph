@@ -18,9 +18,9 @@ export namespace AiApiHandler {
         return ["Error: No active API configuration found."];
       }
 
-      const apiKey = activeConfig.api_key;
-      const selectedModel = activeConfig.default_model;
-      const apiType = activeConfig.api_type; // Get apiType
+      const apiKey = activeConfig.apiKey;
+      const selectedModel = activeConfig.model;
+      const apiType = activeConfig.provider; // Get apiType
 
       let apiUrl: string;
       let requestBody: any;
@@ -38,19 +38,31 @@ export namespace AiApiHandler {
       switch (apiType) {
         case "gemini": {
           if (!selectedModel) return ["Error: Gemini model not selected for expansion."];
-          if (!activeConfig.endpoint_url) return ["Error: Gemini endpoint URL not configured for expansion."];
-          apiUrl = `${activeConfig.endpoint_url}/v1beta/models/${selectedModel}:generateContent`;
+          if (!activeConfig.baseUrl) return ["Error: Gemini endpoint URL not configured for expansion."];
+          apiUrl = `${activeConfig.baseUrl}/v1beta/models/${selectedModel}:generateContent`;
           if (apiKey) apiUrl += `?key=${apiKey}`;
           else return ["Error: Gemini API key not configured for expansion."];
 
           // For Gemini, combine system and user prompts into one text part
           let geminiPromptContent = "";
-          if (messagesForApi.length > 0 && messagesForApi[0].role === "system") {
+          if (
+            messagesForApi.length > 0 &&
+            messagesForApi[0].role === "system" &&
+            typeof messagesForApi[0].content == "string"
+          ) {
             geminiPromptContent = messagesForApi[0].content;
-            if (messagesForApi.length > 1 && messagesForApi[1].role === "user") {
+            if (
+              messagesForApi.length > 1 &&
+              messagesForApi[1].role === "user" &&
+              typeof messagesForApi[1].content == "string"
+            ) {
               geminiPromptContent += "\n\n" + messagesForApi[1].content;
             }
-          } else if (messagesForApi.length > 0 && messagesForApi[0].role === "user") {
+          } else if (
+            messagesForApi.length > 0 &&
+            messagesForApi[0].role === "user" &&
+            typeof messagesForApi[0].content == "string"
+          ) {
             geminiPromptContent = messagesForApi[0].content;
           } else {
             // Fallback, though messagesForApi should always have system and user here
@@ -69,8 +81,8 @@ export namespace AiApiHandler {
         }
 
         case "responses": {
-          apiUrl = activeConfig.endpoint_url
-            ? `${activeConfig.endpoint_url}/responses`
+          apiUrl = activeConfig.baseUrl
+            ? `${activeConfig.baseUrl}/responses`
             : import.meta.env.LR_API_BASE_URL! + "/responses";
           if (apiKey) requestHeaders["Authorization"] = `Bearer ${apiKey}`;
 
@@ -144,8 +156,8 @@ export namespace AiApiHandler {
 
         case "chat":
         default:
-          apiUrl = activeConfig.endpoint_url
-            ? `${activeConfig.endpoint_url}/chat/completions`
+          apiUrl = activeConfig.baseUrl
+            ? `${activeConfig.baseUrl}/chat/completions`
             : import.meta.env.LR_API_BASE_URL! + "/chat/completions";
           if (apiKey) {
             requestHeaders["Authorization"] = `Bearer ${apiKey}`;
@@ -307,9 +319,9 @@ export namespace AiApiHandler {
         return "Error: No active API configuration found for summary.";
       }
 
-      const apiKey = activeConfig.api_key;
-      const selectedModel = activeConfig.default_model;
-      const apiType = activeConfig.api_type;
+      const apiKey = activeConfig.apiKey;
+      const selectedModel = activeConfig.model;
+      const apiType = activeConfig.provider;
 
       let apiUrl: string;
       let requestBody: any;
@@ -347,8 +359,8 @@ export namespace AiApiHandler {
       switch (apiType) {
         case "gemini":
           if (!selectedModel) return "Error: Gemini model not selected for summary.";
-          if (!activeConfig.endpoint_url) return "Error: Gemini endpoint URL not configured for summary.";
-          apiUrl = `${activeConfig.endpoint_url}/v1beta/models/${selectedModel}:generateContent`;
+          if (!activeConfig.baseUrl) return "Error: Gemini endpoint URL not configured for summary.";
+          apiUrl = `${activeConfig.baseUrl}/v1beta/models/${selectedModel}:generateContent`;
           if (apiKey) apiUrl += `?key=${apiKey}`;
           else return "Error: Gemini API key not configured for summary.";
           {
@@ -369,8 +381,8 @@ export namespace AiApiHandler {
           }
           break;
         case "responses":
-          apiUrl = activeConfig.endpoint_url
-            ? `${activeConfig.endpoint_url}/responses`
+          apiUrl = activeConfig.baseUrl
+            ? `${activeConfig.baseUrl}/responses`
             : import.meta.env.LR_API_BASE_URL! + "/responses";
           // requestHeaders["Content-Type"] = `application/json`; // Already set
           if (apiKey) requestHeaders["Authorization"] = `Bearer ${apiKey}`;
@@ -386,8 +398,8 @@ export namespace AiApiHandler {
 
         case "chat":
         default:
-          apiUrl = activeConfig.endpoint_url
-            ? `${activeConfig.endpoint_url}/chat/completions`
+          apiUrl = activeConfig.baseUrl
+            ? `${activeConfig.baseUrl}/chat/completions`
             : import.meta.env.LR_API_BASE_URL! + "/chat/completions";
           if (apiKey) requestHeaders["Authorization"] = `Bearer ${apiKey}`;
           // messages[1].type = "input_text"; // This seems specific and might not be needed generally or for all chat APIs

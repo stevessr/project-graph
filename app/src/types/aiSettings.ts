@@ -1,10 +1,13 @@
+// src\types\aiSettings.ts
 export interface ApiConfig {
   id: string;
   name: string;
-  endpoint_url: string;
-  api_key: string;
-  default_model: string | null;
-  api_type: string;
+  provider: string; // e.g., "openai", "anthropic", "gemini", "local_ai"
+  apiKey: string;
+  baseUrl?: string; // Optional, as some providers might not need it or have a default
+  model?: string | null;
+  temperature?: number;
+  maxTokens?: number;
   notes?: string; // Added based on potential future use, optional
 }
 
