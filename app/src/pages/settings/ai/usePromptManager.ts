@@ -14,15 +14,15 @@ export function usePromptManager(
   refreshSettingsCallback: () => Promise<AiSettings | void>,
   t: TFunction<"settings", undefined>,
 ) {
-  const [customPromptsString, setCustomPromptsString] = useState<string>("");
+  const [custom_promptsString, setcustom_promptsString] = useState<string>("");
   const [selectedPromptName, setSelectedPromptName] = useState<string | null>(null);
   const [selectedVersionTimestamp, setSelectedVersionTimestamp] = useState<number | null>(null);
   const [newPromptName, setNewPromptName] = useState<string>("");
-  const [currentSummaryPrompt, setCurrentSummaryPrompt] = useState<string | null>(null);
+  const [currentsummary_prompt, setCurrentsummary_prompt] = useState<string | null>(null);
 
   useEffect(() => {
     // Initialize prompt states based on currentSettings
-    let initialCustomPromptsString = "";
+    let initialcustom_promptsString = "";
     let initialSelectedPromptName: string | null = null;
     let initialSelectedVersionTimestamp: number | null = null;
 
@@ -39,27 +39,27 @@ export function usePromptManager(
         if (!targetVersion) {
           targetVersion = collection.versions[0];
         }
-        initialCustomPromptsString = formatNodesToLineString([targetVersion.content]);
+        initialcustom_promptsString = formatNodesToLineString([targetVersion.content]);
         initialSelectedVersionTimestamp = targetVersion.timestamp;
       } else {
         initialSelectedVersionTimestamp = null;
       }
     }
 
-    if (initialCustomPromptsString === "" && currentSettings.custom_prompts) {
-      initialCustomPromptsString = currentSettings.custom_prompts;
+    if (initialcustom_promptsString === "" && currentSettings.custom_prompts) {
+      initialcustom_promptsString = currentSettings.custom_prompts;
       initialSelectedPromptName = null;
       initialSelectedVersionTimestamp = null;
     }
 
-    setCustomPromptsString(initialCustomPromptsString);
+    setcustom_promptsString(initialcustom_promptsString);
     setSelectedPromptName(initialSelectedPromptName);
     setSelectedVersionTimestamp(initialSelectedVersionTimestamp);
-    setCurrentSummaryPrompt(currentSettings.summary_prompt);
+    setCurrentsummary_prompt(currentSettings.summary_prompt);
   }, [currentSettings, selectedPromptName, selectedVersionTimestamp]);
 
-  const handleSummaryPromptChange = (value: string) => {
-    setCurrentSummaryPrompt(value === "" ? null : value);
+  const handlesummary_promptChange = (value: string) => {
+    setCurrentsummary_prompt(value === "" ? null : value);
   };
 
   const handlePromptSelect = (promptNameKey: string) => {
@@ -67,10 +67,10 @@ export function usePromptManager(
     const collection = currentSettings.prompt_collections?.[promptNameKey];
     if (collection && collection.versions.length > 0) {
       const latestVersion = collection.versions[0];
-      setCustomPromptsString(formatNodesToLineString([latestVersion.content]));
+      setcustom_promptsString(formatNodesToLineString([latestVersion.content]));
       setSelectedVersionTimestamp(latestVersion.timestamp);
     } else {
-      setCustomPromptsString("");
+      setcustom_promptsString("");
       setSelectedVersionTimestamp(null);
     }
   };
@@ -82,18 +82,18 @@ export function usePromptManager(
         (v) => v.timestamp === timestamp,
       );
       if (selectedVersion) {
-        setCustomPromptsString(formatNodesToLineString([selectedVersion.content]));
+        setcustom_promptsString(formatNodesToLineString([selectedVersion.content]));
       }
     }
   };
 
   const handleSavePromptVersion = async () => {
-    if (!selectedPromptName || !customPromptsString.trim()) {
+    if (!selectedPromptName || !custom_promptsString.trim()) {
       await Dialog.show({ title: t("ai.selectPromptAndContentError") });
       return;
     }
     try {
-      const parsedPrompts = parseLineFormat(customPromptsString);
+      const parsedPrompts = parseLineFormat(custom_promptsString);
       if (parsedPrompts && parsedPrompts.length > 0) {
         await invoke("save_prompt_version", { promptName: selectedPromptName, content: parsedPrompts[0] });
         await Dialog.show({ title: t("ai.saveSuccess") });
@@ -117,7 +117,7 @@ export function usePromptManager(
       return;
     }
     try {
-      const parsedContent = parseLineFormat(customPromptsString);
+      const parsedContent = parseLineFormat(custom_promptsString);
       if (!parsedContent || parsedContent.length === 0) {
         await Dialog.show({ title: t("ai.contentCannotBeEmpty") });
         return;
@@ -157,11 +157,11 @@ export function usePromptManager(
       if (newSettings && newSettings.prompt_collections?.[createdPromptName]?.versions.length > 0) {
         setSelectedPromptName(createdPromptName);
         const newVersion = newSettings.prompt_collections[createdPromptName].versions[0];
-        setCustomPromptsString(formatNodesToLineString([newVersion.content]));
+        setcustom_promptsString(formatNodesToLineString([newVersion.content]));
         setSelectedVersionTimestamp(newVersion.timestamp);
       } else {
         setSelectedPromptName(createdPromptName);
-        setCustomPromptsString("");
+        setcustom_promptsString("");
         setSelectedVersionTimestamp(null);
       }
     } catch (err) {
@@ -200,18 +200,18 @@ export function usePromptManager(
             const latestVersion = collection.versions[0];
             setSelectedPromptName(oldSelectedPromptName); // Ensure prompt name selection is maintained
             setSelectedVersionTimestamp(latestVersion.timestamp);
-            setCustomPromptsString(formatNodesToLineString([latestVersion.content]));
+            setcustom_promptsString(formatNodesToLineString([latestVersion.content]));
           } else {
             // Collection exists but no versions, keep prompt selected, clear version/content
             setSelectedPromptName(oldSelectedPromptName);
             setSelectedVersionTimestamp(null);
-            setCustomPromptsString("");
+            setcustom_promptsString("");
           }
         } else {
           // Prompt collection was deleted (last version deleted), clear selection
           setSelectedPromptName(null);
           setSelectedVersionTimestamp(null);
-          setCustomPromptsString("");
+          setcustom_promptsString("");
         }
       }
     } catch (err) {
@@ -221,16 +221,16 @@ export function usePromptManager(
   };
 
   return {
-    customPromptsString,
-    setCustomPromptsString,
+    custom_promptsString,
+    setcustom_promptsString,
     selectedPromptName,
     setSelectedPromptName,
     selectedVersionTimestamp,
     setSelectedVersionTimestamp,
     newPromptName,
     setNewPromptName,
-    currentSummaryPrompt,
-    handleSummaryPromptChange,
+    currentsummary_prompt,
+    handlesummary_promptChange,
     handlePromptSelect,
     handleVersionSelect,
     handleSavePromptVersion,

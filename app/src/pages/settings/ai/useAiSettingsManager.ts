@@ -4,19 +4,23 @@ import { AiSettings, ApiConfig } from "../../../types/aiSettings";
 import { invoke, fetch as tauriFetch } from "../../../utils/tauriApi";
 import { Dialog } from "../../../components/dialog";
 import { TFunction } from "i18next";
+import { useAiSettingsStore } from "../../../state/aiSettingsStore"; // Import the store
 
 export function useAiSettingsManager(t: TFunction<"settings", undefined>) {
   const [settings, setSettings] = useState<AiSettings>({
     api_configs: [],
-    active_config_id: null,
+    active_config_id: "",
     prompt_collections: {}, // Ensure it's an object, not null
     summary_prompt: null,
     custom_prompts: null,
   });
-  const [activeApiConfig, setActiveApiConfig] = useState<ApiConfig | null>(null);
+  const [activeApiConfig, setActiveApiConfig] = useState<ApiConfig>() || ({} as ApiConfig); // Initialize to an empty object
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Get the setActiveAiConfig action from the store
+  const { setActiveAiConfig: setStoreActiveConfig } = useAiSettingsStore();
 
   // Function to load settings from backend
   const loadSettings = useCallback(async () => {
@@ -51,9 +55,9 @@ export function useAiSettingsManager(t: TFunction<"settings", undefined>) {
 
   // Effect to derive activeApiConfig from settings
   useEffect(() => {
-    let currentActiveConfig: ApiConfig | null = null;
+    let currentActiveConfig: ApiConfig = {} as ApiConfig; // Initialize to an empty object
     if (settings.active_config_id && settings.api_configs.length > 0) {
-      currentActiveConfig = settings.api_configs.find((c) => c.id === settings.active_config_id) || null;
+      currentActiveConfig = settings.api_configs.find((c) => c.id === settings.active_config_id) || ({} as ApiConfig);
     }
     // If no active_config_id or it's invalid, and configs exist, default to the first one
     if (!currentActiveConfig && settings.api_configs.length > 0) {
@@ -70,22 +74,22 @@ export function useAiSettingsManager(t: TFunction<"settings", undefined>) {
       setActiveApiConfig(currentActiveConfig);
       console.log("Derived and set activeApiConfig:", currentActiveConfig);
     }
-  }, [settings.api_configs, settings.active_config_id]); // Removed activeApiConfig from deps to avoid loop if we stringify
+  }, [settings.api_configs, settings.active_config_id, activeApiConfig]); // Added activeApiConfig to dependency array
 
   // Function to fetch available models for the active API config
   const fetchModels = useCallback(async () => {
-    if (!activeApiConfig || !activeApiConfig.baseUrl) {
+    if (!activeApiConfig || !activeApiConfig.base_url) {
       setAvailableModels([]);
       return;
     }
     setLoadingModels(true);
     setError(null);
     try {
-      const modelsUrl = `${activeApiConfig.baseUrl}/models`;
+      const modelsUrl = `${activeApiConfig.base_url}/models`;
       const headers: Record<string, string> = {};
-      if (activeApiConfig.apiKey && activeApiConfig.provider !== "ollama") {
+      if (activeApiConfig.api_key && activeApiConfig.provider !== "ollama") {
         // Ollama might not need/use Bearer token
-        headers["Authorization"] = `Bearer ${activeApiConfig.apiKey}`;
+        headers["Authorization"] = `Bearer ${activeApiConfig.api_key}`;
       }
       const response = await tauriFetch(modelsUrl, { method: "GET", headers }); // Explicitly GET
       if (!response.ok) {
@@ -129,21 +133,23 @@ export function useAiSettingsManager(t: TFunction<"settings", undefined>) {
 
   // Effect to fetch models when activeApiConfig changes
   useEffect(() => {
-    if (activeApiConfig && activeApiConfig.baseUrl) {
-      // Ensure baseUrl is present
+    if (activeApiConfig && activeApiConfig.base_url) {
+      // Ensure base_url is present
       fetchModels();
     } else {
-      setAvailableModels([]); // Clear models if no active config or no baseUrl
+      setAvailableModels([]); // Clear models if no active config or no base_url
     }
-  }, [activeApiConfig?.id, activeApiConfig?.baseUrl, activeApiConfig?.apiKey, fetchModels]); // Re-fetch if relevant parts of active config change
+  }, [activeApiConfig?.id, activeApiConfig?.base_url, activeApiConfig?.api_key, fetchModels]); // Re-fetch if relevant parts of active config change
 
   // Function to switch the active API configuration
-  const switchActiveApiConfig = useCallback((configId: string | null) => {
-    setSettings((prev) => {
-      const newActiveId = prev.api_configs.some((c) => c.id === configId) ? configId : prev.api_configs[0]?.id || null;
-      return { ...prev, active_config_id: newActiveId };
-    });
-  }, []);
+  const switchActiveApiConfig = useCallback(
+    async (configId: string | null) => {
+      // Use the store action to update and persist the active config
+      await setStoreActiveConfig(configId);
+      // The effect listening to settings.active_config_id will update local state
+    },
+    [setStoreActiveConfig],
+  );
 
   // Function to add a new API configuration
   const addApiConfig = useCallback((newConfig: ApiConfig) => {
@@ -183,7 +189,7 @@ export function useAiSettingsManager(t: TFunction<"settings", undefined>) {
       let newActiveId = prev.active_config_id;
       if (prev.active_config_id === configId) {
         // If the deleted config was active
-        newActiveId = updatedConfigs.length > 0 ? updatedConfigs[0].id : null; // Make first one active, or null
+        newActiveId = updatedConfigs.length > 0 ? updatedConfigs[0].id : ""; // Make first one active, or null
       }
       return { ...prev, api_configs: updatedConfigs, active_config_id: newActiveId };
     });
@@ -193,16 +199,26 @@ export function useAiSettingsManager(t: TFunction<"settings", undefined>) {
   const confirmAndResetAISettings = async () => {
     try {
       const confirmation = await Dialog.show({
-        /* ... dialog options ... */
+        title: t("ai.resetConfirmTitle", "Reset AI Settings?"),
+        content: t(
+          "ai.resetConfirmMessage",
+          "Are you sure you want to reset all AI settings to their defaults? This action cannot be undone.",
+        ),
+        type: "warning",
+        buttons: [
+          { text: t("common.cancel", "Cancel"), color: "white" },
+          { text: t("ai.resetConfirmButton", "Confirm Reset"), color: "red" },
+        ],
       });
-      if (confirmation.button === (t("ai.resetConfirmButton") || "确认重置")) {
+      if (confirmation.button === t("ai.resetConfirmButton", "Confirm Reset")) {
         await invoke("reset_ai_settings");
         await loadSettings(); // Reload settings after reset
-        await Dialog.show({ title: t("ai.resetSuccess") });
+        await Dialog.show({ title: t("ai.resetSuccess", "AI Settings Reset"), type: "success" });
       }
-    } catch (error) {
-      console.error(t("ai.dialogError"), error);
-      await Dialog.show({ title: t("ai.dialogError", { error: String(error) }) });
+    } catch (err) {
+      // Changed error to err to match usage
+      console.error(t("ai.dialogError", "Dialog Error"), err);
+      await Dialog.show({ title: t("ai.dialogError", "Dialog Error"), content: String(err), type: "error" });
     }
   };
 
@@ -210,18 +226,18 @@ export function useAiSettingsManager(t: TFunction<"settings", undefined>) {
     settings,
     setSettings, // Keep for prompt manager and direct save if needed
     activeApiConfig,
-    // setActiveApiConfig, // Should be derived, not set directly from outside
     availableModels,
     loadingModels,
     error,
     setError,
     loadSettings, // For explicit refresh
+    fetchModels, // Added fetchModels to the returned object
     // New CRUD functions for API configs
     switchActiveApiConfig,
     addApiConfig,
     updateApiConfig,
     deleteApiConfig,
-
     confirmAndResetAISettings,
+    setStoreActiveConfig, // Exported the store action
   };
 }

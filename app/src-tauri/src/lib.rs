@@ -317,6 +317,7 @@ pub fn run() {
             ai::set_active_api_config,
             ai::get_active_api_config,
             ai::reset_ai_settings,
+            ai::set_active_ai_config,
             #[cfg(desktop)] // Keep the cfg attribute for the command itself
             set_update_channel,
             open_devtools

@@ -1,193 +1,58 @@
 // src/core/ai/aiApiHandler.ts
-import { invoke, fetch } from "../../utils/tauriApi";
-import { AiSettings, ResposeContent } from "../../types/aiSettings";
-import { TextNode } from "../stage/stageObject/entity/TextNode"; // Path might need adjustment
-import { StageManager } from "../stage/stageManager/StageManager"; // Path might need adjustment
+import { TextNode } from "../stage/stageObject/entity/TextNode";
 import { Dialog } from "../../components/dialog";
+
+// Helper imports
+import { getActiveAiConfiguration } from "./helpers/aiSettingsManager";
+import { buildExpansionRequest, buildSummaryRequest } from "./helpers/apiRequestBuilder";
+import { makeApiCall } from "./helpers/apiCaller";
+import { parseExpansionResponse, parseSummaryResponse } from "./helpers/apiResponseParser";
+import { FetchResponseLike } from "./helpers/types"; // For response type
 
 export namespace AiApiHandler {
   export async function fetchTextListForExpansion(selectedTextNode: TextNode): Promise<string[]> {
     try {
-      const aiSettings: AiSettings = await invoke("load_ai_settings");
-      console.log("aiSettings for expansion", aiSettings);
-
-      const activeConfig = aiSettings.api_configs.find((config) => config.id === aiSettings.active_config_id);
-
-      if (!activeConfig) {
-        console.error("No active API configuration found.");
-        return ["Error: No active API configuration found."];
+      const activeConfigResult = await getActiveAiConfiguration();
+      if ("error" in activeConfigResult) {
+        console.error("fetchTextListForExpansion: ActiveConfigError:", activeConfigResult.error);
+        return [`Error: ${activeConfigResult.error}`];
       }
+      const { config: activeConfig, settings: aiSettings } = activeConfigResult;
 
-      const apiKey = activeConfig.apiKey;
-      const selectedModel = activeConfig.model;
-      const apiType = activeConfig.provider; // Get apiType
+      const requestDetailsResult = buildExpansionRequest(activeConfig, selectedTextNode, aiSettings);
+      if ("error" in requestDetailsResult) {
+        console.error("fetchTextListForExpansion: RequestBuildError:", requestDetailsResult.error);
+        return [requestDetailsResult.error];
+      }
+      const { apiUrl, requestBody, requestHeaders, apiType } = requestDetailsResult;
 
-      let apiUrl: string;
-      let requestBody: any;
-      const requestHeaders: HeadersInit = { "Content-Type": "application/json" };
-      let rawResponseText = ""; // For debugging
-
-      // Prepare messages (system and user)
-      const messagesForApi: { role?: string; content: string | ResposeContent; type?: string }[] = [];
-      const systemMessageContent = aiSettings?.custom_prompts?.trim()
-        ? aiSettings.custom_prompts
-        : "neko,一个联想家，请根据提供的词汇联想词汇，一行一个,仅仅输出联想即可";
-      messagesForApi.push({ role: "system", content: systemMessageContent });
-      messagesForApi.push({ role: "user", content: selectedTextNode.text });
-
-      switch (apiType) {
-        case "gemini": {
-          if (!selectedModel) return ["Error: Gemini model not selected for expansion."];
-          if (!activeConfig.baseUrl) return ["Error: Gemini endpoint URL not configured for expansion."];
-          apiUrl = `${activeConfig.baseUrl}/v1beta/models/${selectedModel}:generateContent`;
-          if (apiKey) apiUrl += `?key=${apiKey}`;
-          else return ["Error: Gemini API key not configured for expansion."];
-
-          // For Gemini, combine system and user prompts into one text part
-          let geminiPromptContent = "";
-          if (
-            messagesForApi.length > 0 &&
-            messagesForApi[0].role === "system" &&
-            typeof messagesForApi[0].content == "string"
-          ) {
-            geminiPromptContent = messagesForApi[0].content;
-            if (
-              messagesForApi.length > 1 &&
-              messagesForApi[1].role === "user" &&
-              typeof messagesForApi[1].content == "string"
-            ) {
-              geminiPromptContent += "\n\n" + messagesForApi[1].content;
-            }
-          } else if (
-            messagesForApi.length > 0 &&
-            messagesForApi[0].role === "user" &&
-            typeof messagesForApi[0].content == "string"
-          ) {
-            geminiPromptContent = messagesForApi[0].content;
-          } else {
-            // Fallback, though messagesForApi should always have system and user here
-            geminiPromptContent = selectedTextNode.text;
-          }
-          requestBody = {
-            contents: [{ role: "user", parts: [{ text: geminiPromptContent }] }],
-            // Optional: Add generationConfig if needed, e.g., temperature, maxOutputTokens
-            // generationConfig: {
-            //   temperature: 0.7,
-            //   maxOutputTokens: 256,
-            // }
-          };
-          // No Authorization header for Gemini with API key in URL
-          break;
-        }
-
-        case "responses": {
-          apiUrl = activeConfig.baseUrl
-            ? `${activeConfig.baseUrl}/responses`
-            : import.meta.env.LR_API_BASE_URL! + "/responses";
-          if (apiKey) requestHeaders["Authorization"] = `Bearer ${apiKey}`;
-
-          let inputPayload; // This will be an array of Input Message Objects or a string
-
-          if (messagesForApi && messagesForApi.length > 0) {
-            // If messagesForApi is available, transform it into an array of Input Message Objects
-            inputPayload = messagesForApi.map((msg) => {
-              // Ensure content is a string as per the spec for 'text' inside content items,
-              // or pass it through if it's already an array of content items (more advanced).
-              // For simplicity, assuming msg.content is always a string based on original code.
-              const contentForApi = { text: msg.content, type: "input_text" };
-
-              return {
-                role: msg.role,
-                content: contentForApi, // Can be string or array of content items
-                type: "message", // As per "Input Message Object" spec
-              };
-            });
-          } else if (selectedTextNode && typeof selectedTextNode.text === "string") {
-            // Fallback to selectedTextNode.text if messagesForApi is empty
-            // We can send it as a simple string (API treats as user message)
-            // OR as a structured Input Message Object.
-            // Let's use the structured object for consistency if the API expects an array.
-            inputPayload = [
-              {
-                role: "user", // selectedTextNode.text is treated as user input
-                content: selectedTextNode.text,
-                type: "message",
-              },
-            ];
-            // If the API strictly expects a string when there's no conversation history:
-            // inputPayload = selectedTextNode.text;
-          } else {
-            // If no messages and no selected text, or selected text is not a string.
-            // The API requires the 'input' field.
-            // We can send an empty user message or throw an error.
-            // Original code would result in 'responsesInputContent' being potentially undefined or an empty string.
-            console.warn(
-              "No valid input for 'responses' API. Defaulting to an empty user message. Ensure input is provided.",
-            );
-            inputPayload = [
-              {
-                role: "user",
-                content: "", // Provide an empty string as content
-                type: "message",
-              },
-            ];
-            // Or, if a simple string is preferred for this edge case:
-            // inputPayload = "";
-            // Or, throw an error:
-            // throw new Error("Input is required for the 'responses' API and no valid input was found.");
-          }
-
-          requestBody = {
-            model: selectedModel,
-            tools: [], // Assuming no tools for expansion as per original comment
-            input: inputPayload,
-          };
-
-          console.log("Expansion - 'responses' type request body:", requestBody);
-          await Dialog.show({
-            title: "提示",
-            content: "当前 'responses' API 类型用于文本扩展的功能尚未完全验证，可能无法按预期工作。",
-          });
-          // Decide if you want to proceed or throw an error like in summary
-          // For now, let's proceed but expect potential issues or adapt parsing later
-          // throw new Error("暂时不能使用responses格式进行文本扩展，我还没搞明白");
-          break;
-        }
-
-        case "chat":
-        default:
-          apiUrl = activeConfig.baseUrl
-            ? `${activeConfig.baseUrl}/chat/completions`
-            : import.meta.env.LR_API_BASE_URL! + "/chat/completions";
-          if (apiKey) {
-            requestHeaders["Authorization"] = `Bearer ${apiKey}`;
-          }
-          requestBody = {
-            model: selectedModel,
-            messages: messagesForApi.map((m) => ({ role: m.role || "user", content: m.content })), // Ensure role is present
-            // Optional: Add other parameters like temperature, max_tokens
-            // temperature: 0.7,
-            // max_tokens: 150,
-          };
-          break;
+      if (apiType === "responses") {
+        await Dialog.show({
+          title: "提示",
+          content: "当前 'responses' API 类型用于文本扩展的功能尚未完全验证，可能无法按预期工作。",
+        });
       }
 
       console.log(`Expansion (${apiType}) - Final request body:`, JSON.stringify(requestBody, null, 2));
       console.log(`Expansion (${apiType}) - API URL:`, apiUrl);
       console.log(`Expansion (${apiType}) - Request Headers:`, requestHeaders);
 
+      let rawResponseText = "";
+      let response: FetchResponseLike;
       try {
-        const response = await fetch(apiUrl, {
+        response = await makeApiCall(apiUrl, {
           method: "POST",
           headers: requestHeaders,
           body: JSON.stringify(requestBody),
         });
 
         try {
-          rawResponseText = await response.clone().text();
-          console.log(response.clone().text());
+          // It's crucial to clone if you need to access the body multiple times (e.g., for text and then json)
+          const clonedResponse = response.clone();
+          rawResponseText = await clonedResponse.text();
         } catch (textError) {
           console.warn(`Could not get raw text from ${apiType} expansion response:`, textError);
+          // rawResponseText will remain empty or its last value
         }
 
         if (!response.ok) {
@@ -212,86 +77,28 @@ export namespace AiApiHandler {
           return [`Error: ${apiType} API expansion returned no content`];
         }
 
+        // Use the original response object for .json() as clone().text() consumed the cloned body
         const responseData = await response.json();
+        const parsedResult = await parseExpansionResponse(apiType, responseData, rawResponseText);
 
-        let content = "";
-        switch (apiType) {
-          case "gemini":
-            if (
-              responseData &&
-              responseData.candidates &&
-              responseData.candidates.length > 0 &&
-              responseData.candidates[0].content &&
-              responseData.candidates[0].content.parts &&
-              responseData.candidates[0].content.parts.length > 0 &&
-              responseData.candidates[0].content.parts[0].text
-            ) {
-              content = responseData.candidates[0].content.parts[0].text;
-            } else {
-              console.error(
-                `Unexpected Gemini response structure for expansion:`,
-                responseData,
-                "Raw:",
-                rawResponseText,
-              );
-              return ["Error: Unexpected Gemini response structure for expansion"];
-            }
-            break;
-
-          case "responses":
-            // The 'responses' API type structure needs to be confirmed.
-            // Assuming it might be similar to 'chat' or have a specific field.
-            // This is a placeholder, adjust based on actual API response for 'responses' type.
-            if (responseData && responseData.output) {
-              // Example: if responseData.output contains the text
-              content = responseData.output;
-            } else if (
-              responseData &&
-              responseData.choices &&
-              responseData.choices.length > 0 &&
-              responseData.choices[0].message &&
-              responseData.choices[0].message.content
-            ) {
-              // Fallback to chat-like structure if applicable
-              content = responseData.choices[0].message.content;
-            } else {
-              console.error(
-                `Unexpected 'responses' API response structure for expansion:`,
-                responseData,
-                "Raw:",
-                rawResponseText,
-              );
-              await Dialog.show({
-                title: "错误",
-                content: "无法解析来自 'responses' API 的扩展结果。请检查控制台日志。",
-              });
-              return ["Error: Unexpected 'responses' API response structure for expansion"];
-            }
-            break;
-
-          case "chat":
-          default:
-            if (
-              responseData &&
-              responseData.choices &&
-              responseData.choices.length > 0 &&
-              responseData.choices[0].message &&
-              responseData.choices[0].message.content
-            ) {
-              content = responseData.choices[0].message.content;
-            } else {
-              console.error(
-                "Unexpected chat completions response structure (Expansion):",
-                responseData,
-                "Raw:",
-                rawResponseText,
-              );
-              return ["Error: Unexpected chat completions response structure"];
-            }
-            break;
+        if ("error" in parsedResult) {
+          console.error(
+            "fetchTextListForExpansion: ParseError:",
+            parsedResult.error,
+            "Raw:",
+            parsedResult.rawResponseText,
+          );
+          if (apiType === "responses" && parsedResult.error.includes("Unexpected 'responses' API response structure")) {
+            await Dialog.show({
+              title: "错误",
+              content: "无法解析来自 'responses' API 的扩展结果。请检查控制台日志。",
+            });
+          }
+          return [`Error: ${parsedResult.error}`];
         }
-        return content.split("\n").filter((line: string) => line.trim() !== "");
+        return parsedResult.suggestions;
       } catch (e: any) {
+        // This catch handles errors from makeApiCall or response.json()
         console.error(
           `${apiType} API error (Expansion):`,
           e,
@@ -303,111 +110,31 @@ export namespace AiApiHandler {
         return [`Error: ${apiType} API error - ${e.message || "Unknown error"}`];
       }
     } catch (e: any) {
-      console.error("Response", Response);
-      console.error("Error loading AI settings or processing API response (Expansion):", e);
+      // This top-level catch is for unexpected errors in the setup, e.g. if a helper throws an unhandled exception
+      console.error("Critical error in fetchTextListForExpansion:", e);
       return [`Error: Failed to generate text - ${e.message || "Unknown error"}`];
     }
   }
 
   export async function fetchSummaryForNodes(selectedTextNodes: TextNode[]): Promise<string> {
     try {
-      const aiSettings: AiSettings = await invoke("load_ai_settings");
-      const activeConfig = aiSettings.api_configs.find((config) => config.id === aiSettings.active_config_id);
-
-      if (!activeConfig) {
-        console.error("No active API configuration found for summary.");
-        return "Error: No active API configuration found for summary.";
+      const activeConfigResult = await getActiveAiConfiguration();
+      if ("error" in activeConfigResult) {
+        console.error("fetchSummaryForNodes: ActiveConfigError:", activeConfigResult.error);
+        return `Error: ${activeConfigResult.error}`;
       }
+      const { config: activeConfig, settings: aiSettings } = activeConfigResult;
 
-      const apiKey = activeConfig.apiKey;
-      const selectedModel = activeConfig.model;
-      const apiType = activeConfig.provider;
-
-      let apiUrl: string;
-      let requestBody: any;
-      const requestHeaders: HeadersInit = { "Content-Type": "application/json" };
-      let rawResponseText = "";
-
-      const messages: { role?: string; content: string; type?: string }[] = [];
-      const summaryPrompt = aiSettings.summary_prompt?.trim()
-        ? aiSettings.summary_prompt
-        : "用简洁的语言概括以下内容：";
-      messages.push({ role: "system", content: summaryPrompt });
-
-      let userMessageContent = "以下是选中的节点及其内容：\n";
-      const selectedNodeUUIDs = selectedTextNodes.map((node) => node.uuid);
-      selectedTextNodes.forEach((node) => {
-        userMessageContent += `- ${node.uuid}: ${node.text}\n`;
-      });
-      userMessageContent += "\n以下是这些节点之间的连接关系：\n";
-      let connectionsFound = false;
-      // Assuming StageManager is accessible or passed if needed, or this logic moves
-      StageManager.getLineEdges().forEach((edge) => {
-        const sourceSelected = selectedNodeUUIDs.includes(edge.source.uuid);
-        const targetSelected = selectedNodeUUIDs.includes(edge.target.uuid);
-        if (sourceSelected && targetSelected) {
-          userMessageContent += `- ${edge.source.uuid} -> ${edge.target.uuid}\n`;
-          connectionsFound = true;
-        }
-      });
-      if (!connectionsFound) {
-        userMessageContent += "(选中的节点之间没有连接关系)\n";
+      const requestDetailsResult = buildSummaryRequest(activeConfig, selectedTextNodes, aiSettings);
+      if ("error" in requestDetailsResult) {
+        console.error("fetchSummaryForNodes: RequestBuildError:", requestDetailsResult.error);
+        return requestDetailsResult.error;
       }
-      userMessageContent += "\n请根据以上节点内容和它们之间的连接关系进行总结。";
-      messages.push({ role: "user", content: userMessageContent });
+      const { apiUrl, requestBody, requestHeaders, apiType } = requestDetailsResult;
 
-      switch (apiType) {
-        case "gemini":
-          if (!selectedModel) return "Error: Gemini model not selected for summary.";
-          if (!activeConfig.baseUrl) return "Error: Gemini endpoint URL not configured for summary.";
-          apiUrl = `${activeConfig.baseUrl}/v1beta/models/${selectedModel}:generateContent`;
-          if (apiKey) apiUrl += `?key=${apiKey}`;
-          else return "Error: Gemini API key not configured for summary.";
-          {
-            let geminiPromptContent = "";
-            if (messages.length > 0 && messages[0].role === "system") {
-              geminiPromptContent = messages[0].content;
-              if (messages.length > 1 && messages[1].role === "user") {
-                geminiPromptContent += "\n\n" + messages[1].content;
-              }
-            } else if (messages.length > 0 && messages[0].role === "user") {
-              geminiPromptContent = messages[0].content;
-            } else {
-              geminiPromptContent = userMessageContent;
-            }
-            requestBody = {
-              contents: [{ role: "user", parts: [{ text: geminiPromptContent }] }],
-            };
-          }
-          break;
-        case "responses":
-          apiUrl = activeConfig.baseUrl
-            ? `${activeConfig.baseUrl}/responses`
-            : import.meta.env.LR_API_BASE_URL! + "/responses";
-          // requestHeaders["Content-Type"] = `application/json`; // Already set
-          if (apiKey) requestHeaders["Authorization"] = `Bearer ${apiKey}`;
-          requestBody = {
-            model: selectedModel,
-            tools: [],
-            input: (messages[0]?.content || "") + (messages[1]?.content || ""), // ensure content exists
-          };
-          console.log(requestBody);
-          await Dialog.show({ title: "提示", content: "暂时不能使用resonses格式，我还没搞明白" });
-          throw new Error("暂时不能使用resonses格式，我还没搞明白");
-        // break; // Unreachable due to throw
-
-        case "chat":
-        default:
-          apiUrl = activeConfig.baseUrl
-            ? `${activeConfig.baseUrl}/chat/completions`
-            : import.meta.env.LR_API_BASE_URL! + "/chat/completions";
-          if (apiKey) requestHeaders["Authorization"] = `Bearer ${apiKey}`;
-          // messages[1].type = "input_text"; // This seems specific and might not be needed generally or for all chat APIs
-          requestBody = {
-            model: selectedModel,
-            messages: messages.map((m) => ({ role: m.role || "user", content: m.content })),
-          };
-          break;
+      if (apiType === "responses") {
+        await Dialog.show({ title: "提示", content: "暂时不能使用responses格式进行总结，我还没搞明白" });
+        return "Error: 暂时不能使用responses格式进行总结，我还没搞明白"; // As per original logic
       }
 
       console.log("Summary - API Type:", apiType);
@@ -415,15 +142,18 @@ export namespace AiApiHandler {
       console.log("Summary - API URL:", apiUrl);
       console.log("Summary - Request Headers:", requestHeaders);
 
+      let rawResponseText = "";
+      let response: FetchResponseLike;
       try {
-        const response = await fetch(apiUrl, {
+        response = await makeApiCall(apiUrl, {
           method: "POST",
           headers: requestHeaders,
           body: JSON.stringify(requestBody),
         });
 
         try {
-          rawResponseText = await response.clone().text();
+          const clonedResponse = response.clone();
+          rawResponseText = await clonedResponse.text();
         } catch (textError) {
           console.warn("Could not get raw text from summary response:", textError);
         }
@@ -451,43 +181,13 @@ export namespace AiApiHandler {
         }
 
         const responseData = await response.json();
+        const parsedResult = await parseSummaryResponse(apiType, responseData, rawResponseText);
 
-        switch (apiType) {
-          case "gemini":
-            if (
-              responseData &&
-              responseData.candidates &&
-              responseData.candidates.length > 0 &&
-              responseData.candidates[0].content &&
-              responseData.candidates[0].content.parts &&
-              responseData.candidates[0].content.parts.length > 0 &&
-              responseData.candidates[0].content.parts[0].text
-            ) {
-              return responseData.candidates[0].content.parts[0].text;
-            } else {
-              console.error("Unexpected Gemini response structure for summary:", responseData, "Raw:", rawResponseText);
-              return "Error: Unexpected Gemini response structure for summary";
-            }
-          case "chat":
-          default: // Also handles "responses" if it falls through, though it throws above.
-            if (
-              responseData &&
-              responseData.choices &&
-              responseData.choices.length > 0 &&
-              responseData.choices[0].message &&
-              responseData.choices[0].message.content
-            ) {
-              return responseData.choices[0].message.content;
-            } else {
-              console.error(
-                `Unexpected ${apiType} API response structure for summary:`, // Made apiType dynamic here
-                responseData,
-                "Raw:",
-                rawResponseText,
-              );
-              return `Error: Unexpected ${apiType} API response structure for summary`;
-            }
+        if ("error" in parsedResult) {
+          console.error("fetchSummaryForNodes: ParseError:", parsedResult.error, "Raw:", parsedResult.rawResponseText);
+          return `Error: ${parsedResult.error}`;
         }
+        return parsedResult.summary;
       } catch (e: any) {
         console.error(
           `${apiType} API error during summary processing:`,
@@ -500,8 +200,7 @@ export namespace AiApiHandler {
         return `Error: Failed to process ${apiType} API summary response - ${e.message || "Unknown error"}`;
       }
     } catch (e: any) {
-      console.error("Response", Response);
-      console.error("Error loading AI settings or processing summary API response:", e);
+      console.error("Critical error in fetchSummaryForNodes:", e);
       return `Error: Failed to generate summary - ${e.message || "Unknown error"}`;
     }
   }

@@ -552,7 +552,7 @@ ai:
       systemPrompt:
         title: 系統提示詞
         description: 輸入用於AI的自定義系統提示詞。
-      summaryPrompt:
+      summary_prompt:
         title: 摘要提示詞
         description: 輸入用於AI生成摘要的自定義提示詞。如果留空，將使用默認提示詞。
         placeholder: 例如：“請將以下文本總結為一段話：”

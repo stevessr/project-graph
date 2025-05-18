@@ -8,11 +8,8 @@ use uuid::Uuid; // Used in AiSettings::default
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PromptNode {
     pub text: String,
-    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
     pub node_type: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub params: Option<serde_json::Value>, // Change to serde_json::Value
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub children: Option<Vec<PromptNode>>,
 }
 
@@ -27,9 +24,8 @@ pub struct PromptVersion {
 // Define struct for a collection of prompt versions
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PromptCollection {
-    pub name: String, // 提示词的名称，用于标识和显示
+    pub name: String,                 // 提示词的名称，用于标识和显示
     pub versions: Vec<PromptVersion>, // 存储该提示词的所有版本
-                      // 可选：可以增加一个字段标记当前活动版本
 }
 
 // Define struct for a single API configuration
@@ -38,37 +34,27 @@ pub struct ApiConfig {
     pub id: String,
     pub name: String,
     pub provider: String, // e.g., "openai", "anthropic", "gemini", "local_ai"
-    #[serde(rename = "apiKey")]
     pub api_key: String,
-    #[serde(rename = "baseUrl")]
-    pub base_url: Option<String>, // Optional
-    pub model: Option<String>,
+    pub base_url: String, // Optional
+    pub model: String,
     pub temperature: Option<f32>,
-    #[serde(rename = "maxTokens")]
     pub max_tokens: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub notes: Option<String>,
 }
 
 // Define AiSettings struct
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AiSettings {
-    #[serde(rename = "apiConfigs")]
     pub api_configs: Vec<ApiConfig>,
-    #[serde(rename = "activeConfigId")]
     pub active_config_id: Option<String>,
-    // Retained fields for prompt management
-    #[serde(rename = "promptCollections")]
     pub prompt_collections: Option<HashMap<String, PromptCollection>>,
-    #[serde(rename = "summaryPrompt")]
     pub summary_prompt: Option<String>,
-    #[serde(rename = "customPrompts")]
     pub custom_prompts: Option<String>,
 }
 
 impl Default for AiSettings {
     fn default() -> Self {
-        let mut default_api_configs = Vec::new();
+        let mut default_api_configs: Vec<ApiConfig> = Vec::new();
 
         // 1. OpenAI Default
         let default_openai_config = ApiConfig {
@@ -76,8 +62,8 @@ impl Default for AiSettings {
             name: "OpenAI Default".to_string(),
             provider: "openai".to_string(), // Front-end might map this to "chat" provider type if it's generic
             api_key: "".to_string(),        // User must fill this
-            base_url: Some("https://api.openai.com/v1".to_string()),
-            model: Some("gpt-4o".to_string()), // Updated to a more recent model
+            base_url: "https://api.openai.com/v1".to_string(),
+            model: "gpt-4o".to_string(), // Updated to a more recent model
             temperature: Some(0.7),
             max_tokens: Some(4096),
             notes: Some("Default configuration for OpenAI. Please add your API key.".to_string()),
@@ -90,8 +76,8 @@ impl Default for AiSettings {
             name: "Anthropic (Claude) Default".to_string(),
             provider: "anthropic".to_string(),
             api_key: "".to_string(), // User must fill this
-            base_url: Some("https://api.anthropic.com/v1".to_string()), // Confirm official endpoint
-            model: Some("claude-3-opus-20240229".to_string()),
+            base_url: "https://api.anthropic.com/v1".to_string(), // Confirm official endpoint
+            model: "claude-3-opus-20240229".to_string(),
             temperature: Some(0.7),
             max_tokens: Some(4096), // Anthropic uses 'max_tokens_to_sample', but we keep 'max_tokens' for consistency
             notes: Some(
@@ -106,8 +92,8 @@ impl Default for AiSettings {
             name: "Google Gemini Default".to_string(),
             provider: "google-gemini".to_string(), // Or "gemini"
             api_key: "".to_string(),               // User must fill this
-            base_url: Some("https://generativelanguage.googleapis.com/v1beta".to_string()), // Common endpoint for Gemini API
-            model: Some("gemini-1.5-pro-latest".to_string()), // Or "gemini-pro"
+            base_url: "https://generativelanguage.googleapis.com/v1beta".to_string(), // Common endpoint for Gemini API
+            model: "gemini-1.5-pro-latest".to_string(), // Or "gemini-pro"
             temperature: Some(0.7),
             max_tokens: Some(8192), // Gemini models can have large context windows
             notes: Some(
@@ -123,8 +109,8 @@ impl Default for AiSettings {
             name: "Ollama (Local)".to_string(),
             provider: "ollama".to_string(), // Or "local-ai"
             api_key: "ollama".to_string(), // Often not needed or a placeholder
-            base_url: Some("http://localhost:11434/v1".to_string()), // Common Ollama OpenAI-compatible endpoint
-            model: Some("llama3".to_string()), // Suggest a common model, user should change if needed
+            base_url: "http://localhost:11434/v1".to_string(), // Common Ollama OpenAI-compatible endpoint
+            model: "llama3".to_string(), // Suggest a common model, user should change if needed
             temperature: Some(0.7),
             max_tokens: Some(2048),
             notes: Some(
@@ -139,8 +125,8 @@ impl Default for AiSettings {
             name: "Groq Default".to_string(),
             provider: "groq".to_string(),
             api_key: "".to_string(), // User must fill this
-            base_url: Some("https://api.groq.com/openai/v1".to_string()),
-            model: Some("llama3-8b-8192".to_string()), // Example model, check Groq for available models
+            base_url: "https://api.groq.com/openai/v1".to_string(),
+            model: "llama3-8b-8192".to_string(), // Example model, check Groq for available models
             temperature: Some(0.7),
             max_tokens: Some(8192),
             notes: Some(
