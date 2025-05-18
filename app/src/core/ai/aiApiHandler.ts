@@ -1,6 +1,6 @@
 // src/core/ai/aiApiHandler.ts
 import { invoke, fetch } from "../../utils/tauriApi";
-import { AiSettings } from "../../types/aiSettings";
+import { AiSettings, ResposeContent } from "../../types/aiSettings";
 import { TextNode } from "../stage/stageObject/entity/TextNode"; // Path might need adjustment
 import { StageManager } from "../stage/stageManager/StageManager"; // Path might need adjustment
 import { Dialog } from "../../components/dialog";
@@ -28,7 +28,7 @@ export namespace AiApiHandler {
       let rawResponseText = ""; // For debugging
 
       // Prepare messages (system and user)
-      const messagesForApi: { role?: string; content: string; type?: string }[] = [];
+      const messagesForApi: { role?: string; content: string | ResposeContent; type?: string }[] = [];
       const systemMessageContent = aiSettings?.custom_prompts?.trim()
         ? aiSettings.custom_prompts
         : "neko,一个联想家，请根据提供的词汇联想词汇，一行一个,仅仅输出联想即可";
@@ -39,7 +39,7 @@ export namespace AiApiHandler {
         case "gemini": {
           if (!selectedModel) return ["Error: Gemini model not selected for expansion."];
           if (!activeConfig.endpoint_url) return ["Error: Gemini endpoint URL not configured for expansion."];
-          apiUrl = `${activeConfig.endpoint_url}/models/${selectedModel}:generateContent`;
+          apiUrl = `${activeConfig.endpoint_url}/v1beta/models/${selectedModel}:generateContent`;
           if (apiKey) apiUrl += `?key=${apiKey}`;
           else return ["Error: Gemini API key not configured for expansion."];
 
@@ -74,23 +74,63 @@ export namespace AiApiHandler {
             : import.meta.env.LR_API_BASE_URL! + "/responses";
           if (apiKey) requestHeaders["Authorization"] = `Bearer ${apiKey}`;
 
-          // Concatenate system and user prompts for the 'input' field
-          let responsesInputContent = "";
-          if (messagesForApi.length > 0 && messagesForApi[0].role === "system") {
-            responsesInputContent = messagesForApi[0].content;
-            if (messagesForApi.length > 1 && messagesForApi[1].role === "user") {
-              responsesInputContent += "\n\n" + messagesForApi[1].content;
-            }
-          } else if (messagesForApi.length > 0 && messagesForApi[0].role === "user") {
-            responsesInputContent = messagesForApi[0].content;
+          let inputPayload; // This will be an array of Input Message Objects or a string
+
+          if (messagesForApi && messagesForApi.length > 0) {
+            // If messagesForApi is available, transform it into an array of Input Message Objects
+            inputPayload = messagesForApi.map((msg) => {
+              // Ensure content is a string as per the spec for 'text' inside content items,
+              // or pass it through if it's already an array of content items (more advanced).
+              // For simplicity, assuming msg.content is always a string based on original code.
+              const contentForApi = { text: msg.content, type: "input_text" };
+
+              return {
+                role: msg.role,
+                content: contentForApi, // Can be string or array of content items
+                type: "message", // As per "Input Message Object" spec
+              };
+            });
+          } else if (selectedTextNode && typeof selectedTextNode.text === "string") {
+            // Fallback to selectedTextNode.text if messagesForApi is empty
+            // We can send it as a simple string (API treats as user message)
+            // OR as a structured Input Message Object.
+            // Let's use the structured object for consistency if the API expects an array.
+            inputPayload = [
+              {
+                role: "user", // selectedTextNode.text is treated as user input
+                content: selectedTextNode.text,
+                type: "message",
+              },
+            ];
+            // If the API strictly expects a string when there's no conversation history:
+            // inputPayload = selectedTextNode.text;
           } else {
-            responsesInputContent = selectedTextNode.text;
+            // If no messages and no selected text, or selected text is not a string.
+            // The API requires the 'input' field.
+            // We can send an empty user message or throw an error.
+            // Original code would result in 'responsesInputContent' being potentially undefined or an empty string.
+            console.warn(
+              "No valid input for 'responses' API. Defaulting to an empty user message. Ensure input is provided.",
+            );
+            inputPayload = [
+              {
+                role: "user",
+                content: "", // Provide an empty string as content
+                type: "message",
+              },
+            ];
+            // Or, if a simple string is preferred for this edge case:
+            // inputPayload = "";
+            // Or, throw an error:
+            // throw new Error("Input is required for the 'responses' API and no valid input was found.");
           }
+
           requestBody = {
             model: selectedModel,
-            tools: [], // Assuming no tools for expansion
-            input: responsesInputContent,
+            tools: [], // Assuming no tools for expansion as per original comment
+            input: inputPayload,
           };
+
           console.log("Expansion - 'responses' type request body:", requestBody);
           await Dialog.show({
             title: "提示",
@@ -251,6 +291,7 @@ export namespace AiApiHandler {
         return [`Error: ${apiType} API error - ${e.message || "Unknown error"}`];
       }
     } catch (e: any) {
+      console.error("Response", Response);
       console.error("Error loading AI settings or processing API response (Expansion):", e);
       return [`Error: Failed to generate text - ${e.message || "Unknown error"}`];
     }
@@ -307,7 +348,7 @@ export namespace AiApiHandler {
         case "gemini":
           if (!selectedModel) return "Error: Gemini model not selected for summary.";
           if (!activeConfig.endpoint_url) return "Error: Gemini endpoint URL not configured for summary.";
-          apiUrl = `${activeConfig.endpoint_url}/models/${selectedModel}:generateContent`;
+          apiUrl = `${activeConfig.endpoint_url}/v1beta/models/${selectedModel}:generateContent`;
           if (apiKey) apiUrl += `?key=${apiKey}`;
           else return "Error: Gemini API key not configured for summary.";
           {
@@ -447,6 +488,7 @@ export namespace AiApiHandler {
         return `Error: Failed to process ${apiType} API summary response - ${e.message || "Unknown error"}`;
       }
     } catch (e: any) {
+      console.error("Response", Response);
       console.error("Error loading AI settings or processing summary API response:", e);
       return `Error: Failed to generate summary - ${e.message || "Unknown error"}`;
     }

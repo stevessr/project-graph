@@ -56,9 +56,9 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
           }
           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           options={[
-            { value: "responses", label: "Responses API" },
+            { value: "responses", label: "Responses API", disabled: true },
             { value: "chat", label: "Chat Completions" },
-            { value: "gemini", label: "Gemini" },
+            { value: "gemini", label: "Gemini", disabled: true },
           ]}
         />
       </Field>

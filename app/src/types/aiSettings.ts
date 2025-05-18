@@ -32,3 +32,13 @@ export interface AiSettings {
   summary_prompt: string | null;
   custom_prompts: string | null;
 }
+
+export interface ResposeContent {
+  text?: string;
+  type: string;
+  detail?: string;
+  file_id?: string;
+  image_url?: string;
+  file_data?: string;
+  filename?: string;
+}
