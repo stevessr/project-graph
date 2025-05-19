@@ -164,24 +164,6 @@ pub async fn delete_api_config<R: tauri::Runtime>(
 }
 
 #[tauri::command]
-pub async fn set_active_api_config<R: tauri::Runtime>(
-    app: tauri::AppHandle<R>,
-    config_id: String,
-) -> Result<(), String> {
-    let mut settings = load_ai_settings(app.clone()).await?;
-
-    if !settings.api_configs.iter().any(|c| c.id == config_id) {
-        return Err(format!(
-            "API Configuration with ID '{}' not found.",
-            config_id
-        ));
-    }
-
-    settings.active_config_id = Some(config_id);
-    save_ai_settings(app, settings).await
-}
-
-#[tauri::command]
 pub async fn get_active_api_config<R: tauri::Runtime>(
     app: tauri::AppHandle<R>,
 ) -> Result<Option<ApiConfig>, String> { // Returns Option of imported ApiConfig

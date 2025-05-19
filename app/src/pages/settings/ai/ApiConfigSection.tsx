@@ -20,6 +20,7 @@ interface ApiConfigSectionProps {
   onEditConfig: (config: ApiConfig) => void;
   onAddConfig: () => void;
   onDeleteConfig: (configId: string) => void;
+  onModelChange: (modelId: string) => void; // Add new prop for model change
 }
 
 export function ApiConfigSection({
@@ -33,6 +34,7 @@ export function ApiConfigSection({
   onEditConfig,
   onAddConfig,
   onDeleteConfig,
+  onModelChange, // Destructure new prop
 }: ApiConfigSectionProps) {
   useEffect(() => {
     if (api_configs && api_configs.length > 0) {
@@ -164,8 +166,12 @@ export function ApiConfigSection({
                   <Select
                     value={activeApiConfig.model || ""}
                     options={availableModels.map((model) => ({ label: model, value: model }))}
+                    onChange={(newModel) => {
+                      if (activeApiConfig && newModel) {
+                        onModelChange(newModel);
+                      }
+                    }}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-gray-700"
-                    // This select is for display; model selection is part of config editing
                   >
                     <option value="">{t("ai.apiConfig.selectModel")}</option>
                     {availableModels.map((model) => (

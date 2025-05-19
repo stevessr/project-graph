@@ -100,9 +100,7 @@ export function buildExpansionRequest(
       break;
     }
     case "responses": {
-      apiUrl = activeConfig.base_url
-        ? `${activeConfig.base_url}/responses`
-        : (import.meta.env.LR_API_BASE_URL || "") + "/responses";
+      apiUrl = activeConfig.base_url ? `${activeConfig.base_url}/responses` : "/responses";
       if (api_key) requestHeaders["Authorization"] = `Bearer ${api_key}`;
 
       let inputPayload;
@@ -119,11 +117,46 @@ export function buildExpansionRequest(
       requestBody = { model: selectedModel, tools: [], input: inputPayload };
       break;
     }
+    case "claude": {
+      if (!selectedModel) return { error: "Error: Claude model not selected for expansion." };
+      apiUrl = activeConfig.base_url || "https://api.anthropic.com/v1/messages";
+      if (!api_key) return { error: "Error: Claude API key not configured for expansion." };
+
+      requestHeaders["x-api-key"] = api_key;
+      requestHeaders["anthropic-version"] = "2023-06-01"; // Default, consider making configurable
+
+      let systemPrompt: string | undefined = undefined;
+      const claudeApiMessages: { role: "user" | "assistant"; content: string }[] = [];
+
+      for (const msg of messagesForApi) {
+        if (msg.role === "system" && typeof msg.content === "string") {
+          systemPrompt = msg.content;
+        } else if ((msg.role === "user" || msg.role === "assistant") && typeof msg.content === "string") {
+          claudeApiMessages.push({ role: msg.role as "user" | "assistant", content: msg.content });
+        }
+        // Note: buildCommonMessagesForExpansion ensures msg.content is a string.
+        // If msg.content could be ResposeContent, e.g. { text: "...", type: "..." },
+        // then handling for `(msg.content as ResposeContent).text` would be needed here.
+      }
+
+      requestBody = {
+        model: selectedModel,
+        messages: claudeApiMessages,
+        max_tokens: 1024, // Required by Claude, default value
+      };
+
+      if (systemPrompt) {
+        requestBody.system = systemPrompt;
+      }
+
+      if (activeConfig.temperature !== undefined) {
+        requestBody.temperature = activeConfig.temperature;
+      }
+      break;
+    }
     case "chat":
     default:
-      apiUrl = activeConfig.base_url
-        ? `${activeConfig.base_url}/chat/completions`
-        : (import.meta.env.LR_API_BASE_URL || "") + "/chat/completions";
+      apiUrl = activeConfig.base_url ? `${activeConfig.base_url}/chat/completions` : "/chat/completions";
       if (api_key) requestHeaders["Authorization"] = `Bearer ${api_key}`;
       requestBody = {
         model: selectedModel,
@@ -175,9 +208,7 @@ export function buildSummaryRequest(
       }
       break;
     case "responses": {
-      apiUrl = activeConfig.base_url
-        ? `${activeConfig.base_url}/responses`
-        : (import.meta.env.LR_API_BASE_URL || "") + "/responses";
+      apiUrl = activeConfig.base_url ? `${activeConfig.base_url}/responses` : "/responses";
       if (api_key) requestHeaders["Authorization"] = `Bearer ${api_key}`;
 
       // Original code for summary 'responses' used concatenated string, but this was before throwing an error.
@@ -199,11 +230,45 @@ export function buildSummaryRequest(
       requestBody = { model: selectedModel, tools: [], input: inputPayload };
       break;
     }
+    case "claude": {
+      if (!selectedModel) return { error: "Error: Claude model not selected for summary." };
+      apiUrl = activeConfig.base_url || "https://api.anthropic.com/v1/messages";
+      if (!api_key) return { error: "Error: Claude API key not configured for summary." };
+
+      requestHeaders["x-api-key"] = api_key;
+      requestHeaders["anthropic-version"] = "2023-06-01"; // Default, consider making configurable
+
+      let systemPrompt: string | undefined = undefined;
+      const claudeApiMessages: { role: "user" | "assistant"; content: string }[] = [];
+
+      for (const msg of messages) {
+        // Note: using 'messages' here for buildSummaryRequest
+        if (msg.role === "system" && typeof msg.content === "string") {
+          systemPrompt = msg.content;
+        } else if ((msg.role === "user" || msg.role === "assistant") && typeof msg.content === "string") {
+          claudeApiMessages.push({ role: msg.role as "user" | "assistant", content: msg.content });
+        }
+        // Note: buildCommonMessagesForSummary ensures msg.content is a string.
+      }
+
+      requestBody = {
+        model: selectedModel,
+        messages: claudeApiMessages,
+        max_tokens: 1024, // Required by Claude, default value
+      };
+
+      if (systemPrompt) {
+        requestBody.system = systemPrompt;
+      }
+
+      if (activeConfig.temperature !== undefined) {
+        requestBody.temperature = activeConfig.temperature;
+      }
+      break;
+    }
     case "chat":
     default:
-      apiUrl = activeConfig.base_url
-        ? `${activeConfig.base_url}/chat/completions`
-        : (import.meta.env.LR_API_BASE_URL || "") + "/chat/completions";
+      apiUrl = activeConfig.base_url ? `${activeConfig.base_url}/chat/completions` : "/chat/completions";
       if (api_key) requestHeaders["Authorization"] = `Bearer ${api_key}`;
       requestBody = {
         model: selectedModel,

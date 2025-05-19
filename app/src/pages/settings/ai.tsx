@@ -31,7 +31,7 @@ export default function AI() {
     switchActiveApiConfig,
     addApiConfig,
     updateApiConfig,
-    deleteApiConfig, // This is from the useAiSettingsManager hook
+    deleteApiConfig,
   } = useAiSettingsManager(t);
 
   const {
@@ -151,6 +151,13 @@ export default function AI() {
     }
   };
 
+  const handleModelChange = (modelId: string) => {
+    if (activeApiConfig) {
+      const updatedConfig = { ...activeApiConfig, model: modelId };
+      updateApiConfig(updatedConfig); // Persist the change
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 p-4">
       <h1 className="text-panel-text text-2xl font-bold">{t("ai.title")}</h1>
@@ -167,6 +174,7 @@ export default function AI() {
         onAddConfig={handleOpenAddApiConfigModal}
         onEditConfig={handleOpenEditApiConfigModal}
         onDeleteConfig={handleDeleteApiConfig}
+        onModelChange={handleModelChange} // Pass the new handler
       />
 
       <PromptManagementSection
@@ -213,7 +221,7 @@ export default function AI() {
             style={{ maxHeight: "90vh" }}
           >
             <ApiConfigForm
-              config={configToEdit}
+              config={configToEdit === null ? undefined : configToEdit}
               onSave={handleSaveApiConfigForm}
               onCancel={handleCancelApiConfigForm}
             />

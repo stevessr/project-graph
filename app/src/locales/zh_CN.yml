@@ -794,6 +794,7 @@ settings:
       noConfigs: 尚无 API 配置。请点击右上方“添加新配置”按钮以添加。
     cancelButton: 取消
     confirmDeleteVersion: 确定要删除此版本吗？
+    deleteVersionButton: 删除
     createPromptButton: 创建
     createPromptFailed: 创建提示词失败 "{{error}}"
     deleteVersionFailed: 删除版本失败 "{{error}}"
@@ -807,7 +808,7 @@ settings:
     newName: 新名字
     newPromptDescription: 输入新提示词的名称并创建
     newPromptNamePlaceholder: 新提示词名称
-    newPromptTitle: 创建提示词
+    newPromptTitle: 创建新提示词
     parseFailure: 无法解析API响应中的模型。
     promptAlreadyExists: 提示词 "{{name}}" 已存在
     promptCreatedSuccessfully: 提示词 "{{name}}" 创建成功

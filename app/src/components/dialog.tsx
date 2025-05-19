@@ -77,7 +77,7 @@ export namespace Dialog {
             resolve({ button, value });
             setTimeout(() => {
               root.unmount();
-              document.body.removeChild(container);
+              container.remove(); // Safely remove the container, handles if already removed
             }, 300);
           }}
         />,

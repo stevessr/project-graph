@@ -86,8 +86,21 @@ export const useAiSettingsStore: UseBoundStore<StoreApi<AiSettingsState>> = crea
       updateAiConfig: async (config: ApiConfig) => {
         set({ isLoading: true, error: null });
         try {
-          const updatedSettings = await invoke<AiSettings>("update_ai_config", { config });
-          set({ aiSettings: updatedSettings, isLoading: false });
+          // Changed "update_ai_config" to "edit_api_config"
+          // Also, the backend edit_api_config doesn't return the full settings object directly.
+          // It returns Result<(), String>. We should reload settings or adapt.
+          // For now, let's assume we need to reload settings after a successful edit.
+          await invoke("edit_api_config", { updatedConfig: config });
+          // Optimistically update the local state or reload
+          const currentSettings = get().aiSettings;
+          if (currentSettings) {
+            const newApiConfigs = currentSettings.api_configs.map((c) => (c.id === config.id ? config : c));
+            const updatedSettings = { ...currentSettings, api_configs: newApiConfigs };
+            set({ aiSettings: updatedSettings, isLoading: false });
+          } else {
+            // If settings are null, perhaps reload them
+            get().loadAiSettings();
+          }
         } catch (err) {
           console.error("Failed to update AI config:", err);
           set({ error: String(err), isLoading: false });
@@ -106,7 +119,7 @@ export const useAiSettingsStore: UseBoundStore<StoreApi<AiSettingsState>> = crea
         }
       },
 
-      setActiveAiConfig: async (configId: string) => {
+      setActiveAiConfig: async (configId: string | null) => {
         set({ isLoading: true, error: null });
         try {
           const updatedSettings = await invoke<AiSettings>("set_active_ai_config", { configId });

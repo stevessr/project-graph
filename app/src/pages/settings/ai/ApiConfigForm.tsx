@@ -8,7 +8,7 @@ import { Field, FieldGroup } from "../../../components/Field";
 import { useTranslation } from "react-i18next";
 
 interface ApiConfigFormProps {
-  config?: ApiConfig | null;
+  config?: ApiConfig; // Changed from ApiConfig | null
   onSave: (config: ApiConfig) => void;
   onCancel: () => void;
 }
@@ -129,23 +129,36 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.provider || !formData.api_key) {
+    // Destructure all relevant fields from formData
+    const {
+      name,
+      provider,
+      api_key,
+      base_url,
+      model,
+      temperature,
+      max_tokens,
+      notes,
+      id: formDataId, // Rename to avoid conflict with config.id if used directly
+    } = formData;
+
+    if (!name || !provider || !api_key) {
       alert(t("ai.form.errorRequiredFields", "Name, Provider, and API Key are required."));
       return;
     }
 
+    // At this point, name, provider, and api_key are guaranteed to be non-empty strings.
+    // TypeScript's control flow analysis should recognize this.
     const configToSave: ApiConfig = {
-      id: config?.id || formData.id || crypto.randomUUID(),
-      name: formData.name!,
-      provider: formData.provider!,
-      api_key: formData.api_key!,
-      base_url: formData.base_url || undefined,
-      model: formData.model || undefined,
-      temperature:
-        typeof formData.temperature === "number" && !isNaN(formData.temperature) ? formData.temperature : undefined,
-      max_tokens:
-        typeof formData.max_tokens === "number" && !isNaN(formData.max_tokens) ? formData.max_tokens : undefined,
-      notes: formData.notes || undefined,
+      id: config?.id || formDataId || crypto.randomUUID(),
+      name: name as string, // Assert as string
+      provider: provider as string, // Assert as string
+      api_key: api_key as string, // Assert as string
+      base_url: base_url || "",
+      model: model || "",
+      temperature: typeof temperature === "number" && !isNaN(temperature) ? temperature : undefined,
+      max_tokens: typeof max_tokens === "number" && !isNaN(max_tokens) ? max_tokens : undefined,
+      notes: notes || undefined,
     };
     onSave(configToSave);
   };
