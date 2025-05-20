@@ -1,10 +1,13 @@
+// src\types\aiSettings.ts
 export interface ApiConfig {
   id: string;
   name: string;
-  endpoint_url: string;
+  provider: string; // e.g., "openai", "anthropic", "gemini", "local_ai"
   api_key: string;
-  default_model: string | null;
-  api_type: string;
+  base_url: string; // Optional, as some providers might not need it or have a default
+  model: string;
+  temperature?: number;
+  max_tokens?: number;
   notes?: string; // Added based on potential future use, optional
 }
 
@@ -27,8 +30,18 @@ export interface PromptCollection {
 
 export interface AiSettings {
   api_configs: ApiConfig[];
-  active_config_id: string | null;
+  active_config_id: string;
   prompt_collections: Record<string, PromptCollection> | null;
   summary_prompt: string | null;
   custom_prompts: string | null;
+}
+
+export interface ResposeContent {
+  text?: string;
+  type: string;
+  detail?: string;
+  fileId?: string;
+  imageUrl?: string;
+  fileData?: string;
+  filename?: string;
 }

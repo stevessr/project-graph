@@ -164,24 +164,6 @@ pub async fn delete_api_config<R: tauri::Runtime>(
 }
 
 #[tauri::command]
-pub async fn set_active_api_config<R: tauri::Runtime>(
-    app: tauri::AppHandle<R>,
-    config_id: String,
-) -> Result<(), String> {
-    let mut settings = load_ai_settings(app.clone()).await?;
-
-    if !settings.api_configs.iter().any(|c| c.id == config_id) {
-        return Err(format!(
-            "API Configuration with ID '{}' not found.",
-            config_id
-        ));
-    }
-
-    settings.active_config_id = Some(config_id);
-    save_ai_settings(app, settings).await
-}
-
-#[tauri::command]
 pub async fn get_active_api_config<R: tauri::Runtime>(
     app: tauri::AppHandle<R>,
 ) -> Result<Option<ApiConfig>, String> { // Returns Option of imported ApiConfig
@@ -418,4 +400,37 @@ pub async fn reset_ai_settings<R: tauri::Runtime>(
     println!("Resetting AI settings to default.");
     let default_settings = AiSettings::default(); // Uses imported AiSettings::default()
     save_ai_settings(app, default_settings).await
+}
+
+// Add this function to src/ai.rs
+
+#[tauri::command]
+pub async fn set_active_ai_config<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    config_id: String,
+) -> Result<AiSettings, String> { // Returns the updated AiSettings
+    // Load the current settings
+    let mut settings = load_ai_settings(app.clone()).await?;
+
+    // Check if the provided config_id exists in the api_configs list
+    if !settings.api_configs.iter().any(|c| c.id == config_id) {
+        return Err(format!(
+            "API Configuration with ID '{}' not found.",
+            config_id
+        ));
+    }
+
+    // Set the new active_config_id
+    settings.active_config_id = Some(config_id);
+
+    // Clone the settings to be returned *before* they are moved into save_ai_settings
+    // This requires AiSettings to derive serde::Serialize, serde::Deserialize, and Clone.
+    let updated_settings_to_return = settings.clone();
+
+    // Save the modified settings
+    // save_ai_settings consumes `settings`
+    save_ai_settings(app, settings).await?;
+
+    // Return the updated settings object
+    Ok(updated_settings_to_return)
 }

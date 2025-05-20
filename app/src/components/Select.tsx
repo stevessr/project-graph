@@ -120,10 +120,8 @@ export default function Select({
         style={{
           left: dropdownX,
           top: dropdownY,
-          // Ensure dropdown width matches trigger width if desired, or use w-max
-          // width: ref.current ? `${ref.current.offsetWidth}px` : 'auto',
         }}
-        onPointerDown={(e) => e.stopPropagation()} // Prevent closing when clicking inside dropdown
+        onPointerDown={(e) => e.stopPropagation()}
       >
         {options.length > 0 ? (
           options.map((option) => (
@@ -131,38 +129,32 @@ export default function Select({
               key={option.value}
               role="option"
               aria-selected={option.value === value}
-              disabled={option.disabled} // HTML disabled attribute for the option
+              disabled={option.disabled}
               className={cn(
-                "rounded-lg border px-3 py-2 text-left", // Base styles
-                // Common non-disabled styles
+                "rounded-lg border px-3 py-2 text-left",
                 !option.disabled && [
                   "bg-select-option-bg text-select-option-text border-select-option-border",
                   "hover:bg-select-option-hover-bg hover:border-select-option-hover-border hover:text-select-option-hover-text hover:cursor-pointer",
                 ],
-                // Selected styles (only if not disabled)
                 option.value === value &&
                   !option.disabled && [
                     "bg-select-option-selected-bg text-select-option-selected-text border-select-option-selected-border",
                     "hover:bg-select-option-selected-hover-bg hover:text-select-option-selected-hover-text hover:border-select-option-selected-hover-border",
                   ],
-                // Active click effect (only if not selected and not disabled)
                 option.value !== value && !option.disabled && "active:scale-95",
-                // Disabled option styles
                 option.disabled &&
                   "bg-select-option-bg text-select-option-text border-select-option-border cursor-not-allowed opacity-50",
               )}
               onClick={() => {
-                // The button's `disabled` attribute will prevent this if option.disabled is true
                 onChange(option.value);
                 setShowDropdown(false);
-                // No need to manually remove listeners here if useEffect handles it based on showDropdown
               }}
             >
               {option.label}
             </button>
           ))
         ) : (
-          <div className="text-select-option-text px-3 py-2 text-sm">No options</div>
+          <div className="text-select-option-text px-3 py-2 text-sm">啥也没有</div>
         )}
       </div>
     </>

@@ -9,11 +9,11 @@ import { TFunction } from "i18next";
 
 interface PromptManagementSectionProps {
   settings: AiSettings;
-  customPromptsString: string;
+  custom_promptsString: string;
   selectedPromptName: string | null;
   selectedVersionTimestamp: number | null;
   newPromptName: string;
-  onCustomPromptsStringChange: (value: string) => void;
+  oncustom_promptsStringChange: (value: string) => void;
   onNewPromptNameChange: (value: string) => void;
   onPromptSelect: (promptName: string) => void;
   onVersionSelect: (timestamp: number) => void;
@@ -21,18 +21,18 @@ interface PromptManagementSectionProps {
   onSavePromptVersion: () => Promise<void>;
   onUpdateCurrentPromptVersion: () => Promise<void>;
   onDeleteSelectedVersion: () => Promise<void>;
-  summaryPrompt: string | null;
-  onSummaryPromptChange: (value: string) => void;
+  summary_prompt: string | null;
+  onsummary_promptChange: (value: string) => void;
   t: TFunction<"settings", undefined>;
 }
 
 export const PromptManagementSection: React.FC<PromptManagementSectionProps> = ({
   settings,
-  customPromptsString,
+  custom_promptsString,
   selectedPromptName,
   selectedVersionTimestamp,
   newPromptName,
-  onCustomPromptsStringChange,
+  oncustom_promptsStringChange,
   onNewPromptNameChange,
   onPromptSelect,
   onVersionSelect,
@@ -40,8 +40,8 @@ export const PromptManagementSection: React.FC<PromptManagementSectionProps> = (
   onSavePromptVersion,
   onUpdateCurrentPromptVersion,
   onDeleteSelectedVersion,
-  summaryPrompt,
-  onSummaryPromptChange,
+  summary_prompt,
+  onsummary_promptChange,
   t,
 }) => {
   return (
@@ -123,7 +123,7 @@ export const PromptManagementSection: React.FC<PromptManagementSectionProps> = (
                   {t("ai.deleteVersionButton") || "删除"} {/* TODO: Add translation key */}
                 </Button>
               )}
-              {selectedPromptName && selectedVersionTimestamp !== null && customPromptsString.trim() && (
+              {selectedPromptName && selectedVersionTimestamp !== null && custom_promptsString.trim() && (
                 <Button
                   onClick={onUpdateCurrentPromptVersion}
                   className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -135,7 +135,7 @@ export const PromptManagementSection: React.FC<PromptManagementSectionProps> = (
               <div className="flex justify-end">
                 <Button
                   onClick={onSavePromptVersion}
-                  disabled={!selectedPromptName || !customPromptsString.trim()}
+                  disabled={!selectedPromptName || !custom_promptsString.trim()}
                   className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                   <Save size={14} className="mr-1" />
@@ -150,22 +150,22 @@ export const PromptManagementSection: React.FC<PromptManagementSectionProps> = (
         <Input
           name="custom_prompts_editor"
           rows={10}
-          value={customPromptsString}
-          onChange={onCustomPromptsStringChange}
+          value={custom_promptsString}
+          onChange={oncustom_promptsStringChange}
           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm sm:ring-indigo-500"
           placeholder={t("ai.prompts.lineFormatPlaceholder")}
         />
         <p className="text-panel-text-lighter mt-1 text-xs">{t("ai.prompts.lineFormatHint")}</p>
       </Field>
 
-      <Field title={t("ai.prompts.summaryPrompt.title")} description={t("ai.prompts.summaryPrompt.description")}>
+      <Field title={t("ai.prompts.summary_prompt.title")} description={t("ai.prompts.summary_prompt.description")}>
         <Input
           name="summary_prompt_editor"
           rows={3}
-          value={summaryPrompt || ""}
-          onChange={onSummaryPromptChange}
+          value={summary_prompt || ""}
+          onChange={onsummary_promptChange}
           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          placeholder={t("ai.prompts.summaryPrompt.placeholder")}
+          placeholder={t("ai.prompts.summary_prompt.placeholder")}
         />
       </Field>
     </FieldGroup>
