@@ -526,6 +526,43 @@ settings:
   autoLayoutWhenTreeGenerate:
     description: "開啟後，生長節點時自動更新佈局\n此處的生長節點指 tab 和 \\ 鍵生長節點\n"
     title: 生長節點時自動更新佈局
+ai:
+    title: AI設定
+    apiConfig:
+      title: API配置
+      endpoint:
+        title: API端點
+        description: 輸入您的OpenAI兼容API端點URL。
+      key:
+        title: API金鑰
+        description: 輸入您的API金鑰進行身份驗證。
+      apiType:
+        title: API 類型
+        description: 選擇要使用的AI API類型。
+        select: 選擇API類型
+      model:
+        title: 模型
+        description: 選擇要使用的AI模型。
+        loading: 正在加載模型...
+        select: 選擇模型
+        refreshing: 正在刷新...
+        refresh: 刷新模型
+    prompts:
+      title: 自定義提示詞
+      systemPrompt:
+        title: 系統提示詞
+        description: 輸入用於AI的自定義系統提示詞。
+      summary_prompt:
+        title: 摘要提示詞
+        description: 輸入用於AI生成摘要的自定義提示詞。如果留空，將使用默認提示詞。
+        placeholder: 例如：“請將以下文本總結為一段話：”
+      lintFormatHint: "提示：每行應以“- ”開頭。"
+      lineFormatPlaceholder: "每行輸入一個提示，以“- ”開頭"
+    save: 保存設定
+    saveSuccess: 設定保存成功！
+    saveFailure: 保存設定失敗：
+    fetchFailure: 獲取模型失敗：
+    parseFailure: 無法解析API響應中的模型。
 app:
   unsaved: "(未保存)"
   comingSoon: 即將到來……

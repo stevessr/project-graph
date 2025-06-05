@@ -15,8 +15,9 @@ crate-type = ["lib", "cdylib", "staticlib"]
 tauri-build = { version = "2.0.0-rc", features = [] }
 
 [dependencies]
-tauri = { version = "2.2.5", features = ["macos-private-api"] }
+tauri = { version = "2.2.5", features = ["macos-private-api", "devtools"] }
 tauri-plugin-shell = "2.2.0"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false } # Use latest version, check crates.io. Use default-features = false and specify tls feature.
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tauri-plugin-os = "2.0.0"
@@ -25,9 +26,17 @@ tauri-plugin-store = "2.0.0"
 tauri-plugin-http = "2"
 tauri-plugin-clipboard-manager = "2.2.0"
 base64 = "0.22.1"
+serde_yaml = "0.9" # Add serde_yaml dependency
 tauri-plugin-process = "2"
+uuid = { version = "1.8.0", features = ["v4", "serde"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-cli = "2"
 tauri-plugin-updater = "2"
 tauri-plugin-window-state = "2"
+
+[features]
+# If you're using custom protocol, keep this:
+custom-protocol = ["tauri/custom-protocol"]
+default = ["custom-protocol", "rustls-tls"] # Add rustls-tls feature flag here too
+rustls-tls = ["reqwest/rustls-tls"]

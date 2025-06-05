@@ -3,6 +3,8 @@ import { Canvas } from "../../../stage/Canvas";
 import { Stage } from "../../../stage/Stage";
 import { ViewOutlineFlashEffect } from "../../feedbackService/effectEngine/concrete/ViewOutlineFlashEffect";
 import { StageStyleManager } from "../../feedbackService/stageStyle/StageStyleManager";
+import { Popup } from "../../../../components/popup"; // Added Popup import
+import { MouseLocation } from "../MouseLocation"; // Added MouseLocation import
 
 /**
  * 控制器类，用于处理事件绑定和解绑
@@ -14,6 +16,14 @@ export class ControllerClass {
   public lastMoveLocation: Vector = Vector.getZero();
   private lastClickTime: number = 0;
   private lastClickLocation: Vector = Vector.getZero();
+
+  // For long press detection
+  private longPressTimer: number | null = null;
+  private readonly longPressDuration: number = 750; // ms
+  private touchStartDataForTapOrLongPress: { event: MouseEvent; id: number } | null = null;
+  private readonly longPressMoveThreshold: number = 10; // pixels
+  private longPressActionExecuted: boolean = false;
+  // End of long press properties
 
   public keydown: (event: KeyboardEvent) => void = () => {};
   public keyup: (event: KeyboardEvent) => void = () => {};
@@ -57,6 +67,74 @@ export class ControllerClass {
     Canvas.element.removeEventListener("touchend", this._touchend);
 
     this.lastMoveLocation = Vector.getZero();
+    this.clearLongPressTimerAndReset();
+  }
+
+  private clearLongPressTimerAndReset(): void {
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
+    }
+    // Reset related state, but not touchStartDataForTapOrLongPress immediately,
+    // as _touchend or _touchmove might need it to decide action.
+    // this.longPressActionExecuted is reset by _touchend or _touchstart.
+  }
+
+  private executeLongPress(startEvent: MouseEvent): void {
+    if (!this.touchStartDataForTapOrLongPress) return; // Should have data if timer fired for it
+
+    // Update MouseLocation for Popup to use
+    MouseLocation.x = startEvent.clientX;
+    MouseLocation.y = startEvent.clientY;
+
+    const menuContent = (
+      <div
+        style={{
+          padding: "8px",
+          background: "white",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+        }}
+      >
+        <div
+          style={{ padding: "6px 12px", cursor: "pointer", hover: { background: "#f0f0f0" } }}
+          onClick={() => {
+            console.log("Context Menu: Item 1 clicked");
+            Popup.show(<div></div>, false); /* Hack to close, ideally Popup handles this */
+          }}
+        >
+          Menu Item 1
+        </div>
+        <div
+          style={{ padding: "6px 12px", cursor: "pointer", hover: { background: "#f0f0f0" } }}
+          onClick={() => {
+            console.log("Context Menu: Item 2 clicked");
+            Popup.show(<div></div>, false);
+          }}
+        >
+          Menu Item 2
+        </div>
+        <div
+          style={{ padding: "6px 12px", cursor: "pointer", hover: { background: "#f0f0f0" } }}
+          onClick={() => {
+            console.log("Context Menu: Action C");
+            Popup.show(<div></div>, false);
+          }}
+        >
+          Another Action
+        </div>
+      </div>
+    );
+
+    Popup.show(menuContent).then(() => {
+      // Optional: Code to run after the popup is closed
+      console.log("Popup closed");
+    });
+
+    this.longPressActionExecuted = true;
+    this.touchStartDataForTapOrLongPress = null; // Consume the event, it's a long press
+    this.longPressTimer = null; // Timer has done its job
   }
 
   // private _mousedown = (event: PointerEvent) => {
@@ -116,36 +194,92 @@ export class ControllerClass {
     if (event.touches.length > 1) {
       Stage.rectangleSelectMouseMachine.shutDown();
     }
-    this.mousedown(touch);
+
+    const touchEventForLogic = {
+      ...(firstTouch as any), // Spread properties from Touch
+      button: 0, // Simulate left-click like behavior
+      clientX: firstTouch.clientX,
+      clientY: firstTouch.clientY,
+    } as MouseEvent;
+
+    this.touchStartDataForTapOrLongPress = { event: touchEventForLogic, id: firstTouch.identifier };
+
+    this.longPressTimer = window.setTimeout(() => {
+      // Check if touchStartData still corresponds to this timer's intent
+      if (this.touchStartDataForTapOrLongPress && this.touchStartDataForTapOrLongPress.id === firstTouch.identifier) {
+        this.executeLongPress(touchEventForLogic);
+      }
+    }, this.longPressDuration);
   };
 
   private _touchmove = (event: TouchEvent) => {
     event.preventDefault();
-    this.onePointTouchMoveLocation = new Vector(
-      event.touches[event.touches.length - 1].clientX,
-      event.touches[event.touches.length - 1].clientY,
-    );
-    const touch = {
-      ...(event.touches[event.touches.length - 1] as unknown as PointerEvent),
-      button: 0, // 通过对象展开实现相对安全的属性合并
+    if (event.touches.length === 0) return;
 
-      // 尝试修复华为触摸屏的笔记本报错问题
+    const lastTouchForGeneralMove = event.touches[event.touches.length - 1];
+    this.onePointTouchMoveLocation = new Vector(lastTouchForGeneralMove.clientX, lastTouchForGeneralMove.clientY);
+
+    // Long press cancellation logic
+    if (this.touchStartDataForTapOrLongPress && this.longPressTimer) {
+      const trackedTouch = Array.from(event.touches).find(
+        (t) => t.identifier === this.touchStartDataForTapOrLongPress!.id,
+      );
+      if (trackedTouch) {
+        const moveDistance = new Vector(trackedTouch.clientX, trackedTouch.clientY).distance(
+          new Vector(
+            this.touchStartDataForTapOrLongPress.event.clientX,
+            this.touchStartDataForTapOrLongPress.event.clientY,
+          ),
+        );
+
+        if (moveDistance > this.longPressMoveThreshold) {
+          this.clearLongPressTimerAndReset(); // Cancel long press
+          // This is now a drag. Call mousedown with the original start event.
+          this.mousedown(this.touchStartDataForTapOrLongPress.event);
+          this.touchStartDataForTapOrLongPress = null; // Consumed by drag initiation
+        }
+      } else {
+        // The touch we were tracking for long press is gone.
+        this.clearLongPressTimerAndReset();
+        if (this.touchStartDataForTapOrLongPress) {
+          // If it was a pending tap/longpress
+          this.mousedown(this.touchStartDataForTapOrLongPress.event); // Treat as drag start
+          this.touchStartDataForTapOrLongPress = null;
+        }
+      }
+    }
+
+    // General mousemove logic, similar to original
+    const mouseMoveEvent = {
+      ...(lastTouchForGeneralMove as any),
+      button: 0,
       clientX: this.onePointTouchMoveLocation.x,
       clientY: this.onePointTouchMoveLocation.y,
     } as PointerEvent;
     this.mousemove(touch);
   };
 
-  // 由于touchend事件没有位置检测，所以只能延用touchmove的位置
+  // onePointTouchMoveLocation is used by _touchend for coordinates
   private onePointTouchMoveLocation: Vector = Vector.getZero();
 
   private _touchend = (event: TouchEvent) => {
     event.preventDefault();
-    const touch = {
-      ...(event.touches[event.touches.length - 1] as unknown as PointerEvent),
-      button: 0, // 通过对象展开实现相对安全的属性合并
+    this.clearLongPressTimerAndReset();
 
-      // 尝试修复华为触摸屏的笔记本报错问题
+    if (this.longPressActionExecuted) {
+      // this.longPressActionExecuted is reset at the start of a new touch (_touchstart)
+      return; // Long press action was handled, suppress tap/mouseup
+    }
+
+    // Use changedTouches to find the touch that was lifted.
+    // The original code had a potential issue using event.touches for the touchend event object.
+    const endedTouch = event.changedTouches[0];
+    if (!endedTouch) return; // Should be at least one changedTouch
+
+    // Use onePointTouchMoveLocation for final coordinates, as per original logic for touchend
+    const logicalMouseUpEvent = {
+      ...(endedTouch as any), // Spread properties from the ended Touch
+      button: 0,
       clientX: this.onePointTouchMoveLocation.x,
       clientY: this.onePointTouchMoveLocation.y,
     } as PointerEvent;

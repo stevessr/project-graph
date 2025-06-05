@@ -51,50 +51,52 @@ export default function App() {
   const { t } = useTranslation("app");
 
   React.useEffect(() => {
-    window.addEventListener("keyup", async (event) => {
-      // TODO: 自定义快捷键
-      // 这两个按键有待添加到自定义快捷键，但他们函数内部用到了useState，还不太清楚怎么改
-      // ——littlefean（2024年12月27日）
-      if (event.key === "Escape") {
-        setIsMenuOpen(false);
-        setIsStartFilePanelOpen(false);
-      }
-      if (event.key === "F11") {
-        // 如果当前已经是最大化的状态
-        if (await getCurrentWindow().isMaximized()) {
-          setMaxmized(false);
+    const initAsync = async () => {
+      await Settings.init();
+      window.addEventListener("keyup", async (event) => {
+        // TODO: 自定义快捷键
+        // 这两个按键有待添加到自定义快捷键，但他们函数内部用到了useState，还不太清楚怎么改
+        // ——littlefean（2024年12月27日）
+        if (event.key === "Escape") {
+          setIsMenuOpen(false);
+          setIsStartFilePanelOpen(false);
         }
-        getCurrentWindow()
-          .isFullscreen()
-          .then((isFullscreen) => {
-            getCurrentWindow().setFullscreen(!isFullscreen);
-          });
-      }
-    });
+        if (event.key === "F11") {
+          // 如果当前已经是最大化的状态
+          if (await getCurrentWindow().isMaximized()) {
+            setMaxmized(false);
+          }
+          getCurrentWindow()
+            .isFullscreen()
+            .then((isFullscreen) => {
+              getCurrentWindow().setFullscreen(!isFullscreen);
+            });
+        }
+      });
 
-    // 修复鼠标拖出窗口后触发上下文菜单的问题
-    window.addEventListener("contextmenu", (event) => {
-      if (
-        event.clientX < 0 ||
-        event.clientX > window.innerWidth ||
-        event.clientY < 0 ||
-        event.clientY > window.innerHeight
-      )
-        event.preventDefault();
-    });
-    Settings.get("useNativeTitleBar").then((useNativeTitleBar) => {
-      setUseNativeTitleBar(useNativeTitleBar);
-      if (useNativeTitleBar) {
-        getCurrentWindow().setDecorations(true);
-      }
-    });
-    Settings.watch("isClassroomMode", (isClassroomMode) => {
-      setIsClassroomMode(isClassroomMode);
-    });
+      // 修复鼠标拖出窗口后触发上下文菜单的问题
+      window.addEventListener("contextmenu", (event) => {
+        if (
+          event.clientX < 0 ||
+          event.clientX > window.innerWidth ||
+          event.clientY < 0 ||
+          event.clientY > window.innerHeight
+        )
+          event.preventDefault();
+      });
+      Settings.get("useNativeTitleBar").then((useNativeTitleBar) => {
+        setUseNativeTitleBar(useNativeTitleBar);
+        if (useNativeTitleBar) {
+          getCurrentWindow().setDecorations(true);
+        }
+      });
+      Settings.watch("isClassroomMode", (isClassroomMode) => {
+        setIsClassroomMode(isClassroomMode);
+      });
 
-    const saveInterval = setInterval(() => {
-      setIsSaved(StageSaveManager.isSaved());
-    });
+      const saveInterval = setInterval(() => {
+        setIsSaved(StageSaveManager.isSaved());
+      });
 
     /**
      * 关闭窗口时的事件监听
@@ -139,65 +141,96 @@ export default function App() {
             } else {
               await Dialog.show({
                 title: "真的要关闭吗？",
-                content: "您现在的没有保存，是否要关闭项目？",
+                content: "您现在的新建草稿没有保存，是否要关闭项目？",
                 buttons: [
                   {
-                    text: "保存并关闭",
+                    text: "不保存",
                     onClick: async () => {
-                      await StageSaveManager.saveHandle(file, StageDumper.dump());
                       await getCurrentWindow().destroy();
                     },
                   },
                   {
-                    text: "取消关闭",
-                  },
-                  {
-                    text: "不保存并关闭",
-                    onClick: async () => {
-                      await getCurrentWindow().destroy();
-                    },
+                    text: "取消",
                   },
                 ],
               });
             }
+          } else {
+            // 先检查下是否开启了关闭自动保存
+            const isAutoSave = await Settings.get("autoSaveWhenClose");
+            if (isAutoSave) {
+              // 开启了自动保存，不弹窗
+              await StageSaveManager.saveHandle(file, StageDumper.dump());
+              getCurrentWindow().destroy();
+            } else {
+              // 没开启自动保存，逐步确认
+              if (StageSaveManager.isSaved()) {
+                getCurrentWindow().destroy();
+              } else {
+                await Dialog.show({
+                  title: "真的要关闭吗？",
+                  content: "您现在的没有保存，是否要关闭项目？",
+                  buttons: [
+                    {
+                      text: "保存并关闭",
+                      onClick: async () => {
+                        await StageSaveManager.saveHandle(file, StageDumper.dump());
+                        await getCurrentWindow().destroy();
+                      },
+                    },
+                    {
+                      text: "取消关闭",
+                    },
+                    {
+                      text: "不保存并关闭",
+                      onClick: async () => {
+                        await getCurrentWindow().destroy();
+                      },
+                    },
+                  ],
+                });
+              }
+            }
           }
+        } catch (error) {
+          await Dialog.show({
+            title: "保存失败",
+            code: `${error}`,
+            content: "保存失败，请重试",
+          });
         }
-      } catch (error) {
-        await Dialog.show({
-          title: "保存失败",
-          code: `${error}`,
-          content: "保存失败，请重试",
-        });
-      }
-    });
+      });
 
-    document.querySelector("canvas")?.addEventListener("mousedown", () => setIgnoreMouse(true));
-    document.querySelector("canvas")?.addEventListener("mouseup", () => setIgnoreMouse(false));
-    // 监听主题样式切换
-    Settings.watch("theme", (value) => {
-      let styleEl = document.querySelector("#pg-theme");
-      if (!styleEl) {
-        styleEl = document.createElement("style");
-        styleEl.id = "pg-theme";
-        document.head.appendChild(styleEl);
-      }
-      styleEl.innerHTML = `
-        :root {
-          ${Themes.convertThemeToCSS(Themes.getThemeById(value)?.content)}
+      document.querySelector("canvas")?.addEventListener("mousedown", () => setIgnoreMouse(true));
+      document.querySelector("canvas")?.addEventListener("mouseup", () => setIgnoreMouse(false));
+      // 监听主题样式切换
+      Settings.watch("theme", (value) => {
+        let styleEl = document.querySelector("#pg-theme");
+        if (!styleEl) {
+          styleEl = document.createElement("style");
+          styleEl.id = "pg-theme";
+          document.head.appendChild(styleEl);
         }
-      `;
-    });
-    Stage.path.setPathHook = (pathString: string) => {
-      setFile(pathString);
+        styleEl.innerHTML = `
+          :root {
+            ${Themes.convertThemeToCSS(Themes.getThemeById(value)?.content)}
+          }
+        `;
+      });
+      Stage.path.setPathHook = (pathString: string) => {
+        setFile(pathString);
+      };
+      return () => {
+        // 经过测试发现，只要是不关闭软件，根本不会执行这里
+        // 随意切换软件内部界面不会执行这里
+        clearInterval(saveInterval);
+      };
     };
 
     // 恢复窗口位置大小
     restoreStateCurrent(StateFlags.SIZE | StateFlags.POSITION | StateFlags.MAXIMIZED);
-
     return () => {
-      // 经过测试发现，只要是不关闭软件，根本不会执行这里
-      // 随意切换软件内部界面不会执行这里
-      clearInterval(saveInterval);
+      cleanup.then((fn) => fn && fn());
     };
   }, []);
 
@@ -268,6 +301,7 @@ export default function App() {
         <>
           {/* 叠加层，显示窗口控件 */}
           <div
+            id="top-menu-bar-container"
             className={cn(
               "pointer-events-none absolute left-0 top-0 z-40 flex w-full gap-2 *:pointer-events-auto",
               {

@@ -181,11 +181,36 @@ export namespace Controller {
 
   function handleMouseup(button: number, x: number, y: number) {
     isMouseDown[button] = false;
-    if (Date.now() - lastClickTime < 200 && lastClickLocation.distance(new Vector(x, y)) < 10) {
-      //
+    const currentTime = Date.now();
+    // Check for double click/tap:
+    // It must be the primary button (button === 0).
+    // The time between taps should be short (e.g., < 300ms).
+    // The location of the taps should be close (e.g., < 20px).
+    if (
+      button === 0 &&
+      currentTime - lastClickTime < 300 && // Adjusted for touch, original was 200ms
+      lastClickLocation.distance(new Vector(x, y)) < 20 // Adjusted for touch, original was 10px
+    ) {
+      // This is a double click/tap.
+      // Create a mock MouseEvent object for ControllerEntityCreate.mouseDoubleClick.
+      const mockMouseEvent = {
+        button: 0,
+        clientX: x,
+        clientY: y,
+        preventDefault: () => {}, // In case it's called, though not strictly needed by current usage
+      } as MouseEvent;
+
+      // Call the entity creation logic.
+      ControllerEntityCreate.mouseDoubleClick(mockMouseEvent);
+
+      // Reset lastClickTime to prevent a third quick tap from being misinterpreted.
+      // This ensures that a double-tap is a discrete event.
+      lastClickTime = 0;
+    } else {
+      // This is a single click/tap or the first tap of a potential double-tap.
+      lastClickTime = currentTime;
+      lastClickLocation = new Vector(x, y);
     }
-    lastClickTime = Date.now();
-    lastClickLocation = new Vector(x, y);
   }
 
   function keydown(event: KeyboardEvent) {
@@ -240,7 +265,16 @@ export namespace Controller {
     e.preventDefault();
 
     if (e.touches.length === 1) {
-      handleMousedown(0, e.touches[0].clientX, e.touches[0].clientY);
+      const touch = e.touches[0];
+      handleMousedown(0, touch.clientX, touch.clientY);
+      // Simulate a mouse event for ControllerEntityClickSelectAndMove
+      const mockMouseEvent = {
+        button: 0,
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        preventDefault: () => {},
+      } as MouseEvent;
+      ControllerEntityClickSelectAndMove.mousedown(mockMouseEvent);
     }
     if (e.touches.length === 2) {
       const touch1 = Vector.fromTouch(e.touches[0]);
@@ -258,7 +292,14 @@ export namespace Controller {
     e.preventDefault();
 
     if (e.touches.length === 1) {
-      // HACK: 重构后touch方法就有问题了
+      const touch = e.touches[0];
+      // Simulate a mouse event for ControllerEntityClickSelectAndMove
+      const mockMouseEvent = {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        preventDefault: () => {},
+      } as MouseEvent;
+      ControllerEntityClickSelectAndMove.mousemove(mockMouseEvent);
     }
     if (e.touches.length === 2) {
       const touch1 = Vector.fromTouch(e.touches[0]);
@@ -286,8 +327,16 @@ export namespace Controller {
   function touchend(e: TouchEvent) {
     e.preventDefault();
     if (e.changedTouches.length === 1) {
-      // HACK: 重构后touch方法就有问题了
-      handleMouseup(0, e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      const touch = e.changedTouches[0];
+      handleMouseup(0, touch.clientX, touch.clientY);
+      // Simulate a mouse event for ControllerEntityClickSelectAndMove
+      const mockMouseEvent = {
+        button: 0,
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        preventDefault: () => {},
+      } as MouseEvent;
+      ControllerEntityClickSelectAndMove.mouseup(mockMouseEvent);
     }
     // 移动画面
     Camera.accelerateCommander = touchDelta.multiply(-1).multiply(Camera.currentScale).limitX(-1, 1).limitY(-1, 1);

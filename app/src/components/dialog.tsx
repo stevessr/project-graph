@@ -1,3 +1,4 @@
+// src\components\dialog.tsx
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { cn } from "../utils/cn";
@@ -76,7 +77,7 @@ export namespace Dialog {
             resolve({ button, value });
             setTimeout(() => {
               root.unmount();
-              document.body.removeChild(container);
+              container.remove(); // Safely remove the container, handles if already removed
             }, 300);
           }}
         />,
@@ -144,7 +145,9 @@ export namespace Dialog {
             },
           )}
         >
-          <h1 className="text-2xl font-bold">{title}</h1>
+          <h1 data-tauri-drag-region className="cursor-grab text-2xl font-bold active:cursor-grabbing">
+            {title}
+          </h1>
           <div className="flex-1 overflow-auto">
             {content.split("\n").map((line, i) => (
               <p key={i}>{line}</p>
@@ -198,13 +201,9 @@ export namespace Dialog {
           </div>
         </div>
         <div
-          data-tauri-drag-region
-          className={cn(
-            "fixed left-0 top-0 z-[100] h-full w-full cursor-grab bg-black opacity-0 active:cursor-grabbing",
-            {
-              "opacity-30": show,
-            },
-          )}
+          className={cn("fixed left-0 top-0 z-[100] h-full w-full bg-black opacity-0", {
+            "opacity-30": show,
+          })}
         ></div>
       </>
     );
