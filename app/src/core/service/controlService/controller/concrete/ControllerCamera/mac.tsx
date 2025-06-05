@@ -1,9 +1,12 @@
+import { isMac } from "../../../../../../utils/platform";
 import { Vector } from "../../../../../dataStruct/Vector";
 import { Renderer } from "../../../../../render/canvas2d/renderer";
 import { Camera } from "../../../../../stage/Camera";
 import { Stage } from "../../../../../stage/Stage";
+import { StageEntityMoveManager } from "../../../../../stage/stageManager/concreteMethods/StageEntityMoveManager";
 import { MouseTipFeedbackEffect } from "../../../../feedbackService/effectEngine/concrete/MouseTipFeedbackEffect";
 import { Settings } from "../../../../Settings";
+import { Controller } from "../../Controller";
 
 export namespace ControllerCameraMac {
   let macTrackpadScaleSensitivity = 0.5;
@@ -132,10 +135,44 @@ export namespace ControllerCameraMac {
     if (Math.abs(event.deltaX) < 0.01 && Math.abs(event.deltaY) < 0.01) {
       return;
     }
+    if (Controller.pressingKeySet.has(" ")) {
+      console.log("space pressed, ignore touch pad move");
+      handleRectangleSelectByTwoFingerMove(event);
+      return;
+    } else if (Controller.pressingKeySet.has("meta") && isMac) {
+      handleDrageMoveEntityByTwoFingerMove(event);
+      return;
+    }
     const dx = event.deltaX / 400;
     const dy = event.deltaY / 400;
     const diffLocation = new Vector(dx, dy).multiply((Camera.moveAmplitude * 50) / Camera.currentScale);
     Camera.location = Camera.location.add(diffLocation);
     Stage.effectMachine.addEffect(MouseTipFeedbackEffect.directionObject(diffLocation));
+  }
+
+  function handleRectangleSelectByTwoFingerMove(event: WheelEvent) {
+    const dx = event.deltaX;
+    const dy = event.deltaY;
+    // TODO: 调用矩形框选
+    const rectangle = Stage.rectangleSelectEngine.getRectangle();
+    if (rectangle) {
+      // 正在框选中
+      const selectEndLocation = Stage.rectangleSelectEngine.getSelectEndLocation();
+      Stage.rectangleSelectEngine.moveSelecting(
+        selectEndLocation.add(new Vector(-dx, -dy).divide(Camera.currentScale)),
+      );
+    } else {
+      // 开始框选
+      const mouseLocation = new Vector(event.clientX, event.clientY);
+      const worldLocation = Renderer.transformView2World(mouseLocation);
+      Stage.rectangleSelectEngine.startSelecting(worldLocation);
+    }
+  }
+
+  function handleDrageMoveEntityByTwoFingerMove(event: WheelEvent) {
+    const dx = event.deltaX;
+    const dy = event.deltaY;
+    const diffLocation = new Vector(-dx, -dy).divide(Camera.currentScale);
+    StageEntityMoveManager.moveSelectedEntities(diffLocation);
   }
 }

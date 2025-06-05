@@ -1,4 +1,5 @@
 import { LogicalSize } from "@tauri-apps/api/dpi";
+import { restoreStateCurrent, saveWindowState, StateFlags } from "@tauri-apps/plugin-window-state";
 import { useAtom } from "jotai";
 import { Copy, Cpu, FlaskConical, Menu, Minus, PanelTop, Square, Tag, TextSearch, X, Zap } from "lucide-react";
 import React from "react";
@@ -28,6 +29,7 @@ import SearchingContentPanel from "./_fixed_panel/_searching_content_panel";
 import StartFilePanel from "./_fixed_panel/_start_file_panel";
 import TagPanel from "./_fixed_panel/_tag_panel";
 import FloatingOutlet from "./_floating_outlet";
+import RenderSubWindows from "./_render_sub_windows";
 
 export default function App() {
   const [maxmized, setMaxmized] = React.useState(false);
@@ -96,16 +98,46 @@ export default function App() {
         setIsSaved(StageSaveManager.isSaved());
       });
 
-      /**
-       * 关闭窗口时的事件监听
-       */
-      getCurrentWindow().onCloseRequested(async (e) => {
-        e.preventDefault();
-        try {
-          if (Stage.path.getFilePath() === Stage.path.draftName) {
-            if (StageManager.isEmpty()) {
-              // 空草稿，直接关闭
-              await getCurrentWindow().destroy();
+    /**
+     * 关闭窗口时的事件监听
+     */
+    getCurrentWindow().onCloseRequested(async (e) => {
+      e.preventDefault();
+      // 保存窗口位置
+      await saveWindowState(StateFlags.SIZE | StateFlags.POSITION | StateFlags.MAXIMIZED);
+      try {
+        if (Stage.path.getFilePath() === Stage.path.draftName) {
+          if (StageManager.isEmpty()) {
+            // 空草稿，直接关闭
+            await getCurrentWindow().destroy();
+          } else {
+            await Dialog.show({
+              title: "真的要关闭吗？",
+              content: "您现在的新建草稿没有保存，是否要关闭项目？",
+              buttons: [
+                {
+                  text: "不保存",
+                  onClick: async () => {
+                    await getCurrentWindow().destroy();
+                  },
+                },
+                {
+                  text: "取消",
+                },
+              ],
+            });
+          }
+        } else {
+          // 先检查下是否开启了关闭自动保存
+          const isAutoSave = await Settings.get("autoSaveWhenClose");
+          if (isAutoSave) {
+            // 开启了自动保存，不弹窗
+            await StageSaveManager.saveHandle(file, StageDumper.dump());
+            getCurrentWindow().destroy();
+          } else {
+            // 没开启自动保存，逐步确认
+            if (StageSaveManager.isSaved()) {
+              getCurrentWindow().destroy();
             } else {
               await Dialog.show({
                 title: "真的要关闭吗？",
@@ -194,7 +226,9 @@ export default function App() {
         clearInterval(saveInterval);
       };
     };
-    const cleanup = initAsync();
+
+    // 恢复窗口位置大小
+    restoreStateCurrent(StateFlags.SIZE | StateFlags.POSITION | StateFlags.MAXIMIZED);
     return () => {
       cleanup.then((fn) => fn && fn());
     };
@@ -512,6 +546,7 @@ export default function App() {
       <PGCanvas />
 
       <FloatingOutlet />
+      <RenderSubWindows />
     </div>
   );
 }

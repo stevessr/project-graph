@@ -27,15 +27,14 @@ export class ControllerClass {
 
   public keydown: (event: KeyboardEvent) => void = () => {};
   public keyup: (event: KeyboardEvent) => void = () => {};
-  public mousedown: (event: MouseEvent) => void = () => {};
-  public mouseup: (event: MouseEvent) => void = () => {};
-  public mousemove: (event: MouseEvent) => void = () => {};
+  public mousedown: (event: PointerEvent) => void = () => {};
+  public mouseup: (event: PointerEvent) => void = () => {};
+  public mousemove: (event: PointerEvent) => void = () => {};
   public mousewheel: (event: WheelEvent) => void = () => {};
-  public mouseDoubleClick: (event: MouseEvent) => void = () => {};
-  // Original touchstart, touchmove, touchend will be replaced by _touchstart, _touchmove, _touchend
-  // public touchstart: (event: TouchEvent) => void = () => {};
-  // public touchmove: (event: TouchEvent) => void = () => {};
-  // public touchend: (event: TouchEvent) => void = () => {};
+  public mouseDoubleClick: (event: PointerEvent) => void = () => {};
+  public touchstart: (event: TouchEvent) => void = () => {};
+  public touchmove: (event: TouchEvent) => void = () => {};
+  public touchend: (event: TouchEvent) => void = () => {};
 
   /**
    * 这个函数将在总控制器初始化是统一调用。
@@ -46,9 +45,9 @@ export class ControllerClass {
   public init() {
     window.addEventListener("keydown", this.keydown);
     window.addEventListener("keyup", this.keyup);
-    Canvas.element.addEventListener("mousedown", this.mousedown);
-    Canvas.element.addEventListener("mouseup", this._mouseup);
-    Canvas.element.addEventListener("mousemove", this.mousemove);
+    Canvas.element.addEventListener("pointerdown", this.mousedown);
+    Canvas.element.addEventListener("pointerup", this._mouseup);
+    Canvas.element.addEventListener("pointermove", this.mousemove);
     Canvas.element.addEventListener("wheel", this.mousewheel);
     Canvas.element.addEventListener("touchstart", this._touchstart);
     Canvas.element.addEventListener("touchmove", this._touchmove);
@@ -59,9 +58,9 @@ export class ControllerClass {
   public destroy() {
     window.removeEventListener("keydown", this.keydown);
     window.removeEventListener("keyup", this.keyup);
-    Canvas.element.removeEventListener("mousedown", this.mousedown);
-    Canvas.element.removeEventListener("mouseup", this._mouseup);
-    Canvas.element.removeEventListener("mousemove", this.mousemove);
+    Canvas.element.removeEventListener("pointerdown", this.mousedown);
+    Canvas.element.removeEventListener("pointerup", this._mouseup);
+    Canvas.element.removeEventListener("pointermove", this.mousemove);
     Canvas.element.removeEventListener("wheel", this.mousewheel);
     Canvas.element.removeEventListener("touchstart", this._touchstart);
     Canvas.element.removeEventListener("touchmove", this._touchmove);
@@ -138,7 +137,7 @@ export class ControllerClass {
     this.longPressTimer = null; // Timer has done its job
   }
 
-  // private _mousedown = (event: MouseEvent) => {
+  // private _mousedown = (event: PointerEvent) => {
   //   this.mousedown(event);
   //   // 检测双击
   //   const now = new Date().getTime();
@@ -168,7 +167,7 @@ export class ControllerClass {
    * ——2024年12月5日
    * @param event 鼠标事件对象
    */
-  private _mouseup = (event: MouseEvent) => {
+  private _mouseup = (event: PointerEvent) => {
     this.mouseup(event);
     // 检测双击
     const now = new Date().getTime();
@@ -184,19 +183,16 @@ export class ControllerClass {
 
   private _touchstart = (event: TouchEvent) => {
     event.preventDefault();
-    this.longPressActionExecuted = false; // Reset flag for new touch interaction
-    this.clearLongPressTimerAndReset(); // Clear any existing timer
+    const touch = {
+      ...(event.touches[event.touches.length - 1] as unknown as PointerEvent),
+      button: 0, // 通过对象展开实现相对安全的属性合并
 
-    if (event.touches.length === 0) return; // Should not happen
-
-    // We primarily handle long press for the first touch point.
-    const firstTouch = event.touches[0];
-
-    // If it's a multi-touch scenario, the original code had special handling.
+      // 尝试修复华为触摸屏的笔记本报错问题
+      clientX: event.touches[event.touches.length - 1].clientX,
+      clientY: event.touches[event.touches.length - 1].clientY,
+    } as PointerEvent;
     if (event.touches.length > 1) {
-      Stage.selectMachine.shutDown();
-      // For simplicity, we might ignore long press for multi-touch or only track the first.
-      // Current logic will proceed to set up long press for the first touch.
+      Stage.rectangleSelectMouseMachine.shutDown();
     }
 
     const touchEventForLogic = {
@@ -259,8 +255,8 @@ export class ControllerClass {
       button: 0,
       clientX: this.onePointTouchMoveLocation.x,
       clientY: this.onePointTouchMoveLocation.y,
-    } as MouseEvent;
-    this.mousemove(mouseMoveEvent);
+    } as PointerEvent;
+    this.mousemove(touch);
   };
 
   // onePointTouchMoveLocation is used by _touchend for coordinates
@@ -286,21 +282,8 @@ export class ControllerClass {
       button: 0,
       clientX: this.onePointTouchMoveLocation.x,
       clientY: this.onePointTouchMoveLocation.y,
-    } as MouseEvent;
-
-    if (this.touchStartDataForTapOrLongPress && this.touchStartDataForTapOrLongPress.id === endedTouch.identifier) {
-      // This was a tap (long press timer didn't fire or was cleared by this touchend, and not dragged out of threshold)
-      const startEventForTap = this.touchStartDataForTapOrLongPress.event;
-      this.touchStartDataForTapOrLongPress = null; // Consume
-
-      this.mousedown(startEventForTap);
-      this._mouseup(logicalMouseUpEvent);
-    } else {
-      // This was the end of a drag (mousedown already called by _touchmove when threshold was crossed)
-      // OR the touch that ended was not the one we were tracking for tap/longpress
-      // OR longPressActionExecuted was true (already handled)
-      this._mouseup(logicalMouseUpEvent);
-    }
+    } as PointerEvent;
+    this._mouseup(touch);
   };
 
   /**

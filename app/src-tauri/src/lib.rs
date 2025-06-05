@@ -1,3 +1,5 @@
+mod cmd;
+
 use tauri::Manager;
 // Removed the `use std::io::Read;` line as requested.
 use serde::{Deserialize, Serialize};
@@ -189,8 +191,6 @@ fn create_folder(path: String) -> bool {
     std::fs::create_dir_all(&path).is_ok()
 }
 
-
-
 #[tauri::command]
 fn write_stdout(content: String) {
     println!("{}", content);
@@ -246,7 +246,6 @@ async fn set_update_channel<R: Runtime>(
     Ok(())
 }
 
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     #[cfg(target_os = "linux")]
@@ -288,7 +287,19 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            exists,
+            cmd::fs::read_folder_structure,
+            cmd::fs::read_text_file,
+            cmd::fs::read_file_base64,
+            cmd::fs::write_text_file,
+            cmd::fs::write_file_base64,
+            cmd::fs::create_folder,
+            cmd::fs::read_folder,
+            cmd::fs::read_folder_recursive,
+            cmd::fs::delete_file,
+            cmd::fs::exists,
+            write_stdout,
+            write_stderr,
+            exit
             read_text_file,
             read_folder,
             read_folder_recursive, 
