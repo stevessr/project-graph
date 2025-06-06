@@ -3,17 +3,26 @@ import React from "react";
 import { cn } from "../utils/cn";
 import Box from "./Box";
 
+// Define the option type more explicitly
+interface SelectOption {
+  label: string;
+  value: string;
+  disabled?: boolean; // Added disabled property for individual options
+}
+
 export default function Select({
   className = "",
   value = "",
   onChange = () => {},
   options = [],
+  disabled = false, // Top-level disabled prop
   ...props
 }: {
   className?: string;
   value?: string;
   onChange?: (value: string) => void;
-  options?: { label: string; value: string }[];
+  options?: SelectOption[];
+  disabled?: boolean;
   [key: string]: any;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -22,6 +31,8 @@ export default function Select({
   const [showDropdown, setShowDropdown] = React.useState(false);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (disabled) return; // Prevent opening if the whole select is disabled
+
     event.preventDefault();
     event.stopPropagation();
 

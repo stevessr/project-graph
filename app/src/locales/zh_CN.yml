@@ -580,6 +580,125 @@ settings:
       如果您启用此项，我们会收集您的使用数据，帮助我们改进软件
       发送的数据仅用于统计，不会包含您的个人隐私信息
       您的数据会在中国香港的云服务器上存储，不会发送到国外
+  ai:
+    title: AI 助手
+    Placeholder: 在此输入...
+    newConfig: 新建配置
+    operation:
+      save: 保存
+      reset: 全部重置
+      cancel: 取消
+      confirm: 确认
+      create: 创建
+    message:
+      confirmDeleteVersion: 您确定要删除此版本吗？此操作无法撤销。
+    dialogError: 对话框显示失败
+    error:
+      saveFailure: 设置保存失败
+      dialogError: 对话框显示失败
+      CannotBeEmpty: 名称不能为空。
+      DeleteFailedMessage: "删除版本失败：{{error}}"
+      updateVersionFailed: "更新版本失败：{{error}}"
+      load:
+        settingsNotLoadedError: AI 设置加载失败。
+      fetch:
+        ModelsError: "获取模型列表失败：{{status}} {{statusText}} - {{errorBody}}"
+        Failure: 获取模型列表失败
+        FailureDetail: "获取模型列表失败：{{message}}"
+      parseFailure: 无法识别的模型数据格式
+      NotFound:
+        version: 未找到提示词版本。
+        prompt: 未找到提示词集。
+    ok:
+      saveSuccess: 设置已保存
+      resetSuccess: 所有 AI 设置已重置为默认值
+      updateVersionSuccess: 提示词版本已更新。
+      versionDeletedSuccessfully: 版本已删除。
+    reset:
+      title: 重置所有 AI 设置？
+      message: 您确定要将所有 AI 设置重置为默认值吗？此操作无法撤销。
+    apiConfig:
+      title: API 配置
+      activeConfig: 当前配置
+      selectConfig: 选择一个配置
+      noConfigs: 暂无 API 配置。
+      models: 可用模型
+      fetchModels: 获取模型
+      add: 添加
+      edit: 编辑
+      delete: 删除
+      deleteConfirmTitle: 删除 API 配置？
+      deleteConfirmMessage: 您确定要删除 API 配置 “{{name}}” 吗？
+      deleteSuccessTitle: 配置已删除
+      deleteSuccessMessage: API 配置 “{{name}}” 已被删除。
+      deleteError: 删除配置时出错
+    form:
+      saveSuccess: 配置已保存
+      saveSuccessMessage: 配置 “{{name}}” 已成功保存。
+      addTitle: 添加配置
+      editTitle: 编辑配置
+      name:
+        title: 配置名称
+        placeholder: 例如 my-openai-config
+      provider:
+        title: 服务商
+      api_key:
+        title: API 密钥
+        placeholder: 请输入您的 API 密钥
+      base_url:
+        title: API 地址
+        description: 服务商的 API 地址
+        placeholder: 例如 https://api.openai.com/v1
+      model:
+        title: 模型
+        description: 用于 AI 相关功能的模型
+        placeholder: 例如 gpt-4-turbo
+      temperature:
+        title: 温度 (Temperature)
+        description: 控制 AI 的创造性，值越高越有创意
+      max_tokens:
+        title: 最大令牌 (Max Tokens)
+        description: 限制单次生成的最大长度
+      notes:
+        title: 备注
+        description: 为此配置添加一些备注信息
+        placeholder: 例如：用于测试的 OpenAI 配置
+    prompts:
+      title: 提示词管理
+      newPrompt:
+        title: 新建提示词集
+        description: 创建一个新的提示词集来存储不同版本的提示词。
+        create: 创建
+        InitialContent: 这是一个新的提示词。
+        created: "提示词集 “{{name}}” 已创建。"
+        failed: "创建提示词集失败：{{error}}"
+      selectPrompt:
+        title: 选择提示词集
+        description: 选择一个提示词集以查看和管理其版本。
+        placeholder: -- 请选择提示词集 --
+        version:
+          title: 版本管理
+          description: 选择一个版本以查看其内容，或将当前内容另存为新版本。
+          delete: 删除版本
+          update: 更新此版本
+          save: 另存为新版
+      systemPrompt:
+        title: 系统提示词
+        description: 在此编辑所选提示词版本的内容。
+      summary_prompt:
+        title: 总结提示词
+        description: 此提示词用于总结节点内容。
+    selectPromptAndContentError: 请选择一个提示词并确保内容不为空。
+    selectPromptToSaveVersion: 请输入内容以保存为新版本。
+    saveVersionFailureConsole: "保存新提示词版本失败："
+    saveVersionFailure: "保存新版本失败：{{error}}"
+    selectPromptAndVersionToUpdate: 请选择要更新的提示词和版本。
+    contentCannotBeEmpty: 内容不能为空。
+    updateVersionFailedConsole: "更新提示词版本失败："
+    promptAlreadyExists: "名为 “{{name}}” 的提示词已存在。"
+    createPromptFailedConsole: "创建新提示词失败："
+    selectVersionToDeleteError: 请选择要删除的提示词和版本。
+    deleteVersionFailedConsole: "删除提示词版本失败："
 
 plugins:
   welcome:
@@ -591,7 +710,11 @@ plugins:
   install: 安装插件
   uninstall: 卸载
   documentation: 文档
-
+common:
+  delete: "删除"
+  cancel: "取消"
+  confirm: "确定"
+ 
 app:
   unsaved: "(未保存)"
   draftUnsaved: " 草稿无法自动保存，需手动保存 "

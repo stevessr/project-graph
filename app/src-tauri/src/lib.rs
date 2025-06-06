@@ -63,7 +63,7 @@ pub fn run() {
             cmd::fs::exists,
             write_stdout,
             write_stderr,
-            exit
+            exit,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
