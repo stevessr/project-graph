@@ -27,3 +27,6 @@ backup_*
 app/.tauri/neko.key
 app/neko.jks
 app/src-tauri/ai_settings.json
+app/memory-bank/
+app/src/mcp/
+*.log

@@ -14,7 +14,6 @@ import { usePromptManager } from "./ai/usePromptManager";
 import ApiConfigForm from "./ai/ApiConfigForm"; // Import the form
 
 export default function AI() {
-
   const { t } = useTranslation("settings");
 
   const [isConfigFormOpen, setIsConfigFormOpen] = useState(false);
