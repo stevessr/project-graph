@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom";
 // 伪代码解决方案：修复测试中的 Canvas 和 AudioContext 错误
 
 // 目标：在测试环境中模拟 HTMLCanvasElement.prototype.getContext 和 window.AudioContext，以解决测试错误。
@@ -59,9 +60,22 @@ if (typeof window !== "undefined") {
         onended: null,
       };
     }
-    decodeAudioData(audioData, successCallback) {
+    decodeAudioData(
+      audioData: ArrayBuffer,
+      successCallback: (decodedData: AudioBuffer) => void,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      _errorCallback?: (error: DOMException) => void,
+    ) {
       // 简单模拟解码
-      successCallback({ duration: 0, sampleRate: 44100 });
+      successCallback({
+        duration: 0,
+        sampleRate: 44100,
+        length: 0,
+        numberOfChannels: 0,
+        getChannelData: () => new Float32Array(0),
+        copyFromChannel: () => {},
+        copyToChannel: () => {},
+      });
     }
     // 添加其他需要的模拟方法
   };

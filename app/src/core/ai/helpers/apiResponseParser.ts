@@ -30,7 +30,7 @@ export async function parseExpansionResponse(
           };
         }
         break;
-      case "chat":
+      case "openai":
       default:
         if (responseData?.choices?.[0]?.message?.content !== undefined) {
           content = responseData.choices[0].message.content;
@@ -69,7 +69,7 @@ export async function parseSummaryResponse(
       // For 'responses' in summary, original code throws error before this stage.
       // If it were to reach here, it might follow 'chat' structure.
       case "responses":
-      case "chat":
+      case "openai":
       default:
         if (responseData?.choices?.[0]?.message?.content !== undefined) {
           return { summary: responseData.choices[0].message.content };

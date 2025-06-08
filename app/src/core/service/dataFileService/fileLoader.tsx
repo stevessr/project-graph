@@ -1,4 +1,4 @@
-import { decodeAsync } from "@msgpack/msgpack";
+import { unpack as decodeAsync } from "msgpackr";
 import { Dialog } from "../../../components/dialog";
 import { Serialized } from "../../../types/node";
 import { exists, readFile, readTextFile } from "../../../utils/fs";

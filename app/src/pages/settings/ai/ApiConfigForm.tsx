@@ -1,11 +1,12 @@
 // src\pages\settings\ai\ApiConfigForm.tsx
 import React, { useEffect, useState, useCallback } from "react";
-import { ApiConfig } from "../../../types/aiSettings";
+import { ApiConfig, McpTool } from "../../../types/aiSettings";
 import Input from "../../../components/Input";
 import Select from "../../../components/Select";
 import Button from "../../../components/Button";
 import { Field, FieldGroup } from "../../../components/Field";
 import { useTranslation } from "react-i18next";
+import { useAiSettingsStore } from "../../../state/aiSettingsStore";
 
 interface ApiConfigFormProps {
   config?: ApiConfig; // Changed from ApiConfig | null
@@ -36,6 +37,10 @@ const providerDefaults: Record<string, Partial<ApiConfig>> = {
     model: "llama3",
     api_key: "ollama", // Ollama often uses a placeholder or no key
   },
+  lmstdio: {
+    base_url: "http://127.0.0.1:1234",
+    api_key: "empty",
+  },
   groq: {
     base_url: "https://api.groq.com/openai/v1",
     model: "llama3-8b-8192",
@@ -49,6 +54,7 @@ const providerDefaults: Record<string, Partial<ApiConfig>> = {
 
 const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel }) => {
   const { t } = useTranslation("settings");
+  const { availableModels, loadingModels, fetchModels } = useAiSettingsStore();
 
   const getDefaultFormData = useCallback((): FormDataType => {
     let defaults: FormDataType = {
@@ -60,10 +66,14 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
       temperature: 0.7,
       max_tokens: 2048,
       notes: "",
+      tools: [],
     };
     const initialProvider = config?.provider || defaults.provider;
     if (initialProvider && providerDefaults[initialProvider]) {
       defaults = { ...defaults, ...providerDefaults[initialProvider] };
+    }
+    if (config?.tools) {
+      defaults.tools = config.tools;
     }
     return defaults;
   }, [config]);
@@ -85,6 +95,20 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
       setManuallyEditedFields(new Set());
     }
   }, [config, getDefaultFormData]);
+
+  useEffect(() => {
+    const configForFetching: Partial<ApiConfig> = {
+      provider: formData.provider,
+      base_url: formData.base_url,
+      api_key: formData.api_key,
+    };
+
+    if (configForFetching.base_url && configForFetching.api_key) {
+      // We need to cast here because formData is partial, but fetchModels expects a full ApiConfig.
+      // The fetchModels function primarily needs base_url and api_key.
+      fetchModels(configForFetching as ApiConfig);
+    }
+  }, [formData.provider, formData.base_url, formData.api_key, fetchModels]);
 
   const handleInputChange = (name: keyof FormDataType, value: string | number | undefined | null) => {
     setFormData((prev) => ({
@@ -140,6 +164,7 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
       max_tokens,
       notes,
       id: formDataId, // Rename to avoid conflict with config.id if used directly
+      tools,
     } = formData;
 
     if (!name || !provider || !api_key) {
@@ -159,37 +184,87 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
       temperature: typeof temperature === "number" && !isNaN(temperature) ? temperature : undefined,
       max_tokens: typeof max_tokens === "number" && !isNaN(max_tokens) ? max_tokens : undefined,
       notes: notes || undefined,
+      tools: tools || [],
     };
     onSave(configToSave);
   };
 
+  const handleAddTool = () => {
+    const newTool: McpTool = {
+      type: "mcp",
+      server_label: "",
+      server_url: "",
+      require_approval: "never",
+    };
+    setFormData((prev) => ({
+      ...prev,
+      tools: [...(prev.tools || []), newTool],
+    }));
+  };
+
+  const handleRemoveTool = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      tools: prev.tools?.filter((_, i) => i !== index) || [],
+    }));
+  };
+
+  const handleToolChange = (index: number, field: keyof McpTool, value: string) => {
+    setFormData((prev) => {
+      const newTools = [...(prev.tools || [])];
+      if (newTools[index]) {
+        // @ts-expect-error - We are dynamically assigning a value to a field in the McpTool object.
+        newTools[index][field] = value;
+      }
+      return { ...prev, tools: newTools };
+    });
+  };
+
   const providerOptions = [
     { label: "OpenAI", value: "openai" },
-    { label: "Anthropic", value: "anthropic" },
-    { label: "Google Gemini", value: "google-gemini" },
+    { label: "OpenAI (response)", value: "responses" },
+    { label: "Anthropic", value: "claude" },
+    { label: "Google Gemini", value: "gemini" },
     { label: "Ollama", value: "ollama" },
+    { label: "lmstduio", value: "lmstudio" },
     { label: "Groq", value: "groq" },
     { label: "Local AI (Custom)", value: "local_ai" },
   ];
 
+  const modelOptions = availableModels.map((model) => ({
+    label: model.name, // Fallback to id if name is not present
+    value: model.id,
+  }));
+
+  const handleRefreshModels = () => {
+    const configForFetching: Partial<ApiConfig> = {
+      provider: formData.provider,
+      base_url: formData.base_url,
+      api_key: formData.api_key,
+    };
+    if (configForFetching.base_url && configForFetching.api_key) {
+      fetchModels(configForFetching as ApiConfig);
+    } else {
+      alert(t("ai.form.errorFetchModels", "Please provide Base URL and API Key to fetch models."));
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit}>
-      <FieldGroup
-        title={config ? t("ai.form.editTitle", "Edit AI Configuration") : t("ai.form.addTitle", "Add AI Configuration")}
-      >
+      <FieldGroup title={config ? t("ai.form.editTitle") : t("ai.form.addTitle")}>
         {/* Name */}
-        <Field title={t("ai.form.name.title", "Configuration Name")}>
+        <Field title={t("ai.form.name.title")}>
           <Input
             name="name"
             value={formData.name || ""}
             onChange={(value) => handleInputChange("name", value as string)}
-            placeholder={t("ai.form.name.placeholder", "e.g., My OpenAI Key")}
+            placeholder={t("ai.form.name.placeholder")}
             required
           />
         </Field>
 
         {/* Provider */}
-        <Field title={t("ai.form.provider.title", "Provider")}>
+        <Field title={t("ai.form.provider.title")}>
           <Select
             name="provider"
             value={formData.provider || "openai"}
@@ -199,27 +274,24 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
         </Field>
 
         {/* API Key */}
-        <Field title={t("ai.form.api_key.title", "API Key")}>
+        <Field title={t("ai.form.api_key.title")}>
           <Input
             type="password"
             name="api_key"
             value={formData.api_key || ""}
             onChange={(value) => handleInputChange("api_key", value as string)}
-            placeholder={t("ai.form.api_key.placeholder", "Enter your API key")}
+            placeholder={t("ai.form.api_key.placeholder")}
             required={formData.provider !== "ollama"}
           />
         </Field>
 
         {/* Base URL */}
-        <Field
-          title={t("ai.form.base_url.title", "Base URL")}
-          description={t("ai.form.base_url.description", "Automatically suggested for selected provider.")}
-        >
+        <Field title={t("ai.form.base_url.title")} description={t("ai.form.base_url.description")}>
           <Input
             name="base_url"
             value={formData.base_url || ""}
             onChange={(value) => handleInputChange("base_url", value as string)}
-            placeholder={t("ai.form.base_url.placeholder", "e.g., https://api.example.com/v1")}
+            placeholder={t("ai.form.base_url.placeholder")}
           />
         </Field>
 
@@ -228,19 +300,35 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
           title={t("ai.form.model.title", "Default Model")}
           description={t("ai.form.model.description", "Suggested for provider, e.g., gpt-4o, llama3")}
         >
-          <Input
-            name="model"
-            value={formData.model || ""}
-            onChange={(value) => handleInputChange("model", value as string)}
-            placeholder={t("ai.form.model.placeholder", "e.g., gpt-3.5-turbo")}
-          />
+          <div className="flex items-center gap-2">
+            <Input
+              name="model"
+              value={formData.model || ""}
+              onChange={(value) => handleInputChange("model", value as string)}
+              className="flex-grow"
+              placeholder={
+                loadingModels
+                  ? t("ai.form.model.loading", "Loading models...")
+                  : t("ai.form.model.selectPlaceholder", "Select or type a model")
+              }
+              list="model-options"
+              disabled={loadingModels}
+            />
+            <datalist id="model-options">
+              {modelOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </datalist>
+            <Button type="button" variant="outline" onClick={handleRefreshModels} disabled={loadingModels}>
+              {loadingModels ? t("common.loading", "Loading...") : t("common.refresh", "Refresh")}
+            </Button>
+          </div>
         </Field>
 
         {/* Temperature */}
-        <Field
-          title={t("ai.form.temperature.title", "Temperature")}
-          description={t("ai.form.temperature.description", "Optional: Controls randomness (0-2).")}
-        >
+        <Field title={t("ai.form.temperature.title")} description={t("ai.form.temperature.description")}>
           <Input
             type="number"
             name="temperature"
@@ -250,7 +338,7 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
             onChange={(value) =>
               handleInputChange("temperature", value === "" ? undefined : parseFloat(value as string))
             }
-            placeholder={t("ai.form.temperature.placeholder", "e.g., 0.7")}
+            placeholder={t("ai.form.temperature.placeholder")}
             step="0.1"
             min="0"
             max="2"
@@ -258,10 +346,7 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
         </Field>
 
         {/* Max Tokens */}
-        <Field
-          title={t("ai.form.max_tokens.title", "Max Tokens")}
-          description={t("ai.form.max_tokens.description", "Optional: Max tokens in response.")}
-        >
+        <Field title={t("ai.form.max_tokens.title")} description={t("ai.form.max_tokens.description")}>
           <Input
             type="number"
             name="max_tokens"
@@ -269,33 +354,74 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
             onChange={(value) =>
               handleInputChange("max_tokens", value === "" ? undefined : parseInt(value as string, 10))
             }
-            placeholder={t("ai.form.max_tokens.placeholder", "e.g., 2048")}
+            placeholder={t("ai.form.max_tokens.placeholder")}
             step="1"
             min="1"
           />
         </Field>
 
         {/* Notes */}
-        <Field title={t("ai.form.notes.title", "Notes")}>
+        <Field title={t("ai.form.notes.title")}>
           <textarea
             name="notes"
             value={formData.notes || ""}
             onChange={handleTextAreaChange}
-            placeholder={t("ai.form.notes.placeholder", "Optional notes about this configuration.")}
+            placeholder={t("ai.form.notes.placeholder", "Ciallo～(∠・ω< )⌒☆")}
             className="bg-input text-input-default border-input placeholder-input-default focus:border-accent focus:ring-accent block w-full rounded-md p-2 shadow-sm sm:text-sm"
             rows={3}
           />
         </Field>
+      </FieldGroup>
 
-        <div className="mt-4 flex justify-end gap-2">
-          <Button type="button" onClick={onCancel} variant="outline">
-            {t("common.cancel", "Cancel")}
-          </Button>
-          <Button type="submit" variant="default">
-            {t("common.save", "Save")}
+      <FieldGroup title={t("ai.form.mcpTools.title", "MCP Tool Configuration")} className="mt-4">
+        {formData.tools?.map((tool, index) => (
+          <div key={index} className="mb-4 grid grid-cols-1 gap-4 rounded-md border p-4 md:grid-cols-2">
+            <Field title={t("ai.form.mcpTools.serverLabel", "Server Label")}>
+              <Input
+                value={tool.server_label}
+                onChange={(val) => handleToolChange(index, "server_label", val as string)}
+                placeholder={t("ai.form.mcpTools.serverLabelPlaceholder", "e.g., My Custom Tool")}
+              />
+            </Field>
+            <Field title={t("ai.form.mcpTools.serverUrl", "Server URL")}>
+              <Input
+                value={tool.server_url}
+                onChange={(val) => handleToolChange(index, "server_url", val as string)}
+                placeholder={t("ai.form.mcpTools.serverUrlPlaceholder", "e.g., http://localhost:8000")}
+              />
+            </Field>
+            <Field title={t("ai.form.mcpTools.requireApproval", "Require Approval")}>
+              <Select
+                value={tool.require_approval}
+                onChange={(val) => handleToolChange(index, "require_approval", val as string)}
+                options={[
+                  { label: t("ai.form.mcpTools.approval.never", "Never"), value: "never" },
+                  { label: t("ai.form.mcpTools.approval.always", "Always"), value: "always" },
+                ]}
+              />
+            </Field>
+            <div className="flex items-end justify-end md:col-span-2">
+              <Button type="button" variant="danger" onClick={() => handleRemoveTool(index)}>
+                {t("common.remove", "Remove")}
+              </Button>
+            </div>
+          </div>
+        ))}
+        <div className="mt-2">
+          <Button type="button" variant="outline" onClick={handleAddTool}>
+            {t("ai.form.mcpTools.addTool", "Add Tool")}
           </Button>
         </div>
       </FieldGroup>
+
+      <div className="mt-6 flex justify-end gap-2">
+        <Button type="button" onClick={onCancel} variant="outline">
+          {t("common.cancel", "Cancel")}
+        </Button>
+        <Button type="submit" variant="default">
+          {t("common.save", "Save")}
+        </Button>
+      </div>
     </form>
   );
 };

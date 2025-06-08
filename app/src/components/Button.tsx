@@ -7,12 +7,12 @@ export default function Button({
   children,
   className = "",
   onClick = () => {},
-  disabled = false,
-  ...props
+  disabled = false, // Keep disabled for internal logic and styling
+  ...props // Spread the rest of the props, which might include 'disabled' if passed by parent
 }: React.PropsWithChildren<{
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
-  disabled?: boolean;
+  disabled?: boolean; // This prop controls the button's behavior and appearance
   [key: string]: any;
 }>) {
   return (
@@ -38,6 +38,7 @@ export default function Button({
         console.log(e);
         SoundService.play.mouseClickButton();
       }}
+      disabled={disabled} // Explicitly pass the disabled prop to the Box component
       {...props}
     >
       {children}

@@ -1,20 +1,33 @@
 // src/core/ai/helpers/aiSettingsManager.ts
-import { invoke } from "../../../utils/tauriApi";
-import { AiSettings } from "../../../types/aiSettings";
+import { useAiSettingsStore } from "../../../state/aiSettingsStore";
 import { GetActiveConfigResult } from "./types";
 
 export async function getActiveAiConfiguration(): Promise<GetActiveConfigResult> {
   try {
-    const aiSettings: AiSettings = await invoke("load_ai_settings");
+    let aiSettings = useAiSettingsStore.getState().aiSettings;
+
+    // If settings are not in memory, try loading them.
+    if (!aiSettings) {
+      await useAiSettingsStore.getState().loadAiSettings();
+      aiSettings = useAiSettingsStore.getState().aiSettings;
+    }
+
+    if (!aiSettings) {
+      return { error: "AI settings could not be loaded." };
+    }
+
     const activeConfig = aiSettings.api_configs.find((config) => config.id === aiSettings.active_config_id);
 
     if (!activeConfig) {
-      return { error: "No active API configuration found." };
+      if (aiSettings.api_configs && aiSettings.api_configs.length > 0) {
+        return { error: "No active API configuration is set. Please select one in the settings." };
+      }
+      return { error: "No API configurations found. Please add one in the settings." };
     }
-    // No need to cast to ActiveAiConfig if AiApiConfig is sufficient
+
     return { config: activeConfig, settings: aiSettings };
   } catch (e: any) {
-    console.error("Error loading AI settings:", e);
-    return { error: `Error loading AI settings: ${e.message || "Unknown error"}` };
+    console.error("Error accessing AI settings from store:", e);
+    return { error: `Error accessing AI settings: ${e.message || "Unknown error"}` };
   }
 }

@@ -1,4 +1,5 @@
-import { createGeminiContentJson } from "../../src/utils/aiUtils";
+import { describe, test, expect } from "vitest";
+import { createGeminiContentJson } from "../../src/services/aiApiService";
 
 describe("createGeminiContentJson", () => {
   test("should create correct Gemini content JSON for a given prompt", () => {

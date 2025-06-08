@@ -1,5 +1,5 @@
 import { Turnstile, TurnstileInstance } from "@marsidev/react-turnstile";
-import { fetch } from "@tauri-apps/plugin-http";
+import { fetch } from "../../utils/tauriApi";
 import { open } from "@tauri-apps/plugin-shell";
 import { Check, Key, Ticket, User } from "lucide-react";
 import { useRef, useState } from "react";

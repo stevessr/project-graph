@@ -132,11 +132,6 @@ export namespace AiApiHandler {
       }
       const { apiUrl, requestBody, requestHeaders, apiType } = requestDetailsResult;
 
-      if (apiType === "responses") {
-        await Dialog.show({ title: "提示", content: "暂时不能使用responses格式进行总结，我还没搞明白" });
-        return "Error: 暂时不能使用responses格式进行总结，我还没搞明白"; // As per original logic
-      }
-
       console.log("Summary - API Type:", apiType);
       console.log("Summary - Final request body:", JSON.stringify(requestBody, null, 2));
       console.log("Summary - API URL:", apiUrl);

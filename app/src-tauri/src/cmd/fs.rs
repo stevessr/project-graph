@@ -1,8 +1,7 @@
-use serde::{Deserialize, Serialize};
-use std::io::Read;
-
 use base64::engine::general_purpose;
 use base64::Engine;
+use serde::{Deserialize, Serialize};
+use std::io::Read;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FolderEntry {
@@ -12,7 +11,7 @@ pub struct FolderEntry {
     #[serde(skip_serializing_if = "Option::is_none")]
     children: Option<Vec<FolderEntry>>,
 }
-/* 
+
 /// 递归读取文件夹结构，返回嵌套的文件夹结构
 #[tauri::command]
 pub fn read_folder_structure(path: String) -> FolderEntry {
@@ -160,4 +159,3 @@ pub fn write_file_base64(content: String, path: String) -> Result<(), String> {
 pub fn create_folder(path: String) -> bool {
     std::fs::create_dir_all(&path).is_ok()
 }
-*/

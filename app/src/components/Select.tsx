@@ -28,6 +28,7 @@ export default function Select({
   const ref = React.useRef<HTMLDivElement>(null);
   const [dropdownX, setDropdownX] = React.useState(0);
   const [dropdownY, setDropdownY] = React.useState(0);
+  const [dropdownWidth, setDropdownWidth] = React.useState(0); // Add state for width
   const [showDropdown, setShowDropdown] = React.useState(false);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -38,8 +39,9 @@ export default function Select({
 
     if (ref.current) {
       const { left, width, bottom } = ref.current.getBoundingClientRect();
-      setDropdownX(left + width / 2);
+      setDropdownX(left); // Align to the left edge
       setDropdownY(bottom + 8);
+      setDropdownWidth(width); // Set the width
     }
     setShowDropdown((prevShow) => !prevShow); // Toggle based on previous state
 
@@ -78,8 +80,10 @@ export default function Select({
       document.removeEventListener("wheel", handleWheel);
     };
   }, [showDropdown, handleDocumentClick, handleWheel]);
-
-  const selectedOptionLabel = options.find((option) => option.value === value)?.label || "Select...";
+  const selectedOptionValue =
+    options.find((option) => option.value == value)?.label ||
+    options.find((option) => option.value)?.value ||
+    "Selcet...";
 
   return (
     <>
@@ -98,7 +102,7 @@ export default function Select({
         aria-expanded={showDropdown}
         {...props}
       >
-        {selectedOptionLabel}
+        {selectedOptionValue}
         <ChevronDown
           className={cn(
             "h-4 w-4 transition-transform duration-200 ease-in-out",
@@ -107,11 +111,10 @@ export default function Select({
           )}
         />
       </Box>
-      {/* 展开的下拉框 */}
       <div
         role="listbox"
         className={cn(
-          "border-select-popup-border bg-select-popup-bg shadow-select-popup-shadow fixed z-[104] flex w-max min-w-[--radix-select-trigger-width] origin-top -translate-x-1/2 flex-col rounded-lg border p-2 shadow-lg transition-all duration-200 ease-in-out",
+          "border-select-popup-border bg-select-popup-bg shadow-select-popup-shadow fixed z-[104] flex max-h-60 min-w-[240px] origin-top flex-col overflow-y-auto rounded-lg border p-2 shadow-lg transition-all duration-200 ease-in-out",
           // Using data attributes for state is often cleaner for Tailwind
           "data-[state=closed]:scale-0 data-[state=closed]:opacity-0",
           "data-[state=open]:scale-100 data-[state=open]:opacity-100",
@@ -120,6 +123,7 @@ export default function Select({
         style={{
           left: dropdownX,
           top: dropdownY,
+          width: dropdownWidth,
         }}
         onPointerDown={(e) => e.stopPropagation()}
       >

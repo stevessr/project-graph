@@ -764,7 +764,7 @@ settings:
         title: 默认模型 # 从 "模型" 更新
       name:
         description: 为此API配置指定一个唯一的名称。
-        placeholder: 例如：我的OpenAI密钥
+        placeholder: 例如,oaipro
         title: 配置名称
       newName: 新名字
       notes:
@@ -775,7 +775,7 @@ settings:
         description: 选择AI服务提供商。
         options:
           select: 选择服务商
-        title: 服务商
+        title: 服务商API类型
       selectPrompt: 选择一个提示词
       temperature:
         description: 控制随机性。较低的值更具确定性。例如：0.0到2.0。留空以使用服务商默认值。
@@ -800,11 +800,38 @@ settings:
     deleteVersionFailed: 删除版本失败 "{{error}}"
     fetchFailure: 获取模型失败
     form:
+      addTitle: 添加AI API配置
+      api_key:
+        title: API 密钥
+        placeholder: 输入密钥,如sk-XXX
       base_url:
-        description: 描述占位符
+        description: API端点,末尾不要有/
         title: Base URL(携带api版本信息)
+        placeholder: API端点,如https://api.oaipro.com/v1
+      editTitle: 编辑AI API设置
+      model:
+        title: 模型配置
+        description: AI功能使用的模型
+        placeholder: Ciallo～(∠・ω< )⌒☆
+      name:
+        title: 配置名称
+        placeholder: 如,我的API密钥
+      notes:
+        title: 备注
+        placeholder: 可选的Ciallo～(∠・ω< )⌒☆
+      provider:
+        title: 供应商类型
+        description: 按照请求方式区分
       saveSuccess: 保存成功
       saveSuccessMessage: 设置保存成功
+      temperature:
+        title: 模型温度
+        description: 温度越低,模型的输出越稳定
+        placeholder: 0
+      max_tokens:
+        title: 最大输出
+        description: 设置模型的最大输出,超出会截断,避免你破产
+        placeholder: 65535
     newName: 新名字
     newPromptDescription: 输入新提示词的名称并创建
     newPromptNamePlaceholder: 新提示词名称
@@ -825,7 +852,7 @@ settings:
         description: 输入用于AI的自定义系统提示词。
         title: 系统提示词
       title: 自定义提示词
-    reset: 清除设置
+    reset: 重置设置
     resetConfirmButton: 确认重置
     resetConfirmContent: 您确定要重置 AI 设置吗？此操作不可撤销。
     resetConfirmTitle: 确认要删除吗？
@@ -973,7 +1000,9 @@ settings:
     title: 是否压缩粘贴到舞台的图片
   common:
     delete: 删除
+    cancel: 取消
     edit: 编辑
+    save: 保存
   connectFindTargetSoundFile:
     description: |
       连接线吸附到目标上时播放的声音文件路径

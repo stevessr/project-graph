@@ -50,8 +50,14 @@ export const PromptManagementSection: React.FC<PromptManagementSectionProps> = (
         title={t("ai.newPromptTitle") || "创建新提示词"}
         description={t("ai.newPromptDescription") || "输入新提示词的名称并创建"}
       >
-        {" "}
-        {/* TODO: Add translation keys */}
+        <Button
+          onClick={onCreateNewPrompt}
+          disabled={!newPromptName.trim()}
+          className="inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+        >
+          <Plus />
+          {t("ai.createPromptButton") || "创建"} {/* TODO: Add translation key */}
+        </Button>
         <div className="flex items-center gap-2">
           <Input
             name="new_prompt_name_input"
@@ -60,14 +66,6 @@ export const PromptManagementSection: React.FC<PromptManagementSectionProps> = (
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             placeholder={t("ai.newPromptNamePlaceholder")}
           />
-          <Button
-            onClick={onCreateNewPrompt}
-            disabled={!newPromptName.trim()}
-            className="inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-          >
-            <Plus />
-            {t("ai.createPromptButton") || "创建"} {/* TODO: Add translation key */}
-          </Button>
         </div>
       </Field>
 
@@ -114,48 +112,56 @@ export const PromptManagementSection: React.FC<PromptManagementSectionProps> = (
                   value: version.timestamp.toString(),
                 }))}
               />
-              {selectedVersionTimestamp !== null && (
-                <Button
-                  onClick={onDeleteSelectedVersion}
-                  className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                >
-                  <CircleX size={14} className="mr-1" />
-                  {t("ai.deleteVersionButton") || "删除"} {/* TODO: Add translation key */}
-                </Button>
-              )}
-              {selectedPromptName && selectedVersionTimestamp !== null && custom_promptsString.trim() && (
-                <Button
-                  onClick={onUpdateCurrentPromptVersion}
-                  className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  <CircleFadingArrowUp size={14} className="mr-1" />
-                  {t("ai.updateVersionButton") || "更新"} {/* TODO: Add translation key */}
-                </Button>
-              )}
-              <div className="flex justify-end">
-                <Button
-                  onClick={onSavePromptVersion}
-                  disabled={!selectedPromptName || !custom_promptsString.trim()}
-                  className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  <Save size={14} className="mr-1" />
-                  {t("ai.saveNewVersionButton") || "新版本"} {/* TODO: Add translation key */}
-                </Button>
-              </div>
             </div>
           </Field>
         )}
 
       <Field title={t("ai.prompts.systemPrompt.title")} description={t("ai.prompts.systemPrompt.description")}>
-        <Input
-          name="custom_prompts_editor"
-          rows={10}
-          value={custom_promptsString}
-          onChange={oncustom_promptsStringChange}
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm sm:ring-indigo-500"
-          placeholder={t("ai.prompts.lineFormatPlaceholder")}
-        />
-        <p className="text-panel-text-lighter mt-1 text-xs">{t("ai.prompts.lineFormatHint")}</p>
+        <div className="relative">
+          <Input
+            name="custom_prompts_editor"
+            rows={10}
+            value={custom_promptsString}
+            onChange={oncustom_promptsStringChange}
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            placeholder={t("ai.prompts.lineFormatPlaceholder")}
+          />
+        </div>
+      </Field>
+      <Field title={t("ai.prompts.lineFormatHint")}>
+        {selectedPromptName && (
+          <div className="mb-2 flex items-center justify-end gap-2">
+            <Button
+              onClick={onSavePromptVersion}
+              disabled={!custom_promptsString.trim()}
+              className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              <Save size={20} className="mr-1" />
+              {t("ai.saveNewVersionButton", "新建版本")}
+            </Button>
+
+            {selectedVersionTimestamp !== null && (
+              <Button
+                onClick={onUpdateCurrentPromptVersion}
+                disabled={!custom_promptsString.trim()}
+                className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-2 py-1 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              >
+                <CircleFadingArrowUp size={20} className="mr-1" />
+                {t("ai.updateVersionButton", "更新版本")}
+              </Button>
+            )}
+
+            {selectedVersionTimestamp !== null && (
+              <Button
+                onClick={onDeleteSelectedVersion}
+                className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-2 py-1 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              >
+                <CircleX size={20} className="mr-1" />
+                {t("ai.deleteVersionButton", "删除版本")}
+              </Button>
+            )}
+          </div>
+        )}
       </Field>
 
       <Field title={t("ai.prompts.summary_prompt.title")} description={t("ai.prompts.summary_prompt.description")}>

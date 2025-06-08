@@ -1,32 +1,26 @@
 // src\pages\settings\ai\ApiConfigSection.tsx
 import { useEffect } from "react";
-import { ApiConfig } from "../../../types/aiSettings";
+import { useAiSettingsStore } from "../../../state/aiSettingsStore";
+import { ApiConfig, Model } from "../../../types/aiSettings";
 import Select from "../../../components/Select";
 import Button from "../../../components/Button"; // Assuming you have a Button component
 import { TFunction } from "i18next";
 import { RefreshCcw } from "lucide-react";
-import { invoke } from "../../../utils/tauriApi";
-import { AiSettings } from "../../../types/aiSettings"; // Assuming you have a type definition for AiSettings
-// REMOVE THIS IMPORT: import { setStoreActiveConfig } from "./useAiSettingsManager";
 
 interface ApiConfigSectionProps {
-  activeApiConfig: ApiConfig | undefined; // Make it potentially undefined if no config is active
   api_configs: ApiConfig[];
-  onActiveConfigSelect: (configId: string | null) => void;
-  availableModels: string[];
+  availableModels: Model[];
   loadingModels: boolean;
   onFetchModels: () => void;
   t: TFunction<"settings", undefined>;
   onEditConfig: (config: ApiConfig) => void;
   onAddConfig: () => void;
   onDeleteConfig: (configId: string) => void;
-  onModelChange: (modelId: string) => void; // Add new prop for model change
+  onModelChange: (modelId: string) => void;
 }
 
 export function ApiConfigSection({
-  activeApiConfig,
   api_configs,
-  onActiveConfigSelect,
   availableModels,
   loadingModels,
   onFetchModels,
@@ -34,21 +28,18 @@ export function ApiConfigSection({
   onEditConfig,
   onAddConfig,
   onDeleteConfig,
-  onModelChange, // Destructure new prop
+  onModelChange,
 }: ApiConfigSectionProps) {
+  const activeApiConfigId = useAiSettingsStore((state) => state.aiSettings?.active_config_id);
+  const setActiveApiConfig = useAiSettingsStore((state) => state.setActiveAiConfig);
+  const activeApiConfig = api_configs.find((c) => c.id === activeApiConfigId);
+
   useEffect(() => {
-    if (api_configs && api_configs.length > 0) {
-      const currentActiveExists = api_configs.some((c) => c.id === activeApiConfig?.id);
-      // If no activeApiConfig is set, or the current activeApiConfig's ID is not in the list,
-      // default to the first config.
-      if (!activeApiConfig?.id || !currentActiveExists) {
-        onActiveConfigSelect(api_configs[0].id);
-      }
-    } else if (activeApiConfig?.id) {
-      // If there was an active config but now there are no configs, clear the active selection.
-      onActiveConfigSelect(null);
+    const activeConfigExists = api_configs.some((c) => c.id === activeApiConfigId);
+    if (!activeConfigExists && api_configs.length > 0) {
+      setActiveApiConfig(api_configs[0].id);
     }
-  }, [api_configs, activeApiConfig, onActiveConfigSelect]); // Rerun if configs change, active config changes, or callback changes
+  }, [api_configs, activeApiConfigId, setActiveApiConfig]);
 
   const handleEdit = () => {
     if (activeApiConfig) {
@@ -78,33 +69,16 @@ export function ApiConfigSection({
             </label>
             <Select
               id="activeConfigSelect"
-              value={activeApiConfig?.id || ""}
+              value={activeApiConfigId || ""}
               options={api_configs.map((config) => ({
-                label: `${config.name} (${config.provider})`,
+                label: config.name + "(" + config.provider + ")",
                 value: config.id,
               }))}
               onChange={(value) => {
-                onActiveConfigSelect(value); // This is the correct way to signal a change
-                // The lines below were problematic and are removed:
-                console.log(value);
-                const configId = value;
-                invoke<AiSettings>("set_active_ai_config", { configId });
-                activeApiConfig = api_configs.find((config) => config.id === value) || ({} as ApiConfig); // Don't mutate props/local vars like this
-                // setStoreActiveConfig(value); // Don't call store actions directly from presentational component
-                // console.log(activeApiConfig);
+                setActiveApiConfig(value as string);
               }}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-gray-700"
-            >
-              {/* The options prop for Select component should handle rendering.
-                  If your Select component specifically needs children <option> tags,
-                  they are already here. Ensure the Select component correctly uses
-                  either its `options` prop or its children. */}
-              {api_configs.map((config) => (
-                <option key={config.id} value={config.id}>
-                  {config.name} ({config.provider})
-                </option>
-              ))}
-            </Select>
+            />
           </div>
 
           {activeApiConfig ? (
@@ -165,21 +139,17 @@ export function ApiConfigSection({
                 ) : availableModels.length > 0 ? (
                   <Select
                     value={activeApiConfig.model || ""}
-                    options={availableModels.map((model) => ({ label: model, value: model }))}
+                    options={availableModels.map((model) => ({
+                      label: model.id || model.name,
+                      value: model.id || model.name,
+                    }))}
                     onChange={(newModel) => {
                       if (activeApiConfig && newModel) {
                         onModelChange(newModel);
                       }
                     }}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm dark:border-gray-600 dark:bg-gray-700"
-                  >
-                    <option value="">{t("ai.apiConfig.selectModel")}</option>
-                    {availableModels.map((model) => (
-                      <option key={model} value={model}>
-                        {model}
-                      </option>
-                    ))}
-                  </Select>
+                  />
                 ) : (
                   <p className="text-sm text-gray-500 dark:text-gray-400">{t("ai.apiConfig.noModelsFetched")}</p>
                 )}

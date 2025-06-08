@@ -1,4 +1,4 @@
-import { fetch } from "@tauri-apps/plugin-http";
+import { fetch } from "../../../../utils/tauriApi";
 import { Dialog } from "../../../../components/dialog";
 
 export namespace CollaborationEngine {

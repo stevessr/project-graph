@@ -7,6 +7,7 @@ type BoxProps<E extends ElementType> = {
   className?: string;
   as?: ElementType;
   tooltip?: string;
+  disabled?: boolean; // Add disabled to the BoxProps type
 } & React.ComponentPropsWithRef<E>;
 
 const _Box = <E extends ElementType = "div">(

@@ -1,5 +1,5 @@
 // src/core/ai/helpers/apiCaller.ts
-import { fetch as tauriFetch } from "../../../utils/tauriApi";
+import { fetch } from "../../../utils/tauriApi";
 import { FetchResponseLike } from "./types"; // Using our defined ResponseLike
 
 export interface ApiCallOptions {
@@ -9,11 +9,9 @@ export interface ApiCallOptions {
 }
 
 export async function makeApiCall(apiUrl: string, options: ApiCallOptions): Promise<FetchResponseLike> {
-  // tauriFetch is expected to return a Response-like object
-  // compatible with FetchResponseLike
-  return tauriFetch(apiUrl, {
+  return fetch(apiUrl, {
     method: options.method,
     headers: options.headers,
     body: options.body,
-  }) as unknown as FetchResponseLike; // Cast if tauriFetch has a slightly different signature but compatible structure
+  }) as unknown as FetchResponseLike;
 }
