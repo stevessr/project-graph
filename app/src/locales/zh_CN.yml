@@ -1,1349 +1,1482 @@
-welcome:
-  language: 语言
-  next: 下一步
-  website: 网站
-  github: GitHub
-  bilibili: 哔哩哔哩
-  qq: QQ 群
-
 about:
-  updater:
-    available: 新版本
-    downloading: 下载中
-    checkingUpdate: 检查新版本中……
-    checkUpdateFail: 无法获取最新版本信息，请检查网络
-  links:
-    website: 官方网站
-    documentation: 文档
-    github: Github
-    video: 视频教程
-    qq: QQ 群
-    forum: 论坛
-    community:
-      title: 社区
-      description: 加入社区，包含QQ群、论坛、Discord、Telegram等，分享您的想法、经验、教程、资源、问题、建议等。
-    importantAnnouncement: 重要公告
-  intro:
-  - 软件介绍
-  - 这是一个基于tauri框架的快速绘制节点图的工具，可以用于项目拓扑图绘制、快速头脑风暴草稿
-  - Xmind 只能用来绘制树形结构图，FigJam 和 draw.io 可以用来绘制但网页打开有点慢了
-  - 所以做了这个小软件
   contact:
-  - 联系我们
-  - 我们致力于为“图论”设计一个最快速方便的绘制方法论，同时也在可视化思考、拓扑型 todo list 等方向进行探索创新。
-  - 如果您想快速获得反馈和提供建议，或者有任何想法、疑问，欢迎加入我们的 QQ 群：1018716404
-  techEnvironment: 技术支持与生态环境
+    - 联系我们
+    - 我们致力于为“图论”设计一个最快速方便的绘制方法论,同时也在可视化思考、拓扑型 todo list 等方向进行探索创新。
+    - 如果您想快速获得反馈和提供建议,或者有任何想法、疑问,欢迎加入我们的 QQ 群：1018716404
   developers:
-    title: 开发者名单
-    proposer: 项目提出与创立
+    animationEffectDesigner: 动画特效设计
+    atmosphereAdjuster: 气氛调节
+    automationBuilder: 自动化构建
+    bezierCurveDesigner: 贝塞尔曲线设计
     conceptDesigner: 概念设计
+    encourager: 程序员鼓励师
+    encouragerEncourager: 鼓励师的鼓励师
     featureDesigner: 功能设计
     feedbackManager: 反馈管理
     logoDesigner: 图标设计
-    uiDesigner: UI 设计
-    softwareArchitect: 软件架构
-    bezierCurveDesigner: 贝塞尔曲线设计
-    animationEffectDesigner: 动画特效设计
-    automationBuilder: 自动化构建
-    xlings: 自动化环境搭建
-    websiteMaintainer: 网站维护
     performanceSupervisor: 性能督导
-    videoPromoter: 视频推广
-    translator: 翻译
+    proposer: 项目提出与创立
+    softwareArchitect: 软件架构
     tester: 测试
-    encourager: 程序员鼓励师
-    encouragerEncourager: 鼓励师的鼓励师
-    atmosphereAdjuster: 气氛调节
+    title: 开发者名单
+    translator: 翻译
+    uiDesigner: UI 设计
+    videoPromoter: 视频推广
+    websiteMaintainer: 网站维护
+    xlings: 自动化环境搭建
   ideaSources:
-  - 灵感来源
-  - 未支持深色风格的 FigJam
-  - 所长林超的画分析框架详解视频
-  - 《数据结构与算法》中的拓扑排序、图论，以及状态机、集合论的概念
-  - 头脑风暴法、认知负荷理论、卡片创意法
-  - 游戏《Minecraft》中的“命令方块”、跨世界预览的地狱传送门模组
-  - 游戏《水果忍者》中挥刀的动画效果
-  - 游戏《Mindustry》中的工厂流水线设计成逻辑节点
+    - 灵感来源
+    - 未支持深色风格的 FigJam
+    - 所长林超的画分析框架详解视频
+    - 《数据结构与算法》中的拓扑排序、图论,以及状态机、集合论的概念
+    - 头脑风暴法、认知负荷理论、卡片创意法
+    - 游戏《Minecraft》中的“命令方块”、跨世界预览的地狱传送门模组
+    - 游戏《水果忍者》中挥刀的动画效果
+    - 游戏《Mindustry》中的工厂流水线设计成逻辑节点
+  intro:
+    - 软件介绍
+    - 这是一个基于tauri框架的快速绘制节点图的工具,可以用于项目拓扑图绘制、快速头脑风暴草稿
+    - Xmind 只能用来绘制树形结构图,FigJam 和 draw.io 可以用来绘制但网页打开有点慢了
+    - 所以做了这个小软件
+  links:
+    community:
+      description: 加入社区,包含QQ群、论坛、Discord、Telegram等,分享您的想法、经验、教程、资源、问题、建议等。
+      title: 社区
+    documentation: 文档
+    forum: 论坛
+    github: Github
+    importantAnnouncement: 重要公告
+    qq: QQ 群
+    video: 视频教程
+    website: 官方网站
   team:
-  - 团队简介
-  - 理刃科技(LiRen Tech)是一个由Littlefean和Rutubet在2017年5月1日创立的小型团队，后续ZTY加入团队。
-  - 以其年轻化的团队氛围、对创新创意的重视、以及理性思维与文化包容的特点，在软件开发领域独树一帜。
-  - 不仅专注于开发工具软件和游戏，还涉足Minecraft游戏插件开发、游戏服务器运营以及网站建设等多元化业务。
-  - 理刃科技的代表作品包括CannonWar这个内容丰富的塔防游戏、BitMountain算法竞赛网站、Watch小桌面软件，以及MinecraftPvP职业战争服务器。
-  - 团队以浅蓝色和代码绿为代表颜色，象征着逻辑合理与整活幽默并存的团队文化。
-
-settings:
-  title: 设置
-  tabs:
-    about: 关于
-    visual: 显示
-    physical: 物理
-    performance: 性能
-    effects: 特效
-    automation: 自动化
-    control: 控制
-    keybinds: 快捷键
-    ai: AI
-    github: GitHub
-    sounds: 声音
-    plugins: 插件
-    scripts: 脚本
-    themes: 主题
-  language:
-    title: 语言
-    options:
-      en: English
-      zh_CN: 简体中文
-      zh_TW: 繁體中文
-  showTipsOnUI:
-    title: 在 UI 中显示提示信息
-    description: |
-      开启后，屏幕上会有一行提示文本。
-      如果您已经熟悉了软件，建议关闭此项以减少屏幕占用
-      更多更详细的提示还是建议看菜单栏中的“新手引导”或官网文档。
-  isClassroomMode:
-    title: 专注模式
-    description: |
-      用于教学、培训等场景。
-      开启后窗口顶部按钮会透明，鼠标悬浮上去会恢复，可以修改进入退出专注模式的快捷键
-  lineStyle:
-    title: 连线样式
-    options:
-      straight: 直线
-      bezier: 贝塞尔曲线
-      vertical: 垂直折线
-  isRenderCenterPointer:
-    title: 显示中心十字准星
-    description: |
-      开启后，屏幕中心中心会显示一个十字准星，用于用于指示快捷键创建节点的位置
-  showGrid:
-    title: 显示网格
-  showBackgroundHorizontalLines:
-    title: 显示水平背景线
-    description: |
-      水平线和垂直线可以同时打开，实现网格效果
-  showBackgroundVerticalLines:
-    title: 显示垂直背景线
-  showBackgroundDots:
-    title: 显示背景点
-    description: |
-      这些背景点是水平线和垂直线的交点，实现洞洞板的效果
-  showBackgroundCartesian:
-    title: 显示背景直角坐标系
-    description: |
-      开启后，将会显示x轴、y轴和刻度数字
-      可以用于观测一些节点的绝对坐标位置
-      也能很直观的知道当前的视野缩放倍数
-  windowBackgroundAlpha:
-    title: 窗口背景透明度
-  showDebug:
-    title: 显示调试信息
-    description: |
-      通常为开发者使用
-      开启后，屏幕左上角将会显示调试信息。
-      若您遇到bug截图反馈时，建议开启此选项。
-  enableTagTextNodesBigDisplay:
-    title: 标签文本节点巨大化显示
-    description: |
-      开启后，标签文本节点的显示在摄像机缩小到广袤的全局视野时，
-      标签会巨大化显示，以便更容易辨识整个文件的布局分布
-  showTextNodeBorder:
-    title: 显示文本节点边框
-    description: |
-      控制是否显示文本节点的边框
-  sectionBitTitleRenderType:
-    title: 框的缩略大标题渲染类型
-    options:
-      none: 不渲染（节省性能）
-      top: 顶部小字
-      cover: 半透明覆盖框体（最佳效果）
-  alwaysShowDetails:
-    title: 始终显示节点详细信息
-    description: |
-      开启后，无需鼠标移动到节点上时，才显示节点的详细信息。
-  nodeDetailsPanel:
-    title: 节点详细信息面板
-    options:
-      small: 小型面板
-      vditor: vditor markdown编辑器
-  useNativeTitleBar:
-    title: 使用原生标题栏（需要重启应用）
-    description: |
-      开启后，窗口顶部将会出现原生的标题栏，而不是模拟的标题栏。
-  protectingPrivacy:
-    title: 隐私保护
-    description: |
-      用于反馈问题截图时，开启此项之后将汉字全部替换成《㊙》，以保护隐私。
-      仅作显示层面的替换，不会影响真实数据
-      反馈完毕后可再关闭，复原
-  entityDetailsFontSize:
-    title: 实体详细信息字体大小
-    description: |
-      单位为像素
-  entityDetailsLinesLimit:
-    title: 实体详细信息行数限制
-    description: |
-      限制实体详细信息的最大行数，超过限制的部分将被省略
-  entityDetailsWidthLimit:
-    title: 实体详细信息宽度限制
-    description: |
-      限制实体详细信息的最大宽度，超过限制的部分将被换行
-  windowCollapsingWidth:
-    title: 迷你窗口的宽度
-    description: |
-      点击切换至迷你窗口时，窗口的宽度，单位为像素
-  windowCollapsingHeight:
-    title: 迷你窗口的高度
-    description: |
-      点击切换至迷你窗口时，窗口的高度，单位为像素
-  limitCameraInCycleSpace:
-    title: 开启循环空间限制摄像机移动
-    description: |
-      开启后，摄像机只能在一个矩形区域内移动
-      可以防止摄像机移动到很远的地方迷路
-      该矩形区域会形成一个循环空间，类似于无边贪吃蛇游戏中的地图
-      走到最上面会回到最下面，走到最左边会回到最右边
-      注意：该功能还在实验阶段
-  cameraCycleSpaceSizeX:
-    title: 循环空间宽度
-    description: |
-      循环空间的宽度，单位为像素
-  cameraCycleSpaceSizeY:
-    title: 循环空间高度
-    description: |
-      循环空间的高度，单位为像素
-  renderEffect:
-    title: 渲染特效
-    description: 是否渲染特效，如果卡顿可以关闭
-  compatibilityMode:
-    title: 兼容模式
-    description: |
-      开启后，软件会使用另一种渲染方式
-  historySize:
-    title: 历史记录大小
-    description: |
-      这个数值决定了您最多ctrl+z撤销的次数
-      如果您的电脑内存非常少，可以适当调小这个值
-  compressPastedImages:
-    title: 是否压缩粘贴到舞台的图片
-    description: |
-      开启后，粘贴到舞台的图片会被压缩，以节省加载文件时的内存压力和磁盘压力
-  maxPastedImageSize:
-    title: 粘贴到舞台的图片的尺寸限制（像素）
-    description: |
-      长或宽超过此尺寸的图片，其长或宽的最大值将会被限制为此大小
-      同时保持长宽比不变，仅在开启“压缩粘贴到舞台的图片”时生效
-  textIntegerLocationAndSizeRender:
-    title: 文本整数位置和大小渲染
-    description: |
-      开启后，一切文字的大小和位置都是整数，以节省渲染性能。
-      但会出现文字抖动现象。建议配合视角缩放速度调整成1一起使用。
-      如果您的电脑使用体验非常卡顿，尤其是在缩放和移动的情况下，可以开启此选项。
-  isPauseRenderWhenManipulateOvertime:
-    title: 超过一定时间未操作舞台，暂停渲染
-    description: |
-      开启后，超过若干秒未做出舞台操作，舞台渲染会暂停，以节省CPU/GPU资源。
-  renderOverTimeWhenNoManipulateTime:
-    title: 超时停止渲染舞台的时间（秒）
-    description: |
-      超过一定时间未做出舞台操作，舞台渲染会停止，以节省CPU/GPU资源。
-      必须在上述“超时暂停渲染”选项开启后才会生效。
-  ignoreTextNodeTextRenderLessThanCameraScale:
-    title: 当摄像机缩放倍数小于一定值时，不渲染文本节点内的文字及其详细信息
-    description: |
-      开启后，当摄像机缩放倍数小于一定值时，(也就是观察宏观状态时)
-      不渲染文本节点内的文字及其详细信息，这样可以提高渲染性能，但会导致文本节点的文字内容无法显示
-  isEnableEntityCollision:
-    title: 实体碰撞检测
-    description: |
-      开启后，实体之间会进行碰撞挤压移动，可能会影响性能。
-      建议关闭此项，目前实体碰撞挤压还不完善，可能导致爆栈
-  autoRefreshStageByMouseAction:
-    title: 鼠标操作时自动刷新舞台
-    description: |
-      开启后，鼠标操作(拖拽移动视野)会自动刷新舞台
-      防止出现打开某个文件后，图片未加载成功还需手动刷新的情况
-  autoNamerTemplate:
-    title: 自动命名模板
-    description: |
-      输入`{{i}}` 代表节点名称会自动替换为编号，双击创建时可以自动累加数字。
-      例如`n{{i}}` 会自动替换为`n1`, `n2`, `n3`…
-      输入`{{date}}` 会自动替换为当前日期，双击创建时可以自动更新日期。autoNamerTemplate
-      输入`{{time}}` 会自动替换为当前时间，双击创建时可以自动更新时间。
-      可以组合使用，例如`{{i}}-{{date}}-{{time}}`
-  autoNamerSectionTemplate:
-    title: 自动命名分组模板
-    description: |
-      输入`{{i}}` 代表节点名称会自动替换为编号，双击创建时可以自动累加数字。
-      例如`n{{i}}` 会自动替换为`n1`, `n2`, `n3`…
-      输入`{{date}}` 会自动替换为当前日期，双击创建时可以自动更新日期。
-      输入`{{time}}` 会自动替换为当前时间，双击创建时可以自动更新时间。
-      可以组合使用，例如`{{i}}-{{date}}-{{time}}`
-  autoSaveWhenClose:
-    title: 点击窗口右上角关闭按钮时自动保存工程文件
-    description: |
-      关闭软件时，如果有未保存的工程文件，会弹出提示框询问是否保存。
-      开启此选项后，关闭软件时会自动保存工程文件。
-      所以，建议开启此选项。
-  autoSave:
-    title: 开启自动保存
-    description: |
-      自动保存当前文件
-      此功能目前仅对已有路径的文件有效，不对草稿文件生效！
-  autoSaveInterval:
-    title: 开启自动保存间隔（秒）
-    description: |
-      注意：目前计时时间仅在软件窗口激活时计时，软件最小化后不会计时。
-  autoBackup:
-    title: 开启自动备份
-    description: |
-      自动备份当前文件
-      自动备份会在工程文件旁边生成一个副本
-      如果是草稿，则会存储在指定的路径
-  autoBackupInterval:
-    title: 自动备份间隔（秒）
-    description: |
-      自动备份过于频繁可能会产生大量的备份文件
-      进而占用磁盘空间
-  autoBackupDraftPath:
-    title: 草稿的自动备份文件夹路径
-    description: |
-      请填写绝对路径，草稿将统一备份到此文件夹下
-      留空或路径错误时不进行备份
-      windows系统注意使用反斜杠
-      例如：C:\Users\username\Documents\DraftBackup
-      结尾不要带路径分隔符
-  autoBackupLimitCount:
-    title: 自动备份最大数量
-    description: |
-      自动备份的最大数量，超过此数量将会删除旧的备份文件
-  scaleExponent:
-    title: 视角缩放速度
-    description: |
-      《当前缩放倍数》会不断的以一定倍率无限逼近《目标缩放倍数》
-      当逼近的足够近时（小于0.0001），会自动停止缩放
-      值为1代表缩放会立刻完成，没有中间的过渡效果
-      值为0代表缩放永远都不会完成，可模拟锁死效果
-      注意：若您在缩放画面时感到卡顿，请调成1
-  cameraKeyboardScaleRate:
-    title: 视角缩放键盘速率
-    description: |
-      每次通过一次按键来缩放视野时，视野的缩放倍率
-      值为0.2代表每次放大会变为原来的1.2倍，缩小为原来的0.8倍
-      值为0代表禁止通过键盘缩放
-  scaleCameraByMouseLocation:
-    title: 视角缩放根据鼠标位置
-    description: |
-      开启后，缩放视角的中心点是鼠标的位置
-      关闭后，缩放视角的中心点是当前视野的中心
-  allowMoveCameraByWSAD:
-    title: 允许使用W S A D按键移动视角
-    description: |
-      开启后，可以使用W S A D按键来上下左右移动视角
-      关闭后，只能使用鼠标来移动视角，不会造成无限滚屏bug
-  cameraFollowsSelectedNodeOnArrowKeys:
-    title: 通过方向键切换选中节点时，视野跟随移动
-    description: |
-      开启后，使用键盘移动节点选择框时，视野跟随移动
-  cameraKeyboardMoveReverse:
-    title: 视角移动键盘反向
-    description: |
-      开启后，W S A D按键的移动视角方向会相反
-      原本的移动逻辑是移动悬浮在画面上的摄像机，但如果看成是移动整个舞台，这样就反了
-      于是就有了这个选项
-  cameraResetViewPaddingRate:
-    title: 根据选择节点重置视野时，边缘留白系数
-    description: |
-      框选一堆节点或一个节点，并按下快捷键或点击按钮来重置视野后
-      视野会调整大小和位置，确保所有选中内容出现在屏幕中央并完全涵盖
-      由于视野缩放大小原因，此时边缘可能会有留白
-      值为1 表示边缘完全不留白。（非常放大的观察）
-      值为2 表示留白内容恰好为自身内容的一倍
-  allowAddCycleEdge:
-    title: 允许在节点之间添加自环
-    description: |
-      开启后，节点之间可以添加自环，即节点与自身相连，用于状态机绘制
-      默认关闭，因为不常用，容易误触发
-  autoLayoutWhenTreeGenerate:
-    title: 生长节点时自动更新布局
-    description: |
-      开启后，生长节点时自动更新布局
-      此处的生长节点指tab和\键生长节点
-  moveAmplitude:
-    title: 视角移动加速度
-    description: |
-      此设置项用于 使用W S A D按键来上下左右移动视角时的情景
-      可将摄像机看成一个能朝四个方向喷气的 悬浮飞机
-      此加速度值代表着喷气的动力大小，需要结合下面的摩擦力设置来调整速度
-  moveFriction:
-    title: 视角移动摩擦力系数
-    description: |
-      此设置项用于 使用W S A D按键来上下左右移动视角时的情景
-      摩擦系数越大，滑动的距离越小，摩擦系数越小，滑动的距离越远
-      此值=0时代表 绝对光滑
-  gamepadDeadzone:
-    title: 游戏手柄死区
-    description: |
-      此设置项用于 游戏手柄控制视角时的情景
-      手柄的输入值在0-1之间，此值越小，手柄的输入越敏感
-      死区越大，手柄的输入越趋于0或1，不会产生太大的变化
-      死区越小，手柄的输入越趋于中间值，会产生较大的变化
-  mouseRightDragBackground:
-    title: 右键拖动背景的操作
-    options:
-      cut: 斩断并删除物体
-      moveCamera: 移动视野
-  doubleClickMiddleMouseButton:
-    title: 双击中键鼠标
-    description: |
-      将滚轮键快速按下两次时执行的操作。默认是重置视野。
-      关闭此选项，可以防止误触发。
-    options:
-      adjustCamera: 调整视野
-      none: 无操作
-  textNodeContentLineBreak:
-    title: 文本节点换行方案
-    options:
-      enter: Enter
-      ctrlEnter: ctrl + Enter
-      altEnter: alt + Enter
-      shiftEnter: shift + Enter
-    description: |
-      注意不要和文本节点退出编辑模式的按键一样了，这样会导致冲突
-      进而导致无法换行
-  textNodeStartEditMode:
-    title: 文本节点进入编辑模式
-    options:
-      enter: Enter
-      ctrlEnter: ctrl + Enter
-      altEnter: alt + Enter
-      shiftEnter: shift + Enter
-      space: 空格键
-    description: |
-      实际上按F2键也可以进入编辑模式，这里还可以再加选一种
-  textNodeExitEditMode:
-    title: 文本节点退出编辑模式
-    options:
-      enter: Enter
-      ctrlEnter: ctrl + Enter
-      altEnter: alt + Enter
-      shiftEnter: shift + Enter
-    description: |
-      实际上按Esc键也可以退出，这里还可以再加选一种
-  textNodeSelectAllWhenStartEditByMouseClick:
-    title: 文本节点通过双击开始编辑时自动全选内容
-    description: |
-      开启后，在文本节点开始编辑时，会全选文本内容
-      如果您编辑内容通常是想为了直接更改全部内容，建议开启此选项
-      如果更可能是想为了追加内容，建议关闭此选项
-  textNodeSelectAllWhenStartEditByKeyboard:
-    title: 文本节点通过键盘开始编辑时自动全选内容
-    description: |
-      开启后，在您按下文本节点编辑模式的按键时，会全选文本内容
-  enableDragAutoAlign:
-    title: 鼠标拖动自动吸附对齐节点
-    description: |
-      开启后，拖动节点并松开时会与其他节点在x轴、y轴方向对齐
-  enableDragAlignToGrid:
-    title: 拖动实体时，吸附到网格
-    description: |
-      建议在显示中开启横向和纵向网格线，并关闭自动吸附对齐
-  enableWindowsTouchPad:
-    title: 允许触摸板双指移动操作
-    description: |
-      在windows系统中，双指上下移动会被识别为滚轮事件。
-      双指左右移动会被识别成鼠标横向滚轮的滚动事件。
-      如果您是笔记本操作并使用外部鼠标，建议关闭此选项。
-  macTrackpadAndMouseWheelDifference:
-    title: macbook 的触摸版与鼠标滚轮区分逻辑
-    description:
-      有的macbook鼠标滚轮是整数，触摸版是小数，有的则相反
-      您需要根据实际情况选择一下区分逻辑
-      区分方法可点击7次关于界面的软件logo进入“测试界面”后，滑动滚轮和触摸板查看数据反馈
-    options:
-      trackpadIntAndWheelFloat: 触摸版是整数，鼠标滚动是小数
-      tarckpadFloatAndWheelInt: 触摸版是小数，鼠标滚动是整数
-  macTrackpadScaleSensitivity:
-    title: macbook 的触摸板双指缩放灵敏度
-    description:
-      值越大，缩放的速度越快
-  macMouseWheelIsSmoothed:
-    title: macbook 的鼠标滚轮是否平滑
-    description:
-      有的macbook鼠标滚轮是平滑的，有的则是滚动一格触发一次
-      可能取决于您是否安装了Mos等鼠标修改软件
-  mouseSideWheelMode:
-    title: 鼠标侧边滚轮模式
-    description: |
-      侧边滚轮就是大拇指上的滚轮
-    options:
-      zoom: 缩放
-      move: 纵向移动
-      moveX: 横向移动
-      none: 无操作
-      cameraMoveToMouse: 将视野向鼠标位置移动
-      adjustWindowOpacity: 调整窗口透明度
-      adjustPenStrokeWidth: 调整画笔粗细
-  mouseWheelMode:
-    title: 鼠标滚轮模式
-    options:
-      zoom: 缩放
-      move: 纵向移动
-      moveX: 横向移动
-      none: 无操作
-  mouseWheelWithShiftMode:
-    title: 按住 Shift 时，鼠标滚轮模式
-    options:
-      zoom: 缩放
-      move: 纵向移动
-      moveX: 横向移动
-      none: 无操作
-  mouseWheelWithCtrlMode:
-    title: 按住 Ctrl 时，鼠标滚轮模式
-    description: |
-      提示：这里的 Ctrl 是 Control
-    options:
-      zoom: 缩放
-      move: 纵向移动
-      moveX: 横向移动
-      none: 无操作
-  mouseWheelWithAltMode:
-    title: 按住 Alt 时，鼠标滚轮模式
-    description: |
-      此功能于2025年4月10日新增
-      目前发现还存在问题：win系统下滑动滚轮后需要再点击一次屏幕才能操作舞台
-      提示：这里的 Alt 是 Option
-    options:
-      zoom: 缩放
-      move: 纵向移动
-      moveX: 横向移动
-      none: 无操作
-  rectangleSelectWhenLeft:
-    title: 向左框选的策略
-    description: |
-      选择鼠标向左框选的策略，包含完全覆盖框选和碰撞框选
-      完全覆盖框选是指矩形框选框必须完全覆盖实体的外接矩形
-      碰撞框选是指矩形框选框只要碰到一点点实体的外接矩形，就能够选中了
-    options:
-      intersect: 碰撞框选
-      contain: 完全覆盖框选
-  rectangleSelectWhenRight:
-    title: 向右框选的策略
-    description: |
-      选择鼠标向右框选的策略
-    options:
-      intersect: 碰撞框选
-      contain: 完全覆盖框选
-  # 声音
-  cuttingLineStartSoundFile:
-    title: 斩断线开始的声音文件
-    description: |
-      斩断线右键按下开始时播放的声音文件路径
-  connectLineStartSoundFile:
-    title: 连接线开始的声音文件
-    description: |
-      连接线右键按下开始时播放的声音文件路径
-  connectFindTargetSoundFile:
-    title: 连接线吸附到目标上的声音文件
-    description: |
-      连接线吸附到目标上时播放的声音文件路径
-  cuttingLineReleaseSoundFile:
-    title: 斩断线释放的声音文件
-    description: |
-      释放的时候就是看到刀光刃特效的时候
-  alignAndAttachSoundFile:
-    title: 对齐的声音文件
-    description: |
-      鼠标拖动时，对齐节点和时播放的声音文件路径
-  uiButtonEnterSoundFile:
-    title: 鼠标进入按钮区域的声音
-    description: |
-      鼠标进入按钮区域的声音
-  uiButtonClickSoundFile:
-    title: 按钮点击时的声音文件
-    description: |
-      按钮点击时播放的声音文件路径
-  uiSwitchButtonOnSoundFile:
-    title: 按钮点击开关按钮时打开的声音
-    description: |
-      按钮点击开关按钮时打开的声音文件路径
-  uiSwitchButtonOffSoundFile:
-    title: 按钮点击开关按钮时关闭的声音
-    description: |
-      按钮点击开关按钮时关闭的声音文件路径
-  agreeTerms:
-    title: 同意用户协议
-    description: |
-      请您仔细阅读并同意用户协议
-  allowTelemetry:
-    title: 参与用户体验改进计划
-    description: |
-      如果您启用此项，我们会收集您的使用数据，帮助我们改进软件
-      发送的数据仅用于统计，不会包含您的个人隐私信息
-      您的数据会在中国香港的云服务器上存储，不会发送到国外
-
-plugins:
-  welcome:
-    title: 欢迎使用插件系统
-    description: |
-      插件系统是 Project Graph v2 的计划之一，开发者可以使用 JavaScript 开发插件以扩展应用的功能。
-      目前插件系统还未开发完成，敬请期待。
-  title: 插件管理
-  install: 安装插件
-  uninstall: 卸载
-  documentation: 文档
-
+    - 团队简介
+    - 理刃科技(LiRen Tech)是一个由Littlefean和Rutubet在2017年5月1日创立的小型团队,后续ZTY加入团队。
+    - 以其年轻化的团队氛围、对创新创意的重视、以及理性思维与文化包容的特点,在软件开发领域独树一帜。
+    - 不仅专注于开发工具软件和游戏,还涉足Minecraft游戏插件开发、游戏服务器运营以及网站建设等多元化业务。
+    - 理刃科技的代表作品包括CannonWar这个内容丰富的塔防游戏、BitMountain算法竞赛网站、Watch小桌面软件,以及MinecraftPvP职业战争服务器。
+    - 团队以浅蓝色和代码绿为代表颜色,象征着逻辑合理与整活幽默并存的团队文化。
+  updater:
+    available: 新版本
+    checkUpdateFail: 无法获取最新版本信息,请检查网络
+    checkingUpdate: 检查新版本中……
+    downloading: 下载中
 app:
-  unsaved: "(未保存)"
-  draftUnsaved: " 草稿无法自动保存，需手动保存 "
   comingSoon: "即将到来……"
+  draftUnsaved: " 草稿无法自动保存,需手动保存 "
+  unsaved: "(未保存)"
 appMenu:
-  file:
-    title: 文件
+  export:
     items:
+      exportAsMarkdownBySelected: Markdown
+      exportAsPlainText: 纯文本
+      exportAsSVGByAll: SVG(全部)
+      exportAsSvg: SVG
+    title: 导出
+  file:
+    items:
+      backup: 手动备份
       new: 新建草稿
       newFile: 新建文件
       open: 打开
+      recent: 最近打开
       save: 保存
       saveAs: 另存为
-      recent: 最近打开
-      backup: 手动备份
-  location:
-    title: 位置
-    items:
-      openDataFolder: 
-        title: 配置数据
-        description: 打开软件用户配置数据文件夹，内部存放用户自定义设置等数据
-      openProjectFolder: 
-        title: 当前位置
-        description: 打开当前编辑的 工程文件 所在的文件夹
-      openCacheFolder:
-        title: 缓存文件夹
-        description: 打开软件缓存文件夹，内部存放软件运行时产生的缓存数据，以及默认的草稿备份文件
+    title: 文件
   import:
-    title: 导入
     items:
-      generateSectionByFolder: 
+      generateSectionByFolder:
+        description: 选择一个本地文件夹后,将该文件夹下所有文件生成为一个框嵌套图
         title: 根据本地文件夹生成框图
-        description: 选择一个本地文件夹后，将该文件夹下所有文件生成为一个框嵌套图
-  export:
-    title: 导出
+    title: 导入
+  location:
     items:
-      exportAsSvg: SVG
-      exportAsSVGByAll: SVG（全部）
-      exportAsMarkdownBySelected: Markdown
-      exportAsPlainText: 纯文本
-  view:
-    title: 视图
-    items:
-      resetByAll: 
-        title: 重置全部
-        description: 根据全部内容重置视野
-      resetBySelect:
-        title: 重置部分
-        description: 根据选中内容重置视野
-      resetScale:
-        title: 重置缩放
-        description: 将缩放重置为标准大小
-      resetLocation:
-        title: 重置位置
-        description: 将视野重置到坐标原点位置
+      openCacheFolder:
+        description: 打开软件缓存文件夹,内部存放软件运行时产生的缓存数据,以及默认的草稿备份文件
+        title: 缓存文件夹
+      openDataFolder:
+        description: 打开软件用户配置数据文件夹,内部存放用户自定义设置等数据
+        title: 配置数据
+      openProjectFolder:
+        description: 打开当前编辑的 工程文件 所在的文件夹
+        title: 当前位置
+    title: 位置
   more:
-    title: 更多
     items:
-      settings: 设置
       about: 关于
+      settings: 设置
       welcome: 欢迎界面
+    title: 更多
+  view:
+    items:
+      resetByAll:
+        description: 根据全部内容重置视野
+        title: 重置全部
+      resetBySelect:
+        description: 根据选中内容重置视野
+        title: 重置部分
+      resetLocation:
+        description: 将视野重置到坐标原点位置
+        title: 重置位置
+      resetScale:
+        description: 将缩放重置为标准大小
+        title: 重置缩放
+    title: 视图
   window:
-    title: 窗口
     items:
-      refresh: 刷新
-      fullscreen: 全屏
       cancelFullscreen: 退出全屏
-
-toolbar:
-  pinnedTools:
-    title: 常驻工具
-    items:
-      generateTextNodeByText: 通过文本生成节点
-      autoFillColorSettings: 设置实体创建时自动填充的颜色
-  stageObjects:
-    title: 舞台对象
-    items:
-      setColor: 设置舞台对象的颜色，注意要先选中再点颜色 （F6）
-      delete: 删除选中的舞台对象
-      tag: 给舞台对象添加标签，如果已添加则去除标签
-  multiTargetUndirectedEdges:
-    title: 多源无向边
-    items:
-      switchToEdge: 切换为有向边
-      arrowExterior: 箭头向外
-      arrowInterior: 箭头向内
-      noArrow: 无箭头
-      switchRenderState: 转换渲染形态
-  edge:
-    title: 有向边
-    items:
-      switchDirection: 反转选中连线方向
-      switchToCrEdge: 切换为CR曲线（还在开发中，不推荐使用）
-      switchToUndirectedEdge: 切换为无向边
-      setExtremePoint: 设置选中连线的端点位置
-  crEdge:
-    title: CR曲线
-    items:
-      addControlPoint: 添加控制点
-      tensionIncrease: 拉紧曲线
-      tensionDecrease: 放松曲线
-  entity:
-    title: 实体
-    items:
-      align: 实体对齐相关
-      saveNew: 将选中的节点保存为新文件
-      packSection: 将选中节点打包Section（快捷键可自定义）
-      createMultiTargetEdgeConvex: 创建无向边(凸包型)
-      createMultiTargetEdgeLine: 创建无向边(连线型)
-      openPathByContent: 将实体详细信息第一行视为本地绝对路径，并打开文件/文件夹
-  imageNode:
-    title: 图片节点
-    items:
-      refresh: 刷新选中内容(图片加载失败了可以选中图片然后点这个按钮)
-      openImage: 打开选中图片
-  textNode:
-    title: 文本节点
-    items:
-      switchWidthAdjustMode: 切换宽度调整模式（ttt）
-      aiGenerateNewNode: AI扩展节点
-  section:
-    title: 框
-    items:
-      checkoutFolderState: 切换Section的折叠状态（快捷键可自定义）
-  mouseMode:
-    title: 鼠标模式
-    items:
-      leftMouseSelectMove: 左键：框选/移动/创建节点 模式
-      leftMouseDraw: 左键：涂鸦模式
-      leftMouseCutAndConnect: 左键：连接/斩断 模式
-  drawColor:
-    title: 涂鸦笔触颜色
-
-
-
-
-startFilePanel:
-  title: 选择启动时自动加载的工程文件
-  tips:
-  - 说明：启动时自动加载的工程文件会在打开时自动加载到舞台，无需手动打开。
-  - 加载：仅将这个文件加载到舞台（您可以通过悬浮透明来查看切换后是否是您想要的文件）
-  - 钉选：切换当前的启动文件，左侧状态中的图标代表当前的启动文件。
-  - 移除：仅从列表中移除文件，不会影响文件本身。
-  buttons:
-    addFile: 添加文件
-    clearList: 清空列表
-    showAbsolutePath: 显示绝对路径
-    showFileTime: 显示文件时间
-
+      fullscreen: 全屏
+      refresh: 刷新
+    title: 窗口
+common:
+  confirm: 确定
+confirm: 确认
 controlSettingsGroup:
-  mouse:
-    title: 鼠标设置
-  touchpad:
-    title: 触摸板设置
   cameraMove:
     title: 视野移动设置
   cameraZoom:
     title: 视野缩放设置
+  edge:
+    title: 连线设置
+  gamepad:
+    title: 游戏手柄设置
+  generateNode:
+    title: 通过键盘生长节点设置
+  mouse:
+    title: 鼠标设置
   rectangleSelect:
     title: 框选设置
   textNode:
     title: 文本节点设置
-  edge:
-    title: 连线设置
-  generateNode:
-    title: 通过键盘生长节点设置
-  gamepad:
-    title: 游戏手柄设置
-
-visualSettingsGroup:
-  basic:
-    title: 基础设置
-  background:
-    title: 背景设置
-  node:
-    title: 节点样式设置
-  edge:
-    title: 连线样式设置
-  section:
-    title: “框”的样式设置
-  entityDetails:
-    title: 实体详情设置
-  help:
-    title: 遇到问题时相关的设置
-  miniWindow:
-    title: 迷你窗口设置
-  testingFunctions:
-    title: 实验性功能
-    description: |
-      如果您不了解下面的设置，请不要修改它们。否则您会感觉出现灵异事件
-
-performanceSettingsGroup:
-  memory:
-    title: 内存相关性能设置
-    description: |
-      以下设置项和内存有关，建议根据您的计算机配置进行调整
-  cpu:
-    title: CPU相关性能设置
-    description: |
-      以下设置项和CPU有关，建议根据您的计算机配置进行调整
-  render:
-    title: 渲染相关性能设置
-    description: |
-      以下设置项和渲染有关，建议根据您的计算机配置进行调整
-  dev:
-    title: 还在开发中的功能
-    description: |
-      以下设置项还在开发，不建议修改
-
+  touchpad:
+    title: 触摸板设置
 effects:
   CircleChangeRadiusEffect:
-    title: 圆形变换半径效果
     description: |
       质点被框选后波纹放大
+    title: 圆形变换半径效果
   CircleFlameEffect:
-    title: 圆形径向渐变光闪
     description: |
-      存在于各种特效细节中，预劈砍直线与实体矩形切割时、斩断连线时的中点闪烁等
+      存在于各种特效细节中,预劈砍直线与实体矩形切割时、斩断连线时的中点闪烁等
+    title: 圆形径向渐变光闪
   EntityAlignEffect:
-    title: 实体对齐效果
     description: |
       鼠标拖动吸附对齐时产生的高亮虚线
+    title: 实体对齐效果
   EntityCreateDashEffect:
-    title: 实体创建粉尘凝聚效果
     description: |
-      实体创建时，实体周围出现粉尘凝聚
-      由于不够美观，已经废弃，不会出现
+      实体创建时,实体周围出现粉尘凝聚
+      由于不够美观,已经废弃,不会出现
+    title: 实体创建粉尘凝聚效果
   EntityCreateFlashEffect:
-    title: 实体边框发光效果
     description: |
       在ctrl+滚轮转动实体树、缩放图片、创建节点等情况下出现
-      若渲染性能较差，建议关闭此选项
+      若渲染性能较差,建议关闭此选项
+    title: 实体边框发光效果
   EntityCreateLineEffect:
+    description: |
+      已经废弃,不会出现
     title: 实体散发电路板式线条辐射效果
-    description: |
-      已经废弃，不会出现
   EntityDashTipEffect:
+    description: |
+      出现在实体输入编辑结束或进入时,实体周围出现抖动的粉尘
     title: 实体提示性的粉尘抖动
-    description: |
-      出现在实体输入编辑结束或进入时，实体周围出现抖动的粉尘
   EntityJumpMoveEffect:
-    title: 实体跳跃移动效果
     description: |
-      实体跳跃移动时，实体出现一个象征性的跳跃弧线幻影
+      实体跳跃移动时,实体出现一个象征性的跳跃弧线幻影
       用来表示伪z轴的跨越层级移动
+    title: 实体跳跃移动效果
   EntityShakeEffect:
+    description: |
+      像“TickTock”Logo 一样的抖动特效,用于实体出现警告性质的提示
     title: 实体抖动效果
-    description: |
-      像“TickTock”Logo 一样的抖动特效，用于实体出现警告性质的提示
   EntityShrinkEffect:
+    description: |
+      使用Delete键删除实体时,实体出现缩小消失的效果
     title: 实体缩小消失效果
-    description: |
-      使用Delete键删除实体时，实体出现缩小消失的效果
   ExplodeDashEffect:
+    description: |
+      用劈砍删除实体时,出现粉尘爆炸
     title: 粉尘爆炸效果
-    description: |
-      用劈砍删除实体时，出现粉尘爆炸
   LineCuttingEffect:
+    description: |
+      劈砍时,出现类似水果忍者一样的刀光
     title: 劈砍时的刀光
-    description: |
-      劈砍时，出现类似水果忍者一样的刀光
   LineEffect:
-    title: 直线段淡出效果
     description: |
-      用于拖拽旋转子树时，连线划过虚影
+      用于拖拽旋转子树时,连线划过虚影
+    title: 直线段淡出效果
+  MouseTipFeedbackEffect:
+    description: |
+      在鼠标进行缩放视野等操作时,鼠标旁边会出现特效提示,例如一个变大或变小的圆圈
+    title: 鼠标交互提示特效
   NodeMoveShadowEffect:
-    title: 节点移动时摩擦地面的粒子效果
     description: |
       布局造成的移动可能也会出现一闪而过的粒子
+    title: 节点移动时摩擦地面的粒子效果
   PenStrokeDeletedEffect:
+    description: |
+      涂鸦被删除时,出现消失的特效
     title: 涂鸦被删除时的消失特效
-    description: |
-      涂鸦被删除时，出现消失的特效
   PointDashEffect:
+    description: |
+      由于万有引力影响性能,此特效已关闭,不会出现
     title: 在某点出迸发万有引力式的粒子效果
-    description: |
-      由于万有引力影响性能，此特效已关闭，不会出现
   RectangleLittleNoteEffect:
+    description: |
+      在逻辑节点执行时,逻辑节点会闪烁此效果
     title: 矩形闪烁提示效果
-    description: |
-      在逻辑节点执行时，逻辑节点会闪烁此效果
   RectangleNoteEffect:
-    title: 矩形存在提示效果
     description: |
-      高亮提示某个矩形范围，搜索节点或定位时会高亮提示
+      高亮提示某个矩形范围,搜索节点或定位时会高亮提示
       关闭后会看不到矩形高亮效果
+    title: 矩形存在提示效果
   RectanglePushInEffect:
-    title: 矩形四顶点划至另一矩形四顶点的效果
     description: |
       用于提示实体的跨越框层移动、方向键切换选中
-      目前开发者由于偷懒，此效果引用了四个劈砍线效果。
-      若关闭了劈砍线效果，则此效果会看不见
+      目前开发者由于偷懒,此效果引用了四个劈砍线效果。
+      若关闭了劈砍线效果,则此效果会看不见
+    title: 矩形四顶点划至另一矩形四顶点的效果
   RectangleRenderEffect:
+    description: |
+      用于在吸附拖拽对齐时,显示实体即将吸附到的目标位置
     title: 矩形位置提示效果
+  RectangleSlideEffect:
     description: |
-      用于在吸附拖拽对齐时，显示实体即将吸附到的目标位置
+      用于垂直方向键盘移动实体
+    title: 矩形滑动尾翼特效
   RectangleSplitTwoPartEffect:
+    description: |
+      仅存在于劈砍特效(也有可能是四块)
     title: 矩形被切成两块的特效
-    description: |
-      仅存在于劈砍特效（也有可能是四块）
   TechLineEffect:
-    title: （基础特效）折线段效果
     description: |
-      此特效时其他特效的组成部分，若关闭则其他特效可能会受到影响
+      此特效时其他特效的组成部分,若关闭则其他特效可能会受到影响
+    title: (基础特效)折线段效果
   TextRaiseEffectLocated:
+    description: |
+      文本节点悬浮上升效果,用于提示重要信息
     title: 固定位置的文本节点悬浮上升效果
-    description: |
-      文本节点悬浮上升效果，用于提示重要信息
   TextRiseEffect:
-    title: 上浮文字效果
     description: |
-      文本节点上浮效果，用于提示重要信息
+      文本节点上浮效果,用于提示重要信息
+    title: 上浮文字效果
   ViewFlashEffect:
-    title: 视野闪烁效果
     description: |
       全屏闪白/闪黑等效果
       光敏癫痫症患者请关闭此选项
+    title: 视野闪烁效果
   ViewOutlineFlashEffect:
-    title: 视野轮廓闪烁效果
     description: |
       视野轮廓闪烁效果
+    title: 视野轮廓闪烁效果
   ZapLineEffect:
-    title: （基础特效）闪电线效果
     description: |
-      此特效时其他特效的组成部分，若关闭则其他特效可能会受到影响
-  MouseTipFeedbackEffect:
-    title: 鼠标交互提示特效
-    description: |
-      在鼠标进行缩放视野等操作时，鼠标旁边会出现特效提示，例如一个变大或变小的圆圈
-  RectangleSlideEffect:
-    title: 矩形滑动尾翼特效
-    description: |
-      用于垂直方向键盘移动实体
-
-  
-
-keys:
-  none: 未绑定快捷键，点击绑定
-  mouse0: 鼠标左键
-  mouse1: 鼠标中键
-  mouse2: 鼠标右键
-  mouse3: 鼠标侧键1
-  mouse4: 鼠标侧键2
-  " ": 空格
-  arrowup: 上方向键
-  arrowdown: 下方向键
-  arrowleft: 左方向键
-  arrowright: 右方向键
-  wheelup: 滚轮向上
-  wheeldown: 滚轮向下
-
-keyBindsGroup:
-  otherKeys:
-    title: 未分类的快捷键
-    description: |
-      未分类的快捷键，
-      此处若发现无翻译的无效快捷键项，可能是由于版本升级而未清理旧快捷键导致出现的残留
-      可手动清理 keybinds.json 文件中的对应项
-  basic:
-    title: 基础快捷键
-    description: |
-      基本的快捷键，用于常用的功能
-  camera:
-    title: 摄像机控制
-    description: |
-      用于控制摄像机移动、缩放
-  app:
-    title: 应用控制
-    description: |
-      用于控制应用的一些功能
-  ui:
-    title: UI控制
-    description: |
-      用于控制UI的一些功能
-  draw:
-    title: 涂鸦
-    description: |
-      涂鸦相关功能
-  select:
-    title: 切换选择
-    description: |
-      使用键盘来切换选中的实体
-  moveEntity:
-    title: 移动实体
-    description: |
-      用于移动实体的一些功能
-  generateTextNodeInTree:
-    title: 生长节点
-    description: |
-      通过键盘生长节点（Xmind用户习惯）
-  generateTextNodeRoundedSelectedNode:
-    title: 在选中节点周围生成节点
-    description: |
-      按下后，在选中节点周围生成节点
-  createTextNode:
-    title: 创建文本节点
-    description: |
-      按下后，在当前位置创建文本节点
-  section:
-    title: Section框
-    description: |
-      Section框相关功能
-  leftMouseModeCheckout:
-    title: 左键模式切换
-    description: |
-      关于左键模式的切换
-  edge:
-    title: 连线相关
-    description: |
-      关于连线的一些功能
-  expandSelect:
-    title: 扩散选择
-    description: |
-      扩散选择节点相关的快捷键
-  
-
+      此特效时其他特效的组成部分,若关闭则其他特效可能会受到影响
+    title: (基础特效)闪电线效果
 keyBinds:
-  title: 快捷键绑定
-  test:
-    title: 测试
-    description: |
-      仅用于测试快捷键自定义绑定功能功能
-  reload:
-    title: 重载应用
-    description: |
-      重载应用，重新加载当前工程文件
-      等同于浏览器刷新网页
-      这个功能很危险！会导致未保存的进度丢失！
-  saveFile:
-    title: 保存文件
-    description: |
-      保存当前工程文件，若当前文件是草稿则另存为
-  newDraft:
-    title: 新建草稿
-    description: |
-      新建一个草稿文件，并切换到该文件
-      若当前文件未保存则无法切换
-  openFile:
-    title: 打开文件
-    description: |
-      选择一个曾经保存的json文件并打开
-  undo:
-    title: 撤销
-    description: 撤销上一次操作
-  redo:
-    title: 取消撤销
-    description: 取消上一次撤销操作
-  resetView:
-    title: 重置视野
-    description: |
-      如果没有选择任何内容，则根据全部内容重置视野；
-      如果有选择内容，则根据选中内容重置视野
-  resetCameraScale:
-    title: 重置缩放
-    description: 将视野缩放重置为标准大小
-  folderSection:
-    title: 折叠或展开Section框
-    description: 按下后选中的Section框会切换折叠或展开状态
-  reverseEdges:
-    title: 反转连线的方向
-    description: |
-      按下后，选中的连线的方向会变成相反方向
-      例如，原先是 A -> B，按下后变成 B -> A
-      此功能的意义在于快速创建一个节点连向多个节点的情况
-      因为目前的连线只能一次性做到多连一。
-  reverseSelectedNodeEdge:
-    title: 反转选中的节点的所有连线的方向
-    description: |
-      按下后，所有框选选中的节点中
-      每个节点的所有连线都会反转方向
-      进而实现更快捷的一连多
-  createUndirectedEdgeFromEntities:
-    title: 选中的实体之间创建无向连线
-    description: |
-      按下后，选中的两个或者多个实体之间会创建一条无向连线
-  packEntityToSection:
-    title: 将选中的实体打包到Section框中
-    description: |
-      按下后，选中的实体会自动包裹到新Section框中
-  unpackEntityFromSection:
-    title: Section框拆包，转换为文本节点
-    description: |
-      按下后，选中的Section框中的实体会被拆包，自身转换成一个文本节点
-      内部的实体将会掉落在外面
-  textNodeToSection:
-    title: 将选中的文本节点转换成Section框
-    description: |
-      按下后，选中的文本节点会被转换成Section框
-      可以用于section框的快速创建
-  deleteSelectedStageObjects:
-    title: 删除选中的舞台物体
-    description: |
-      按下后，选中的舞台物体会被删除
-      舞台物体包括实体（节点和Section等独立存在的东西）和关系（节点之间的连线）
-      默认是delete键，您可以改成backspace键
-  editEntityDetails:
-    title: 编辑选中的实体的详细信息
-    description: |
-      按下后，选中的实体的详细信息会被打开编辑
-      只有选中的物体数量为1时才有效
-  openColorPanel:
-    title: 打开颜色面板快捷键
-    description: |
-      按下后，打开颜色面板，可以用于快速切换节点颜色
-  switchDebugShow:
-    title: 切换调试信息显示
-    description: |
-      按下后，切换调试信息显示
-      调试信息显示在屏幕左上角，通常为开发者使用
-      开启后，屏幕左上角将会显示调试信息。
-      若您遇到bug截图反馈时，建议开启此选项。
-  generateNodeTreeWithDeepMode:
-    title: 生长子级节点
-    description: |
-      按下后，瞬间生长一个节点并放置在当前选中节点的右侧
-      同时自动排版整个节点树的结构，确保其是一个向右的树型结构
-      使用此功能前先确保已选中一个节点、且该节点所在结构为树形结构
-  generateNodeTreeWithBroadMode:
-    title: 生长同级节点
-    description: |
-      按下后，瞬间生长一个同级节点并放置在当前选中节点的下方
-      同时自动排版整个节点树的结构，确保其是一个向下的树型结构
-      使用此功能前先确保已选中一个节点、且该节点存在父级节点
-  generateNodeGraph:
-    title: 生长自由节点
-    description: |
-      按下后，出现一个虚拟生长位置
-      在按下该键不松开的同时按下“I J K L”键自由调整生长位置
-      松开后，生长完成
-      使用此功能前先确保已选中一个节点
-  treeGraphAdjust:
-    title: 调整当前节点所在树形结构的树形排布
-    description: |
-      主要用于关闭了键盘生长节点时触发的树形排布调整时使用
-      可以通过此快捷键手动触发布局调整
-
-  masterBrakeCheckout:
-    title: 手刹：开启/关闭通过按键控制摄像机移动
-    description: |
-      按下后会切换是否允许 “W S A D”键控制摄像机移动
-      可以用于临时禁止摄像机移动，在输入秘籍键或含有WSAD的快捷键时防止视野移动
-  masterBrakeControl:
-    title: 脚刹：停止摄像机飘移
-    description: |
-      按下后，停止摄像机飘移，并将速度置为0
-  selectAll:
-    title: 全选
-    description: 按下后，所有节点和连线都会被选中
-  createTextNodeFromCameraLocation:
-    title: 在视野中心位置创建文本节点
-    description: |
-      按下后，在当前视野中心的位置创建一个文本节点
-      等同于鼠标双击创建节点的功能
-  createTextNodeFromMouseLocation:
-    title: 在鼠标位置创建文本节点
-    description: |
-      按下后，在鼠标悬浮位置创建一个文本节点
-      等同于鼠标单击创建节点的功能
-  createTextNodeFromSelectedTop:
-    title: 在当前选中的节点正上方创建文本节点
-    description: |
-      按下后，在当前选中的节点正上方创建一个文本节点
-  createTextNodeFromSelectedDown:
-    title: 在当前选中的节点正下方创建文本节点
-    description: |
-      按下后，在当前选中的节点正下方创建一个文本节点
-  createTextNodeFromSelectedLeft:
-    title: 在当前选中的节点左侧创建文本节点
-    description: |
-      按下后，在当前选中的节点左侧创建一个文本节点
-  createTextNodeFromSelectedRight:
-    title: 在当前选中的节点右侧创建文本节点
-    description: |
-      按下后，在当前选中的节点右侧创建一个文本节点
-  selectUp:
-    title: 选中上方节点
-    description: 按下后，选中上方节点
-  selectDown:
-    title: 选中下方节点
-    description: 按下后，选中下方节点
-  selectLeft:
-    title: 选中左侧节点
-    description: 按下后，选中左侧节点
-  selectRight:
-    title: 选中右侧节点
-    description: 按下后，选中右侧节点
-  selectAdditionalUp:
-    title: 附加选中上方节点
-    description: 按下后，附加选中上方节点
-  selectAdditionalDown:
-    title: 附加选中下方节点
-    description: 按下后，附加选中下方节点
-  selectAdditionalLeft:
-    title: 附加选中左侧节点
-    description: 按下后，附加选中左侧节点
-  selectAdditionalRight:
-    title: 附加选中右侧节点
-    description: 按下后，附加选中右侧节点
-  moveUpSelectedEntities:
-    title: 向上移动所有选中的实体
-    description: |
-      按下后，所有选中的实体会向上移动一个固定距离
-  moveDownSelectedEntities:
-    title: 向下移动所有选中的实体
-    description: |
-      按下后，所有选中的实体会向下移动一个固定距离
-  moveLeftSelectedEntities:
-    title: 向左移动所有选中的实体
-    description: |
-      按下后，所有选中的实体会向左移动一个固定距离
-  moveRightSelectedEntities:
-    title: 向右移动所有选中的实体
-    description: |
-      按下后，所有选中的实体会向右移动一个固定距离
-  jumpMoveUpSelectedEntities:
-    title: 跳跃向上移动所有选中的实体
-    description: |
-      按下后，所有选中的实体会跳跃向上移动一个固定距离，能够跳入或者跳出Section框
-  jumpMoveDownSelectedEntities:
-    title: 跳跃向下移动所有选中的实体
-    description: |
-      按下后，所有选中的实体会跳跃向下移动一个固定距离，能够跳入或者跳出Section框
-  jumpMoveLeftSelectedEntities:
-    title: 跳跃向左移动所有选中的实体
-    description: |
-      按下后，所有选中的实体会跳跃向左移动一个固定距离，能够跳入或者跳出Section框
-  jumpMoveRightSelectedEntities:
-    title: 跳跃向右移动所有选中的实体
-    description: |
-      按下后，所有选中的实体会跳跃向右移动一个固定距离，能够跳入或者跳出Section框
-  CameraScaleZoomIn:
-    title: 视野放大
-    description: 按下后，视野放大
-  CameraScaleZoomOut:
-    title: 视野缩小
-    description: 按下后，视野缩小
-  CameraPageMoveUp:
-    title: 视野向上翻页式移动
   CameraPageMoveDown:
     title: 视野向下翻页式移动
   CameraPageMoveLeft:
     title: 视野向左翻页式移动
   CameraPageMoveRight:
     title: 视野向右翻页式移动
-  exitSoftware:
-    title: 退出软件
-    description: 按下后，退出软件
-  checkoutProtectPrivacy:
-    title: 进入或退出隐私保护模式
-    description: |
-      按下后，舞台上的全部文字将会被加密，无法被其他人看到
-      按下后，舞台上的全部文字将会解密，其他人可以看到
-      可以用于截图反馈问题、突然有人看你的屏幕时使用并且你的内容是感情问题（？）时使用
-  openTextNodeByContentExternal:
-    title: 以网页浏览器或本地文件形式打开选中节点的内容
-    description: |
-      按下后，舞台上所有选中的文本节点都会被以默认方式或浏览器方式打开。
-      例如一个节点内容为 "D:/Desktop/a.txt"，选中此节点按下快捷键之后，能以系统默认方式打开此文件
-      如果节点内容为网页地址 "https://project-graph.top"，会以系统默认浏览器打开网页内容
+  CameraPageMoveUp:
+    title: 视野向上翻页式移动
+  CameraScaleZoomIn:
+    description: 按下后,视野放大
+    title: 视野放大
+  CameraScaleZoomOut:
+    description: 按下后,视野缩小
+    title: 视野缩小
   checkoutClassroomMode:
-    title: 进入或退出专注模式
     description: |
-      按下后，进入专注模式，所有UI都会隐藏，顶部按钮会透明化处理
+      按下后,进入专注模式,所有UI都会隐藏,顶部按钮会透明化处理
       再按一次恢复
-  checkoutWindowOpacityMode:
-    title: 切换窗口透明度模式
-    description: |
-      按下后，窗口进入完全透明模式，再按一次将进入完全不透明模式
-      注意要配合舞台颜色风格进行设置。例如：黑色模式下文字为白色，论文白模式下文字为黑色。
-      如果窗口下层内容为白色背景，建议切换舞台到论文白模式。
-  windowOpacityAlphaIncrease:
-    title: 窗口不透明度增加
-    description: |
-      按下后，窗口不透明度（alpha）值增加0.2，往不透明的方向改变，最大值为1
-      当不能再增加时，会有窗口边缘闪烁提示
-  windowOpacityAlphaDecrease:
-    title: 窗口不透明度减小
-    description: |
-      按下后，窗口不透明度（alpha）值减小0.2，往透明的方向改变，最小值为0
-      如果您的键盘没有小键盘的纯减号键，可以改成横排数字0右侧的减号与下划线公用键
-  searchText:
-    title: 搜索文本
-    description: |
-      按下后，打开搜索框，可以输入搜索内容
-      搜索框支持部分匹配，例如输入 "a" 能搜索到 "apple" 等
-  clickAppMenuSettingsButton:
-    title: 打开设置页面
-    description: |
-      按下此键可代替鼠标点击菜单栏里的设置界面按钮
-  clickTagPanelButton:
-    title: 打开/关闭标签面板
-    description: |
-      按下此键可代替鼠标点击页面上的标签面板展开关闭按钮
-  clickAppMenuRecentFileButton:
-    title: 打开最近打开文件列表
-    description: |
-      按下此键可代替鼠标点击菜单栏里的最近打开文件列表按钮
-  clickStartFilePanelButton:
-    title: 打开/关闭启动文件列表
-    description: |
-      按下此键可代替鼠标点击菜单栏里的启动文件列表展开关闭按钮
-  copy:
-    title: 复制
-    description: 按下后，复制选中的内容
-  paste:
-    title: 粘贴
-    description: 按下后，粘贴剪贴板内容
-  pasteWithOriginLocation:
-    title: 原位粘贴
-    description: 按下后，粘贴的内容会与原位置重叠
-  selectEntityByPenStroke:
-    title: 涂鸦与实体的扩散选择
-    description: |
-      选中一个涂鸦或者实体后，按下此键，会扩散选择该实体周围的实体
-      如果当前选择的是涂鸦，则扩散选择涂鸦触碰到的实体
-      如果当前选择的是实体，则扩散选触碰到的所有涂鸦
-      多次按下后可以多次交替扩散
-  expandSelectEntity:
-    title: 扩散选择节点
-    description: |
-      按下后，实体的选择状态会转移到子级节点上
-  expandSelectEntityReversed:
-    title: 反向扩散选择节点
-    description: |
-      按下后，实体的选择状态会转移到父级节点上
-  expandSelectEntityKeepLastSelected:
-    title: 扩散选择节点（保留当前节点的选择状态）
-    description: |
-      按下后，实体的选择状态会转移到子级节点上，同时保留当前节点的选择状态
-  expandSelectEntityReversedKeepLastSelected:
-    title: 反向扩散选择节点（保留当前节点的选择状态）
-    description: |
-      按下后，实体的选择状态会转移到父级节点上，同时保留当前节点的选择状态
-  checkoutLeftMouseToSelectAndMove:
-    title: 设置左键为“选中/移动”模式
-    description: |
-      也就是鼠标左键切换为正常模式
-  checkoutLeftMouseToDrawing:
-    title: 设置左键为“涂鸦”模式
-    description: |
-      也就是鼠标左键切换为涂鸦模式，在工具栏中有对应按钮
+    title: 进入或退出专注模式
   checkoutLeftMouseToConnectAndCutting:
-    title: 设置左键为“连线/斩断”模式
     description: |
-      也就是鼠标左键切换为连线/斩断 模式，在工具栏中有对应按钮
+      也就是鼠标左键切换为连线/斩断 模式,在工具栏中有对应按钮
+    title: 设置左键为“连线/斩断”模式
   checkoutLeftMouseToConnectAndCuttingOnlyPressed:
-    title: 设置左键为“连线/斩断”模式（仅按下时）
     description: |
       松开时切换回默认的鼠标模式
-  penStrokeWidthIncrease:
-    title: 涂鸦笔画变粗
-    description: 按下后，笔画变粗
+    title: 设置左键为“连线/斩断”模式(仅按下时)
+  checkoutLeftMouseToDrawing:
+    description: |
+      也就是鼠标左键切换为涂鸦模式,在工具栏中有对应按钮
+    title: 设置左键为“涂鸦”模式
+  checkoutLeftMouseToSelectAndMove:
+    description: |
+      也就是鼠标左键切换为正常模式
+    title: 设置左键为“选中/移动”模式
+  checkoutProtectPrivacy:
+    description: |
+      按下后,舞台上的全部文字将会被加密,无法被其他人看到
+      按下后,舞台上的全部文字将会解密,其他人可以看到
+      可以用于截图反馈问题、突然有人看你的屏幕时使用并且你的内容是感情问题(？)时使用
+    title: 进入或退出隐私保护模式
+  checkoutWindowOpacityMode:
+    description: |
+      按下后,窗口进入完全透明模式,再按一次将进入完全不透明模式
+      注意要配合舞台颜色风格进行设置。例如：黑色模式下文字为白色,论文白模式下文字为黑色。
+      如果窗口下层内容为白色背景,建议切换舞台到论文白模式。
+    title: 切换窗口透明度模式
+  clickAppMenuRecentFileButton:
+    description: |
+      按下此键可代替鼠标点击菜单栏里的最近打开文件列表按钮
+    title: 打开最近打开文件列表
+  clickAppMenuSettingsButton:
+    description: |
+      按下此键可代替鼠标点击菜单栏里的设置界面按钮
+    title: 打开设置页面
+  clickStartFilePanelButton:
+    description: |
+      按下此键可代替鼠标点击菜单栏里的启动文件列表展开关闭按钮
+    title: 打开/关闭启动文件列表
+  clickTagPanelButton:
+    description: |
+      按下此键可代替鼠标点击页面上的标签面板展开关闭按钮
+    title: 打开/关闭标签面板
+  copy:
+    description: 按下后,复制选中的内容
+    title: 复制
+  createUndirectedEdgeFromEntities:
+    description: |
+      按下后,选中的两个或者多个实体之间会创建一条无向连线
+    title: 选中的实体之间创建无向连线
+  createTextNodeFromCameraLocation:
+    description: |
+      按下后,在当前视野中心的位置创建一个文本节点
+      等同于鼠标双击创建节点的功能
+    title: 在视野中心位置创建文本节点
+  createTextNodeFromMouseLocation:
+    description: |
+      按下后,在鼠标悬浮位置创建一个文本节点
+      等同于鼠标单击创建节点的功能
+    title: 在鼠标位置创建文本节点
+  createTextNodeFromSelectedDown:
+    description: |
+      按下后,在当前选中的节点正下方创建一个文本节点
+    title: 在当前选中的节点正下方创建文本节点
+  createTextNodeFromSelectedLeft:
+    description: |
+      按下后,在当前选中的节点左侧创建一个文本节点
+    title: 在当前选中的节点左侧创建文本节点
+  createTextNodeFromSelectedRight:
+    description: |
+      按下后,在当前选中的节点右侧创建一个文本节点
+    title: 在当前选中的节点右侧创建文本节点
+  createTextNodeFromSelectedTop:
+    description: |
+      按下后,在当前选中的节点正上方创建一个文本节点
+    title: 在当前选中的节点正上方创建文本节点
+  deleteSelectedStageObjects:
+    description: |
+      按下后,选中的舞台物体会被删除
+      舞台物体包括实体(节点和Section等独立存在的东西)和关系(节点之间的连线)
+      默认是delete键,您可以改成backspace键
+    title: 删除选中的舞台物体
+  editEntityDetails:
+    description: |
+      按下后,选中的实体的详细信息会被打开编辑
+      只有选中的物体数量为1时才有效
+    title: 编辑选中的实体的详细信息
+  exitSoftware:
+    description: 按下后,退出软件
+    title: 退出软件
+  expandSelectEntity:
+    description: |
+      按下后,实体的选择状态会转移到子级节点上
+    title: 扩散选择节点
+  expandSelectEntityKeepLastSelected:
+    description: |
+      按下后,实体的选择状态会转移到子级节点上,同时保留当前节点的选择状态
+    title: 扩散选择节点(保留当前节点的选择状态)
+  expandSelectEntityReversed:
+    description: |
+      按下后,实体的选择状态会转移到父级节点上
+    title: 反向扩散选择节点
+  expandSelectEntityReversedKeepLastSelected:
+    description: |
+      按下后,实体的选择状态会转移到父级节点上,同时保留当前节点的选择状态
+    title: 反向扩散选择节点(保留当前节点的选择状态)
+  folderSection:
+    description: 按下后选中的Section框会切换折叠或展开状态
+    title: 折叠或展开Section框
+  generateNodeGraph:
+    description: |
+      按下后,出现一个虚拟生长位置
+      在按下该键不松开的同时按下“I J K L”键自由调整生长位置
+      松开后,生长完成
+      使用此功能前先确保已选中一个节点
+    title: 生长自由节点
+  generateNodeTreeWithBroadMode:
+    description: |
+      按下后,瞬间生长一个同级节点并放置在当前选中节点的下方
+      同时自动排版整个节点树的结构,确保其是一个向下的树型结构
+      使用此功能前先确保已选中一个节点、且该节点存在父级节点
+    title: 生长同级节点
+  generateNodeTreeWithDeepMode:
+    description: |
+      按下后,瞬间生长一个节点并放置在当前选中节点的右侧
+      同时自动排版整个节点树的结构,确保其是一个向右的树型结构
+      使用此功能前先确保已选中一个节点、且该节点所在结构为树形结构
+    title: 生长子级节点
+  jumpMoveDownSelectedEntities:
+    description: |
+      按下后,所有选中的实体会跳跃向下移动一个固定距离,能够跳入或者跳出Section框
+    title: 跳跃向下移动所有选中的实体
+  jumpMoveLeftSelectedEntities:
+    description: |
+      按下后,所有选中的实体会跳跃向左移动一个固定距离,能够跳入或者跳出Section框
+    title: 跳跃向左移动所有选中的实体
+  jumpMoveRightSelectedEntities:
+    description: |
+      按下后,所有选中的实体会跳跃向右移动一个固定距离,能够跳入或者跳出Section框
+    title: 跳跃向右移动所有选中的实体
+  jumpMoveUpSelectedEntities:
+    description: |
+      按下后,所有选中的实体会跳跃向上移动一个固定距离,能够跳入或者跳出Section框
+    title: 跳跃向上移动所有选中的实体
+  masterBrakeCheckout:
+    description: |
+      按下后会切换是否允许 “W S A D”键控制摄像机移动
+      可以用于临时禁止摄像机移动,在输入秘籍键或含有WSAD的快捷键时防止视野移动
+    title: 手刹：开启/关闭通过按键控制摄像机移动
+  masterBrakeControl:
+    description: |
+      按下后,停止摄像机飘移,并将速度置为0
+    title: 脚刹：停止摄像机飘移
+  moveDownSelectedEntities:
+    description: |
+      按下后,所有选中的实体会向下移动一个固定距离
+    title: 向下移动所有选中的实体
+  moveLeftSelectedEntities:
+    description: |
+      按下后,所有选中的实体会向左移动一个固定距离
+    title: 向左移动所有选中的实体
+  moveRightSelectedEntities:
+    description: |
+      按下后,所有选中的实体会向右移动一个固定距离
+    title: 向右移动所有选中的实体
+  moveUpSelectedEntities:
+    description: |
+      按下后,所有选中的实体会向上移动一个固定距离
+    title: 向上移动所有选中的实体
+  newDraft:
+    description: |
+      新建一个草稿文件,并切换到该文件
+      若当前文件未保存则无法切换
+    title: 新建草稿
+  openColorPanel:
+    description: |
+      按下后,打开颜色面板,可以用于快速切换节点颜色
+    title: 打开颜色面板快捷键
+  openFile:
+    description: |
+      选择一个曾经保存的json文件并打开
+    title: 打开文件
+  openTextNodeByContentExternal:
+    description: |
+      按下后,舞台上所有选中的文本节点都会被以默认方式或浏览器方式打开。
+      例如一个节点内容为 "D:/Desktop/a.txt",选中此节点按下快捷键之后,能以系统默认方式打开此文件
+      如果节点内容为网页地址 "https://project-graph.top",会以系统默认浏览器打开网页内容
+    title: 以网页浏览器或本地文件形式打开选中节点的内容
+  packEntityToSection:
+    description: |
+      按下后,选中的实体会自动包裹到新Section框中
+    title: 将选中的实体打包到Section框中
+  paste:
+    description: 按下后,粘贴剪贴板内容
+    title: 粘贴
+  pasteWithOriginLocation:
+    description: 按下后,粘贴的内容会与原位置重叠
+    title: 原位粘贴
   penStrokeWidthDecrease:
+    description: 按下后,笔画变细
     title: 涂鸦笔画变细
-    description: 按下后，笔画变细
+  penStrokeWidthIncrease:
+    description: 按下后,笔画变粗
+    title: 涂鸦笔画变粗
+  redo:
+    description: 取消上一次撤销操作
+    title: 取消撤销
+  reload:
+    description: |
+      重载应用,重新加载当前工程文件
+      等同于浏览器刷新网页
+      这个功能很危险！会导致未保存的进度丢失！
+    title: 重载应用
+  resetCameraScale:
+    description: 将视野缩放重置为标准大小
+    title: 重置缩放
+  resetView:
+    description: |
+      如果没有选择任何内容,则根据全部内容重置视野；
+      如果有选择内容,则根据选中内容重置视野
+    title: 重置视野
+  reverseEdges:
+    description: |
+      按下后,选中的连线的方向会变成相反方向
+      例如,原先是 A -> B,按下后变成 B -> A
+      此功能的意义在于快速创建一个节点连向多个节点的情况
+      因为目前的连线只能一次性做到多连一。
+    title: 反转连线的方向
+  reverseSelectedNodeEdge:
+    description: |
+      按下后,所有框选选中的节点中
+      每个节点的所有连线都会反转方向
+      进而实现更快捷的一连多
+    title: 反转选中的节点的所有连线的方向
+  saveFile:
+    description: |
+      保存当前工程文件,若当前文件是草稿则另存为
+    title: 保存文件
+  searchText:
+    description: |
+      按下后,打开搜索框,可以输入搜索内容
+      搜索框支持部分匹配,例如输入 "a" 能搜索到 "apple" 等
+    title: 搜索文本
+  selectAll:
+    description: 按下后,所有节点和连线都会被选中
+    title: 全选
+  selectAdditionalDown:
+    description: 按下后,附加选中下方节点
+    title: 附加选中下方节点
+  selectAdditionalLeft:
+    description: 按下后,附加选中左侧节点
+    title: 附加选中左侧节点
+  selectAdditionalRight:
+    description: 按下后,附加选中右侧节点
+    title: 附加选中右侧节点
+  selectAdditionalUp:
+    description: 按下后,附加选中上方节点
+    title: 附加选中上方节点
+  selectDown:
+    description: 按下后,选中下方节点
+    title: 选中下方节点
+  selectEntityByPenStroke:
+    description: |
+      选中一个涂鸦或者实体后,按下此键,会扩散选择该实体周围的实体
+      如果当前选择的是涂鸦,则扩散选择涂鸦触碰到的实体
+      如果当前选择的是实体,则扩散选触碰到的所有涂鸦
+      多次按下后可以多次交替扩散
+    title: 涂鸦与实体的扩散选择
+  selectLeft:
+    description: 按下后,选中左侧节点
+    title: 选中左侧节点
+  selectRight:
+    description: 按下后,选中右侧节点
+    title: 选中右侧节点
+  selectUp:
+    description: 按下后,选中上方节点
+    title: 选中上方节点
+  switchDebugShow:
+    description: |
+      按下后,切换调试信息显示
+      调试信息显示在屏幕左上角,通常为开发者使用
+      开启后,屏幕左上角将会显示调试信息。
+      若您遇到bug截图反馈时,建议开启此选项。
+    title: 切换调试信息显示
+  test:
+    description: |
+      仅用于测试快捷键自定义绑定功能功能
+    title: 测试
+  textNodeToSection:
+    description: |
+      按下后,选中的文本节点会被转换成Section框
+      可以用于section框的快速创建
+    title: 将选中的文本节点转换成Section框
+  title: 快捷键绑定
+  treeGraphAdjust:
+    description: |
+      主要用于关闭了键盘生长节点时触发的树形排布调整时使用
+      可以通过此快捷键手动触发布局调整
+    title: 调整当前节点所在树形结构的树形排布
+  undo:
+    description: 撤销上一次操作
+    title: 撤销
+  unpackEntityFromSection:
+    description: |
+      按下后,选中的Section框中的实体会被拆包,自身转换成一个文本节点
+      内部的实体将会掉落在外面
+    title: Section框拆包,转换为文本节点
+  windowOpacityAlphaDecrease:
+    description: |
+      按下后,窗口不透明度(alpha)值减小0.2,往透明的方向改变,最小值为0
+      如果您的键盘没有小键盘的纯减号键,可以改成横排数字0右侧的减号与下划线公用键
+    title: 窗口不透明度减小
+  windowOpacityAlphaIncrease:
+    description: |
+      按下后,窗口不透明度(alpha)值增加0.2,往不透明的方向改变,最大值为1
+      当不能再增加时,会有窗口边缘闪烁提示
+    title: 窗口不透明度增加
+keyBindsGroup:
+  app:
+    description: |
+      用于控制应用的一些功能
+    title: 应用控制
+  basic:
+    description: |
+      基本的快捷键,用于常用的功能
+    title: 基础快捷键
+  camera:
+    description: |
+      用于控制摄像机移动、缩放
+    title: 摄像机控制
+  createTextNode:
+    description: |
+      按下后,在当前位置创建文本节点
+    title: 创建文本节点
+  draw:
+    description: |
+      涂鸦相关功能
+    title: 涂鸦
+  edge:
+    description: |
+      关于连线的一些功能
+    title: 连线相关
+  expandSelect:
+    description: |
+      扩散选择节点相关的快捷键
+    title: 扩散选择
+  generateTextNodeInTree:
+    description: |
+      通过键盘生长节点(Xmind用户习惯)
+    title: 生长节点
+  generateTextNodeRoundedSelectedNode:
+    description: |
+      按下后,在选中节点周围生成节点
+    title: 在选中节点周围生成节点
+  leftMouseModeCheckout:
+    description: |
+      关于左键模式的切换
+    title: 左键模式切换
+  moveEntity:
+    description: |
+      用于移动实体的一些功能
+    title: 移动实体
+  otherKeys:
+    description: |
+      未分类的快捷键,
+      此处若发现无翻译的无效快捷键项,可能是由于版本升级而未清理旧快捷键导致出现的残留
+      可手动清理 keybinds.json 文件中的对应项
+    title: 未分类的快捷键
+  section:
+    description: |
+      Section框相关功能
+    title: Section框
+  select:
+    description: |
+      使用键盘来切换选中的实体
+    title: 切换选择
+  ui:
+    description: |
+      用于控制UI的一些功能
+    title: UI控制
+keys:
+  " ": 空格
+  arrowdown: 下方向键
+  arrowleft: 左方向键
+  arrowright: 右方向键
+  arrowup: 上方向键
+  mouse0: 鼠标左键
+  mouse1: 鼠标中键
+  mouse2: 鼠标右键
+  mouse3: 鼠标侧键1
+  mouse4: 鼠标侧键2
+  none: 未绑定快捷键,点击绑定
+  wheeldown: 滚轮向下
+  wheelup: 滚轮向上
+performanceSettingsGroup:
+  cpu:
+    description: |
+      以下设置项和CPU有关,建议根据您的计算机配置进行调整
+    title: CPU相关性能设置
+  dev:
+    description: |
+      以下设置项还在开发,不建议修改
+    title: 还在开发中的功能
+  memory:
+    description: |
+      以下设置项和内存有关,建议根据您的计算机配置进行调整
+    title: 内存相关性能设置
+  render:
+    description: |
+      以下设置项和渲染有关,建议根据您的计算机配置进行调整
+    title: 渲染相关性能设置
+plugins:
+  core:
+    console: 控制台
+    description: |
+      提供应用的核心功能
+      作者：Project Graph 开发者
+    title: 核心插件
+  documentation: 文档
+  install: 安装插件
+  open: 打开
+  title: 插件管理
+  uninstall: 卸载
+  welcome:
+    description: |
+      插件系统是 Project Graph v2 的计划之一,开发者可以使用 JavaScript 开发插件以扩展应用的功能。
+      目前插件系统还未开发完成,敬请期待。
+    title: 欢迎使用插件系统
+settings:
+  agreeTerms:
+    description: |
+      请您仔细阅读并同意用户协议
+    title: 同意用户协议
+  ai:
+    apiConfig:
+      addNewConfig: 添加新配置
+      apiType:
+        description: 选择要使用的AI API类型。
+        select: 选择API类型
+        title: API 类型
+      base_url:
+        description: 可选 自定义API端点。通常对于“Local AI”、“Ollama”或代理是必需的。对于OpenAI,如果为空则使用默认值。
+        placeholder: 例如 https://api.openai.com/v1
+        title: Base URL # 从 "Base URL(携带api版本信息)" 更新
+      endpoint:
+        description: 输入您的OpenAI兼容API端点URL。
+        title: API端点
+      key:
+        description: 您用于所选服务商的秘密API密钥。某些本地服务商(例如Ollama)可能不需要。 # 比原描述更具体
+        placeholder: 输入您的API密钥(如果需要) # 新增占位符
+        title: API密钥
+      max_tokens:
+        description: 要生成的最大令牌数。留空以使用服务商默认值。
+        placeholder: 例如：2048
+        title: 默认最大令牌数
+      model:
+        availableModels: 可用模型
+        description: 选择一个默认模型。如果服务商、Base URL或API密钥更改,请刷新列表。 # 比原描述更具体
+        fetchDisabledHint: 请选择服务商,并输入API密钥(和Base URL,如果需要)以获取模型。 # 新增
+        loading: 正在加载模型... (已存在)
+        noModelsFetch: 未找到模型(刷新？) # 新增
+        noModelsHint: 未找到模型。请确保服务商、API密钥和Base URL(如果适用)正确无误,然后刷新。 # 新增
+        refresh: 刷新模型 (已存在, 但组件使用 refreshTitle 作为按钮标题)
+        refreshTitle: 刷新模型列表 # 新增,用于按钮标题
+        refreshing: 正在刷新... (已存在)
+        select: 选择模型 (已存在)
+        title: 默认模型 # 从 "模型" 更新
+      name:
+        description: 为此API配置指定一个唯一的名称。
+        placeholder: 例如,oaipro
+        title: 配置名称
+      newName: 新名字
+      notes:
+        description: 可选：关于此配置的任何备注。
+        placeholder: 例如：用于测试新模型
+        title: 备注
+      provider:
+        description: 选择AI服务提供商。
+        options:
+          select: 选择服务商
+        title: 服务商API类型
+      selectPrompt: 选择一个提示词
+      temperature:
+        description: 控制随机性。较低的值更具确定性。例如：0.0到2.0。留空以使用服务商默认值。
+        placeholder: 例如：0.7
+        title: 默认温度
+      title: API配置详情 # 从 "API配置" 更新以匹配 "API Configuration Details"
+      selectConfig: 选择配置
+      api_key: API 密钥
+      defaultModel: 默认模型
+      availableModels: 可用模型
+      loadingModels: 正在加载模型...
+      selectModel: 选择一个模型
+      noModelsFetched: 未能获取可用模型列表。
+      refreshModels: 刷新模型列表
+      noConfigSelected: 当前未选择任何配置。
+      noConfigs: 尚无 API 配置。请点击右上方“添加新配置”按钮以添加。
+    cancelButton: 取消
+    confirmDeleteVersion: 确定要删除此版本吗？
+    deleteVersionButton: 删除
+    createPromptButton: 创建
+    createPromptFailed: 创建提示词失败 "{{error}}"
+    deleteVersionFailed: 删除版本失败 "{{error}}"
+    fetchFailure: 获取模型失败
+    form:
+      addTitle: 添加AI API配置
+      api_key:
+        title: API 密钥
+        placeholder: 输入密钥,如sk-XXX
+      base_url:
+        description: API端点,末尾不要有/
+        title: Base URL(携带api版本信息)
+        placeholder: API端点,如https://api.oaipro.com/v1
+      editTitle: 编辑AI API设置
+      model:
+        title: 模型配置
+        description: AI功能使用的模型
+        placeholder: Ciallo～(∠・ω< )⌒☆
+      name:
+        title: 配置名称
+        placeholder: 如,我的API密钥
+      notes:
+        title: 备注
+        placeholder: 可选的Ciallo～(∠・ω< )⌒☆
+      provider:
+        title: 供应商类型
+        description: 按照请求方式区分
+      saveSuccess: 保存成功
+      saveSuccessMessage: 设置保存成功
+      temperature:
+        title: 模型温度
+        description: 温度越低,模型的输出越稳定
+        placeholder: 0
+      max_tokens:
+        title: 最大输出
+        description: 设置模型的最大输出,超出会截断,避免你破产
+        placeholder: 65535
+    newName: 新名字
+    newPromptDescription: 输入新提示词的名称并创建
+    newPromptNamePlaceholder: 新提示词名称
+    newPromptTitle: 创建新提示词
+    parseFailure: 无法解析API响应中的模型。
+    promptAlreadyExists: 提示词 "{{name}}" 已存在
+    promptCreatedSuccessfully: 提示词 "{{name}}" 创建成功
+    promptNameCannotBeEmpty: 提示词名称不能为空
+    prompts:
+      lineFormatHint: "提示：每行应以“- ”开头。"
+      lineFormatPlaceholder: "每行输入一个提示,以“- ”开头"
+      summary_prompt:
+        description: 输入用于AI生成摘要的自定义提示词。如果留空,将使用默认提示词。
+        lintFormatHint: "提示：每行应以“- ”开头。"
+        placeholder: 例如：“请将以下文本总结为一段话：”
+        title: 摘要提示词
+      systemPrompt:
+        description: 输入用于AI的自定义系统提示词。
+        title: 系统提示词
+      title: 自定义提示词
+    reset: 重置设置
+    resetConfirmButton: 确认重置
+    resetConfirmContent: 您确定要重置 AI 设置吗？此操作不可撤销。
+    resetConfirmTitle: 确认要删除吗？
+    resetSuccess: 重置成功
+    save: 保存设置
+    saveFailure: 保存设置失败：
+    saveNewVersionButton: 新版本
+    saveSuccess: 设置保存成功！
+    selectAPrompt: 选择一个提示词
+    selectPromptTitle: 选择提示词
+    selectPromptDescription: 从已保存的提示词中选择
+    selectVersionDescription: 选择该提示词的历史版本
+    selectVersionTitle: 选择版本
+    title: AI设置
+    updateVersionButton: 更新
+    updateVersionSuccess: 版本更新成功
+    versionDeletedSuccessfully: 版本删除成功
+  alignAndAttachSoundFile:
+    description: |
+      鼠标拖动时,对齐节点和时播放的声音文件路径
+    title: 对齐的声音文件
+  allowAddCycleEdge:
+    description: |
+      开启后,节点之间可以添加自环,即节点与自身相连,用于状态机绘制
+      默认关闭,因为不常用,容易误触发
+    title: 允许在节点之间添加自环
+  allowMoveCameraByWSAD:
+    description: |
+      开启后,可以使用W S A D按键来上下左右移动视角
+      关闭后,只能使用鼠标来移动视角,不会造成无限滚屏bug
+    title: 允许使用W S A D按键移动视角
+  allowTelemetry:
+    description: |
+      如果您启用此项,我们会收集您的使用数据,帮助我们改进软件
+      发送的数据仅用于统计,不会包含您的个人隐私信息
+      您的数据会在中国香港的云服务器上存储,不会发送到国外
+    title: 参与用户体验改进计划
+  alwaysShowDetails:
+    description: |
+      开启后,无需鼠标移动到节点上时,才显示节点的详细信息。
+    title: 始终显示节点详细信息
+  autoBackup:
+    description: |
+      自动备份当前文件
+      自动备份会在工程文件旁边生成一个副本
+      如果是草稿,则会存储在指定的路径
+    title: 开启自动备份
+  autoBackupDraftPath:
+    description: |
+      请填写绝对路径,草稿将统一备份到此文件夹下
+      留空或路径错误时不进行备份
+      windows系统注意使用反斜杠
+      例如：C:\Users\username\Documents\DraftBackup
+      结尾不要带路径分隔符
+    title: 草稿的自动备份文件夹路径
+  autoBackupInterval:
+    description: |
+      自动备份过于频繁可能会产生大量的备份文件
+      进而占用磁盘空间
+    title: 自动备份间隔(秒)
+  autoBackupLimitCount:
+    description: |
+      自动备份的最大数量,超过此数量将会删除旧的备份文件
+    title: 自动备份最大数量
+  autoLayoutWhenTreeGenerate:
+    description: |
+      开启后,生长节点时自动更新布局
+      此处的生长节点指tab和\键生长节点
+    title: 生长节点时自动更新布局
+  autoNamerSectionTemplate:
+    description: |
+      输入`{{i}}` 代表节点名称会自动替换为编号,双击创建时可以自动累加数字。
+      例如`n{{i}}` 会自动替换为`n1`, `n2`, `n3`…
+      输入`{{date}}` 会自动替换为当前日期,双击创建时可以自动更新日期。
+      输入`{{time}}` 会自动替换为当前时间,双击创建时可以自动更新时间。
+      可以组合使用,例如`{{i}}-{{date}}-{{time}}`
+    title: 自动命名分组模板
+  autoNamerTemplate:
+    description: |
+      输入`{{i}}` 代表节点名称会自动替换为编号,双击创建时可以自动累加数字。
+      例如`n{{i}}` 会自动替换为`n1`, `n2`, `n3`…
+      输入`{{date}}` 会自动替换为当前日期,双击创建时可以自动更新日期。autoNamerTemplate
+      输入`{{time}}` 会自动替换为当前时间,双击创建时可以自动更新时间。
+      可以组合使用,例如`{{i}}-{{date}}-{{time}}`
+    title: 自动命名模板
+  autoRefreshStageByMouseAction:
+    description: |
+      开启后,鼠标操作(拖拽移动视野)会自动刷新舞台
+      防止出现打开某个文件后,图片未加载成功还需手动刷新的情况
+    title: 鼠标操作时自动刷新舞台
+  autoSave:
+    description: |
+      自动保存当前文件
+      此功能目前仅对已有路径的文件有效,不对草稿文件生效！
+    title: 开启自动保存
+  autoSaveInterval:
+    description: |
+      注意：目前计时时间仅在软件窗口激活时计时,软件最小化后不会计时。
+    title: 开启自动保存间隔(秒)
+  autoSaveWhenClose:
+    description: |
+      关闭软件时,如果有未保存的工程文件,会弹出提示框询问是否保存。
+      开启此选项后,关闭软件时会自动保存工程文件。
+      所以,建议开启此选项。
+    title: 点击窗口右上角关闭按钮时自动保存工程文件
+  cameraCycleSpaceSizeX:
+    description: |
+      循环空间的宽度,单位为像素
+    title: 循环空间宽度
+  cameraCycleSpaceSizeY:
+    description: |
+      循环空间的高度,单位为像素
+    title: 循环空间高度
+  cameraFollowsSelectedNodeOnArrowKeys:
+    description: |
+      开启后,使用键盘移动节点选择框时,视野跟随移动
+    title: 通过方向键切换选中节点时,视野跟随移动
+  cameraKeyboardMoveReverse:
+    description: |
+      开启后,W S A D按键的移动视角方向会相反
+      原本的移动逻辑是移动悬浮在画面上的摄像机,但如果看成是移动整个舞台,这样就反了
+      于是就有了这个选项
+    title: 视角移动键盘反向
+  cameraKeyboardScaleRate:
+    description: |
+      每次通过一次按键来缩放视野时,视野的缩放倍率
+      值为0.2代表每次放大会变为原来的1.2倍,缩小为原来的0.8倍
+      值为0代表禁止通过键盘缩放
+    title: 视角缩放键盘速率
+  cameraResetViewPaddingRate:
+    description: |
+      框选一堆节点或一个节点,并按下快捷键或点击按钮来重置视野后
+      视野会调整大小和位置,确保所有选中内容出现在屏幕中央并完全涵盖
+      由于视野缩放大小原因,此时边缘可能会有留白
+      值为1 表示边缘完全不留白。(非常放大的观察)
+      值为2 表示留白内容恰好为自身内容的一倍
+    title: 根据选择节点重置视野时,边缘留白系数
+  compatibilityMode:
+    description: |
+      开启后,软件会使用另一种渲染方式
+    title: 兼容模式
+  compressPastedImages:
+    description: |
+      开启后,粘贴到舞台的图片会被压缩,以节省加载文件时的内存压力和磁盘压力
+    title: 是否压缩粘贴到舞台的图片
+  common:
+    delete: 删除
+    cancel: 取消
+    edit: 编辑
+    save: 保存
+  connectFindTargetSoundFile:
+    description: |
+      连接线吸附到目标上时播放的声音文件路径
+    title: 连接线吸附到目标上的声音文件
+  connectLineStartSoundFile:
+    description: |
+      连接线右键按下开始时播放的声音文件路径
+    title: 连接线开始的声音文件
+  cuttingLineReleaseSoundFile:
+    description: |
+      释放的时候就是看到刀光刃特效的时候
+    title: 斩断线释放的声音文件
+  cuttingLineStartSoundFile:
+    description: |
+      斩断线右键按下开始时播放的声音文件路径
+    title: 斩断线开始的声音文件
+  doubleClickMiddleMouseButton:
+    description: |
+      将滚轮键快速按下两次时执行的操作。默认是重置视野。
+      关闭此选项,可以防止误触发。
+    options:
+      adjustCamera: 调整视野
+      none: 无操作
+    title: 双击中键鼠标
+  enableDragAlignToGrid:
+    description: |
+      建议在显示中开启横向和纵向网格线,并关闭自动吸附对齐
+    title: 拖动实体时,吸附到网格
+  enableDragAutoAlign:
+    description: |
+      开启后,拖动节点并松开时会与其他节点在x轴、y轴方向对齐
+    title: 鼠标拖动自动吸附对齐节点
+  enableTagTextNodesBigDisplay:
+    description: |
+      开启后,标签文本节点的显示在摄像机缩小到广袤的全局视野时,
+      标签会巨大化显示,以便更容易辨识整个文件的布局分布
+    title: 标签文本节点巨大化显示
+  enableWindowsTouchPad:
+    description: |
+      在windows系统中,双指上下移动会被识别为滚轮事件。
+      双指左右移动会被识别成鼠标横向滚轮的滚动事件。
+      如果您是笔记本操作并使用外部鼠标,建议关闭此选项。
+    title: 允许触摸板双指移动操作
+  entityDetailsFontSize:
+    description: |
+      单位为像素
+    title: 实体详细信息字体大小
+  entityDetailsLinesLimit:
+    description: |
+      限制实体详细信息的最大行数,超过限制的部分将被省略
+    title: 实体详细信息行数限制
+  entityDetailsWidthLimit:
+    description: |
+      限制实体详细信息的最大宽度,超过限制的部分将被换行
+    title: 实体详细信息宽度限制
+  gamepadDeadzone:
+    description: |
+      此设置项用于 游戏手柄控制视角时的情景
+      手柄的输入值在0-1之间,此值越小,手柄的输入越敏感
+      死区越大,手柄的输入越趋于0或1,不会产生太大的变化
+      死区越小,手柄的输入越趋于中间值,会产生较大的变化
+    title: 游戏手柄死区
+  historySize:
+    description: |
+      这个数值决定了您最多ctrl+z撤销的次数
+      如果您的电脑内存非常少,可以适当调小这个值
+    title: 历史记录大小
+  ignoreTextNodeTextRenderLessThanCameraScale:
+    description: |
+      开启后,当摄像机缩放倍数小于一定值时,(也就是观察宏观状态时)
+      不渲染文本节点内的文字及其详细信息,这样可以提高渲染性能,但会导致文本节点的文字内容无法显示
+    title: 当摄像机缩放倍数小于一定值时,不渲染文本节点内的文字及其详细信息
+  isClassroomMode:
+    description: |
+      用于教学、培训等场景。
+      开启后窗口顶部按钮会透明,鼠标悬浮上去会恢复,可以修改进入退出专注模式的快捷键
+    title: 专注模式
+  isEnableEntityCollision:
+    description: |
+      开启后,实体之间会进行碰撞挤压移动,可能会影响性能。
+      建议关闭此项,目前实体碰撞挤压还不完善,可能导致爆栈
+    title: 实体碰撞检测
+  isPauseRenderWhenManipulateOvertime:
+    description: |
+      开启后,超过若干秒未做出舞台操作,舞台渲染会暂停,以节省CPU/GPU资源。
+    title: 超过一定时间未操作舞台,暂停渲染
+  isRenderCenterPointer:
+    description: |
+      开启后,屏幕中心中心会显示一个十字准星,用于用于指示快捷键创建节点的位置
+    title: 显示中心十字准星
+  language:
+    options:
+      en: English
+      zh_CN: 简体中文
+      zh_TW: 繁體中文
+    title: 语言
+  limitCameraInCycleSpace:
+    description: |
+      开启后,摄像机只能在一个矩形区域内移动
+      可以防止摄像机移动到很远的地方迷路
+      该矩形区域会形成一个循环空间,类似于无边贪吃蛇游戏中的地图
+      走到最上面会回到最下面,走到最左边会回到最右边
+      注意：该功能还在实验阶段
+    title: 开启循环空间限制摄像机移动
+  lineStyle:
+    options:
+      bezier: 贝塞尔曲线
+      straight: 直线
+      vertical: 垂直折线
+    title: 连线样式
+  macMouseWheelIsSmoothed:
+    description: 有的macbook鼠标滚轮是平滑的,有的则是滚动一格触发一次
+      可能取决于您是否安装了Mos等鼠标修改软件
+    title: macbook 的鼠标滚轮是否平滑
+  macTrackpadAndMouseWheelDifference:
+    description: 有的macbook鼠标滚轮是整数,触摸版是小数,有的则相反
+      您需要根据实际情况选择一下区分逻辑
+      区分方法可点击7次关于界面的软件logo进入“测试界面”后,滑动滚轮和触摸板查看数据反馈
+    options:
+      tarckpadFloatAndWheelInt: 触摸版是小数,鼠标滚动是整数
+      trackpadIntAndWheelFloat: 触摸版是整数,鼠标滚动是小数
+    title: macbook 的触摸版与鼠标滚轮区分逻辑
+  macTrackpadScaleSensitivity:
+    description: 值越大,缩放的速度越快
+    title: macbook 的触摸板双指缩放灵敏度
+  maxPastedImageSize:
+    description: |
+      长或宽超过此尺寸的图片,其长或宽的最大值将会被限制为此大小
+      同时保持长宽比不变,仅在开启“压缩粘贴到舞台的图片”时生效
+    title: 粘贴到舞台的图片的尺寸限制(像素)
+  mouseRightDragBackground:
+    options:
+      cut: 斩断并删除物体
+      moveCamera: 移动视野
+    title: 右键拖动背景的操作
+  mouseSideWheelMode:
+    description: |
+      侧边滚轮就是大拇指上的滚轮
+    options:
+      adjustPenStrokeWidth: 调整画笔粗细
+      adjustWindowOpacity: 调整窗口透明度
+      cameraMoveToMouse: 将视野向鼠标位置移动
+      move: 纵向移动
+      moveX: 横向移动
+      none: 无操作
+      zoom: 缩放
+    title: 鼠标侧边滚轮模式
+  mouseWheelMode:
+    options:
+      move: 纵向移动
+      moveX: 横向移动
+      none: 无操作
+      zoom: 缩放
+    title: 鼠标滚轮模式
+  mouseWheelWithAltMode:
+    description: |
+      此功能于2025年4月10日新增
+      目前发现还存在问题：win系统下滑动滚轮后需要再点击一次屏幕才能操作舞台
+      提示：这里的 Alt 是 Option
+    options:
+      move: 纵向移动
+      moveX: 横向移动
+      none: 无操作
+      zoom: 缩放
+    title: 按住 Alt 时,鼠标滚轮模式
+  mouseWheelWithCtrlMode:
+    description: |
+      提示：这里的 Ctrl 是 Control
+    options:
+      move: 纵向移动
+      moveX: 横向移动
+      none: 无操作
+      zoom: 缩放
+    title: 按住 Ctrl 时,鼠标滚轮模式
+  mouseWheelWithShiftMode:
+    options:
+      move: 纵向移动
+      moveX: 横向移动
+      none: 无操作
+      zoom: 缩放
+    title: 按住 Shift 时,鼠标滚轮模式
+  moveAmplitude:
+    description: |
+      此设置项用于 使用W S A D按键来上下左右移动视角时的情景
+      可将摄像机看成一个能朝四个方向喷气的 悬浮飞机
+      此加速度值代表着喷气的动力大小,需要结合下面的摩擦力设置来调整速度
+    title: 视角移动加速度
+  moveFriction:
+    description: |
+      此设置项用于 使用W S A D按键来上下左右移动视角时的情景
+      摩擦系数越大,滑动的距离越小,摩擦系数越小,滑动的距离越远
+      此值=0时代表 绝对光滑
+    title: 视角移动摩擦力系数
+  nodeDetailsPanel:
+    options:
+      small: 小型面板
+      vditor: vditor markdown编辑器
+    title: 节点详细信息面板
+  protectingPrivacy:
+    description: |
+      用于反馈问题截图时,开启此项之后将汉字全部替换成《㊙》,以保护隐私。
+      仅作显示层面的替换,不会影响真实数据
+      反馈完毕后可再关闭,复原
+    title: 隐私保护
+  rectangleSelectWhenLeft:
+    description: |
+      选择鼠标向左框选的策略,包含完全覆盖框选和碰撞框选
+      完全覆盖框选是指矩形框选框必须完全覆盖实体的外接矩形
+      碰撞框选是指矩形框选框只要碰到一点点实体的外接矩形,就能够选中了
+    options:
+      contain: 完全覆盖框选
+      intersect: 碰撞框选
+    title: 向左框选的策略
+  rectangleSelectWhenRight:
+    description: |
+      选择鼠标向右框选的策略
+    options:
+      contain: 完全覆盖框选
+      intersect: 碰撞框选
+    title: 向右框选的策略
+  renderEffect:
+    description: 是否渲染特效,如果卡顿可以关闭
+    title: 渲染特效
+  renderOverTimeWhenNoManipulateTime:
+    description: |
+      超过一定时间未做出舞台操作,舞台渲染会停止,以节省CPU/GPU资源。
+      必须在上述“超时暂停渲染”选项开启后才会生效。
+    title: 超时停止渲染舞台的时间(秒)
+  scaleCameraByMouseLocation:
+    description: |
+      开启后,缩放视角的中心点是鼠标的位置
+      关闭后,缩放视角的中心点是当前视野的中心
+    title: 视角缩放根据鼠标位置
+  scaleExponent:
+    description: |
+      《当前缩放倍数》会不断的以一定倍率无限逼近《目标缩放倍数》
+      当逼近的足够近时(小于0.0001),会自动停止缩放
+      值为1代表缩放会立刻完成,没有中间的过渡效果
+      值为0代表缩放永远都不会完成,可模拟锁死效果
+      注意：若您在缩放画面时感到卡顿,请调成1
+    title: 视角缩放速度
+  sectionBitTitleRenderType:
+    options:
+      cover: 半透明覆盖框体(最佳效果)
+      none: 不渲染(节省性能)
+      top: 顶部小字
+    title: 框的缩略大标题渲染类型
+  showBackgroundCartesian:
+    description: |
+      开启后,将会显示x轴、y轴和刻度数字
+      可以用于观测一些节点的绝对坐标位置
+      也能很直观的知道当前的视野缩放倍数
+    title: 显示背景直角坐标系
+  showBackgroundDots:
+    description: |
+      这些背景点是水平线和垂直线的交点,实现洞洞板的效果
+    title: 显示背景点
+  showBackgroundHorizontalLines:
+    description: |
+      水平线和垂直线可以同时打开,实现网格效果
+    title: 显示水平背景线
+  showBackgroundVerticalLines:
+    title: 显示垂直背景线
+  showDebug:
+    description: |
+      通常为开发者使用
+      开启后,屏幕左上角将会显示调试信息。
+      若您遇到bug截图反馈时,建议开启此选项。
+    title: 显示调试信息
+  showGrid:
+    title: 显示网格
+  showTextNodeBorder:
+    description: |
+      控制是否显示文本节点的边框
+    title: 显示文本节点边框
+  showTipsOnUI:
+    description: |
+      开启后,屏幕上会有一行提示文本。
+      如果您已经熟悉了软件,建议关闭此项以减少屏幕占用
+      更多更详细的提示还是建议看菜单栏中的“新手引导”或官网文档。
+    title: 在 UI 中显示提示信息
+  tabs:
+    about: 关于
+    ai: AI
+    automation: 自动化
+    control: 控制
+    effects: 特效
+    github: GitHub
+    keybinds: 快捷键
+    performance: 性能
+    physical: 物理
+    plugins: 插件
+    scripts: 脚本
+    sounds: 声音
+    themes: 主题
+    visual: 显示
+  textIntegerLocationAndSizeRender:
+    description: |
+      开启后,一切文字的大小和位置都是整数,以节省渲染性能。
+      但会出现文字抖动现象。建议配合视角缩放速度调整成1一起使用。
+      如果您的电脑使用体验非常卡顿,尤其是在缩放和移动的情况下,可以开启此选项。
+    title: 文本整数位置和大小渲染
+  textNodeContentLineBreak:
+    description: |
+      注意不要和文本节点退出编辑模式的按键一样了,这样会导致冲突
+      进而导致无法换行
+    options:
+      altEnter: alt + Enter
+      ctrlEnter: ctrl + Enter
+      enter: Enter
+      shiftEnter: shift + Enter
+    title: 文本节点换行方案
+  textNodeExitEditMode:
+    description: |
+      实际上按Esc键也可以退出,这里还可以再加选一种
+    options:
+      altEnter: alt + Enter
+      ctrlEnter: ctrl + Enter
+      enter: Enter
+      shiftEnter: shift + Enter
+    title: 文本节点退出编辑模式
+  textNodeSelectAllWhenStartEditByKeyboard:
+    description: |
+      开启后,在您按下文本节点编辑模式的按键时,会全选文本内容
+    title: 文本节点通过键盘开始编辑时自动全选内容
+  textNodeSelectAllWhenStartEditByMouseClick:
+    description: |
+      开启后,在文本节点开始编辑时,会全选文本内容
+      如果您编辑内容通常是想为了直接更改全部内容,建议开启此选项
+      如果更可能是想为了追加内容,建议关闭此选项
+    title: 文本节点通过双击开始编辑时自动全选内容
+  textNodeStartEditMode:
+    description: |
+      实际上按F2键也可以进入编辑模式,这里还可以再加选一种
+    options:
+      altEnter: alt + Enter
+      ctrlEnter: ctrl + Enter
+      enter: Enter
+      shiftEnter: shift + Enter
+      space: 空格键
+    title: 文本节点进入编辑模式
+  title: 设置
+  uiButtonClickSoundFile:
+    description: |
+      按钮点击时播放的声音文件路径
+    title: 按钮点击时的声音文件
+  uiButtonEnterSoundFile:
+    description: |
+      鼠标进入按钮区域的声音
+    title: 鼠标进入按钮区域的声音
+  uiSwitchButtonOffSoundFile:
+    description: |
+      按钮点击开关按钮时关闭的声音文件路径
+    title: 按钮点击开关按钮时关闭的声音
+  uiSwitchButtonOnSoundFile:
+    description: |
+      按钮点击开关按钮时打开的声音文件路径
+    title: 按钮点击开关按钮时打开的声音
+  useNativeTitleBar:
+    description: |
+      开启后,窗口顶部将会出现原生的标题栏,而不是模拟的标题栏。
+    title: 使用原生标题栏(需要重启应用)
+  windowBackgroundAlpha:
+    title: 窗口背景透明度
+  windowCollapsingHeight:
+    description: |
+      点击切换至迷你窗口时,窗口的高度,单位为像素
+    title: 迷你窗口的高度
+  windowCollapsingWidth:
+    description: |
+      点击切换至迷你窗口时,窗口的宽度,单位为像素
+    title: 迷你窗口的宽度
+startFilePanel:
+  buttons:
+    addFile: 添加文件
+    clearList: 清空列表
+    showAbsolutePath: 显示绝对路径
+    showFileTime: 显示文件时间
+  tips:
+    - 说明：启动时自动加载的工程文件会在打开时自动加载到舞台,无需手动打开。
+    - 加载：仅将这个文件加载到舞台(您可以通过悬浮透明来查看切换后是否是您想要的文件)
+    - 钉选：切换当前的启动文件,左侧状态中的图标代表当前的启动文件。
+    - 移除：仅从列表中移除文件,不会影响文件本身。
+  title: 选择启动时自动加载的工程文件
+toolbar:
+  crEdge:
+    items:
+      addControlPoint: 添加控制点
+      tensionDecrease: 放松曲线
+      tensionIncrease: 拉紧曲线
+    title: CR曲线
+  drawColor:
+    title: 涂鸦笔触颜色
+  edge:
+    items:
+      setExtremePoint: 设置选中连线的端点位置
+      switchDirection: 反转选中连线方向
+      switchToCrEdge: 切换为CR曲线(还在开发中,不推荐使用)
+      switchToUndirectedEdge: 切换为无向边
+    title: 有向边
+  entity:
+    items:
+      align: 实体对齐相关
+      createMultiTargetEdgeConvex: 创建无向边(凸包型)
+      createMultiTargetEdgeLine: 创建无向边(连线型)
+      openPathByContent: 将实体详细信息第一行视为本地绝对路径,并打开文件/文件夹
+      packSection: 将选中节点打包Section(快捷键可自定义)
+      saveNew: 将选中的节点保存为新文件
+    title: 实体
+  imageNode:
+    items:
+      openImage: 打开选中图片
+      refresh: 刷新选中内容(图片加载失败了可以选中图片然后点这个按钮)
+    title: 图片节点
+  mouseMode:
+    items:
+      leftMouseCutAndConnect: 左键：连接/斩断 模式
+      leftMouseDraw: 左键：涂鸦模式
+      leftMouseSelectMove: 左键：框选/移动/创建节点 模式
+    title: 鼠标模式
+  multiTargetUndirectedEdges:
+    items:
+      arrowExterior: 箭头向外
+      arrowInterior: 箭头向内
+      noArrow: 无箭头
+      switchRenderState: 转换渲染形态
+      switchToEdge: 切换为有向边
+    title: 多源无向边
+  pinnedTools:
+    items:
+      autoFillColorSettings: 设置实体创建时自动填充的颜色
+      generateTextNodeByText: 通过文本生成节点
+    title: 常驻工具
+  section:
+    items:
+      checkoutFolderState: 切换Section的折叠状态(快捷键可自定义)
+    title: 框
+  stageObjects:
+    items:
+      delete: 删除选中的舞台对象
+      setColor: 设置舞台对象的颜色,注意要先选中再点颜色 (F6)
+      tag: 给舞台对象添加标签,如果已添加则去除标签
+    title: 舞台对象
+  textNode:
+    items:
+      aiGenerateNewNode: AI扩展节点
+      aiGenerateSummary: AI总结节点
+      switchWidthAdjustMode: 切换宽度调整模式(ttt)
+    title: 文本节点
+visualSettingsGroup:
+  background:
+    title: 背景设置
+  basic:
+    title: 基础设置
+  edge:
+    title: 连线样式设置
+  entityDetails:
+    title: 实体详情设置
+  help:
+    title: 遇到问题时相关的设置
+  miniWindow:
+    title: 迷你窗口设置
+  node:
+    title: 节点样式设置
+  section:
+    title: “框”的样式设置
+  testingFunctions:
+    description: |
+      如果您不了解下面的设置,请不要修改它们。否则您会感觉出现灵异事件
+    title: 实验性功能
+welcome:
+  bilibili: 哔哩哔哩
+  github: GitHub
+  language: 语言
+  next: 下一步
+  qq: QQ 群
+  website: 网站

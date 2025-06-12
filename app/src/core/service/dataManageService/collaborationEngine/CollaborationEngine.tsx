@@ -1,4 +1,4 @@
-import { fetch } from "@tauri-apps/plugin-http";
+import { fetch } from "../../../../utils/tauriApi";
 import { Dialog } from "../../../../components/dialog";
 
 export namespace CollaborationEngine {
@@ -16,7 +16,7 @@ export namespace CollaborationEngine {
           const end = Date.now();
           return end - start;
         } catch {
-          return 999;
+          return -114514;
         }
       }),
     );

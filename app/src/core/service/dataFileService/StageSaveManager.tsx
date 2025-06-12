@@ -1,4 +1,4 @@
-import { encode } from "@msgpack/msgpack";
+import { pack as encode } from "msgpackr";
 import { Serialized } from "../../../types/node";
 import { createFolder, exists, writeFile, writeTextFile } from "../../../utils/fs";
 import { PathString } from "../../../utils/pathString";

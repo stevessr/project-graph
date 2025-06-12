@@ -1,3 +1,4 @@
+// src\core\service\Settings.tsx
 import { appCacheDir } from "@tauri-apps/api/path";
 import { Store } from "@tauri-apps/plugin-store";
 import { useEffect, useState } from "react";
