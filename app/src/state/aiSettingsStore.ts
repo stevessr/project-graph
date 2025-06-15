@@ -130,7 +130,11 @@ export const useAiSettingsStore: UseBoundStore<StoreApi<AiSettingsState>> = crea
 
       addAiConfig: async (config: Omit<ApiConfig, "id">) => {
         const currentSettings = get().aiSettings;
-        const newConfig: ApiConfig = { ...config, id: crypto.randomUUID() };
+        const newConfig: ApiConfig = {
+          ...config,
+          id: crypto.randomUUID(),
+          thinking: { enabled: false, budget_tokens: 4096 },
+        };
         const updatedSettings: AiSettings = {
           active_config_id: currentSettings?.active_config_id || null,
           prompt_collections: currentSettings?.prompt_collections || null,

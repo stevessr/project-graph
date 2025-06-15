@@ -15,7 +15,7 @@ import { addTextNodeByLocation } from "./utilsControl";
  */
 export const ControllerEntityCreate = new ControllerClass();
 
-ControllerEntityCreate.mouseDoubleClick = (event: MouseEvent) => {
+ControllerEntityCreate.mouseDoubleClick = (event: PointerEvent) => {
   // 双击只能在左键
   if (!(event.button === 0)) {
     return;

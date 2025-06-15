@@ -22,6 +22,11 @@ export interface ApiConfig {
   model: string;
   temperature?: number;
   max_tokens?: number;
+  thinkingBudget?: number;
+  thinking?: {
+    enabled: boolean;
+    budget_tokens: number;
+  };
   notes?: string;
   tools?: McpTool[];
 }

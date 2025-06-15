@@ -1,10 +1,12 @@
 // src\pages\settings\ai\ApiConfigForm.tsx
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { ApiConfig, McpTool } from "../../../types/aiSettings";
 import Input from "../../../components/Input";
 import Select from "../../../components/Select";
 import Button from "../../../components/Button";
 import { Field, FieldGroup } from "../../../components/Field";
+import Slider from "../../../components/Slider";
+import Switch from "../../../components/Switch";
 import { useTranslation } from "react-i18next";
 import { useAiSettingsStore } from "../../../state/aiSettingsStore";
 
@@ -65,6 +67,7 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
       model: "",
       temperature: 0.7,
       max_tokens: 2048,
+      thinking: { enabled: false, budget_tokens: 4096 },
       notes: "",
       tools: [],
     };
@@ -110,12 +113,23 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
     }
   }, [formData.provider, formData.base_url, formData.api_key, fetchModels]);
 
-  const handleInputChange = (name: keyof FormDataType, value: string | number | undefined | null) => {
+  const handleInputChange = (name: keyof FormDataType, value: any) => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
     setManuallyEditedFields((prev) => new Set(prev).add(name));
+  };
+
+  const handleThinkingChange = (field: "enabled" | "budget_tokens", value: boolean | number) => {
+    setFormData((prev) => ({
+      ...prev,
+      thinking: {
+        ...(prev.thinking || { enabled: false, budget_tokens: 1024 }), // Ensure thinking object exists
+        [field]: value,
+      },
+    }));
+    setManuallyEditedFields((prev) => new Set(prev).add("thinking"));
   };
 
   const handleProviderChange = (newProvider: string) => {
@@ -162,6 +176,8 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
       model,
       temperature,
       max_tokens,
+      thinkingBudget,
+      thinking,
       notes,
       id: formDataId, // Rename to avoid conflict with config.id if used directly
       tools,
@@ -183,6 +199,8 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
       model: model || "",
       temperature: typeof temperature === "number" && !isNaN(temperature) ? temperature : undefined,
       max_tokens: typeof max_tokens === "number" && !isNaN(max_tokens) ? max_tokens : undefined,
+      thinkingBudget: typeof thinkingBudget === "number" && !isNaN(thinkingBudget) ? thinkingBudget : undefined,
+      thinking: thinking,
       notes: notes || undefined,
       tools: tools || [],
     };
@@ -248,6 +266,22 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
       alert(t("ai.form.errorFetchModels", "Please provide Base URL and API Key to fetch models."));
     }
   };
+
+  const showThinkingBudgetControl = useMemo(() => {
+    const model = formData.model || "";
+    return model.includes("gemini-2.5-pro") || model.includes("gemini-2.5-flash");
+  }, [formData.model]);
+
+  const thinkingBudgetConfig = useMemo(() => {
+    const model = formData.model || "";
+    if (model.includes("gemini-2.5-pro")) {
+      return { min: 128, max: 32768, defaultValue: 8192, step: 128 };
+    }
+    if (model.includes("gemini-2.5-flash")) {
+      return { min: 0, max: 24576, defaultValue: 8192, step: 128 };
+    }
+    return { min: 0, max: 1, defaultValue: 0, step: 1 }; // Fallback
+  }, [formData.model]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -359,6 +393,66 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
             min="1"
           />
         </Field>
+
+        {/* Claude Extended Thinking */}
+        {formData.provider === "claude" && (
+          <>
+            <Field
+              title={t("ai.form.claude.thinkingEnabled.title", "Enable Extended Thinking")}
+              description={t(
+                "ai.form.claude.thinkingEnabled.description",
+                "Allows Claude to perform extended thinking steps before answering.",
+              )}
+            >
+              <Switch
+                value={formData.thinking?.enabled || false}
+                onChange={(checked) => handleThinkingChange("enabled", checked)}
+              />
+            </Field>
+
+            {formData.thinking?.enabled && (
+              <Field
+                title={t("ai.form.claude.thinkingBudget.title", "Thinking Budget (Tokens)")}
+                description={t(
+                  "ai.form.claude.thinkingBudget.description",
+                  "Tokens reserved for thinking. Must be >= 1024.",
+                )}
+              >
+                <Input
+                  type="number"
+                  value={String(formData.thinking?.budget_tokens || 1024)}
+                  onChange={(value) => {
+                    const budget = parseInt(value as string, 10);
+                    handleThinkingChange("budget_tokens", isNaN(budget) ? 1024 : budget);
+                  }}
+                  min="1024"
+                  step="1"
+                  placeholder="e.g., 2048"
+                />
+              </Field>
+            )}
+          </>
+        )}
+
+        {/* Gemini Thinking Budget */}
+        {showThinkingBudgetControl && (
+          <Field
+            title={t("ai.form.thinkingBudget.title", "Thinking Budget")}
+            description={t("ai.form.thinkingBudget.description", "Adjust the thinking budget for the model.")}
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex-grow">
+                <Slider
+                  value={formData.thinkingBudget ?? thinkingBudgetConfig.defaultValue}
+                  onChange={(value) => handleInputChange("thinkingBudget", value)}
+                  min={thinkingBudgetConfig.min}
+                  max={thinkingBudgetConfig.max}
+                  step={thinkingBudgetConfig.step}
+                />
+              </div>
+            </div>
+          </Field>
+        )}
 
         {/* Notes */}
         <Field title={t("ai.form.notes.title")}>

@@ -46,4 +46,5 @@ export interface FetchResponseLike {
   json: () => Promise<any>;
   text: () => Promise<string>;
   clone: () => FetchResponseLike;
+  body: ReadableStream<Uint8Array> | null;
 }
