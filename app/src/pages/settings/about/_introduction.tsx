@@ -1,7 +1,6 @@
 import { check, Update } from "@tauri-apps/plugin-updater";
 import { Check, Download, Loader2 } from "lucide-react";
-import MarkdownIt from "markdown-it";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../../../components/Button";
 import { Dialog } from "../../../components/dialog";
@@ -51,11 +50,23 @@ function CheckingUpdates({ isLatest }: { isLatest: boolean }) {
 }
 
 function UpdateAvailable({ update }: { update: Update | null }) {
-  const updateBodyHtml = useMemo(() => {
-    if (!update) return "";
-    return MarkdownIt({
-      breaks: true,
-    }).render(update.body ?? "");
+  const [updateBodyHtml, setUpdateBodyHtml] = useState("");
+
+  useEffect(() => {
+    if (!update) {
+      setUpdateBodyHtml("");
+      return;
+    }
+
+    // Dynamic import to reduce initial bundle size
+    import("markdown-it")
+      .then(({ default: MarkdownIt }) => {
+        const html = MarkdownIt({
+          breaks: true,
+        }).render(update.body ?? "");
+        setUpdateBodyHtml(html);
+      })
+      .catch(console.error);
   }, [update]);
   const [downloading, setDownloading] = useState(false);
   const [downloadedSize, setDownloadedSize] = useState(0);

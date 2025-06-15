@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Vditor from "vditor";
-import "vditor/dist/index.css";
+import type Vditor from "vditor";
 
 export default function MarkdownEditor({
   defaultValue = "",
@@ -20,33 +19,44 @@ export default function MarkdownEditor({
 
   useEffect(() => {
     // 在每次展开面板都会调用一次这个函数 v1.4.13
+    let vditor: Vditor | null = null;
 
-    const vditor = new Vditor(el.current!, {
-      after: () => {
-        vditor.setValue(defaultValue);
-        setVd(vditor);
-      },
-      // input 有问题，只要一输入内容停下来的时候就被迫失去焦点了。
-      blur: (value: string) => {
-        onChange(value);
-      },
-      theme: "dark",
-      preview: {
-        theme: {
-          current: "dark",
+    const initVditor = async () => {
+      // Dynamic import to reduce initial bundle size
+      const [{ default: VditorClass }] = await Promise.all([import("vditor"), import("vditor/dist/index.css")]);
+
+      if (!el.current) return;
+
+      vditor = new VditorClass(el.current, {
+        after: () => {
+          vditor?.setValue(defaultValue);
+          setVd(vditor);
         },
-        hljs: {
-          style: "darcula",
+        // input 有问题，只要一输入内容停下来的时候就被迫失去焦点了。
+        blur: (value: string) => {
+          onChange(value);
         },
-      },
-      cache: { enable: false },
-      ...options,
-    });
-    if (vditor) {
-      setTimeout(() => {
-        vditor.focus();
-      }, 100);
-    }
+        theme: "dark",
+        preview: {
+          theme: {
+            current: "dark",
+          },
+          hljs: {
+            style: "darcula",
+          },
+        },
+        cache: { enable: false },
+        ...options,
+      });
+
+      if (vditor) {
+        setTimeout(() => {
+          vditor?.focus();
+        }, 100);
+      }
+    };
+
+    initVditor().catch(console.error);
 
     return () => {
       vd?.destroy();

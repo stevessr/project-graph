@@ -240,6 +240,9 @@ importers:
       vite:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@24.0.1)(jiti@2.4.2)(less@4.2.2)(lightningcss@1.30.1)(sass-embedded@1.89.2)(terser@5.39.0)(tsx@4.19.2)(yaml@2.8.0)
+      vite-plugin-compression2:
+        specifier: ^2.0.1
+        version: 2.0.1(rollup@4.43.0)
       vite-plugin-svgr:
         specifier: ^4.3.0
         version: 4.3.0(rollup@4.43.0)(typescript@5.8.3)(vite@6.3.5(@types/node@24.0.1)(jiti@2.4.2)(less@4.2.2)(lightningcss@1.30.1)(sass-embedded@1.89.2)(terser@5.39.0)(tsx@4.19.2)(yaml@2.8.0))
@@ -8034,6 +8037,10 @@ packages:
     resolution:
       { integrity: sha512-090nwYJDmlhwFwEW3QQl+vaNnxsO2yVsd45eTKRBzSzu+hlb1w2K9inVq5b0ngXuLVqQ4ApvsUHHnu/zQNkWAg== }
 
+  tar-mini@0.2.0:
+    resolution:
+      { integrity: sha512-+qfUHz700DWnRutdUsxRRVZ38G1Qr27OetwaMYTdg8hcPxf46U0S1Zf76dQMWRBmusOt2ZCK5kbIaiLkoGO7WQ== }
+
   tar-stream@2.2.0:
     resolution:
       { integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ== }
@@ -8485,6 +8492,10 @@ packages:
       { integrity: sha512-6PhR4H9VGlcwXZ+KWCdMqbtG649xCPZqfI9j2PsK1FcXgEzro5bGHcVKFCTqPLaNKZES8Evqv4LwvZARsq5qlg== }
     engines: { node: ^18.0.0 || ^20.0.0 || >=22.0.0 }
     hasBin: true
+
+  vite-plugin-compression2@2.0.1:
+    resolution:
+      { integrity: sha512-/eD8rKZeaajBoCo8SFUiXRzEqRZI3mzQdilzp86IHOvg2Mr+8XtE3e769kKxp26HaB9v/d4JWEfnlFeRqja4Dw== }
 
   vite-plugin-svgr@4.3.0:
     resolution:
@@ -15670,6 +15681,8 @@ snapshots:
       pump: 3.0.2
       tar-stream: 2.2.0
 
+  tar-mini@0.2.0: {}
+
   tar-stream@2.2.0:
     dependencies:
       bl: 4.1.0
@@ -16082,6 +16095,13 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  vite-plugin-compression2@2.0.1(rollup@4.43.0):
+    dependencies:
+      "@rollup/pluginutils": 5.1.4(rollup@4.43.0)
+      tar-mini: 0.2.0
+    transitivePeerDependencies:
+      - rollup
 
   vite-plugin-svgr@4.3.0(rollup@4.43.0)(typescript@5.8.3)(vite@6.3.5(@types/node@24.0.1)(jiti@2.4.2)(less@4.2.2)(lightningcss@1.30.1)(sass-embedded@1.89.2)(terser@5.39.0)(tsx@4.19.2)(yaml@2.8.0)):
     dependencies:
