@@ -11,18 +11,18 @@ describe("plugin", () => {
   it("call test api", () => {
     new PluginWorker(
       `
-      console.log(this);
-      console.log(window);
-      
-      window.postMessage({
-        type: "callAPIMethod",
-        payload: {
-          reqId: "123",
-          method: "hello",
-          args: ["1"]
-        }
-      }, "*");
-    `,
+    console.log(this);
+    console.log(window);
+    
+    window.postMessage({
+      type: "callAPIMethod",
+      payload: {
+        reqId: "123",
+        method: "hello",
+        args: ["1"]
+      }
+    }, "*");
+  `,
       {
         permissions: ["hello"],
       },

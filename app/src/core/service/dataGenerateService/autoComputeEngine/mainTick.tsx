@@ -157,6 +157,8 @@ const MapOtherFunction: OtherFunctionMap = {
   [LogicNodeNameEnum.SEARCH_CONTENT]: NodeLogic.searchContent,
   [LogicNodeNameEnum.DELETE_PEN_STROKE_BY_COLOR]: NodeLogic.deletePenStrokeByColor,
   [LogicNodeNameEnum.DELAY_COPY]: NodeLogic.delayCopy,
+  [LogicNodeNameEnum.CHAT_CONTENT]: NodeLogic.chatContent,
+  [LogicNodeNameEnum.CHAT_SYSTEM_CONTENT]: NodeLogic.chatSystemContent,
 };
 
 /**

@@ -183,7 +183,8 @@ export class TextNode extends ConnectableEntity implements ResizeAble {
    * 将某个物体移动一小段距离
    * @param delta
    */
-  move(delta: Vector) {
+  move(delta: Vector, skipCollisionResolution: boolean = false) {
+    // <--- 修改签名以接受新参数
     const newRectangle = this.rectangle.clone();
     newRectangle.location = newRectangle.location.add(delta);
     this.collisionBox.shapeList[0] = newRectangle;
@@ -192,7 +193,10 @@ export class TextNode extends ConnectableEntity implements ResizeAble {
     Stage.effectMachine.addEffect(new NodeMoveShadowEffect(new ProgressNumber(0, 30), this.rectangle, delta));
     this.updateFatherSectionByMove();
     // 移动其他实体，递归碰撞
-    this.updateOtherEntityLocationByMove();
+    if (!skipCollisionResolution) {
+      // <-- 添加此条件检查
+      this.updateOtherEntityLocationByMove();
+    }
   }
 
   protected override collideWithOtherEntity(other: Entity): void {

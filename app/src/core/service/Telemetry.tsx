@@ -1,5 +1,6 @@
 import { getDeviceId } from "../../utils/otherApi";
 import { FeatureFlags } from "./FeatureFlags";
+import { fetch } from "../../utils/tauriApi";
 
 export namespace Telemetry {
   let deviceId = "";
