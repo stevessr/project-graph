@@ -877,7 +877,6 @@ export namespace NodeLogic {
   export function stopChatNodeExecution(nodeId: string): void {
     chatNodeExecutionStates.set(nodeId, false);
   }
-
   /**
    * 获取当前正在执行的聊天节点数量
    * @returns 正在执行的节点数量

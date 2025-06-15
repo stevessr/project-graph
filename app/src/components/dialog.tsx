@@ -64,15 +64,32 @@ export namespace Dialog {
    * @returns
    */
   export function show(options: Partial<DialogOptions>): Promise<{
-  button: string;
-  value?: string;
-}> {
-  return new Promise((resolve) => {
-    // 检查是否在桌面/混合应用环境中 (lazy分支的逻辑)
-    if (typeof SubWindow !== 'undefined' && typeof SubWindow.create === 'function') {
-      const win = SubWindow.create({
-        // title: options.title,
-        children: (
+    button: string;
+    value?: string;
+  }> {
+    return new Promise((resolve) => {
+      // 检查是否在桌面/混合应用环境中 (lazy分支的逻辑)
+      if (typeof SubWindow !== "undefined" && typeof SubWindow.create === "function") {
+        const win = SubWindow.create({
+          // title: options.title,
+          children: (
+            <Component
+              {...options}
+              onClose={(button, value) => {
+                resolve({ button, value });
+                SubWindow.close(win.id);
+              }}
+            />
+          ),
+          rect: new Rectangle(new Vector(200, 200), new Vector(400, 300)),
+          titleBarOverlay: true,
+        });
+      } else {
+        // 否则，使用标准的Web浏览器环境逻辑 (upmain分支的逻辑)
+        const container = document.createElement("div");
+        document.body.appendChild(container);
+        const root = createRoot(container);
+        root.render(
           <Component
             {...options}
             onClose={(button, value) => {
@@ -182,7 +199,7 @@ export namespace Dialog {
             "opacity-30": show,
           })}
         ></div>
-      </>
+      </div>
     );
   }
 }
