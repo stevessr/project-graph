@@ -69,6 +69,9 @@ export enum LogicNodeNameEnum {
   // 编程类
   SET_VAR = "#SET_VAR#",
   GET_VAR = "#GET_VAR#",
+  // 聊天节点
+  CHAT_CONTENT = "#CHAT_CONTENT#",
+  CHAT_SYSTEM_CONTENT = "#CHAT_SYSTEM_CONTENT#",
   // 其他
   RGB = "#RGB#",
   RGBA = "#RGBA#",
@@ -189,6 +192,8 @@ export const LogicNodeNameToRenderNameMap: {
 
   [LogicNodeNameEnum.SET_VAR]: "设置变量",
   [LogicNodeNameEnum.GET_VAR]: "获取变量",
+  [LogicNodeNameEnum.CHAT_CONTENT]: "聊天内容",
+  [LogicNodeNameEnum.CHAT_SYSTEM_CONTENT]: "聊天系统内容",
 };
 
 /**
@@ -282,6 +287,8 @@ export const LogicNodeNameToArgsTipsMap: {
 
   [LogicNodeNameEnum.SET_VAR]: "a0: name, a1: value",
   [LogicNodeNameEnum.GET_VAR]: "a0: name",
+  [LogicNodeNameEnum.CHAT_CONTENT]: "a0: content",
+  [LogicNodeNameEnum.CHAT_SYSTEM_CONTENT]: "a0: system_prompt, a1: content",
 };
 
 /**
