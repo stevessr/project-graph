@@ -308,18 +308,26 @@ export namespace EntityRenderer {
     if (penStrokeColor.a === 0) {
       penStrokeColor = StageStyleManager.currentStyle.StageObjectBorder.clone();
     }
-    // CurveRenderer.renderSolidLineMultipleWithWidth(
-    //   penStroke.getPath().map((v) => Renderer.transformWorld2View(v)),
-    //   penStrokeColor,
-    //   penStroke.getSegmentList().map((seg) => seg.width * Camera.currentScale),
-    // );
-    // CurveRenderer.renderSolidLineMultipleSmoothly(
-    //   penStroke.getPath().map((v) => Renderer.transformWorld2View(v)),
-    //   penStrokeColor,
-    //   penStroke.getSegmentList()[0].width * Camera.currentScale,
-    // );
+    // const path = penStroke.getPath();
+    // if (path.length <= 3) {
+    //   CurveRenderer.renderSolidLineMultipleWithWidth(
+    //     penStroke.getPath().map((v) => Renderer.transformWorld2View(v)),
+    //     penStrokeColor,
+    //     penStroke.getSegmentList().map((seg) => seg.width * Camera.currentScale),
+    //   );
+    // } else {
+    //   CurveRenderer.renderSolidLineMultipleSmoothly(
+    //     penStroke.getPath().map((v) => Renderer.transformWorld2View(v)),
+    //     penStrokeColor,
+    //     penStroke.getSegmentList()[0].width * Camera.currentScale,
+    //   );
+    // }
+    const segmentList = penStroke.getSegmentList();
+
+    // console.log("@@", segmentList);
+
     CurveRenderer.renderPenStroke(
-      penStroke.getSegmentList().map((segment) => ({
+      segmentList.map((segment) => ({
         startLocation: Renderer.transformWorld2View(segment.startLocation),
         endLocation: Renderer.transformWorld2View(segment.endLocation),
         width: segment.width * Camera.currentScale,
