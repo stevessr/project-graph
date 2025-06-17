@@ -112,7 +112,7 @@ export class ControllerCameraClass extends ControllerClass {
     }
   };
 
-  public mousedown = (event: MouseEvent) => {
+  public mousedown = (event: PointerEvent) => {
     if (Controller.isCameraLocked) {
       return;
     }
@@ -151,7 +151,7 @@ export class ControllerCameraClass extends ControllerClass {
    * 处理鼠标移动事件
    * @param event - 鼠标事件
    */
-  public mousemove: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mousemove: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (Controller.isCameraLocked) {
       return;
     }
@@ -203,7 +203,7 @@ export class ControllerCameraClass extends ControllerClass {
    * 处理鼠标松开事件
    * @param event - 鼠标事件
    */
-  public mouseup = (event: MouseEvent) => {
+  public mouseup = (event: PointerEvent) => {
     if (Controller.isCameraLocked) {
       return;
     }
@@ -348,7 +348,7 @@ export class ControllerCameraClass extends ControllerClass {
    * 处理鼠标双击事件
    * @param event - 鼠标事件
    */
-  public mouseDoubleClick: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mouseDoubleClick: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (Stage.doubleClickMiddleMouseButton !== "adjustCamera") {
       return;
     }

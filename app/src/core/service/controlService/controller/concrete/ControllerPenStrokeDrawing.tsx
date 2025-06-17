@@ -14,6 +14,7 @@ import { TextNode } from "../../../../stage/stageObject/entity/TextNode";
 import { CircleChangeRadiusEffect } from "../../../feedbackService/effectEngine/concrete/CircleChangeRadiusEffect";
 import { CircleFlameEffect } from "../../../feedbackService/effectEngine/concrete/CircleFlameEffect";
 import { EntityCreateFlashEffect } from "../../../feedbackService/effectEngine/concrete/EntityCreateFlashEffect";
+import { StageStyleManager } from "../../../feedbackService/stageStyle/StageStyleManager";
 import { Settings } from "../../../Settings";
 import { Controller } from "../Controller";
 import { ControllerClass } from "../ControllerClass";
@@ -46,11 +47,38 @@ class ControllerDrawingClass extends ControllerClass {
    */
   public init(): void {
     super.init();
+
+    // 监听设置变化，并立即获取当前值
     Settings.watch("autoFillPenStrokeColorEnable", (value) => {
       this.autoFillPenStrokeColorEnable = value;
+      console.log("autoFillPenStrokeColorEnable设置为:", value);
     });
     Settings.watch("autoFillPenStrokeColor", (value) => {
       this.autoFillPenStrokeColor = new Color(...value);
+      console.log("autoFillPenStrokeColor设置为:", this.autoFillPenStrokeColor.toString());
+    });
+
+    // 异步获取初始值
+    this.initializeSettings();
+  }
+
+  private async initializeSettings() {
+    // 立即获取当前设置值
+    this.autoFillPenStrokeColorEnable = await Settings.get("autoFillPenStrokeColorEnable");
+    const colorArray = await Settings.get("autoFillPenStrokeColor");
+    this.autoFillPenStrokeColor = new Color(...colorArray);
+
+    // 如果颜色是透明的，设置一个默认的可见颜色
+    if (this.autoFillPenStrokeColor.a === 0) {
+      console.log("检测到透明画笔颜色，设置默认颜色");
+      const defaultColor = new Color(239, 83, 80, 1); // 红色
+      this.autoFillPenStrokeColor = defaultColor;
+      Settings.set("autoFillPenStrokeColor", defaultColor.toArray());
+    }
+
+    console.log("ControllerPenStrokeDrawing异步初始化完成:", {
+      autoFillPenStrokeColorEnable: this.autoFillPenStrokeColorEnable,
+      autoFillPenStrokeColor: this.autoFillPenStrokeColor.toString(),
     });
   }
 
@@ -59,14 +87,22 @@ class ControllerDrawingClass extends ControllerClass {
    */
   private recordLocation: Vector[] = [];
 
-  public mousedown: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mousedown: (event: PointerEvent) => void = (event: PointerEvent) => {
+    console.log("mousedown事件触发:", {
+      button: event.button,
+      leftMouseMode: Stage.leftMouseMode,
+    });
+
     if (Stage.leftMouseMode !== LeftMouseModeEnum.draw) {
+      console.log("跳过mousedown: 不在绘制模式");
       return;
     }
     if (!(event.button === 0 && Stage.leftMouseMode === LeftMouseModeEnum.draw)) {
+      console.log("跳过mousedown: 按钮或模式不匹配");
       return;
     }
     this._isUsing = true;
+    console.log("mousedown设置_isUsing为true");
 
     const pressWorldLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
     if (Controller.pressingKeySet.has("shift")) {
@@ -82,10 +118,16 @@ class ControllerDrawingClass extends ControllerClass {
 
   public mousemove = (event: PointerEvent) => {
     if (!this._isUsing) return;
-    if (!Controller.isMouseDown[0] && Stage.leftMouseMode === LeftMouseModeEnum.draw) {
+    if (!(Controller.isMouseDown[0] && Stage.leftMouseMode === LeftMouseModeEnum.draw)) {
       return;
     }
-    const events = event.getCoalescedEvents();
+
+    // 只在第一次移动时打印，避免日志过多
+    if (this.currentStroke.length === 0) {
+      console.log("开始记录笔画移动");
+    }
+    // 安全检查：确保 getCoalescedEvents 方法存在
+    const events = event.getCoalescedEvents ? event.getCoalescedEvents() : [event];
     for (const e of events) {
       const isPen = e.pointerType === "pen";
       const worldLocation = Renderer.transformView2World(new Vector(e.clientX, e.clientY));
@@ -104,12 +146,24 @@ class ControllerDrawingClass extends ControllerClass {
     }
   };
 
-  public mouseup = (event: MouseEvent) => {
-    if (!this._isUsing) return;
+  public mouseup = (event: PointerEvent) => {
+    console.log("mouseup事件触发:", {
+      isUsing: this._isUsing,
+      button: event.button,
+      leftMouseMode: Stage.leftMouseMode,
+      currentStrokeLength: this.currentStroke.length,
+    });
+
+    if (!this._isUsing) {
+      console.log("跳过mouseup: _isUsing为false");
+      return;
+    }
     if (!(event.button === 0 && Stage.leftMouseMode === LeftMouseModeEnum.draw)) {
+      console.log("跳过mouseup: 按钮或模式不匹配");
       return;
     }
     const releaseWorldLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
+    console.log("mouseup继续处理，释放位置:", releaseWorldLocation.toString());
 
     this.recordLocation.push(releaseWorldLocation.clone());
     if (releaseWorldLocation.subtract(this.pressStartWordLocation).magnitude() < 2) {
@@ -175,39 +229,80 @@ class ControllerDrawingClass extends ControllerClass {
         const strokeStringList: string[] = [
           `${startX},${startY},${this.currentStrokeWidth}`,
           `${endX},${endY},${this.currentStrokeWidth}`,
-          `${endX},${endY},${this.currentStrokeWidth}`,
         ];
         const contentString = strokeStringList.join("~");
+
+        // 获取实际用于渲染的颜色（处理透明颜色的情况）
+        let strokeColor = this.getCurrentStrokeColor();
+        if (strokeColor.a === 0) {
+          strokeColor = StageStyleManager.currentStyle.StageObjectBorder.clone();
+        }
+
         const stroke = new PenStroke({
           type: "core:pen_stroke",
           content: contentString,
-          color: this.getCurrentStrokeColor().toArray(),
+          color: strokeColor.toArray(),
           uuid: v4(),
           location: [0, 0],
           details: "",
         });
-        stroke.setColor(this.getCurrentStrokeColor());
+        stroke.setColor(strokeColor);
         StageManager.addPenStroke(stroke);
       } else {
-        // 普通笔迹
+        // 普通笔迹 - 使用与dumpString()相同的格式
         const strokeStringList: string[] = [];
         for (const segment of this.currentStroke) {
           strokeStringList.push(
             `${segment.startLocation.x.toFixed(2)},${segment.startLocation.y.toFixed(2)},${segment.width}`,
           );
         }
+        // 添加最后一段的结束点，保持与dumpString()方法的一致性
+        if (this.currentStroke.length > 0) {
+          const lastSegment = this.currentStroke[this.currentStroke.length - 1];
+          strokeStringList.push(
+            `${lastSegment.endLocation.x.toFixed(2)},${lastSegment.endLocation.y.toFixed(2)},${lastSegment.width}`,
+          );
+        }
         const contentString = strokeStringList.join("~");
+
+        // 获取实际用于渲染的颜色（处理透明颜色的情况）
+        let strokeColor = this.getCurrentStrokeColor();
+        console.log("保存前的颜色处理:", {
+          原始颜色: strokeColor.toString(),
+          是否透明: strokeColor.a === 0,
+          边框颜色: StageStyleManager.currentStyle.StageObjectBorder.toString(),
+        });
+
+        if (strokeColor.a === 0) {
+          strokeColor = StageStyleManager.currentStyle.StageObjectBorder.clone();
+          console.log("使用边框颜色替换透明颜色:", strokeColor.toString());
+        }
+
+        console.log("即将创建PenStroke:", {
+          contentString,
+          color: strokeColor.toArray(),
+          colorString: strokeColor.toString(),
+        });
 
         const stroke = new PenStroke({
           type: "core:pen_stroke",
           content: contentString,
-          color: this.getCurrentStrokeColor().toArray(),
+          color: strokeColor.toArray(),
           uuid: v4(),
           location: [0, 0],
           details: "",
         });
-        stroke.setColor(this.getCurrentStrokeColor());
+        stroke.setColor(strokeColor);
+
+        console.log("创建的PenStroke对象:", {
+          uuid: stroke.uuid,
+          segmentCount: stroke.getSegmentList().length,
+          color: stroke.getColor().toString(),
+          colorArray: stroke.getColor().toArray(),
+        });
+
         StageManager.addPenStroke(stroke);
+        console.log("PenStroke已添加到StageManager");
       }
     }
 

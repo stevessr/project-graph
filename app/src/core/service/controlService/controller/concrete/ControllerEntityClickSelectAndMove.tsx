@@ -21,8 +21,14 @@ import { getClickedStageObject } from "./utilsControl";
 class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
   private isMovingEntity = false;
   private mouseDownViewLocation = Vector.getZero();
+  private hasDragged = false; // 标记是否发生了实际拖动
 
-  public mousedown: (event: MouseEvent) => void = (event: MouseEvent) => {
+  // 暴露拖动状态供其他控制器检查
+  public get isDragging(): boolean {
+    return this.hasDragged;
+  }
+
+  public mousedown: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (event.button !== 0) {
       return;
     }
@@ -30,6 +36,7 @@ class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
       return;
     }
     this.mouseDownViewLocation = new Vector(event.clientX, event.clientY);
+    this.hasDragged = false; // 重置拖动标记
 
     const pressWorldLocation = Renderer.transformView2World(this.mouseDownViewLocation);
     this.lastMoveLocation = pressWorldLocation.clone();
@@ -90,7 +97,7 @@ class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
     StageObjectSelectCounter.update();
   };
 
-  public mousemove: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mousemove: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (
       Stage.rectangleSelectMouseMachine.isUsing ||
       Stage.cuttingMachine.isUsing ||
@@ -104,7 +111,16 @@ class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
     if (!this.isMovingEntity) {
       return;
     }
-    const worldLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
+
+    const currentViewLocation = new Vector(event.clientX, event.clientY);
+    const dragDistance = currentViewLocation.subtract(this.mouseDownViewLocation).magnitude();
+
+    // 只有当拖动距离超过阈值时才标记为拖动，避免轻微的手指抖动被误判为拖动
+    if (dragDistance > 5) {
+      this.hasDragged = true;
+    }
+
+    const worldLocation = Renderer.transformView2World(currentViewLocation);
     const diffLocation = worldLocation.subtract(ControllerEntityClickSelectAndMove.lastMoveLocation);
 
     if (StageManager.isHaveEntitySelected()) {
@@ -127,7 +143,7 @@ class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
     }
   };
 
-  public mouseup: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mouseup: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (event.button !== 0) {
       return;
     }
@@ -153,6 +169,16 @@ class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
     }
 
     this.isMovingEntity = false;
+
+    // 如果没有发生实际拖动，立即重置标记；否则延迟重置
+    if (!this.hasDragged) {
+      // 没有拖动，立即重置
+    } else {
+      // 发生了拖动，延迟重置拖动标记，给双击检测留出时间
+      setTimeout(() => {
+        this.hasDragged = false;
+      }, 50); // 缩短延迟时间
+    }
   };
 
   public mouseMoveOutWindowForcedShutdown(_outsideLocation: Vector): void {

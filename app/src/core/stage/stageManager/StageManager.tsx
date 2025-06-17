@@ -39,6 +39,7 @@ import { StageHistoryManager } from "./StageHistoryManager";
 import { TextRiseEffect } from "../../service/feedbackService/effectEngine/concrete/TextRiseEffect";
 import { MultiTargetUndirectedEdge } from "../stageObject/association/MutiTargetUndirectedEdge";
 import { SvgNode } from "../stageObject/entity/SvgNode";
+import { CacheManager } from "../../service/performanceService/CacheManager";
 
 // littlefean:应该改成类，实例化的对象绑定到舞台上。这成单例模式了
 // 开发过程中会造成多开
@@ -174,6 +175,70 @@ export namespace StageManager {
     Settings.watch("allowAddCycleEdge", (value) => {
       isAllowAddCycleEdge = value;
     });
+
+    // 注册缓存失效回调
+    CacheManager.registerInvalidationCallback(() => {
+      GraphMethods.invalidateCache();
+    });
+    CacheManager.registerInvalidationCallback(() => {
+      // 导入 SectionMethods 并调用其缓存失效方法
+      import("./basicMethods/SectionMethods").then(({ SectionMethods }) => {
+        SectionMethods.invalidateCache();
+      });
+    });
+
+    // Set up collision manager to avoid circular dependency
+    Entity.collisionManager = {
+      updateEntityCollisions: (entity: Entity) => {
+        if (!isEnableEntityCollision) {
+          return;
+        }
+        for (const otherEntity of getEntities()) {
+          if (otherEntity === entity) {
+            continue;
+          }
+          handleEntityCollision(entity, otherEntity);
+        }
+      },
+      handleEntityCollision: (entity1: Entity, entity2: Entity) => {
+        handleEntityCollision(entity1, entity2);
+      },
+    };
+
+    // Set up section manager to avoid circular dependency
+    Entity.sectionManager = {
+      updateFatherSections: (entity: Entity) => {
+        // Import SectionMethods dynamically to avoid circular dependency
+        import("./basicMethods/SectionMethods").then(({ SectionMethods }) => {
+          const fatherSections = SectionMethods.getFatherSections(entity);
+          for (const section of fatherSections) {
+            section.adjustLocationAndSize();
+            section.updateFatherSectionByMove();
+          }
+        });
+      },
+    };
+  }
+
+  function handleEntityCollision(entity1: Entity, entity2: Entity) {
+    if (!isEnableEntityCollision) {
+      return;
+    }
+    const selfRectangle = entity1.collisionBox.getRectangle();
+    const otherRectangle = entity2.collisionBox.getRectangle();
+    if (!selfRectangle.isCollideWith(otherRectangle)) {
+      return;
+    }
+
+    // 两者相交，需要调整位置
+    const overlapSize = selfRectangle.getOverlapSize(otherRectangle);
+    let moveDelta;
+    if (Math.abs(overlapSize.x) < Math.abs(overlapSize.y)) {
+      moveDelta = new Vector(overlapSize.x * Math.sign(otherRectangle.center.x - selfRectangle.center.x), 0);
+    } else {
+      moveDelta = new Vector(0, overlapSize.y * Math.sign(otherRectangle.center.y - selfRectangle.center.y));
+    }
+    entity2.move(moveDelta, true); // <-- 新的调用，传递 true 以跳过下一轮碰撞解决
   }
 
   export function isEmpty(): boolean {
@@ -250,33 +315,43 @@ export namespace StageManager {
   }
   export function deleteOneTextNode(node: TextNode) {
     stageContent.entities.deleteValue(node);
+    CacheManager.invalidateEntityCaches();
   }
   export function deleteOneImage(node: ImageNode) {
     stageContent.entities.deleteValue(node);
+    CacheManager.invalidateEntityCaches();
   }
   export function deleteOneUrlNode(node: UrlNode) {
     stageContent.entities.deleteValue(node);
+    CacheManager.invalidateEntityCaches();
   }
   export function deleteOneSection(section: Section) {
     stageContent.entities.deleteValue(section);
+    CacheManager.invalidateSectionCaches();
   }
   export function deleteOneConnectPoint(point: ConnectPoint) {
     stageContent.entities.deleteValue(point);
+    CacheManager.invalidateEntityCaches();
   }
   export function deleteOnePortalNode(node: PortalNode) {
     stageContent.entities.deleteValue(node);
+    CacheManager.invalidateEntityCaches();
   }
   export function deleteOnePenStroke(penStroke: PenStroke) {
     stageContent.entities.deleteValue(penStroke);
+    CacheManager.invalidateEntityCaches();
   }
   export function deleteOneEntity(entity: Entity) {
     stageContent.entities.deleteValue(entity);
+    CacheManager.invalidateEntityCaches();
   }
   export function deleteOneLineEdge(edge: LineEdge) {
     stageContent.associations.deleteValue(edge);
+    CacheManager.invalidateGraphCaches();
   }
   export function deleteOneAssociation(association: Association) {
     stageContent.associations.deleteValue(association);
+    CacheManager.invalidateGraphCaches();
   }
 
   export function getAssociations(): Association[] {
@@ -360,37 +435,57 @@ export namespace StageManager {
 
   export function addTextNode(node: TextNode) {
     stageContent.entities.addValue(node, node.uuid);
+    CacheManager.invalidateEntityCaches();
   }
   export function addUrlNode(node: UrlNode) {
     stageContent.entities.addValue(node, node.uuid);
+    CacheManager.invalidateEntityCaches();
   }
   export function addImageNode(node: ImageNode) {
     stageContent.entities.addValue(node, node.uuid);
+    CacheManager.invalidateEntityCaches();
   }
   export function addSection(section: Section) {
     stageContent.entities.addValue(section, section.uuid);
+    CacheManager.invalidateSectionCaches();
   }
   export function addConnectPoint(point: ConnectPoint) {
     stageContent.entities.addValue(point, point.uuid);
+    CacheManager.invalidateEntityCaches();
   }
   export function addAssociation(association: Association) {
     stageContent.associations.addValue(association, association.uuid);
+    CacheManager.invalidateGraphCaches();
   }
   export function addLineEdge(edge: LineEdge) {
     stageContent.associations.addValue(edge, edge.uuid);
+    CacheManager.invalidateGraphCaches();
   }
   export function addCrEdge(edge: CubicCatmullRomSplineEdge) {
     stageContent.associations.addValue(edge, edge.uuid);
+    CacheManager.invalidateGraphCaches();
   }
   export function addPenStroke(penStroke: PenStroke) {
+    console.log("StageManager.addPenStroke被调用:", {
+      uuid: penStroke.uuid,
+      color: penStroke.getColor().toString(),
+      segmentCount: penStroke.getSegmentList().length,
+      当前PenStroke总数: getPenStrokes().length,
+    });
+
     stageContent.entities.addValue(penStroke, penStroke.uuid);
+    CacheManager.invalidateEntityCaches();
+
+    console.log("PenStroke添加完成，新的总数:", getPenStrokes().length);
   }
   export function addPortalNode(portalNode: PortalNode) {
     stageContent.entities.addValue(portalNode, portalNode.uuid);
+    CacheManager.invalidateEntityCaches();
   }
 
   export function addEntity(entity: Entity) {
     stageContent.entities.addValue(entity, entity.uuid);
+    CacheManager.invalidateEntityCaches();
   }
 
   /**
@@ -643,23 +738,48 @@ export namespace StageManager {
     return result;
   }
 
+  // 导入空间索引缓存
+  let SpatialIndexCache: any = null;
+  (async () => {
+    try {
+      const module = await import("../../service/performanceService/CacheManager");
+      // 获取 SpatialIndexCache 实例
+      const cacheManagerModule = module as any;
+      if (cacheManagerModule.SpatialIndexCacheInstance) {
+        SpatialIndexCache = cacheManagerModule.SpatialIndexCacheInstance;
+      }
+    } catch (error) {
+      console.warn("Failed to load SpatialIndexCache:", error);
+    }
+  })();
+
   /**
-   * 判断某一点是否有实体存在（排除实体的被Section折叠）
+   * 判断某一点是否有实体存在（排除实体的被Section折叠）- 优化版本使用空间索引
    * @param location
    * @returns
    */
   export function isEntityOnLocation(location: Vector): boolean {
-    for (const entity of getEntities()) {
-      if (entity.isHiddenBySectionCollapse) {
-        continue;
+    if (SpatialIndexCache) {
+      // 使用空间索引优化查找
+      const visibleEntities = getEntities().filter((entity) => !entity.isHiddenBySectionCollapse);
+      const entitiesAtLocation = SpatialIndexCache.findEntitiesAtLocation(location, visibleEntities);
+      return entitiesAtLocation.length > 0;
+    } else {
+      // 回退到原始实现
+      for (const entity of getEntities()) {
+        if (entity.isHiddenBySectionCollapse) {
+          continue;
+        }
+        if (entity.collisionBox.isContainsPoint(location)) {
+          return true;
+        }
       }
-      if (entity.collisionBox.isContainsPoint(location)) {
-        return true;
-      }
+      return false;
     }
-    return false;
   }
+
   export function isAssociationOnLocation(location: Vector): boolean {
+    // 关联对象的数量通常较少，暂时保持原始实现
     for (const association of getAssociations()) {
       if (association instanceof Edge) {
         if (association.target.isHiddenBySectionCollapse && association.source.isHiddenBySectionCollapse) {

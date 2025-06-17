@@ -127,7 +127,11 @@ export class Line extends Shape {
     const minY = Math.min(this.start.y, this.end.y);
     const maxY = Math.max(this.start.y, this.end.y);
     const location = new Vector(minX, minY);
-    const size = new Vector(maxX - minX, maxY - minY);
+    // 确保矩形至少有最小的宽度和高度，避免0尺寸矩形导致的渲染问题
+    const minSize = 1;
+    const width = Math.max(maxX - minX, minSize);
+    const height = Math.max(maxY - minY, minSize);
+    const size = new Vector(width, height);
     return new Rectangle(location, size);
   }
 

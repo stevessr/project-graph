@@ -36,6 +36,9 @@ import { KeyboardOnlyTreeEngine } from "../keyboardOnlyEngine/keyboardOnlyTreeEn
 import { SelectChangeEngine } from "../keyboardOnlyEngine/selectChangeEngine";
 import { MouseLocation } from "../MouseLocation";
 import { KeyBinds } from "./KeyBinds";
+import { StageGeneratorAI } from "../../../stage/stageManager/concreteMethods/StageGeneratorAI";
+import { ManualExecutionEngine } from "../../dataGenerateService/autoComputeEngine/manualExecutionEngine";
+import { NodeLogic } from "../../dataGenerateService/autoComputeEngine/functions/nodeLogic";
 
 /**
  * 快捷键注册函数，仅在软件启动的时候调用一次
@@ -1165,6 +1168,59 @@ export namespace ShortcutKeysRegister {
       for (const entity of entities) {
         KeyboardOnlyTreeEngine.adjustTreeNode(entity);
       }
+    });
+
+    // AI Extension Node Shortcuts
+    (
+      await KeyBinds.create("aiExpandSelectedNodes", "e", {
+        control: isMac ? false : true,
+        meta: isMac,
+        alt: true,
+        shift: false,
+      })
+    ).down(async () => {
+      if (!KeyboardOnlyEngine.isOpenning()) return;
+      await StageGeneratorAI.generateNewTextNodeBySelected();
+      StageHistoryManager.recordStep();
+    });
+
+    (
+      await KeyBinds.create("aiGenerateSummary", "s", {
+        control: isMac ? false : true,
+        meta: isMac,
+        alt: true,
+        shift: false,
+      })
+    ).down(async () => {
+      if (!KeyboardOnlyEngine.isOpenning()) return;
+      await StageGeneratorAI.generateSummaryBySelected();
+      StageHistoryManager.recordStep();
+    });
+
+    (
+      await KeyBinds.create("executeLogicNodes", "r", {
+        control: isMac ? false : true,
+        meta: isMac,
+        alt: false,
+        shift: false,
+      })
+    ).down(() => {
+      if (!KeyboardOnlyEngine.isOpenning()) return;
+      ManualExecutionEngine.executeSelectedLogicNodes();
+      StageHistoryManager.recordStep();
+    });
+
+    (
+      await KeyBinds.create("resetChatNodeStates", "r", {
+        control: isMac ? false : true,
+        meta: isMac,
+        alt: true,
+        shift: true,
+      })
+    ).down(() => {
+      if (!KeyboardOnlyEngine.isOpenning()) return;
+      NodeLogic.resetAllChatNodeExecutionStates();
+      console.log("已重置所有聊天节点执行状态");
     });
   }
 }

@@ -19,7 +19,7 @@ export class ControllerPenStrokeControl extends ControllerClass {
    */
   public lastAdjustWidthLocation: Vector = Vector.getZero();
 
-  public mousedown: (event: MouseEvent) => void = (event) => {
+  public mousedown: (event: PointerEvent) => void = (event) => {
     if (!(event.button === 2 && Stage.leftMouseMode === LeftMouseModeEnum.draw)) {
       return;
     }
@@ -32,7 +32,7 @@ export class ControllerPenStrokeControl extends ControllerClass {
     }
   };
 
-  public mousemove: (event: MouseEvent) => void = (event) => {
+  public mousemove: (event: PointerEvent) => void = (event) => {
     if (Stage.leftMouseMode === LeftMouseModeEnum.selectAndMove) {
       // 检查鼠标是否悬浮在笔迹上
       const location = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
@@ -52,7 +52,7 @@ export class ControllerPenStrokeControl extends ControllerClass {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public mouseup: (event: MouseEvent) => void = (_event) => {
+  public mouseup: (event: PointerEvent) => void = (_event) => {
     if (Stage.leftMouseMode === LeftMouseModeEnum.draw) {
       if (this.isAdjusting) {
         this.isAdjusting = false;
@@ -81,7 +81,7 @@ export class ControllerPenStrokeControl extends ControllerClass {
   //   }
   // };
 
-  private onMouseMoveWhenAdjusting = (event: MouseEvent) => {
+  private onMouseMoveWhenAdjusting = (event: PointerEvent) => {
     // 更改宽度，检测鼠标上下移动的距离（模仿PS的笔刷粗细调整）
     const currentWorldLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
 

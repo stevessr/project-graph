@@ -31,7 +31,7 @@ class ControllerRectangleSelectClass extends ControllerClass {
     this.shutDown();
   }
 
-  public mousedown: (event: MouseEvent) => void = (event) => {
+  public mousedown: (event: PointerEvent) => void = (event) => {
     if (Controller.pressingKeySet.has("alt")) {
       // layer moving mode
       return;
@@ -65,7 +65,7 @@ class ControllerRectangleSelectClass extends ControllerClass {
     ControllerRectangleSelect.lastMoveLocation = pressWorldLocation.clone();
   };
 
-  public mousemove: (event: MouseEvent) => void = (event) => {
+  public mousemove: (event: PointerEvent) => void = (event) => {
     if (Stage.leftMouseMode !== LeftMouseModeEnum.selectAndMove) {
       return;
     }
@@ -96,7 +96,7 @@ class ControllerRectangleSelectClass extends ControllerClass {
     }
   }
 
-  public mouseup = (event: MouseEvent) => {
+  public mouseup = (event: PointerEvent) => {
     if (event.button !== 0) {
       return;
     }

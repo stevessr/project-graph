@@ -302,6 +302,26 @@ keyBinds:
     description: |
       松开时切换回默认的鼠标模式
     title: 设置左键为“连线/斩断”模式(仅按下时)
+  aiExpandSelectedNodes:
+    title: AI扩展选中节点
+    description: |
+      使用AI根据选中文本节点的内容生成子节点来扩展它们。
+      此功能需要激活的AI配置。
+  aiGenerateSummary:
+    title: AI生成摘要
+    description: |
+      使用AI为选中的文本节点生成摘要。
+      摘要将作为连接到选中节点的新节点创建。
+  executeLogicNodes:
+    title: 执行逻辑节点
+    description: |
+      执行选中的逻辑节点，包括聊天节点和其他计算节点。
+      逻辑节点将按从上到下、从左到右的顺序执行。
+  resetChatNodeStates:
+    title: 重置聊天节点状态
+    description: |
+      重置所有聊天节点的执行状态，允许它们再次执行。
+      当聊天节点卡在执行状态时很有用。
   checkoutLeftMouseToDrawing:
     description: |
       也就是鼠标左键切换为涂鸦模式,在工具栏中有对应按钮
@@ -675,6 +695,10 @@ keyBindsGroup:
     description: |
       用于控制UI的一些功能
     title: UI控制
+  ai:
+    title: AI功能
+    description: |
+      AI驱动的节点扩展、摘要生成和逻辑执行功能。
 keys:
   " ": 空格
   arrowdown: 下方向键

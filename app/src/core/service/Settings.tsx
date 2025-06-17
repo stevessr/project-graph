@@ -34,6 +34,7 @@ export namespace Settings {
     alwaysShowDetails: boolean;
     protectingPrivacy: boolean;
     useNativeTitleBar: boolean;
+    useNativeMenuBar: boolean;
     entityDetailsFontSize: number;
     entityDetailsLinesLimit: number;
     entityDetailsWidthLimit: number;
@@ -159,6 +160,7 @@ export namespace Settings {
     alwaysShowDetails: false,
     protectingPrivacy: false,
     useNativeTitleBar: false,
+    useNativeMenuBar: false,
     entityDetailsFontSize: 18,
     entityDetailsLinesLimit: 4,
     entityDetailsWidthLimit: 200,

@@ -767,7 +767,7 @@ export namespace NodeLogic {
     // 启动异步聊天API调用，实时更新输出节点
     executeChatApiStreamToNode(prompt, outputNode, false);
 
-    return [""];
+    return ["开始AI对话..."];
   }
 
   /**
@@ -810,7 +810,7 @@ export namespace NodeLogic {
     // 启动异步聊天API调用，实时更新输出节点
     executeChatApiStreamToNode(fullPrompt, outputNode, true);
 
-    return [""];
+    return ["开始AI对话..."];
   }
 
   /**
@@ -833,6 +833,12 @@ export namespace NodeLogic {
 
       // 使用流式传输
       const streamGenerator = callAiApi(prompt, true);
+
+      // 检查streamGenerator是否为undefined（可能在测试环境中发生）
+      if (!streamGenerator) {
+        throw new Error("Stream generator is undefined");
+      }
+
       let fullResponse = "";
 
       // 处理流式响应

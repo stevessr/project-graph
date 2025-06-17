@@ -4,6 +4,7 @@
 
 import {
   AppWindow,
+  Bot,
   Brush,
   Fullscreen,
   Keyboard,
@@ -162,5 +163,10 @@ export const shortcutKeysGroups: ShortcutKeysGroup[] = [
     title: "edge",
     icon: <Spline />,
     keys: ["reverseEdges", "reverseSelectedNodeEdge", "createUndirectedEdgeFromEntities"],
+  },
+  {
+    title: "ai",
+    icon: <Bot />,
+    keys: ["aiExpandSelectedNodes", "aiGenerateSummary", "executeLogicNodes", "resetChatNodeStates"],
   },
 ];

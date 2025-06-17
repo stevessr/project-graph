@@ -5,7 +5,22 @@ import { LogicNodeNameEnum } from "../../../../../src/core/service/dataGenerateS
 
 // Mock the AI API service
 vi.mock("../../../../../src/services/aiApiService", () => ({
-  callAiApi: vi.fn(),
+  callAiApi: vi.fn().mockImplementation((prompt: string, stream: boolean) => {
+    if (stream) {
+      // Return an async generator for streaming with a small delay to simulate real behavior
+      return (async function* () {
+        await new Promise((resolve) => setTimeout(resolve, 10)); // Small delay
+        yield "Hello";
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        yield " ";
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        yield "World";
+      })();
+    } else {
+      // Return a promise for non-streaming
+      return Promise.resolve("Hello World");
+    }
+  }),
 }));
 
 describe("Chat Nodes", () => {
@@ -14,23 +29,30 @@ describe("Chat Nodes", () => {
   let systemNode: TextNode;
 
   beforeEach(() => {
-    // Create mock nodes
+    // Reset mocks
+    vi.clearAllMocks();
+
+    // Reset all chat node execution states
+    NodeLogic.resetAllChatNodeExecutionStates();
+
+    // Create mock nodes with unique UUIDs for each test
+    const timestamp = Date.now();
     inputNode = new TextNode({
-      uuid: "input-1",
+      uuid: `input-${timestamp}`,
       text: "Hello, how are you?",
       location: [0, 0],
       size: [100, 50],
     });
 
     outputNode = new TextNode({
-      uuid: "output-1",
+      uuid: `output-${timestamp}`,
       text: "",
       location: [200, 0],
       size: [100, 50],
     });
 
     systemNode = new TextNode({
-      uuid: "system-1",
+      uuid: `system-${timestamp}`,
       text: "You are a helpful assistant.",
       location: [0, -100],
       size: [100, 50],
@@ -112,7 +134,7 @@ describe("Chat Nodes", () => {
       expect(result2).toEqual(["聊天节点正在执行中，请等待完成..."]);
     });
 
-    it("should check execution status correctly", () => {
+    it("should check execution status correctly", async () => {
       const nodeId = outputNode.uuid;
 
       // 初始状态应该是未执行
@@ -121,9 +143,13 @@ describe("Chat Nodes", () => {
       // 开始执行后应该返回true
       NodeLogic.chatContent([inputNode], [outputNode]);
       expect(NodeLogic.isChatNodeExecuting(nodeId)).toBe(true);
+
+      // 等待异步执行完成
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(NodeLogic.isChatNodeExecuting(nodeId)).toBe(false);
     });
 
-    it("should reset all execution states", () => {
+    it("should reset all execution states", async () => {
       const nodeId = outputNode.uuid;
 
       // 开始执行
@@ -135,7 +161,7 @@ describe("Chat Nodes", () => {
       expect(NodeLogic.isChatNodeExecuting(nodeId)).toBe(false);
     });
 
-    it("should stop specific node execution", () => {
+    it("should stop specific node execution", async () => {
       const nodeId = outputNode.uuid;
 
       // 开始执行
@@ -147,7 +173,7 @@ describe("Chat Nodes", () => {
       expect(NodeLogic.isChatNodeExecuting(nodeId)).toBe(false);
     });
 
-    it("should count executing nodes correctly", () => {
+    it("should count executing nodes correctly", async () => {
       // 初始应该是0
       expect(NodeLogic.getExecutingChatNodeCount()).toBe(0);
 

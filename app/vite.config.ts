@@ -80,6 +80,22 @@ export default defineConfig(async () => ({
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
       external: ["@tauri-apps/api"],
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ["console.log", "console.info", "console.debug"],
+        },
+      },
+
+      // Enable source maps for production debugging (optional)
+      sourcemap: false,
+
+      // Optimize for modern browsers
+      target: "esnext",
+
+      // Enable CSS code splitting
+      cssCodeSplit: true,
     },
   },
 

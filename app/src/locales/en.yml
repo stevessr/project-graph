@@ -1040,6 +1040,26 @@ keyBinds:
     title: 'Handbrake: Open/Close Camera Movement Controlled by Button'
   checkoutLeftMouseToConnectAndCuttingOnlyPressed:
     description: "Release to switch back to the default mouse mode\n"
+  aiExpandSelectedNodes:
+    title: AI Expand Selected Nodes
+    description: |
+      Use AI to expand the selected text nodes by generating child nodes based on their content.
+      This feature requires an active AI configuration.
+  aiGenerateSummary:
+    title: AI Generate Summary
+    description: |
+      Use AI to generate a summary of the selected text nodes.
+      The summary will be created as a new node connected to the selected nodes.
+  executeLogicNodes:
+    title: Execute Logic Nodes
+    description: |
+      Execute the selected logic nodes, including chat nodes and other computational nodes.
+      Logic nodes will be executed in order from top to bottom, left to right.
+  resetChatNodeStates:
+    title: Reset Chat Node States
+    description: |
+      Reset the execution states of all chat nodes, allowing them to be executed again.
+      This is useful when chat nodes are stuck in an executing state.
 effects:
   RectangleLittleNoteEffect:
     title: Rectangle Glimmer Hint Effect
@@ -1174,6 +1194,9 @@ keyBindsGroup:
   section:
     description: "Functions about Section Box.\n"
     title: Section Box
+  ai:
+    title: AI Functions
+    description: "AI-powered features for node expansion, summarization, and logic execution.\n"
 controlSettingsGroup:
   mouse:
     title: Mouse Settings

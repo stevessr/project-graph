@@ -181,33 +181,31 @@ export namespace Controller {
 
   function handleMouseup(button: number, x: number, y: number) {
     isMouseDown[button] = false;
+    // 为触屏事件保留双击检测逻辑，因为触屏事件需要特殊处理
+    // 只有触屏事件会调用这个函数，鼠标事件直接通过 ControllerClass 处理
     const currentTime = Date.now();
-    // Check for double click/tap:
-    // It must be the primary button (button === 0).
-    // The time between taps should be short (e.g., < 300ms).
-    // The location of the taps should be close (e.g., < 20px).
     if (
       button === 0 &&
-      currentTime - lastClickTime < 300 && // Adjusted for touch, original was 200ms
-      lastClickLocation.distance(new Vector(x, y)) < 20 // Adjusted for touch, original was 10px
+      currentTime - lastClickTime < 300 && // 触屏双击时间间隔
+      lastClickLocation.distance(new Vector(x, y)) < 20 // 触屏双击距离容差
     ) {
-      // This is a double click/tap.
-      // Create a mock MouseEvent object for ControllerEntityCreate.mouseDoubleClick.
-      const mockMouseEvent = {
-        button: 0,
-        clientX: x,
-        clientY: y,
-        preventDefault: () => {}, // In case it's called, though not strictly needed by current usage
-      } as MouseEvent;
+      // 这是触屏双击事件，但需要检查是否刚刚发生了拖动
+      if (!ControllerEntityClickSelectAndMove.isDragging) {
+        const mockPointerEvent = {
+          button: 0,
+          clientX: x,
+          clientY: y,
+          preventDefault: () => {},
+        } as PointerEvent;
 
-      // Call the entity creation logic.
-      ControllerEntityCreate.mouseDoubleClick(mockMouseEvent);
+        // 调用节点创建逻辑
+        ControllerEntityCreate.mouseDoubleClick(mockPointerEvent);
+      }
 
-      // Reset lastClickTime to prevent a third quick tap from being misinterpreted.
-      // This ensures that a double-tap is a discrete event.
+      // 重置时间以防止三次快速点击被误解释
       lastClickTime = 0;
     } else {
-      // This is a single click/tap or the first tap of a potential double-tap.
+      // 单击或双击的第一次点击
       lastClickTime = currentTime;
       lastClickLocation = new Vector(x, y);
     }
@@ -267,14 +265,14 @@ export namespace Controller {
     if (e.touches.length === 1) {
       const touch = e.touches[0];
       handleMousedown(0, touch.clientX, touch.clientY);
-      // Simulate a mouse event for ControllerEntityClickSelectAndMove
-      const mockMouseEvent = {
+      // Simulate a pointer event for ControllerEntityClickSelectAndMove
+      const mockPointerEvent = {
         button: 0,
         clientX: touch.clientX,
         clientY: touch.clientY,
         preventDefault: () => {},
-      } as MouseEvent;
-      ControllerEntityClickSelectAndMove.mousedown(mockMouseEvent);
+      } as PointerEvent;
+      ControllerEntityClickSelectAndMove.mousedown(mockPointerEvent);
     }
     if (e.touches.length === 2) {
       const touch1 = Vector.fromTouch(e.touches[0]);
@@ -293,13 +291,13 @@ export namespace Controller {
 
     if (e.touches.length === 1) {
       const touch = e.touches[0];
-      // Simulate a mouse event for ControllerEntityClickSelectAndMove
-      const mockMouseEvent = {
+      // Simulate a pointer event for ControllerEntityClickSelectAndMove
+      const mockPointerEvent = {
         clientX: touch.clientX,
         clientY: touch.clientY,
         preventDefault: () => {},
-      } as MouseEvent;
-      ControllerEntityClickSelectAndMove.mousemove(mockMouseEvent);
+      } as PointerEvent;
+      ControllerEntityClickSelectAndMove.mousemove(mockPointerEvent);
     }
     if (e.touches.length === 2) {
       const touch1 = Vector.fromTouch(e.touches[0]);
@@ -329,14 +327,14 @@ export namespace Controller {
     if (e.changedTouches.length === 1) {
       const touch = e.changedTouches[0];
       handleMouseup(0, touch.clientX, touch.clientY);
-      // Simulate a mouse event for ControllerEntityClickSelectAndMove
-      const mockMouseEvent = {
+      // Simulate a pointer event for ControllerEntityClickSelectAndMove
+      const mockPointerEvent = {
         button: 0,
         clientX: touch.clientX,
         clientY: touch.clientY,
         preventDefault: () => {},
-      } as MouseEvent;
-      ControllerEntityClickSelectAndMove.mouseup(mockMouseEvent);
+      } as PointerEvent;
+      ControllerEntityClickSelectAndMove.mouseup(mockPointerEvent);
     }
     // 移动画面
     Camera.accelerateCommander = touchDelta.multiply(-1).multiply(Camera.currentScale).limitX(-1, 1).limitY(-1, 1);

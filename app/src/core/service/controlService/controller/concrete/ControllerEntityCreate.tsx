@@ -9,6 +9,7 @@ import { Section } from "../../../../stage/stageObject/entity/Section";
 import { Controller } from "../Controller";
 import { ControllerClass } from "../ControllerClass";
 import { addTextNodeByLocation } from "./utilsControl";
+import { connectPointRateLimiter, doubleClickRateLimiter } from "./NodeCreationRateLimiter";
 
 /**
  * 创建节点的控制器
@@ -25,9 +26,14 @@ ControllerEntityCreate.mouseDoubleClick = (event: PointerEvent) => {
     return;
   }
 
-  Stage.rectangleSelectMouseMachine.shutDown();
-
   const pressLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
+
+  // 使用双击限速器防止重复触发
+  if (!doubleClickRateLimiter.tryCreate(pressLocation)) {
+    return;
+  }
+
+  Stage.rectangleSelectMouseMachine.shutDown();
 
   // 排除：在实体上双击或者在线上双击
   if (StageManager.isEntityOnLocation(pressLocation) || StageManager.isAssociationOnLocation(pressLocation)) {
@@ -48,5 +54,10 @@ ControllerEntityCreate.mouseDoubleClick = (event: PointerEvent) => {
 };
 
 function createConnectPoint(pressLocation: Vector, addToSections: Section[]) {
+  // 使用限速管理器检查是否允许创建
+  if (!connectPointRateLimiter.tryCreate(pressLocation)) {
+    return;
+  }
+
   StageNodeAdder.addConnectPoint(pressLocation, addToSections);
 }

@@ -9,6 +9,7 @@ import { PenStroke } from "../../stage/stageObject/entity/PenStroke";
 import { Section } from "../../stage/stageObject/entity/Section";
 import { TextNode } from "../../stage/stageObject/entity/TextNode";
 import { UrlNode } from "../../stage/stageObject/entity/UrlNode";
+import { Entity } from "../../stage/stageObject/abstract/StageObject";
 
 export interface CountResultObject {
   textNodeWordCount: number;
@@ -50,6 +51,56 @@ export interface CountResultObject {
   crossEntityCount: number;
   maxSectionDepth: number;
   emptySetCount: number;
+}
+
+/**
+ * 优化的节点重叠计算函数，使用空间分割算法减少比较次数
+ * 时间复杂度从 O(n²) 优化到平均 O(n log n)
+ */
+function calculateEntityOverlapCountOptimized(entities: Entity[]): number {
+  if (entities.length <= 1) return 0;
+
+  let overlapCount = 0;
+
+  // 使用扫描线算法优化重叠检测
+  // 1. 按 x 坐标排序所有实体的边界
+  const events: Array<{ x: number; type: "start" | "end"; entity: Entity }> = [];
+
+  for (const entity of entities) {
+    const rect = entity.collisionBox.getRectangle();
+    events.push({ x: rect.left, type: "start", entity });
+    events.push({ x: rect.right, type: "end", entity });
+  }
+
+  // 按 x 坐标排序
+  events.sort((a, b) => a.x - b.x);
+
+  // 活跃实体集合（当前扫描线上的实体）
+  const activeEntities = new Set<Entity>();
+
+  for (const event of events) {
+    if (event.type === "start") {
+      // 检查新实体与所有活跃实体的重叠
+      for (const activeEntity of activeEntities) {
+        if (entitiesOverlap(event.entity, activeEntity)) {
+          overlapCount++;
+          break; // 只要找到一个重叠就够了，因为原算法也是 break
+        }
+      }
+      activeEntities.add(event.entity);
+    } else {
+      activeEntities.delete(event.entity);
+    }
+  }
+
+  return overlapCount;
+}
+
+/**
+ * 检查两个实体是否重叠
+ */
+function entitiesOverlap(entity1: Entity, entity2: Entity): boolean {
+  return entity1.collisionBox.isIntersectsWithRectangle(entity2.collisionBox.getRectangle());
 }
 /**
  * 舞台场景复杂度检测器
@@ -191,21 +242,9 @@ export namespace ComplexityDetector {
     // 节点密度
     countResultObject.entityDensity = countResultObject.entityCount / (countResultObject.stageArea / 10000);
 
-    // 节点重叠数量
-    for (const entity of entities) {
-      if (entity instanceof Section) {
-        continue;
-      }
-      for (const otherEntity of entities) {
-        if (entity === otherEntity || otherEntity instanceof Section) {
-          continue;
-        }
-        if (entity.collisionBox.isIntersectsWithRectangle(otherEntity.collisionBox.getRectangle())) {
-          countResultObject.entityOverlapCount++;
-          break;
-        }
-      }
-    }
+    // 节点重叠数量 - 优化算法，使用空间分割减少比较次数
+    const nonSectionEntities = entities.filter((entity) => !(entity instanceof Section));
+    countResultObject.entityOverlapCount = calculateEntityOverlapCountOptimized(nonSectionEntities);
     // 色彩统计
     const entityColorStringSet = new Set();
     for (const entity of entities) {

@@ -14,6 +14,7 @@ export class ControllerClass {
   public lastMoveLocation: Vector = Vector.getZero();
   private lastClickTime: number = 0;
   private lastClickLocation: Vector = Vector.getZero();
+  private lastDoubleClickTime: number = 0; // 防重复双击
 
   public keydown: (event: KeyboardEvent) => void = () => {};
   public keyup: (event: KeyboardEvent) => void = () => {};
@@ -95,9 +96,11 @@ export class ControllerClass {
     const now = new Date().getTime();
     if (
       now - this.lastClickTime < 300 &&
-      this.lastClickLocation.distance(new Vector(event.clientX, event.clientY)) < 20
+      this.lastClickLocation.distance(new Vector(event.clientX, event.clientY)) < 20 &&
+      now - this.lastDoubleClickTime > 500 // 防止短时间内重复触发双击
     ) {
       this.mouseDoubleClick(event);
+      this.lastDoubleClickTime = now; // 记录双击时间
     }
     this.lastClickTime = now;
     this.lastClickLocation = new Vector(event.clientX, event.clientY);
@@ -149,7 +152,9 @@ export class ControllerClass {
       clientX: this.onePointTouchMoveLocation.x,
       clientY: this.onePointTouchMoveLocation.y,
     } as PointerEvent;
-    this._mouseup(touch);
+    // 触屏事件只调用 mouseup，不调用 _mouseup，避免重复的双击检测
+    // 双击检测由 Controller.handleMouseup 统一处理
+    this.mouseup(touch);
   };
 
   /**

@@ -103,7 +103,7 @@ class CuttingControllerClass extends ControllerClass {
    */
   private cuttingStartLocation = Vector.getZero();
 
-  public mousedown: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mousedown: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (!(event.button == 2 || event.button == 0 || event.button == 1)) {
       return;
     }
@@ -125,7 +125,7 @@ class CuttingControllerClass extends ControllerClass {
     }
   };
 
-  private mouseDownEvent(event: MouseEvent) {
+  private mouseDownEvent(event: PointerEvent) {
     const pressWorldLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
     this.lastMoveLocation = pressWorldLocation.clone();
 
@@ -146,7 +146,7 @@ class CuttingControllerClass extends ControllerClass {
     }
   }
 
-  public mousemove: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mousemove: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (!this.isUsing) {
       return;
     }
@@ -240,7 +240,7 @@ class CuttingControllerClass extends ControllerClass {
     SoundService.play.cuttingLineRelease();
   }
 
-  public mouseup: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mouseup: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (!(event.button == 2 || event.button == 0 || event.button == 1)) {
       return;
     }
@@ -272,29 +272,39 @@ class CuttingControllerClass extends ControllerClass {
 
     this.twoPointsMap = {};
 
-    for (const entity of StageManager.getEntities()) {
-      // if (entity instanceof Section) {
-      //   continue; // Section的碰撞箱比较特殊
-      // }
-      if (entity.isHiddenBySectionCollapse) {
-        continue; // 隐藏的节点不参与碰撞检测
+    // 优化：预过滤可见实体，减少碰撞检测次数
+    const visibleEntities = StageManager.getEntities().filter((entity) => !entity.isHiddenBySectionCollapse);
+
+    // 优化：使用边界框预检查，只对可能相交的实体进行精确碰撞检测
+    const lineBounds = this.cuttingLine.getRectangle();
+
+    for (const entity of visibleEntities) {
+      const entityRect = entity.collisionBox.getRectangle();
+
+      // 快速边界框检查
+      if (!entityRect.isCollideWith(lineBounds)) {
+        continue;
       }
+
+      // 精确碰撞检测
       if (entity.collisionBox.isIntersectsWithLine(this.cuttingLine)) {
         this.warningEntity.push(entity);
       }
 
-      // 特效
-      const collidePoints = entity.collisionBox.getRectangle().getCollidePointsWithLine(this.cuttingLine);
+      // 特效计算
+      const collidePoints = entityRect.getCollidePointsWithLine(this.cuttingLine);
 
       if (collidePoints.length === 2) {
         this.twoPointsMap[entity.uuid] = collidePoints;
       }
 
-      // 增加两点特效
-      for (const collidePoint of collidePoints) {
-        Stage.effectMachine.addEffect(
-          new CircleFlameEffect(new ProgressNumber(0, 5), collidePoint, 10, new Color(255, 255, 255, 1)),
+      // 批量添加特效，减少单次调用开销
+      if (collidePoints.length > 0) {
+        const effects = collidePoints.map(
+          (collidePoint) =>
+            new CircleFlameEffect(new ProgressNumber(0, 5), collidePoint, 10, new Color(255, 255, 255, 1)),
         );
+        Stage.effectMachine.addEffects(effects);
       }
     }
     this.warningSections = [];

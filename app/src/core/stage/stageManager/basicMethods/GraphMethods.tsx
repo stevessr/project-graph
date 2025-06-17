@@ -2,13 +2,124 @@ import { ConnectableEntity } from "../../stageObject/abstract/ConnectableEntity"
 import { Edge } from "../../stageObject/association/Edge";
 import { StageManager } from "../StageManager";
 
+/**
+ * 图方法的缓存管理器，用于优化频繁的图遍历操作
+ */
+class GraphCache {
+  private static instance: GraphCache;
+  private edgeCache: Map<string, ConnectableEntity[]> = new Map();
+  private reverseEdgeCache: Map<string, ConnectableEntity[]> = new Map();
+  private edgeDict: Record<string, string> | null = null;
+  private reverseEdgeDict: Record<string, string> | null = null;
+  private lastUpdateTime = 0;
+  private cacheValidityDuration = 100; // 缓存有效期100ms
+
+  static getInstance(): GraphCache {
+    if (!GraphCache.instance) {
+      GraphCache.instance = new GraphCache();
+    }
+    return GraphCache.instance;
+  }
+
+  /**
+   * 检查缓存是否有效
+   */
+  private isCacheValid(): boolean {
+    return Date.now() - this.lastUpdateTime < this.cacheValidityDuration;
+  }
+
+  /**
+   * 清除所有缓存
+   */
+  invalidateCache(): void {
+    this.edgeCache.clear();
+    this.reverseEdgeCache.clear();
+    this.edgeDict = null;
+    this.reverseEdgeDict = null;
+    this.lastUpdateTime = 0;
+  }
+
+  /**
+   * 获取节点的子节点（带缓存）
+   */
+  getNodeChildren(node: ConnectableEntity): ConnectableEntity[] {
+    if (!this.isCacheValid()) {
+      this.invalidateCache();
+    }
+
+    const cacheKey = node.uuid;
+    if (this.edgeCache.has(cacheKey)) {
+      return this.edgeCache.get(cacheKey)!;
+    }
+
+    const children: ConnectableEntity[] = [];
+    for (const edge of StageManager.getLineEdges()) {
+      if (edge.source.uuid === node.uuid) {
+        children.push(edge.target);
+      }
+    }
+
+    this.edgeCache.set(cacheKey, children);
+    this.lastUpdateTime = Date.now();
+    return children;
+  }
+
+  /**
+   * 获取节点的父节点（带缓存）
+   */
+  getNodeParents(node: ConnectableEntity): ConnectableEntity[] {
+    if (!this.isCacheValid()) {
+      this.invalidateCache();
+    }
+
+    const cacheKey = node.uuid;
+    if (this.reverseEdgeCache.has(cacheKey)) {
+      return this.reverseEdgeCache.get(cacheKey)!;
+    }
+
+    const parents: ConnectableEntity[] = [];
+    for (const edge of StageManager.getLineEdges()) {
+      if (edge.target.uuid === node.uuid && edge.target.uuid !== edge.source.uuid) {
+        parents.push(edge.source);
+      }
+    }
+
+    this.reverseEdgeCache.set(cacheKey, parents);
+    this.lastUpdateTime = Date.now();
+    return parents;
+  }
+
+  /**
+   * 获取反向边字典（带缓存）
+   */
+  getReversedEdgeDict(): Record<string, string> {
+    if (!this.isCacheValid() || !this.reverseEdgeDict) {
+      this.reverseEdgeDict = {};
+      for (const edge of StageManager.getLineEdges()) {
+        this.reverseEdgeDict[edge.target.uuid] = edge.source.uuid;
+      }
+      this.lastUpdateTime = Date.now();
+    }
+    return this.reverseEdgeDict;
+  }
+}
+
 export namespace GraphMethods {
+  const cache = GraphCache.getInstance();
+
+  /**
+   * 清除图方法缓存（在图结构发生变化时调用）
+   */
+  export function invalidateCache(): void {
+    cache.invalidateCache();
+  }
+
   export function isTree(node: ConnectableEntity): boolean {
-    const dfs = (node: ConnectableEntity, visited: ConnectableEntity[]): boolean => {
-      if (visited.includes(node)) {
+    const dfs = (node: ConnectableEntity, visited: Set<string>): boolean => {
+      if (visited.has(node.uuid)) {
         return false;
       }
-      visited.push(node);
+      visited.add(node.uuid);
       for (const child of nodeChildrenArray(node)) {
         if (!dfs(child, visited)) {
           return false;
@@ -17,44 +128,26 @@ export namespace GraphMethods {
       return true;
     };
 
-    return dfs(node, []);
+    return dfs(node, new Set());
   }
 
-  /** 获取节点连接的子节点数组，未排除自环 */
+  /** 获取节点连接的子节点数组，未排除自环 - 优化版本使用缓存 */
   export function nodeChildrenArray(node: ConnectableEntity): ConnectableEntity[] {
-    const res: ConnectableEntity[] = [];
-    for (const edge of StageManager.getLineEdges()) {
-      if (edge.source.uuid === node.uuid) {
-        res.push(edge.target);
-      }
-    }
-    return res;
+    return cache.getNodeChildren(node);
   }
 
   /**
-   * 获取一个节点的所有父亲节点，排除自环
-   * 性能有待优化！！
+   * 获取一个节点的所有父亲节点，排除自环 - 优化版本使用缓存
    */
   export function nodeParentArray(node: ConnectableEntity): ConnectableEntity[] {
-    const res: ConnectableEntity[] = [];
-    for (const edge of StageManager.getLineEdges()) {
-      if (edge.target.uuid === node.uuid && edge.target.uuid !== edge.source.uuid) {
-        res.push(edge.source);
-      }
-    }
-    return res;
+    return cache.getNodeParents(node);
   }
 
   /**
-   * 获取反向边集
-   * @param edges
+   * 获取反向边集 - 优化版本使用缓存
    */
   function getReversedEdgeDict(): Record<string, string> {
-    const res: Record<string, string> = {};
-    for (const edge of StageManager.getLineEdges()) {
-      res[edge.target.uuid] = edge.source.uuid;
-    }
-    return res;
+    return cache.getReversedEdgeDict();
   }
 
   /**

@@ -22,7 +22,7 @@ import { FileLoader } from "../../../dataFileService/fileLoader";
  */
 export const ControllerNodeEdit = new ControllerClass();
 
-ControllerNodeEdit.mouseDoubleClick = (event: MouseEvent) => {
+ControllerNodeEdit.mouseDoubleClick = (event: PointerEvent) => {
   if (event.button !== 0) {
     return;
   }
@@ -95,7 +95,7 @@ ControllerNodeEdit.mouseDoubleClick = (event: MouseEvent) => {
   }
 };
 
-ControllerNodeEdit.mouseup = (event: MouseEvent) => {
+ControllerNodeEdit.mouseup = (event: PointerEvent) => {
   if (event.button !== 0) {
     return;
   }
@@ -110,7 +110,7 @@ ControllerNodeEdit.mouseup = (event: MouseEvent) => {
   }
 };
 
-ControllerNodeEdit.mousemove = (event: MouseEvent) => {
+ControllerNodeEdit.mousemove = (event: PointerEvent) => {
   /**
    * 如果一直显示详细信息，则不显示鼠标悬停效果
    */

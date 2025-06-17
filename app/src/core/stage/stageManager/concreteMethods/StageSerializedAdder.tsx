@@ -60,26 +60,58 @@ export namespace StageSerializedAdder {
     StageManager.updateReferences();
   }
 
+  /**
+   * 优化的深拷贝函数，避免 JSON.parse(JSON.stringify) 的性能问题
+   */
+  function optimizedDeepCopy(obj: any): any {
+    if (obj === null || typeof obj !== "object") {
+      return obj;
+    }
+
+    if (obj instanceof Array) {
+      return obj.map((item) => optimizedDeepCopy(item));
+    }
+
+    const copy: any = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        copy[key] = optimizedDeepCopy(obj[key]);
+      }
+    }
+    return copy;
+  }
+
   function refreshUUID(serializedData: Serialized.File): Serialized.File {
-    // 先深拷贝一份数据
-    const result: Serialized.File = JSON.parse(JSON.stringify(serializedData));
-    // 刷新实体UUID
+    // 使用优化的深拷贝替代 JSON.parse(JSON.stringify)
+    const result: Serialized.File = optimizedDeepCopy(serializedData);
+
+    // 创建 UUID 映射表，避免重复查找
+    const uuidMap = new Map<string, string>();
+
+    // 预先生成所有新的 UUID
     for (const entity of result.entities) {
-      const oldUUID = entity.uuid;
-      const newUUID = uuidv4();
-      // 把这个实体所涉及的所有有向边对应的target和source的UUID也刷新
-      for (const edge of result.associations) {
-        if (Serialized.isEdge(edge)) {
-          if (edge.source === oldUUID) {
-            edge.source = newUUID;
-          }
-          if (edge.target === oldUUID) {
-            edge.target = newUUID;
-          }
+      uuidMap.set(entity.uuid, uuidv4());
+    }
+
+    // 批量更新实体 UUID
+    for (const entity of result.entities) {
+      entity.uuid = uuidMap.get(entity.uuid)!;
+    }
+
+    // 批量更新边的 UUID 引用
+    for (const edge of result.associations) {
+      if (Serialized.isEdge(edge)) {
+        if (uuidMap.has(edge.source)) {
+          edge.source = uuidMap.get(edge.source)!;
+        }
+        if (uuidMap.has(edge.target)) {
+          edge.target = uuidMap.get(edge.target)!;
         }
       }
-      // 把这个实体所涉及的所有Section父子关系的UUID也刷新
-      // 具体来说就是找到这个节点的父Section，把父Section的children数组中这个节点的UUID替换成新UUID
+    }
+
+    // 更新Section父子关系的UUID引用
+    for (const [oldUUID, newUUID] of uuidMap.entries()) {
       for (const section of result.entities) {
         if (Serialized.isSection(section)) {
           if (section.children.includes(oldUUID)) {
@@ -87,9 +119,6 @@ export namespace StageSerializedAdder {
           }
         }
       }
-
-      // 刷新节点本身的UUID
-      entity.uuid = newUUID;
     }
 
     // 刷新边的UUID

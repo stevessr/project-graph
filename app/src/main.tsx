@@ -72,6 +72,10 @@ const el = document.getElementById("root")!;
   ]);
   // 这些东西依赖上面的东西，所以单独一个Promise.all
   await Promise.all([loadLanguageFiles(), loadStartFile(), ShortcutKeysRegister.registerKeyBinds()]);
+
+  // 移除原生菜单栏和标题栏
+  await removeNativeMenuAndTitleBar();
+
   await loadSyncModules();
   await renderApp(isCliMode);
   if (isCliMode) {
@@ -169,6 +173,27 @@ async function loadStartFile() {
   } else {
     // 自动打开路径不存在
     Stage.effectMachine.addEffect(new TextRiseEffect(`打开工程失败，${path}不存在！`));
+  }
+}
+
+/** 移除原生菜单栏和标题栏 */
+async function removeNativeMenuAndTitleBar() {
+  try {
+    if (typeof window !== "undefined" && window.__TAURI__) {
+      // 检查用户设置，如果启用了原生菜单栏，则不移除
+      const { Settings } = await import("./core/service/Settings");
+      const useNativeMenuBar = await Settings.get("useNativeMenuBar");
+
+      if (!useNativeMenuBar) {
+        const { invoke } = await import("@tauri-apps/api/core");
+        await invoke("remove_native_menu_and_titlebar");
+        console.log("原生菜单栏和标题栏已移除");
+      } else {
+        console.log("用户启用了原生菜单栏，保留原生菜单栏和标题栏");
+      }
+    }
+  } catch (error) {
+    console.error("移除原生菜单栏和标题栏失败:", error);
   }
 }
 

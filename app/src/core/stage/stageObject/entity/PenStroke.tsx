@@ -45,6 +45,17 @@ export class PenStroke extends Entity {
     for (const segment of this.segmentList) {
       this.collisionBox.shapeList.push(new Line(segment.startLocation, segment.endLocation));
     }
+
+    // 调试：输出碰撞箱更新信息（仅在创建时）
+    if (this.segmentList.length > 0) {
+      const rect = this.collisionBox.getRectangle();
+      console.log("PenStroke碰撞箱已更新:", {
+        uuid: this.uuid,
+        segmentCount: this.segmentList.length,
+        rect: `(${rect.left.toFixed(1)}, ${rect.top.toFixed(1)}) - (${rect.right.toFixed(1)}, ${rect.bottom.toFixed(1)})`,
+        size: `${rect.size.x.toFixed(1)} x ${rect.size.y.toFixed(1)}`,
+      });
+    }
   }
 
   private segmentList: PenStrokeSegment[] = [];
@@ -76,6 +87,8 @@ export class PenStroke extends Entity {
    */
   constructor({ uuid, content, color }: Serialized.PenStroke) {
     super();
+    console.log("PenStroke构造函数被调用:", { uuid, content, color });
+
     // 开始解析字符串
     this.checkType(content);
     this.setColor(new Color(...color));
@@ -84,6 +97,11 @@ export class PenStroke extends Entity {
     this.uuid = uuid;
     // 解析每一段
     const segmentList = this.stringToSegmentList(content);
+    console.log("PenStroke解析完成:", {
+      uuid: this.uuid,
+      segmentCount: segmentList.length,
+      color: this.getColor().toString(),
+    });
     this.segmentList = segmentList;
     this.updateCollisionBoxBySegmentList();
   }
@@ -114,7 +132,7 @@ export class PenStroke extends Entity {
     }
     // 还要把最后一段的结尾加进来
     const tailSegment = this.segmentList[this.segmentList.length - 1];
-    resultList.push(`${tailSegment.startLocation.x},${tailSegment.startLocation.y},${tailSegment.width}`);
+    resultList.push(`${tailSegment.endLocation.x},${tailSegment.endLocation.y},${tailSegment.width}`);
     return resultList.join("~");
   }
 

@@ -3,36 +3,106 @@ import { Entity } from "../../stageObject/abstract/StageEntity";
 import { Section } from "../../stageObject/entity/Section";
 import { StageManager } from "../StageManager";
 
-export namespace SectionMethods {
+/**
+ * Section 方法的缓存管理器，用于优化频繁的 Section 查找操作
+ */
+class SectionCache {
+  private static instance: SectionCache;
+  private entityToSectionsMap: Map<string, Section[]> = new Map();
+  private lastUpdateTime = 0;
+  private cacheValidityDuration = 100; // 缓存有效期100ms
+
+  static getInstance(): SectionCache {
+    if (!SectionCache.instance) {
+      SectionCache.instance = new SectionCache();
+    }
+    return SectionCache.instance;
+  }
+
   /**
-   * 获取一个实体的第一层所有父亲Sections
-   * 注：需要遍历所有Section
-   * @param entity
+   * 检查缓存是否有效
    */
-  export function getFatherSections(entity: Entity): Section[] {
-    const result = [];
+  private isCacheValid(): boolean {
+    return Date.now() - this.lastUpdateTime < this.cacheValidityDuration;
+  }
+
+  /**
+   * 清除所有缓存
+   */
+  invalidateCache(): void {
+    this.entityToSectionsMap.clear();
+    this.lastUpdateTime = 0;
+  }
+
+  /**
+   * 获取实体的父 Section（带缓存）
+   */
+  getFatherSections(entity: Entity): Section[] {
+    if (!this.isCacheValid()) {
+      this.invalidateCache();
+    }
+
+    const cacheKey = entity.uuid;
+    if (this.entityToSectionsMap.has(cacheKey)) {
+      return this.entityToSectionsMap.get(cacheKey)!;
+    }
+
+    const result: Section[] = [];
     for (const section of StageManager.getSections()) {
       if (section.children.includes(entity)) {
         result.push(section);
       }
     }
+
+    this.entityToSectionsMap.set(cacheKey, result);
+    this.lastUpdateTime = Date.now();
     return result;
+  }
+}
+
+export namespace SectionMethods {
+  const cache = SectionCache.getInstance();
+
+  /**
+   * 清除 Section 方法缓存（在 Section 结构发生变化时调用）
+   */
+  export function invalidateCache(): void {
+    cache.invalidateCache();
   }
 
   /**
-   * 获取一个实体被他包围的全部实体，一层一层的包含并以数组返回
+   * 获取一个实体的第一层所有父亲Sections - 优化版本使用缓存
+   * @param entity
+   */
+  export function getFatherSections(entity: Entity): Section[] {
+    return cache.getFatherSections(entity);
+  }
+
+  /**
+   * 获取一个实体被他包围的全部实体，一层一层的包含并以数组返回 - 优化版本使用缓存
    * A{B{C{entity}}}
    * 会返回 [C, B, A]
    * @param entity
    */
   export function getFatherSectionsList(entity: Entity): Section[] {
+    const cacheKey = `father_sections_list_${entity.uuid}`;
+
+    if (cache.isCacheValid() && cache.entityToSectionsMap.has(cacheKey)) {
+      return cache.entityToSectionsMap.get(cacheKey)!;
+    }
+
     const result = [];
     for (const section of StageManager.getSections()) {
       if (isEntityInSection_fake(entity, section)) {
         result.push(section);
       }
     }
-    return getSortedSectionsByZ(result).reverse();
+
+    const sortedResult = getSortedSectionsByZ(result).reverse();
+    cache.entityToSectionsMap.set(cacheKey, sortedResult);
+    cache.lastUpdateTime = Date.now();
+
+    return sortedResult;
   }
 
   /**

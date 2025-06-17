@@ -52,6 +52,12 @@ export namespace SectionRenderer {
 
   // 非折叠状态
   function renderNoCollapse(section: Section) {
+    // 安全检查
+    if (!section.rectangle || !section.rectangle.location) {
+      console.error("Section rectangle is undefined:", section);
+      return;
+    }
+
     let borderWidth = 2 * Camera.currentScale;
     if (EntityRenderer.sectionBitTitleRenderType !== "none") {
       borderWidth =

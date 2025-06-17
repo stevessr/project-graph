@@ -138,7 +138,7 @@ class ControllerNodeConnectionClass extends ControllerClass {
     }
   }
 
-  public mousedown: (event: MouseEvent) => void = (event) => {
+  public mousedown: (event: PointerEvent) => void = (event) => {
     if (!(event.button == 2 || event.button == 0)) {
       return;
     }
@@ -277,7 +277,7 @@ class ControllerNodeConnectionClass extends ControllerClass {
     Controller.lastMoveLocation = worldLocation.clone();
   }
 
-  public mouseup: (event: MouseEvent) => void = (event) => {
+  public mouseup: (event: PointerEvent) => void = (event) => {
     if (!(event.button == 2 || event.button == 0)) {
       return;
     }
@@ -291,7 +291,7 @@ class ControllerNodeConnectionClass extends ControllerClass {
     }
   };
 
-  private mouseUp(event: MouseEvent) {
+  private mouseUp(event: PointerEvent) {
     const releaseWorldLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
     const releaseTargetEntity = StageManager.findConnectableEntityByLocation(releaseWorldLocation);
 

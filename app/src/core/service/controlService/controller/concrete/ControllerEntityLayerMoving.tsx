@@ -28,7 +28,7 @@ class ControllerLayerMovingClass extends ControllerClass {
     return true;
   }
 
-  public mousemove: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mousemove: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (!Controller.pressingKeySet.has("alt")) {
       return;
     }
@@ -41,7 +41,7 @@ class ControllerLayerMovingClass extends ControllerClass {
     Controller.mouseLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
   };
 
-  public mouseup: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mouseup: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (!Controller.pressingKeySet.has("alt")) {
       return;
     }

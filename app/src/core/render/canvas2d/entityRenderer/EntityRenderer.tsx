@@ -27,6 +27,12 @@ import { SvgNodeRenderer } from "./svgNode/SvgNodeRenderer";
 import { TextNodeRenderer } from "./textNode/TextNodeRenderer";
 import { UrlNodeRenderer } from "./urlNode/urlNodeRenderer";
 
+// 导入性能优化缓存
+let RenderCache: any = null;
+import("../../../service/performanceService/CacheManager").then((module) => {
+  RenderCache = (module as any).RenderCacheInstance;
+});
+
 /**
  * 处理节点相关的绘制
  */
@@ -104,41 +110,105 @@ export namespace EntityRenderer {
   }
 
   /**
-   * 统一渲染所有实体
+   * 统一渲染所有实体 - 优化版本使用缓存
    * 返回实际渲染的实体数量
    */
   export function renderAllEntities(viewRectangle: Rectangle) {
     let renderedNodes = 0;
 
-    // 2 遍历所有非section实体 / 非涂鸦实体
-    for (const entity of StageManager.getEntities()) {
-      if (entity instanceof Section) {
-        continue;
+    // 优化：使用缓存获取可见实体，避免重复的视图检查
+    // 暂时禁用缓存以修复PenStroke渲染问题
+    if (RenderCache) {
+      // 使用缓存的可见实体渲染
+      const visibleNonSectionEntities = RenderCache.getVisibleEntities(
+        viewRectangle,
+        StageManager.getEntities(),
+        (entity: any) => !(entity instanceof Section) && !(entity instanceof PenStroke),
+      );
+
+      for (const entity of visibleNonSectionEntities) {
+        EntityRenderer.renderEntity(entity);
+        renderedNodes++;
       }
-      if (entity instanceof PenStroke) {
-        continue;
+
+      const visibleSections = RenderCache.getVisibleEntities(viewRectangle, StageManager.getSections());
+
+      for (const section of visibleSections) {
+        SectionRenderer.render(section);
       }
-      // 视线之外不画
-      if (Renderer.isOverView(viewRectangle, entity)) {
-        continue;
+
+      const allPenStrokes = StageManager.getPenStrokes();
+      console.log("EntityRenderer缓存路径 - 准备渲染PenStroke:", allPenStrokes.length, "个");
+      console.log(
+        "当前所有PenStroke的UUID:",
+        allPenStrokes.map((p: PenStroke) => p.uuid),
+      );
+
+      const visiblePenStrokes = RenderCache.getVisibleEntities(viewRectangle, allPenStrokes);
+
+      console.log("缓存过滤后的可见PenStroke:", visiblePenStrokes.length, "个");
+      console.log(
+        "可见PenStroke的UUID:",
+        visiblePenStrokes.map((p: any) => p.uuid),
+      );
+
+      for (const penStroke of visiblePenStrokes) {
+        console.log("缓存路径 - 开始渲染PenStroke:", penStroke.uuid, "颜色:", penStroke.getColor().toString());
+        EntityRenderer.renderEntity(penStroke);
       }
-      EntityRenderer.renderEntity(entity);
-      renderedNodes++;
+    } else {
+      // 回退到原始实现
+      for (const entity of StageManager.getEntities()) {
+        if (entity instanceof Section) {
+          continue;
+        }
+        if (entity instanceof PenStroke) {
+          continue;
+        }
+        if (Renderer.isOverView(viewRectangle, entity)) {
+          continue;
+        }
+        EntityRenderer.renderEntity(entity);
+        renderedNodes++;
+      }
+
+      for (const section of StageManager.getSections()) {
+        if (Renderer.isOverView(viewRectangle, section)) {
+          continue;
+        }
+        SectionRenderer.render(section);
+      }
+
+      const penStrokes = StageManager.getPenStrokes();
+      console.log("EntityRenderer准备渲染PenStroke:", penStrokes.length, "个");
+      console.log(
+        "当前所有PenStroke的UUID:",
+        penStrokes.map((p) => p.uuid),
+      );
+
+      for (const penStroke of penStrokes) {
+        const penStrokeRect = penStroke.collisionBox.getRectangle();
+        console.log("PenStroke碰撞箱信息:", {
+          uuid: penStroke.uuid,
+          rect: `(${penStrokeRect.left.toFixed(1)}, ${penStrokeRect.top.toFixed(1)}) - (${penStrokeRect.right.toFixed(1)}, ${penStrokeRect.bottom.toFixed(1)})`,
+          size: `${penStrokeRect.size.x.toFixed(1)} x ${penStrokeRect.size.y.toFixed(1)}`,
+          segmentCount: penStroke.getSegmentList().length,
+        });
+        console.log("当前视野范围:", {
+          rect: `(${viewRectangle.left.toFixed(1)}, ${viewRectangle.top.toFixed(1)}) - (${viewRectangle.right.toFixed(1)}, ${viewRectangle.bottom.toFixed(1)})`,
+          size: `${viewRectangle.size.x.toFixed(1)} x ${viewRectangle.size.y.toFixed(1)}`,
+        });
+
+        const isOver = Renderer.isOverView(viewRectangle, penStroke);
+        if (isOver) {
+          console.log("跳过PenStroke渲染（超出视野）:", penStroke.uuid);
+          continue;
+        }
+        console.log("开始渲染PenStroke:", penStroke.uuid, "颜色:", penStroke.getColor().toString());
+        EntityRenderer.renderEntity(penStroke);
+      }
     }
-    // 3 遍历所有section实体，画顶部大文字
-    for (const section of StageManager.getSections()) {
-      if (Renderer.isOverView(viewRectangle, section)) {
-        continue;
-      }
-      SectionRenderer.render(section);
-    }
-    // 4 遍历所有涂鸦实体
-    for (const penStroke of StageManager.getPenStrokes()) {
-      if (Renderer.isOverView(viewRectangle, penStroke)) {
-        continue;
-      }
-      EntityRenderer.renderEntity(penStroke);
-    }
+
     return renderedNodes;
   }
 
@@ -304,6 +374,12 @@ export namespace EntityRenderer {
    * @param penStroke
    */
   function renderPenStroke(penStroke: PenStroke) {
+    console.log("renderPenStroke函数被调用:", {
+      uuid: penStroke.uuid,
+      segmentCount: penStroke.getSegmentList().length,
+      color: penStroke.getColor().toString(),
+    });
+
     let penStrokeColor = penStroke.getColor();
     if (penStrokeColor.a === 0) {
       penStrokeColor = StageStyleManager.currentStyle.StageObjectBorder.clone();
@@ -323,8 +399,6 @@ export namespace EntityRenderer {
     //   );
     // }
     const segmentList = penStroke.getSegmentList();
-
-    // console.log("@@", segmentList);
 
     CurveRenderer.renderPenStroke(
       segmentList.map((segment) => ({

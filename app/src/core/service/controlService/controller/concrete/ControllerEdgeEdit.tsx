@@ -12,7 +12,7 @@ import { editEdgeText, editMultiTargetEdgeText } from "./utilsControl";
  */
 export const ControllerEdgeEdit = new ControllerClass();
 
-ControllerEdgeEdit.mouseDoubleClick = (event: MouseEvent) => {
+ControllerEdgeEdit.mouseDoubleClick = (event: PointerEvent) => {
   if (event.button !== 0) {
     return;
   }

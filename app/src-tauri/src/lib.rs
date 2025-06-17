@@ -30,6 +30,36 @@ fn exit(code: i32) {
 }
 
 #[tauri::command]
+fn remove_native_menu_and_titlebar(app: tauri::AppHandle) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        use tauri::menu::MenuBuilder;
+        // Create an empty menu to replace the default macOS menu
+        let empty_menu = MenuBuilder::new(&app).build().map_err(|e| e.to_string())?;
+        app.set_menu(empty_menu).map_err(|e| e.to_string())?;
+
+        // Remove title bar decorations on macOS
+        if let Some(window) = app.get_webview_window("main") {
+            window.set_decorations(false).map_err(|e| e.to_string())?;
+            window.set_title_bar_style(tauri::TitleBarStyle::Overlay).map_err(|e| e.to_string())?;
+        }
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        // For Windows and Linux, remove any existing menu
+        app.remove_menu().unwrap_or_default();
+
+        // Remove title bar decorations on Windows/Linux
+        if let Some(window) = app.get_webview_window("main") {
+            window.set_decorations(false).map_err(|e| e.to_string())?;
+        }
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
 fn open_devtools<R: Runtime>(app: tauri::AppHandle<R>) {
     if let Some(webview_window) = app.get_webview_window("main") {
         let _ = webview_window.open_devtools();
@@ -88,6 +118,31 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .setup(|app| {
+            // Remove native menu bar and title bar on all platforms
+            #[cfg(target_os = "macos")]
+            {
+                use tauri::menu::MenuBuilder;
+                // Create an empty menu to replace the default macOS menu
+                let empty_menu = MenuBuilder::new(app).build().unwrap();
+                app.set_menu(empty_menu).unwrap();
+
+                // Remove title bar decorations on macOS
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.set_decorations(false);
+                    let _ = window.set_title_bar_style(tauri::TitleBarStyle::Overlay);
+                }
+            }
+
+            #[cfg(not(target_os = "macos"))]
+            {
+                // For Windows and Linux, remove any existing menu and title bar
+                app.remove_menu().unwrap_or_default();
+
+                // Remove title bar decorations on Windows/Linux
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.set_decorations(false);
+                }
+            }
             #[cfg(debug_assertions)]
             {
                 // Use get_webview_window instead of get_window
@@ -144,7 +199,8 @@ pub fn run() {
             #[cfg(desktop)] // Keep the cfg attribute for the command itself
             set_update_channel,
             open_devtools,
-            exit
+            exit,
+            remove_native_menu_and_titlebar
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

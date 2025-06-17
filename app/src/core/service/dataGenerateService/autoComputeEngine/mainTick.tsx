@@ -15,6 +15,82 @@ import { ProgramFunctions } from "./functions/programLogic";
 import { StringFunctions } from "./functions/stringLogic";
 import { LogicNodeNameEnum, LogicNodeSimpleOperatorEnum } from "./logicNodeNameEnum";
 
+/**
+ * 逻辑节点识别缓存，用于优化频繁的字符串比较
+ */
+class LogicNodeCache {
+  private static instance: LogicNodeCache;
+  private logicNodeNames: Set<string> = new Set();
+  private sectionLogicNodeNames: Set<string> = new Set();
+  private operationNodeNames: Set<string> = new Set();
+  private initialized = false;
+
+  static getInstance(): LogicNodeCache {
+    if (!LogicNodeCache.instance) {
+      LogicNodeCache.instance = new LogicNodeCache();
+    }
+    return LogicNodeCache.instance;
+  }
+
+  /**
+   * 初始化缓存
+   */
+  private initializeCache(): void {
+    if (this.initialized) return;
+
+    // 缓存所有逻辑节点名称
+    for (const name of Object.keys(MapNameFunction)) {
+      this.logicNodeNames.add(name);
+      this.sectionLogicNodeNames.add(name);
+    }
+    for (const name of Object.keys(MapOtherFunction)) {
+      this.logicNodeNames.add(name);
+    }
+    for (const name of Object.keys(MapOperationNameFunction)) {
+      this.operationNodeNames.add(name);
+    }
+
+    this.initialized = true;
+  }
+
+  /**
+   * 检查是否为逻辑节点
+   */
+  isLogicNode(text: string): boolean {
+    this.initializeCache();
+    return this.logicNodeNames.has(text);
+  }
+
+  /**
+   * 检查是否为 Section 逻辑节点
+   */
+  isSectionLogicNode(text: string): boolean {
+    this.initializeCache();
+    return this.sectionLogicNodeNames.has(text);
+  }
+
+  /**
+   * 检查是否为操作节点
+   */
+  isOperationNode(text: string): boolean {
+    this.initializeCache();
+    return this.operationNodeNames.has(text);
+  }
+
+  /**
+   * 检查文本是否包含操作符
+   */
+  containsOperation(text: string): string | null {
+    this.initializeCache();
+    for (const name of this.operationNodeNames) {
+      if (text.includes(name)) {
+        return name;
+      }
+    }
+    return null;
+  }
+}
+
 type MathFunctionType = (args: number[]) => number[];
 type StringFunctionType = (args: string[]) => string[];
 type OtherFunctionType = (fatherNodes: ConnectableEntity[], childNodes: ConnectableEntity[]) => string[];
@@ -207,27 +283,14 @@ export function autoComputeEngineTick(tickNumber: number) {
   // 逻辑引擎执行一步，计数器+1
 }
 
+const logicCache = LogicNodeCache.getInstance();
+
 export function isTextNodeLogic(node: TextNode): boolean {
-  for (const name of Object.keys(MapNameFunction)) {
-    if (node.text === name) {
-      return true;
-    }
-  }
-  for (const name of Object.keys(MapOtherFunction)) {
-    if (node.text === name) {
-      return true;
-    }
-  }
-  return false;
+  return logicCache.isLogicNode(node.text);
 }
 
 function isSectionLogic(section: Section): boolean {
-  for (const name of Object.keys(MapNameFunction)) {
-    if (section.text === name) {
-      return true;
-    }
-  }
-  return false;
+  return logicCache.isSectionLogicNode(section.text);
 }
 
 /**

@@ -14,7 +14,7 @@ import { editSectionTitle } from "./utilsControl";
  */
 export const ControllerSectionEdit = new ControllerClass();
 
-ControllerSectionEdit.mouseDoubleClick = (event: MouseEvent) => {
+ControllerSectionEdit.mouseDoubleClick = (event: PointerEvent) => {
   if (event.button !== 0) {
     return;
   }
@@ -28,7 +28,7 @@ ControllerSectionEdit.mouseDoubleClick = (event: MouseEvent) => {
   return;
 };
 
-ControllerSectionEdit.mousemove = (event: MouseEvent) => {
+ControllerSectionEdit.mousemove = (event: PointerEvent) => {
   const worldLocation = Renderer.transformView2World(new Vector(event.clientX, event.clientY));
   Stage.mouseInteractionCore.updateByMouseMove(worldLocation);
 };

@@ -42,33 +42,45 @@ export namespace CurveRenderer {
     Canvas.ctx.stroke();
   }
   export function renderPenStroke(stroke: PenStrokeSegment[], color: Color): void {
-    Canvas.ctx.strokeStyle = color.toString();
-    // 在canvas上绘制笔画
-    Canvas.ctx.beginPath();
-    Canvas.ctx.lineJoin = "round";
-    Canvas.ctx.moveTo(stroke[0].startLocation.x, stroke[0].startLocation.y);
-    for (let i = 0; i < stroke.length; i++) {
-      // console.log(stroke[i].width);
+    if (stroke.length === 0) {
+      return;
+    }
 
-      /*
-      // 修改循环开始从0
-      if (i > 0) {
+    // 保存当前canvas状态
+    Canvas.ctx.save();
+
+    Canvas.ctx.strokeStyle = color.toString();
+    Canvas.ctx.lineJoin = "round";
+    Canvas.ctx.lineCap = "round";
+
+    // 如果只有一个线段或者所有线段宽度相同，使用简化渲染
+    const firstWidth = stroke[0].width;
+    const allSameWidth = stroke.every((segment) => Math.abs(segment.width - firstWidth) < 0.1);
+
+    if (allSameWidth) {
+      // 所有线段宽度相同，可以一次性绘制整个路径
+      Canvas.ctx.beginPath();
+      Canvas.ctx.lineWidth = firstWidth;
+      Canvas.ctx.moveTo(stroke[0].startLocation.x, stroke[0].startLocation.y);
+
+      for (let i = 0; i < stroke.length; i++) {
         Canvas.ctx.lineTo(stroke[i].endLocation.x, stroke[i].endLocation.y);
       }
-        */
-      // 上述代码这样，导致开头少了一段。如果是按住shift键画出来的直线就看不到了。
 
-      Canvas.ctx.lineTo(stroke[i].endLocation.x, stroke[i].endLocation.y);
-
-      Canvas.ctx.lineWidth = stroke[i].width; // 更新线宽为当前线段的宽度
-      Canvas.ctx.stroke(); // 为了确保每个线段按照不同的宽度绘制，需要在这里调用stroke
-      if (i < stroke.length - 1) {
-        Canvas.ctx.beginPath(); // 开始新的路径，以便每个线段可以有不同的宽度
-        Canvas.ctx.moveTo(stroke[i].endLocation.x, stroke[i].endLocation.y);
+      Canvas.ctx.stroke();
+    } else {
+      // 线段宽度不同，需要分别绘制每个线段
+      for (let i = 0; i < stroke.length; i++) {
+        Canvas.ctx.beginPath();
+        Canvas.ctx.lineWidth = stroke[i].width;
+        Canvas.ctx.moveTo(stroke[i].startLocation.x, stroke[i].startLocation.y);
+        Canvas.ctx.lineTo(stroke[i].endLocation.x, stroke[i].endLocation.y);
+        Canvas.ctx.stroke();
       }
     }
-    // Canvas.ctx.strokeStyle = color.toString();
-    // 更改颜色要在操作之前就更改，否则会出现第一笔画的颜色还是上一次的颜色这种诡异现象。
+
+    // 恢复canvas状态
+    Canvas.ctx.restore();
   }
 
   /**

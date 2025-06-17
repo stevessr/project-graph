@@ -10,7 +10,7 @@ class ControllerChildCamera extends ControllerClass {
   // 开始按下的世界坐标
   private currentWorldLocation = new Vector(0, 0);
 
-  public mousedown: (event: MouseEvent) => void = (event) => {
+  public mousedown: (event: PointerEvent) => void = (event) => {
     if (!event.ctrlKey) {
       return;
     }
@@ -31,7 +31,7 @@ class ControllerChildCamera extends ControllerClass {
     }
   };
 
-  public mousemove: (event: MouseEvent) => void = (event) => {
+  public mousemove: (event: PointerEvent) => void = (event) => {
     if (!event.ctrlKey) {
       return;
     }
@@ -48,14 +48,14 @@ class ControllerChildCamera extends ControllerClass {
     }
   };
 
-  public mouseup: (event: MouseEvent) => void = (event) => {
+  public mouseup: (event: PointerEvent) => void = (event) => {
     if (event.button === 1) {
       this.targetPortalNode = null;
       // this.isMoving = false;
     }
   };
 
-  public mouseDoubleClick: (event: MouseEvent) => void = (event) => {
+  public mouseDoubleClick: (event: PointerEvent) => void = (event) => {
     if (!event.ctrlKey) {
       return;
     }

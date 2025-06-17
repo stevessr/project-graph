@@ -1,7 +1,5 @@
 import { Rectangle } from "../../../dataStruct/shape/Rectangle";
 import { Vector } from "../../../dataStruct/Vector";
-import { SectionMethods } from "../../stageManager/basicMethods/SectionMethods";
-import { StageManager } from "../../stageManager/StageManager";
 import { StageObject } from "./StageObject";
 /**
  * 一切独立存在、能被移动的东西，且放在框里能被连带移动的东西
@@ -47,10 +45,9 @@ export abstract class Entity extends StageObject {
    * 由于自身位置的移动，递归的更新所有父级Section的位置和大小
    */
   protected updateFatherSectionByMove() {
-    const fatherSections = SectionMethods.getFatherSections(this);
-    for (const section of fatherSections) {
-      section.adjustLocationAndSize();
-      section.updateFatherSectionByMove();
+    // Use callback to avoid circular dependency with SectionMethods
+    if (Entity.sectionManager) {
+      Entity.sectionManager.updateFatherSections(this);
     }
   }
   /**
@@ -58,14 +55,9 @@ export abstract class Entity extends StageObject {
    * 此函数在move函数中被调用，更新
    */
   protected updateOtherEntityLocationByMove() {
-    if (!StageManager.isEnableEntityCollision) {
-      return;
-    }
-    for (const entity of StageManager.getEntities()) {
-      if (entity === this) {
-        continue;
-      }
-      this.collideWithOtherEntity(entity);
+    // Use callback to avoid circular dependency with StageManager
+    if (Entity.collisionManager) {
+      Entity.collisionManager.updateEntityCollisions(this);
     }
   }
 
@@ -74,25 +66,22 @@ export abstract class Entity extends StageObject {
    * @param other 其他实体
    */
   protected collideWithOtherEntity(other: Entity) {
-    if (!StageManager.isEnableEntityCollision) {
-      return;
+    // Use callback to avoid circular dependency with StageManager
+    if (Entity.collisionManager) {
+      Entity.collisionManager.handleEntityCollision(this, other);
     }
-    const selfRectangle = this.collisionBox.getRectangle();
-    const otherRectangle = other.collisionBox.getRectangle();
-    if (!selfRectangle.isCollideWith(otherRectangle)) {
-      return;
-    }
-
-    // 两者相交，需要调整位置
-    const overlapSize = selfRectangle.getOverlapSize(otherRectangle);
-    let moveDelta;
-    if (Math.abs(overlapSize.x) < Math.abs(overlapSize.y)) {
-      moveDelta = new Vector(overlapSize.x * Math.sign(otherRectangle.center.x - selfRectangle.center.x), 0);
-    } else {
-      moveDelta = new Vector(0, overlapSize.y * Math.sign(otherRectangle.center.y - selfRectangle.center.y));
-    }
-    other.move(moveDelta, true); // <-- 新的调用，传递 true 以跳过下一轮碰撞解决
   }
+
+  // Static collision manager to avoid circular dependency
+  static collisionManager: {
+    updateEntityCollisions: (entity: Entity) => void;
+    handleEntityCollision: (entity1: Entity, entity2: Entity) => void;
+  } | null = null;
+
+  // Static section manager to avoid circular dependency
+  static sectionManager: {
+    updateFatherSections: (entity: Entity) => void;
+  } | null = null;
   /**
    * 是不是因为所在的Section被折叠而隐藏了
    * 因为任何Entity都可以放入Section

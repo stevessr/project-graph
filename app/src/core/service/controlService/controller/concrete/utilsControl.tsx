@@ -24,6 +24,7 @@ import { EntityCreateFlashEffect } from "../../../feedbackService/effectEngine/c
 import { TextRiseEffect } from "../../../feedbackService/effectEngine/concrete/TextRiseEffect";
 import { StageStyleManager } from "../../../feedbackService/stageStyle/StageStyleManager";
 import { Controller } from "../Controller";
+import { textNodeRateLimiter } from "./NodeCreationRateLimiter";
 
 /**
  * 这里是专门存放代码相同的地方
@@ -297,6 +298,11 @@ export function addTextNodeByLocation(
   selectCurrent: boolean = false,
   successCallback?: (uuid: string) => void,
 ) {
+  // 使用限速管理器检查是否允许创建
+  if (!textNodeRateLimiter.tryCreate(location)) {
+    return;
+  }
+
   const sections = SectionMethods.getSectionsByInnerLocation(location);
   // 新建节点
   StageNodeAdder.addTextNodeByClick(location, sections, selectCurrent).then((uuid) => {

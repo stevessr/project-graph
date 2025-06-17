@@ -39,7 +39,7 @@ class ControllerAssociationReshapeClass extends ControllerClass {
 
   public lastMoveLocation: Vector = Vector.getZero();
 
-  public mousedown: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mousedown: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (Stage.leftMouseMode !== LeftMouseModeEnum.selectAndMove) {
       return;
     }
@@ -84,7 +84,7 @@ class ControllerAssociationReshapeClass extends ControllerClass {
     Controller.setCursorNameHook(CursorNameEnum.Move);
   };
 
-  public mousemove: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mousemove: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (Stage.leftMouseMode !== LeftMouseModeEnum.selectAndMove) {
       return;
     }
@@ -115,7 +115,7 @@ class ControllerAssociationReshapeClass extends ControllerClass {
     }
   };
 
-  public mouseup: (event: MouseEvent) => void = (event: MouseEvent) => {
+  public mouseup: (event: PointerEvent) => void = (event: PointerEvent) => {
     if (Stage.leftMouseMode !== LeftMouseModeEnum.selectAndMove) {
       return;
     }

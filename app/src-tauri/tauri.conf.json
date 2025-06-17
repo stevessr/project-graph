@@ -16,7 +16,9 @@
         "height": 800,
         "decorations": false,
         "transparent": true,
-        "dragDropEnabled": false
+        "dragDropEnabled": false,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
       }
     ],
     "macOSPrivateApi": true,
