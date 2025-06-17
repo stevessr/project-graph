@@ -6,22 +6,29 @@ import { Vector } from "../dataStruct/Vector";
 export namespace SubWindow {
   // export enum IdEnum {}
   export interface Window {
-    /**
-     * 唯一的id，不能重复，如果创建了已经存在的id，会聚焦到已存在的窗口
-     * 可以是负数，可以不连续
-     */
-    id: number;
+    /** uuid */
+    id: string;
     title: string;
     children: React.ReactNode;
+    /** 当大小为(-1,-1)时，则为自适应大小 */
     rect: Rectangle;
+    /** 开发中 */
     maximized: boolean;
+    /** 开发中 */
     minimized: boolean;
-    // opacity: number;
     focused: boolean;
     zIndex: number;
+    /**
+     * 标题栏区域覆盖在内容之上
+     * 设置为true就不能拖动窗口了
+     * 可以给窗口内元素添加data-pg-drag-region属性，使其成为可拖动区域
+     */
     titleBarOverlay: boolean;
+    closing: boolean;
     closeWhenClickOutside: boolean;
+    /** @private */
     _closeWhenClickOutsideListener?: (e: PointerEvent) => void;
+    closeWhenClickInside: boolean;
   }
   const subWindowsAtom = atom<Window[]>([]);
   export const use = () => useAtomValue(subWindowsAtom);
@@ -29,13 +36,8 @@ export namespace SubWindow {
     return store.get(subWindowsAtom).reduce((maxZIndex, window) => Math.max(maxZIndex, window.zIndex), 0);
   }
   export function create(options: Partial<Window>): Window {
-    // if (options.id && store.get(subWindowsAtom).some((window) => window.id === options.id)) {
-    //   // 如果已经存在的id，聚焦到已存在的窗口
-    //   focus(options.id);
-    //   return store.get(subWindowsAtom).find((window) => window.id === options.id)!;
-    // }
     const win: Window = {
-      id: store.get(subWindowsAtom).reduce((maxId, window) => Math.max(maxId, window.id), 0) + 1,
+      id: crypto.randomUUID(),
       title: "",
       children: <></>,
       rect: new Rectangle(Vector.getZero(), Vector.same(100)),
@@ -45,7 +47,9 @@ export namespace SubWindow {
       focused: false,
       zIndex: getMaxZIndex() + 1,
       titleBarOverlay: false,
+      closing: false,
       closeWhenClickOutside: false,
+      closeWhenClickInside: false,
       ...options,
     };
     //检测如果窗口到屏幕外面了，自动调整位置
@@ -69,25 +73,28 @@ export namespace SubWindow {
     }
     return win;
   }
-  export function update(id: number, options: Partial<Omit<Window, "id">>) {
+  export function update(id: string, options: Partial<Omit<Window, "id">>) {
     store.set(
       subWindowsAtom,
       store.get(subWindowsAtom).map((window) => (window.id === id ? { ...window, ...options } : window)),
     );
   }
-  export function close(id: number) {
-    if (get(id).closeWhenClickOutside) {
+  export function close(id: string) {
+    if (get(id)?.closeWhenClickOutside) {
       document.removeEventListener("pointerdown", get(id)._closeWhenClickOutsideListener!);
     }
-    store.set(
-      subWindowsAtom,
-      store.get(subWindowsAtom).filter((window) => window.id !== id),
-    );
+    update(id, { closing: true });
+    setTimeout(() => {
+      store.set(
+        subWindowsAtom,
+        store.get(subWindowsAtom).filter((window) => window.id !== id),
+      );
+    }, 500);
   }
-  export function focus(id: number) {
+  export function focus(id: string) {
     update(id, { focused: true, zIndex: getMaxZIndex() + 1 });
   }
-  export function get(id: number) {
+  export function get(id: string) {
     return store.get(subWindowsAtom).find((window) => window.id === id)!;
   }
 }

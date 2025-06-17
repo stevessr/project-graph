@@ -1,7 +1,10 @@
 import { Dialog } from "../../../../components/dialog";
-import ColorWindow from "../../../../pages/_sub_window/_color_window";
-import FindWindow from "../../../../pages/_sub_window/_find_window";
-import TagWindow from "../../../../pages/_sub_window/_tag_window";
+import { onNewDraft, onOpen, onSave } from "../../../../pages/_sub_window/AppMenuWindow";
+import ColorWindow from "../../../../pages/_sub_window/ColorWindow";
+import FindWindow from "../../../../pages/_sub_window/FindWindow";
+import RecentFilesWindow from "../../../../pages/_sub_window/RecentFilesWindow";
+import SettingsWindow from "../../../../pages/_sub_window/SettingsWindow";
+import TagWindow from "../../../../pages/_sub_window/TagWindow";
 import { Direction } from "../../../../types/directions";
 import { openBrowserOrFile } from "../../../../utils/externalOpen";
 import { openDevtools, writeStdout } from "../../../../utils/otherApi";
@@ -718,39 +721,7 @@ export namespace ShortcutKeysRegister {
         shift: true,
       })
     ).down(() => {
-      console.log(location.pathname);
-      const AppBackToHomeButton = document.getElementById("close-popin-btn");
-      const isPageInHome = AppBackToHomeButton === null;
-      if (isPageInHome) {
-        const button = document.getElementById("app-menu-settings-btn");
-        console.log(button);
-
-        const event = new MouseEvent("click", {
-          bubbles: true,
-          cancelable: true,
-          view: window,
-        });
-        button?.dispatchEvent(event);
-        setTimeout(() => {
-          Controller.pressingKeySet.clear();
-        }, 200);
-      } else {
-        // 说明已经不再主页面了
-
-        // 回到主页面
-        const closeButton = document.getElementById("close-popin-btn");
-        console.log(closeButton);
-
-        const event = new MouseEvent("click", {
-          bubbles: true,
-          cancelable: true,
-          view: window,
-        });
-        closeButton?.dispatchEvent(event);
-        setTimeout(() => {
-          Controller.pressingKeySet.clear();
-        }, 200);
-      }
+      SettingsWindow.open();
     });
     (
       await KeyBinds.create("clickTagPanelButton", "@", {
@@ -768,30 +739,7 @@ export namespace ShortcutKeysRegister {
         shift: true,
       })
     ).down(() => {
-      const isRecentFilePanelOpening = document.getElementById("recent-files-panel-open-mark-div") !== null;
-      if (isRecentFilePanelOpening) {
-        const closeButton = document.getElementById("recent-files-panel-close-btn");
-        const event = new MouseEvent("click", {
-          bubbles: true,
-          cancelable: true,
-          view: window,
-        });
-        closeButton?.dispatchEvent(event);
-        setTimeout(() => {
-          Controller.pressingKeySet.clear();
-        }, 200);
-      } else {
-        const button = document.getElementById("app-menu-recent-file-btn");
-        const event = new MouseEvent("click", {
-          bubbles: true,
-          cancelable: true,
-          view: window,
-        });
-        button?.dispatchEvent(event);
-        setTimeout(() => {
-          Controller.pressingKeySet.clear();
-        }, 200);
-      }
+      RecentFilesWindow.open();
     });
     (
       await KeyBinds.create("clickStartFilePanelButton", "$", {
@@ -818,14 +766,8 @@ export namespace ShortcutKeysRegister {
         alt: false,
         shift: false,
       })
-    ).down(() => {
-      const button = document.getElementById("app-menu-save-btn");
-      const event = new MouseEvent("click", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-      });
-      button?.dispatchEvent(event);
+    ).down(async () => {
+      onSave();
     });
     (
       await KeyBinds.create("newDraft", "n", {
@@ -835,13 +777,7 @@ export namespace ShortcutKeysRegister {
         shift: false,
       })
     ).down(() => {
-      const button = document.getElementById("app-menu-new-draft-btn");
-      const event = new MouseEvent("click", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-      });
-      button?.dispatchEvent(event);
+      onNewDraft();
     });
     (
       await KeyBinds.create("openFile", "o", {
@@ -851,13 +787,7 @@ export namespace ShortcutKeysRegister {
         shift: false,
       })
     ).down(() => {
-      const button = document.getElementById("app-menu-open-btn");
-      const event = new MouseEvent("click", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-      });
-      button?.dispatchEvent(event);
+      onOpen();
     });
 
     (
