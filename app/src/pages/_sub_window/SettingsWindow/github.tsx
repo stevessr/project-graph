@@ -1,5 +1,5 @@
 import { Octokit } from "@octokit/rest";
-import { fetch } from "../../utils/tauriApi";
+import { fetch } from "../../../utils/tauriApi";
 import { open } from "@tauri-apps/plugin-shell";
 import { LogIn, User } from "lucide-react";
 import React from "react";

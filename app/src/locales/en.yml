@@ -225,6 +225,11 @@ settings:
       When enabled, all text sizes and positions will be integers to save rendering performance.
       However, this may cause text jittering. It is recommended to use this with a zoom speed of 1.
       If your computer is very laggy, especially when zooming and panning, you can enable this option.
+  smartFrameUpdate:
+    title: Smart Frame Update
+    description: |
+      When enabled, the stage will only refresh when there are actual changes or user interactions, not continuously.
+      This significantly improves performance by reducing unnecessary rendering.
   isPauseRenderWhenManipulateOvertime:
     title: Pause rendering if the stage has not been operated for a certain period
       of time

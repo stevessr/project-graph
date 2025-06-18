@@ -58,8 +58,16 @@ export namespace Settings {
     textIntegerLocationAndSizeRender: boolean;
     isPauseRenderWhenManipulateOvertime: boolean;
     renderOverTimeWhenNoManipulateTime: number;
+    smartFrameUpdate: boolean;
     ignoreTextNodeTextRenderLessThanCameraScale: number;
     showTextNodeBorder: boolean;
+    autoRefreshStageByMouseAction: boolean;
+    compressPastedImages: boolean;
+    maxPastedImageSize: number;
+    // 涂鸦渲染相关
+    disablePenStrokeFiltering: boolean;
+    enableSelectiveRendering: boolean;
+    penStrokeRenderPriority: "high" | "normal" | "low";
     // 自动化相关
     autoNamerTemplate: string;
     autoNamerSectionTemplate: string;
@@ -182,11 +190,16 @@ export namespace Settings {
     textIntegerLocationAndSizeRender: false,
     isPauseRenderWhenManipulateOvertime: true,
     renderOverTimeWhenNoManipulateTime: 5,
+    smartFrameUpdate: true,
     ignoreTextNodeTextRenderLessThanCameraScale: 0.065,
     showTextNodeBorder: true,
     autoRefreshStageByMouseAction: true,
     compressPastedImages: true,
     maxPastedImageSize: 1920,
+    // 涂鸦渲染相关
+    disablePenStrokeFiltering: true, // 默认禁用涂鸦过滤，确保涂鸦始终可见
+    enableSelectiveRendering: true, // 默认启用选择性渲染
+    penStrokeRenderPriority: "high", // 默认涂鸦高优先级（在最上层）
     // 自动相关
     autoNamerTemplate: "...",
     autoNamerSectionTemplate: "Section_{{i}}",

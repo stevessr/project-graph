@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useAiSettingsStore } from "../../state/aiSettingsStore";
-import { ApiConfig } from "../../types/aiSettings";
-import { Dialog } from "../../components/dialog";
-import { ApiConfigSection } from "./ai/ApiConfigSection";
-import ApiConfigForm from "./ai/ApiConfigForm";
-import { PromptManagementSection } from "./ai/PromptManagementSection";
-import Button from "../../components/Button";
-import { formatNodesToLineString } from "./ai/promptUtils";
+import { useAiSettingsStore } from "../../../state/aiSettingsStore";
+import { ApiConfig } from "../../../types/aiSettings";
+import { Dialog } from "../../../components/dialog";
+import { ApiConfigSection } from "./../../settings/ai/ApiConfigSection";
+import ApiConfigForm from "./../../settings/ai/ApiConfigForm";
+import { PromptManagementSection } from "./../../settings/ai/PromptManagementSection";
+import Button from "../../../components/Button";
+import { formatNodesToLineString } from "./../../settings/ai/promptUtils";
+import { SubWindow } from "../../../core/service/SubWindow";
+import { Rectangle } from "../../../core/dataStruct/shape/Rectangle";
+import { Vector } from "../../../core/dataStruct/Vector";
 
 export default function AI() {
   const { t } = useTranslation("settings");
-  const [isConfigFormOpen, setIsConfigFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [configToEdit, setConfigToEdit] = useState<ApiConfig | null>(null);
   const [custom_promptsString, setcustom_promptsString] = useState("");
   const [newPromptName, setNewPromptName] = useState("");
   const [selectedPromptName, setSelectedPromptName] = useState<string | null>(null);
@@ -39,33 +40,56 @@ export default function AI() {
 
   // --- API Config Modal Handlers ---
   const handleOpenAddApiConfigModal = () => {
-    setConfigToEdit(null);
-    setIsConfigFormOpen(true);
+    const win = SubWindow.create({
+      title: t("ai.form.addTitle"),
+      children: <></>, // Will be set below
+      rect: new Rectangle(new Vector(200, 100), new Vector(800, 600)),
+    });
+
+    // Update the window with the form that has the winId
+    SubWindow.update(win.id, {
+      children: (
+        <ApiConfigForm
+          winId={win.id}
+          onSave={async (config) => {
+            await addAiConfig(config);
+            Dialog.show({
+              title: t("ai.form.saveSuccess", "Configuration Saved"),
+              content: t("ai.form.saveSuccessMessage", { name: config.name }),
+              type: "success",
+            }).catch(console.error);
+          }}
+          onCancel={() => {}}
+        />
+      ),
+    });
   };
 
   const handleOpenEditApiConfigModal = (config: ApiConfig) => {
-    setConfigToEdit(config);
-    setIsConfigFormOpen(true);
-  };
+    const win = SubWindow.create({
+      title: t("ai.form.editTitle"),
+      children: <></>, // Will be set below
+      rect: new Rectangle(new Vector(200, 100), new Vector(800, 600)),
+    });
 
-  const handleSaveApiConfigForm = (savedConfig: ApiConfig) => {
-    if (configToEdit && savedConfig.id === configToEdit.id) {
-      updateAiConfig(savedConfig);
-    } else {
-      addAiConfig(savedConfig);
-    }
-    setIsConfigFormOpen(false);
-    setConfigToEdit(null);
-    Dialog.show({
-      title: t("ai.form.saveSuccess", "Configuration Saved"),
-      content: t("ai.form.saveSuccessMessage", { name: savedConfig.name }),
-      type: "success",
-    }).catch(console.error);
-  };
-
-  const handleCancelApiConfigForm = () => {
-    setIsConfigFormOpen(false);
-    setConfigToEdit(null);
+    // Update the window with the form that has the winId
+    SubWindow.update(win.id, {
+      children: (
+        <ApiConfigForm
+          config={config}
+          winId={win.id}
+          onSave={async (updatedConfig) => {
+            await updateAiConfig({ ...updatedConfig, id: config.id });
+            Dialog.show({
+              title: t("ai.form.saveSuccess", "Configuration Saved"),
+              content: t("ai.form.saveSuccessMessage", { name: updatedConfig.name }),
+              type: "success",
+            }).catch(console.error);
+          }}
+          onCancel={() => {}}
+        />
+      ),
+    });
   };
 
   const handleDeleteApiConfig = async (configId: string) => {
@@ -256,22 +280,6 @@ export default function AI() {
             onsummary_promptChange={handleSummaryPromptChange}
             t={t}
           />
-        </div>
-      )}
-
-      {/* Modal for ApiConfigForm */}
-      {isConfigFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-20 p-4 backdrop-blur-sm dark:bg-opacity-40">
-          <div
-            className="w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-0 shadow-xl dark:bg-gray-800"
-            style={{ maxHeight: "90vh" }}
-          >
-            <ApiConfigForm
-              config={configToEdit === null ? undefined : configToEdit}
-              onSave={handleSaveApiConfigForm}
-              onCancel={handleCancelApiConfigForm}
-            />
-          </div>
         </div>
       )}
     </div>

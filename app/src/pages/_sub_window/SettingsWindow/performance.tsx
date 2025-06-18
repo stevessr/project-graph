@@ -1,10 +1,14 @@
 import {
+  ArrowUp,
   Cpu,
+  Filter,
   Hourglass,
   ImageMinus,
   ImageUpscale,
+  Layers,
   MemoryStick,
   MonitorPlay,
+  PenTool,
   RefreshCcwDot,
   ScanEye,
   ScanText,
@@ -38,6 +42,7 @@ export default function Performance() {
         <SettingField icon={<RefreshCcwDot />} settingKey="autoRefreshStageByMouseAction" type="switch" />
       </FieldGroup>
       <FieldGroup title={t("render.title")} description={t("render.description")} icon={<MonitorPlay />}>
+        <SettingField icon={<RefreshCcwDot />} settingKey="smartFrameUpdate" type="switch" />
         <SettingField icon={<Hourglass />} settingKey="isPauseRenderWhenManipulateOvertime" type="switch" />
         <SettingField
           icon={<Hourglass />}
@@ -64,6 +69,12 @@ export default function Performance() {
       <FieldGroup title={t("dev.title")} description={t("dev.description")} icon={<Hourglass />}>
         <SettingField icon={<Turtle />} settingKey="compatibilityMode" type="switch" />
         <SettingField icon={<Ungroup />} settingKey="isEnableEntityCollision" type="switch" />
+      </FieldGroup>
+
+      <FieldGroup title={t("doodle.title")} description={t("doodle.description")} icon={<PenTool />}>
+        <SettingField icon={<Filter />} settingKey="disablePenStrokeFiltering" type="switch" />
+        <SettingField icon={<Layers />} settingKey="enableSelectiveRendering" type="switch" />
+        <SettingField icon={<ArrowUp />} settingKey="penStrokeRenderPriority" type="select" />
       </FieldGroup>
     </>
   );

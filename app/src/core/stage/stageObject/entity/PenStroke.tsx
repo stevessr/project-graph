@@ -54,6 +54,10 @@ export class PenStroke extends Entity {
         segmentCount: this.segmentList.length,
         rect: `(${rect.left.toFixed(1)}, ${rect.top.toFixed(1)}) - (${rect.right.toFixed(1)}, ${rect.bottom.toFixed(1)})`,
         size: `${rect.size.x.toFixed(1)} x ${rect.size.y.toFixed(1)}`,
+        segments: this.segmentList.map(
+          (seg) =>
+            `(${seg.startLocation.x.toFixed(1)}, ${seg.startLocation.y.toFixed(1)}) -> (${seg.endLocation.x.toFixed(1)}, ${seg.endLocation.y.toFixed(1)})`,
+        ),
       });
     }
   }

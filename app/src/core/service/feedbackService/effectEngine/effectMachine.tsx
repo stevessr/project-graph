@@ -55,4 +55,9 @@ export class EffectMachine implements Tickable, Renderable {
       effect.render();
     }
   }
+
+  /** 获取当前活动特效数量 */
+  public getEffectCount(): number {
+    return this.effects.length;
+  }
 }

@@ -56,6 +56,8 @@ export default function RecentFilesWindow({ winId = "" }: { winId?: string }) {
     const files = await RecentFileManager.getRecentFiles();
     setRecentFiles(files);
     setRecentFilesFiltered(files);
+    // 确保当前选择的索引在有效范围内
+    setCurrentPreselect(files.length > 0 ? 0 : -1);
     setIsLoading(false);
   };
 
@@ -65,9 +67,11 @@ export default function RecentFilesWindow({ winId = "" }: { winId?: string }) {
       // 默认的shift + 3 会触发井号
       return;
     }
-    setCurrentPreselect(0); // 一旦有输入，就设置下标为0
     setSearchString(input);
-    setRecentFilesFiltered(recentFiles.filter((file) => file.path.includes(input)));
+    const filtered = recentFiles.filter((file) => file.path.includes(input));
+    setRecentFilesFiltered(filtered);
+    // 确保当前选择的索引在有效范围内
+    setCurrentPreselect(filtered.length > 0 ? 0 : -1);
   };
 
   useEffect(() => {
@@ -76,26 +80,36 @@ export default function RecentFilesWindow({ winId = "" }: { winId?: string }) {
 
   useEffect(() => {
     if (isLoading) return;
+    // Check if we have valid files and a valid selection
+    if (recentFilesFiltered.length === 0 || currentPreselect >= recentFilesFiltered.length || currentPreselect < 0) {
+      return;
+    }
+
+    const selectedFile = recentFilesFiltered[currentPreselect];
+    if (!selectedFile) {
+      return;
+    }
+
     const currentRect = SubWindow.get(winId).rect;
     const createdWin = SubWindow.create({
       titleBarOverlay: true,
       children: (
         <div className="flex flex-col gap-1 p-5">
           <span className="text-sm">文件路径</span>
-          <span>{recentFilesFiltered[currentPreselect].path}</span>
+          <span>{selectedFile.path}</span>
           <div className="h-1"></div>
           <span className="text-sm">修改时间</span>
-          <span>{new Date(recentFilesFiltered[currentPreselect].time).toLocaleString()}</span>
+          <span>{new Date(selectedFile.time).toLocaleString()}</span>
           <div className="flex flex-col items-start gap-2 pt-1">
-            <Button onClick={() => addToStartFiles(recentFilesFiltered[currentPreselect].path)}>
+            <Button onClick={() => addToStartFiles(selectedFile.path)}>
               <Star />
               收藏
             </Button>
-            <Button onClick={() => addPortalNodeToStage(recentFilesFiltered[currentPreselect].path)}>
+            <Button onClick={() => addPortalNodeToStage(selectedFile.path)}>
               <DoorOpen />
               创建传送门
             </Button>
-            <Button onClick={() => removeStartFile(recentFilesFiltered[currentPreselect].path)}>
+            <Button onClick={() => removeStartFile(selectedFile.path)}>
               <Delete />
               删除
             </Button>
@@ -108,16 +122,20 @@ export default function RecentFilesWindow({ winId = "" }: { winId?: string }) {
     return () => {
       SubWindow.close(createdWin.id);
     };
-  }, [currentPreselect, isLoading]);
+  }, [currentPreselect, isLoading, recentFilesFiltered]);
 
   const handleKeyDown = (e: KeyboardEvent) => {
+    if (recentFilesFiltered.length === 0) return;
+
     if (e.key === "ArrowUp") {
       setCurrentPreselect((prev) => Math.max(0, prev - 1));
     } else if (e.key === "ArrowDown") {
       setCurrentPreselect((prev) => Math.min(recentFilesFiltered.length - 1, prev + 1));
     } else if (e.key === "Enter") {
       const file = recentFilesFiltered[currentPreselect];
-      checkoutFile(file);
+      if (file) {
+        checkoutFile(file);
+      }
     }
   };
   useEffect(() => {

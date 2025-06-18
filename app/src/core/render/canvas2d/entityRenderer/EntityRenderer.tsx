@@ -117,7 +117,6 @@ export namespace EntityRenderer {
     let renderedNodes = 0;
 
     // 优化：使用缓存获取可见实体，避免重复的视图检查
-    // 暂时禁用缓存以修复PenStroke渲染问题
     if (RenderCache) {
       // 使用缓存的可见实体渲染
       const visibleNonSectionEntities = RenderCache.getVisibleEntities(
@@ -144,17 +143,56 @@ export namespace EntityRenderer {
         allPenStrokes.map((p: PenStroke) => p.uuid),
       );
 
-      const visiblePenStrokes = RenderCache.getVisibleEntities(viewRectangle, allPenStrokes);
+      // 验证所有PenStroke对象的完整性
+      const validPenStrokes = allPenStrokes.filter((p: any) => {
+        if (!(p instanceof PenStroke)) {
+          console.error("StageManager返回了非PenStroke对象:", p);
+          return false;
+        }
+        if (typeof p.getColor !== "function") {
+          console.error("PenStroke对象缺少getColor方法:", p.uuid);
+          return false;
+        }
+        return true;
+      });
 
-      console.log("缓存过滤后的可见PenStroke:", visiblePenStrokes.length, "个");
+      if (validPenStrokes.length !== allPenStrokes.length) {
+        console.warn(`过滤掉了 ${allPenStrokes.length - validPenStrokes.length} 个无效的PenStroke对象`);
+      }
+
+      // 使用新的优先级渲染方法，涂鸦将根据设置进行特殊处理
+      // 注意：不传递filterFn，让涂鸦过滤禁用逻辑生效
+      const visiblePenStrokes = RenderCache.getVisibleEntitiesWithPriority(viewRectangle, validPenStrokes, undefined);
+
+      console.log("缓存过滤后的可见PenStroke（含优先级处理）:", visiblePenStrokes.length, "个");
       console.log(
         "可见PenStroke的UUID:",
         visiblePenStrokes.map((p: any) => p.uuid),
       );
 
+      // 输出涂鸦统计信息
+      const penStrokeStats = RenderCache.getPenStrokeStats(allPenStrokes);
+      console.log("涂鸦统计信息:", penStrokeStats);
+
       for (const penStroke of visiblePenStrokes) {
-        console.log("缓存路径 - 开始渲染PenStroke:", penStroke.uuid, "颜色:", penStroke.getColor().toString());
-        EntityRenderer.renderEntity(penStroke);
+        // 添加类型检查以防止渲染错误的对象
+        if (!(penStroke instanceof PenStroke)) {
+          console.error("缓存路径 - 发现非PenStroke对象:", penStroke);
+          continue;
+        }
+
+        // 检查是否有必要的方法
+        if (typeof penStroke.getColor !== "function") {
+          console.error("缓存路径 - PenStroke对象缺少getColor方法:", penStroke.uuid);
+          continue;
+        }
+
+        try {
+          console.log("缓存路径 - 开始渲染PenStroke:", penStroke.uuid, "颜色:", penStroke.getColor().toString());
+          EntityRenderer.renderEntity(penStroke);
+        } catch (error) {
+          console.error("缓存路径 - 渲染PenStroke时出错:", penStroke.uuid, error);
+        }
       }
     } else {
       // 回退到原始实现
@@ -204,8 +242,25 @@ export namespace EntityRenderer {
           console.log("跳过PenStroke渲染（超出视野）:", penStroke.uuid);
           continue;
         }
-        console.log("开始渲染PenStroke:", penStroke.uuid, "颜色:", penStroke.getColor().toString());
-        EntityRenderer.renderEntity(penStroke);
+
+        // 添加类型检查以防止渲染错误的对象
+        if (!(penStroke instanceof PenStroke)) {
+          console.error("非缓存路径 - 发现非PenStroke对象:", penStroke);
+          continue;
+        }
+
+        // 检查是否有必要的方法
+        if (typeof penStroke.getColor !== "function") {
+          console.error("非缓存路径 - PenStroke对象缺少getColor方法:", penStroke.uuid);
+          continue;
+        }
+
+        try {
+          console.log("开始渲染PenStroke:", penStroke.uuid, "颜色:", penStroke.getColor().toString());
+          EntityRenderer.renderEntity(penStroke);
+        } catch (error) {
+          console.error("非缓存路径 - 渲染PenStroke时出错:", penStroke.uuid, error);
+        }
       }
     }
 

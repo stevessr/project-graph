@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import AISettingsPage from "../../../src/pages/settings/ai";
+import AI from "../../../src/pages/_sub_window/SettingsWindow/ai";
 import { useAiSettingsStore } from "../../../src/state/aiSettingsStore";
 import { AiSettings } from "../../../src/types/aiSettings";
 
@@ -14,7 +14,7 @@ vi.mock("react-i18next", () => ({
 
 const mockUseAiSettingsStore = vi.mocked(useAiSettingsStore);
 
-describe("AISettingsPage", () => {
+describe("AI", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     const mockSaveSettings = vi.fn().mockResolvedValue(undefined);
@@ -70,7 +70,7 @@ describe("AISettingsPage", () => {
   });
 
   it("should render the manual save button", () => {
-    render(<AISettingsPage />);
+    render(<AI />);
     expect(screen.getByRole("button", { name: /Manual Save/i })).toBeInTheDocument();
   });
 
@@ -79,7 +79,7 @@ describe("AISettingsPage", () => {
     const saveSettingsPromise = new Promise<void>((resolve) => setTimeout(() => resolve(), 100));
     vi.mocked(mockSaveSettingsFromStore).mockReturnValue(saveSettingsPromise);
 
-    render(<AISettingsPage />);
+    render(<AI />);
 
     const saveButton = screen.getByRole("button", { name: /Manual Save/i });
     fireEvent.click(saveButton);

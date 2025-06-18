@@ -18,7 +18,7 @@ export namespace StageNodeConnector {
    */
   function isConnectable(fromNode: ConnectableEntity, toNode: ConnectableEntity): boolean {
     if (StageManager.isEntityExists(fromNode.uuid) && StageManager.isEntityExists(toNode.uuid)) {
-      if (fromNode.uuid === toNode.uuid && fromNode instanceof ConnectPoint) {
+      if (fromNode.uuid === toNode.uuid && fromNode instanceof ConnectPoint && !StageManager.isAllowAddCycleEdge) {
         return false;
       }
       if (GraphMethods.isConnected(fromNode, toNode)) {

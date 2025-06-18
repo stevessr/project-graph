@@ -11,6 +11,7 @@ import { ControllerLayerMoving } from "../../service/controlService/controller/c
 import { KeyboardOnlyGraphEngine } from "../../service/controlService/keyboardOnlyEngine/keyboardOnlyGraphEngine";
 import { CopyEngine } from "../../service/dataManageService/copyEngine/copyEngine";
 import { StageStyleManager } from "../../service/feedbackService/stageStyle/StageStyleManager";
+import { ChangeDetectionManager } from "../../service/performanceService/ChangeDetectionManager";
 import { Camera } from "../../stage/Camera";
 import { Canvas } from "../../stage/Canvas";
 import { Stage } from "../../stage/Stage";
@@ -169,6 +170,7 @@ export namespace Renderer {
       (value) => (ignoreTextNodeTextRenderLessThanCameraScale = value),
     );
     EntityRenderer.init();
+    ChangeDetectionManager.init();
   }
 
   /**
@@ -178,6 +180,18 @@ export namespace Renderer {
    */
   export function frameTick() {
     updateFPS();
+
+    // 更新特效状态
+    const hasActiveEffects = Stage.effectMachine.getEffectCount() > 0;
+    ChangeDetectionManager.updateEffectsState(hasActiveEffects);
+
+    // 检查是否需要渲染
+    if (!ChangeDetectionManager.shouldRender()) {
+      // 跳过渲染，但仍需要执行Camera.frameTick()以保持相机状态更新
+      Camera.frameTick();
+      return;
+    }
+
     const viewRectangle = getCoverWorldRectangle();
     Camera.frameTick();
     Canvas.ctx.clearRect(0, 0, w, h);

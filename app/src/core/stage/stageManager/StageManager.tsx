@@ -475,6 +475,10 @@ export namespace StageManager {
 
     stageContent.entities.addValue(penStroke, penStroke.uuid);
     CacheManager.invalidateEntityCaches();
+    // 通知变化检测管理器
+    import("../../service/performanceService/ChangeDetectionManager").then(({ ChangeDetectionManager }) => {
+      ChangeDetectionManager.markForceRender();
+    });
 
     console.log("PenStroke添加完成，新的总数:", getPenStrokes().length);
   }
@@ -486,6 +490,10 @@ export namespace StageManager {
   export function addEntity(entity: Entity) {
     stageContent.entities.addValue(entity, entity.uuid);
     CacheManager.invalidateEntityCaches();
+    // 通知变化检测管理器
+    import("../../service/performanceService/ChangeDetectionManager").then(({ ChangeDetectionManager }) => {
+      ChangeDetectionManager.markForceRender();
+    });
   }
 
   /**

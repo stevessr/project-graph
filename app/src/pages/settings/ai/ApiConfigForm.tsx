@@ -9,11 +9,13 @@ import Slider from "../../../components/Slider";
 import Switch from "../../../components/Switch";
 import { useTranslation } from "react-i18next";
 import { useAiSettingsStore } from "../../../state/aiSettingsStore";
+import { SubWindow } from "../../../core/service/SubWindow";
 
 interface ApiConfigFormProps {
   config?: ApiConfig; // Changed from ApiConfig | null
   onSave: (config: ApiConfig) => void;
   onCancel: () => void;
+  winId?: string; // Optional window ID for SubWindow
 }
 
 type FormDataType = Partial<Omit<ApiConfig, "id">> & { id?: string };
@@ -54,7 +56,7 @@ const providerDefaults: Record<string, Partial<ApiConfig>> = {
   },
 };
 
-const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel }) => {
+const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel, winId }) => {
   const { t } = useTranslation("settings");
   const { availableModels, loadingModels, fetchModels } = useAiSettingsStore();
 
@@ -205,6 +207,11 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
       tools: tools || [],
     };
     onSave(configToSave);
+
+    // Close the SubWindow if winId is provided
+    if (winId) {
+      SubWindow.close(winId);
+    }
   };
 
   const handleAddTool = () => {
@@ -509,7 +516,16 @@ const ApiConfigForm: React.FC<ApiConfigFormProps> = ({ config, onSave, onCancel 
       </FieldGroup>
 
       <div className="mt-6 flex justify-end gap-2">
-        <Button type="button" onClick={onCancel} variant="outline">
+        <Button
+          type="button"
+          onClick={() => {
+            onCancel();
+            if (winId) {
+              SubWindow.close(winId);
+            }
+          }}
+          variant="outline"
+        >
           {t("common.cancel", "Cancel")}
         </Button>
         <Button type="submit" variant="default">

@@ -93,6 +93,10 @@ export namespace Controller {
    */
   export function recordManipulate() {
     lastManipulateTime = performance.now();
+    // 通知变化检测管理器
+    import("../../performanceService/ChangeDetectionManager").then(({ ChangeDetectionManager }) => {
+      ChangeDetectionManager.recordUserInteraction();
+    });
   }
 
   /**

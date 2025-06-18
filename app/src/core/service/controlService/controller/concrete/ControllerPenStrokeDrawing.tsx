@@ -306,9 +306,15 @@ class ControllerDrawingClass extends ControllerClass {
       }
     }
 
-    // 清理
-    this.recordLocation = [];
-    this.currentStroke = [];
+    // 延迟清理currentStroke，确保新的PenStroke已经被渲染
+    // 使用双重requestAnimationFrame确保在下一次渲染完成后再清理
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // 清理
+        this.recordLocation = [];
+        this.currentStroke = [];
+      });
+    });
 
     Controller.setCursorNameHook(CursorNameEnum.Crosshair);
     this._isUsing = false;
@@ -334,7 +340,8 @@ class ControllerDrawingClass extends ControllerClass {
     if (this.autoFillPenStrokeColorEnable) {
       return this.autoFillPenStrokeColor;
     } else {
-      return Color.Transparent;
+      // 如果没有启用自动填充颜色，返回边框颜色而不是透明色
+      return StageStyleManager.currentStyle.StageObjectBorder.clone();
     }
   }
 

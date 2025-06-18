@@ -430,6 +430,9 @@ settings:
   windowCollapsingWidth:
     title: 迷你視窗的寬度
     description: "點擊切換至迷你視窗時，視窗的寬度，單位為像素\n"
+  smartFrameUpdate:
+    title: 智能幀更新
+    description: "開啟後，舞台只有在有實際變化或用戶交互時才會刷新，而不是持續刷新。\n這可以通過減少不必要的渲染來顯著提高性能。\n"
   isPauseRenderWhenManipulateOvertime:
     title: 超過一定時間未操作舞台，暫停渲染
     description: "開啟後，超過若干秒未做出舞台操作，舞台渲染會暫停，以節省CPU/GPU資源。\n"

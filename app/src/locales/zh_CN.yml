@@ -730,6 +730,10 @@ performanceSettingsGroup:
     description: |
       以下设置项和渲染有关,建议根据您的计算机配置进行调整
     title: 渲染相关性能设置
+  doodle:
+    description: |
+      以下设置项控制涂鸦的渲染行为,可以优化涂鸦的显示效果和性能
+    title: 涂鸦渲染设置
 plugins:
   core:
     console: 控制台
@@ -1109,6 +1113,11 @@ settings:
       开启后,实体之间会进行碰撞挤压移动,可能会影响性能。
       建议关闭此项,目前实体碰撞挤压还不完善,可能导致爆栈
     title: 实体碰撞检测
+  smartFrameUpdate:
+    description: |
+      开启后,舞台只有在有实际变化或用户交互时才会刷新,而不是持续刷新。
+      这可以通过减少不必要的渲染来显著提高性能。
+    title: 智能帧更新
   isPauseRenderWhenManipulateOvertime:
     description: |
       开启后,超过若干秒未做出舞台操作,舞台渲染会暂停,以节省CPU/GPU资源。
@@ -1399,6 +1408,23 @@ settings:
     description: |
       点击切换至迷你窗口时,窗口的宽度,单位为像素
     title: 迷你窗口的宽度
+  disablePenStrokeFiltering:
+    description: |
+      开启后,涂鸦将不会被视野过滤,始终保持可见状态
+      这可以确保涂鸦不会因为视野范围而被错误隐藏
+    title: 禁用涂鸦过滤
+  enableSelectiveRendering:
+    description: |
+      开启后,启用选择性渲染功能,可以根据优先级调整渲染顺序
+    title: 启用选择性渲染
+  penStrokeRenderPriority:
+    description: |
+      设置涂鸦的渲染优先级,影响涂鸦在画布上的层级显示
+    title: 涂鸦渲染优先级
+    options:
+      high: 高优先级(最上层)
+      normal: 普通优先级
+      low: 低优先级(最下层)
 startFilePanel:
   buttons:
     addFile: 添加文件
