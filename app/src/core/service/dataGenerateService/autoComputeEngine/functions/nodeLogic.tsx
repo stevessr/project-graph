@@ -10,6 +10,13 @@ import { MouseLocation } from "../../../controlService/MouseLocation";
 import { PenStrokeDeletedEffect } from "../../../feedbackService/effectEngine/concrete/PenStrokeDeletedEffect";
 import { SoundService } from "../../../feedbackService/SoundService";
 import { AutoComputeUtils } from "../AutoComputeUtils";
+=======
+import { callAiApi } from "../../../../../services/aiApiService";
+import { PenStroke } from "../../../../stage/stageObject/entity/PenStroke";
+import { Stage } from "../../../../stage/Stage";
+import { PenStrokeDeletedEffect } from "../../../feedbackService/effectEngine/concrete/PenStrokeDeletedEffect";
+import { ConnectPoint } from "../../../../stage/stageObject/entity/ConnectPoint";
+>>>>>>> origin/lazy
 
 /**
  * 直接获取输入节点和下游输出节点
@@ -22,6 +29,7 @@ import { AutoComputeUtils } from "../AutoComputeUtils";
  */
 export namespace NodeLogic {
   export const delayStates: Map<string, Record<number, string>> = new Map();
+<<<<<<< HEAD
   // step 是一个计数器，每当逻辑引擎实际执行一次时，step 就会加一
   // TODO: 可以考虑把 step 放到逻辑引擎层面，甚至可以出一个节点获取当前步数，可以加一个每次只运行一步的快捷键
   /**
@@ -720,5 +728,164 @@ export namespace NodeLogic {
       return [defaultStr];
     }
     return ["输入的节点格式必须都是TextNode"];
+  }
+
+  /**
+   * 聊天节点 - 只接受内容
+   * @param fatherNodes 父节点数组，第一个节点为内容
+   * @param childNodes 子节点数组
+   * @returns 聊天结果
+   */
+  export function chatContent(fatherNodes: ConnectableEntity[], childNodes: ConnectableEntity[]): string[] {
+    if (fatherNodes.length < 1) {
+      return ["Error: 需要至少一个输入节点作为内容"];
+    }
+
+    const contentNode = fatherNodes[0];
+    if (!(contentNode instanceof TextNode)) {
+      return ["Error: 输入节点必须是TextNode"];
+    }
+
+    // 获取输出节点
+    const outputNode = childNodes.length > 0 && childNodes[0] instanceof TextNode ? (childNodes[0] as TextNode) : null;
+
+    if (!outputNode) {
+      return ["Error: 需要连接一个输出节点"];
+    }
+
+    // 检查该输出节点是否正在执行
+    const nodeId = outputNode.uuid;
+    if (chatNodeExecutionStates.get(nodeId)) {
+      return ["聊天节点正在执行中，请等待完成..."];
+    }
+
+    // 立即设置执行状态
+    chatNodeExecutionStates.set(nodeId, true);
+
+    const prompt = contentNode.text;
+
+    // 启动异步聊天API调用，实时更新输出节点
+    executeChatApiStreamToNode(prompt, outputNode, false);
+
+    return [""];
+  }
+
+  /**
+   * 聊天节点 - 接受系统提示和内容
+   * @param fatherNodes 父节点数组，第一个为系统提示，第二个为内容
+   * @param childNodes 子节点数组
+   * @returns 聊天结果
+   */
+  export function chatSystemContent(fatherNodes: ConnectableEntity[], childNodes: ConnectableEntity[]): string[] {
+    if (fatherNodes.length < 2) {
+      return ["Error: 需要两个输入节点：系统提示和内容"];
+    }
+
+    const systemNode = fatherNodes[0];
+    const contentNode = fatherNodes[1];
+
+    if (!(systemNode instanceof TextNode) || !(contentNode instanceof TextNode)) {
+      return ["Error: 输入节点必须都是TextNode"];
+    }
+
+    // 获取输出节点
+    const outputNode = childNodes.length > 0 && childNodes[0] instanceof TextNode ? (childNodes[0] as TextNode) : null;
+
+    if (!outputNode) {
+      return ["Error: 需要连接一个输出节点"];
+    }
+
+    // 检查该输出节点是否正在执行
+    const nodeId = outputNode.uuid;
+    if (chatNodeExecutionStates.get(nodeId)) {
+      return [outputNode.text];
+    }
+
+    // 立即设置执行状态
+    chatNodeExecutionStates.set(nodeId, true);
+
+    // 构建带系统提示的prompt
+    const fullPrompt = `System: ${systemNode.text}\n\nUser: ${contentNode.text}`;
+
+    // 启动异步聊天API调用，实时更新输出节点
+    executeChatApiStreamToNode(fullPrompt, outputNode, true);
+
+    return [""];
+  }
+
+  /**
+   * 异步执行聊天API调用，实时更新目标节点
+   * @param prompt 提示内容
+   * @param targetNode 目标节点
+   * @param _hasSystemPrompt 是否包含系统提示（暂未使用）
+   */
+  async function executeChatApiStreamToNode(
+    prompt: string,
+    targetNode: TextNode,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _hasSystemPrompt: boolean,
+  ): Promise<void> {
+    const nodeId = targetNode.uuid;
+
+    try {
+      // 设置初始状态
+      targetNode.rename("");
+
+      // 使用流式传输
+      const streamGenerator = callAiApi(prompt, true);
+      let fullResponse = "";
+
+      // 处理流式响应
+      for await (const chunk of streamGenerator) {
+        fullResponse += chunk;
+        // 实时更新节点内容
+        targetNode.rename(fullResponse);
+      }
+
+      // 完成执行
+      console.log("Chat API completed successfully");
+    } catch (error) {
+      console.error("Chat API error:", error);
+      const errorMessage = `Error: ${error instanceof Error ? error.message : "Unknown error"}`;
+      targetNode.rename(errorMessage);
+    } finally {
+      // 无论成功还是失败，都要清除执行状态
+      chatNodeExecutionStates.set(nodeId, false);
+    }
+  }
+
+  /**
+   * 检查聊天节点是否正在执行
+   * @param nodeId 节点ID
+   * @returns 是否正在执行
+   */
+  export function isChatNodeExecuting(nodeId: string): boolean {
+    return chatNodeExecutionStates.get(nodeId) || false;
+  }
+
+  /**
+   * 重置所有聊天节点的执行状态
+   */
+  export function resetAllChatNodeExecutionStates(): void {
+    chatNodeExecutionStates.clear();
+  }
+
+  /**
+   * 强制停止指定聊天节点的执行
+   * @param nodeId 节点ID
+   */
+  export function stopChatNodeExecution(nodeId: string): void {
+    chatNodeExecutionStates.set(nodeId, false);
+  }
+  /**
+   * 获取当前正在执行的聊天节点数量
+   * @returns 正在执行的节点数量
+   */
+  export function getExecutingChatNodeCount(): number {
+    let count = 0;
+    for (const isExecuting of chatNodeExecutionStates.values()) {
+      if (isExecuting) count++;
+    }
+    return count;
   }
 }

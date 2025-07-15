@@ -7,6 +7,7 @@ type BoxProps<E extends ElementType> = {
   className?: string;
   as?: ElementType;
   tooltip?: string;
+  disabled?: boolean; // Add disabled to the BoxProps type
 } & React.ComponentPropsWithRef<E>;
 
 const _Box = <E extends ElementType = "div">(
@@ -24,20 +25,17 @@ const _Box = <E extends ElementType = "div">(
   const [tooltipY, setTooltipY] = React.useState(-1000); // 防止遮挡左上角菜单按钮
 
   const handleMouseEnter = (event: React.MouseEvent<HTMLDivElement>) => {
-    // eslint-disable-next-line react/prop-types
     props.onMouseEnter?.(event);
     setShowTooltip(true);
   };
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    // eslint-disable-next-line react/prop-types
     props.onMouseMove?.(event);
     setTooltipX(event.clientX);
     setTooltipY(event.clientY);
   };
 
   const handleMouseLeave = (event: React.MouseEvent<HTMLDivElement>) => {
-    // eslint-disable-next-line react/prop-types
     props.onMouseLeave?.(event);
     setTooltipY(-1000); // 防止遮挡左上角菜单按钮
     setShowTooltip(false);

@@ -1,7 +1,9 @@
+// src\components\Field.tsx
 import { ChevronRight, RotateCw } from "lucide-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Settings } from "../core/service/Settings";
+import { Themes } from "../core/service/Themes"; // Import Themes
 import { cn } from "../utils/cn";
 import Button from "./Button";
 import FileChooser from "./FileChooser";
@@ -9,6 +11,31 @@ import Input from "./Input";
 import Select from "./Select";
 import Slider from "./Slider";
 import Switch from "./Switch";
+
+// --- Theme Application Logic ---
+// This logic runs when Field.tsx is imported.
+// It watches for changes in the "theme" setting and applies the corresponding CSS variables globally.
+// This makes components like FieldGroup, which use semantic CSS classes (e.g., bg-field-group-bg),
+// theme-aware, assuming these classes are mapped to CSS variables in tailwind.config.js.
+Settings.watch("theme", (themeId) => {
+  if (typeof themeId === "string") {
+    const themeData = Themes.getThemeById(themeId);
+    if (themeData && themeData.content) {
+      const cssVariables = Themes.convertThemeToCSS(themeData.content);
+      let styleTag = document.getElementById("dynamic-theme-styles");
+      if (!styleTag) {
+        styleTag = document.createElement("style");
+        styleTag.id = "dynamic-theme-styles";
+        document.head.appendChild(styleTag);
+      }
+      // Wrap variables in :root {} to make them global CSS custom properties
+      styleTag.innerHTML = `:root {\n${cssVariables}\n}`;
+    } else if (themeData === undefined) {
+      console.warn(`[Theme Watcher] Theme with ID "${themeId}" not found. Current styles will persist.`);
+    }
+  }
+});
+// --- End of Theme Application Logic ---
 
 export function SettingField({
   settingKey,
@@ -38,7 +65,8 @@ export function SettingField({
     Settings.get(settingKey).then((v) => {
       setValue(v);
     });
-  }, []);
+  }, [settingKey]);
+
   React.useEffect(() => {
     if (value !== undefined) {
       Settings.set(settingKey, value);
@@ -47,7 +75,7 @@ export function SettingField({
         i18n.changeLanguage(value);
       }
     }
-  }, [value]);
+  }, [value, settingKey, i18n]);
 
   return (
     <Field
@@ -57,7 +85,10 @@ export function SettingField({
     >
       <RotateCw
         className="text-panel-details-text h-4 w-4 cursor-pointer opacity-0 hover:rotate-180 group-hover/field:opacity-100"
-        onClick={() => setValue(Settings.defaultSettings[settingKey])}
+        onClick={() => {
+          const defaultValue = Settings.defaultSettings[settingKey];
+          setValue(defaultValue);
+        }}
       />
       {extra}
       {type === "text" && <Input value={value} onChange={setValue} placeholder={placeholder} />}
@@ -84,6 +115,7 @@ export function SettingField({
     </Field>
   );
 }
+
 export function ButtonField({
   title,
   description = "",
@@ -109,7 +141,7 @@ export function ButtonField({
 }
 
 const fieldColors = {
-  default: "hover:bg-field-group-hover-bg",
+  default: "hover:bg-field-group-hover-bg", // Assuming field-group-hover-bg is also themed
   celebrate: "border-2 border-green-500/20 hover:bg-green-500/25",
   danger: "border-2 border-red-500/20 hover:bg-red-500/25",
   warning: "border-2 border-yellow-500/20 hover:bg-yellow-500/25",
@@ -146,10 +178,14 @@ export function Field({
       )}
     >
       <div className="text-settings-text flex items-center gap-2">
+        {" "}
+        {/* Uses themed text-settings-text */}
         <span>{icon}</span>
         <div className="flex flex-col">
           <span>{title}</span>
           <span className="text-panel-details-text text-xs">
+            {" "}
+            {/* Uses themed text-panel-details-text */}
             {description.split("\n").map((dd, ii) => (
               <p key={ii} className="text-xs">
                 {dd}
@@ -182,24 +218,27 @@ export function FieldGroup({
   className?: string;
   description?: string;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <div className={cn("flex w-full flex-col gap-2", className)}>
       {/* 第一行，标题行 */}
       <div
-        className="text-settings-text my-2 flex cursor-pointer items-center gap-2 pl-4 pt-4 text-sm opacity-60 hover:opacity-100"
+        className="text-settings-text my-2 flex cursor-pointer items-center gap-2 pl-4 pt-4 text-sm opacity-60 hover:opacity-100" // Uses themed text-settings-text
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="cursor-pointer">{icon}</span>
         <span className="cursor-pointer">{title}</span>
-        <ChevronRight className={cn(isOpen && "rotate-90")} />
+        <ChevronRight className={cn(isOpen && "rotate-90")} /> {/* Icon color inherits from text-settings-text */}
       </div>
       {/* 可能的描述行 */}
-      {description && isOpen && <div className="text-panel-details-text pl-4 text-xs">{description}</div>}
+      {description && isOpen && <div className="text-panel-details-text pl-4 text-xs">{description}</div>}{" "}
+      {/* Uses themed text-panel-details-text */}
       {/* 内容 */}
       {isOpen && (
         <div className="bg-field-group-bg group/field-group flex w-full flex-col overflow-hidden rounded-2xl text-sm *:rounded-none *:first:rounded-t-xl *:last:rounded-b-xl">
+          {" "}
+          {/* Uses themed bg-field-group-bg */}
           {children}
         </div>
       )}

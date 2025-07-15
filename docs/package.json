@@ -1,6 +1,6 @@
 {
-  "name": "@graphif/docs",
-  "version": "0.0.0",
+  "name": "@pg/docs",
+  "version": "0.0.114514",
   "private": true,
   "scripts": {
     "build": "next build",

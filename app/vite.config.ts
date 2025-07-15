@@ -41,9 +41,10 @@ export default defineConfig({
   // tauri需要固定的端口
   server: {
     port: 1420,
+    //host: ["0.0.0.0", "127.0.0.1"],
     // 端口冲突时直接报错，不尝试下一个可用端口
     strictPort: true,
-    host: host || false,
+    host: host || "0.0.0.0",
     hmr: host
       ? {
           protocol: "ws",
@@ -53,6 +54,12 @@ export default defineConfig({
       : undefined,
     watch: {
       ignored: ["**/src-tauri/**"],
+    },
+  },
+
+  build: {
+    rollupOptions: {
+      external: ["@tauri-apps/api"],
     },
   },
 
@@ -71,7 +78,9 @@ export default defineConfig({
 
   test: {
     environment: "jsdom",
-    include: ["./tests/**/*.test.tsx"],
+    globals: true, // To make mocks available globally easily
+    setupFiles: ["./vitest.setup.ts", "./tests/setup.ts"], // Optional: for global mocks
+    include: ["./tests/**/*.test.{ts,tsx}"],
     env: {
       LR_VITEST: "true",
     },

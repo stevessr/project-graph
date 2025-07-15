@@ -8,12 +8,14 @@ export default function Button({
   children,
   className = "",
   onClick = () => {},
-  disabled = false,
-  ...props
+  disabled = false, // Keep disabled for internal logic and styling
+  ...props // Spread the rest of the props, which might include 'disabled' if passed by parent
 }: React.PropsWithChildren<{
   className?: string;
   onClick?: (e: React.MouseEvent) => void | Promise<void>;
   disabled?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
+  disabled?: boolean; // This prop controls the button's behavior and appearance
   [key: string]: any;
 }>) {
   const [loading, setLoading] = useState(false);
@@ -48,6 +50,7 @@ export default function Button({
       onMouseDown={() => {
         SoundService.play.mouseClickButton();
       }}
+      disabled={disabled} // Explicitly pass the disabled prop to the Box component
       {...props}
     >
       {loading ? <Loader2 className="animate-spin" /> : children}

@@ -262,7 +262,14 @@ export class Controller {
     e.preventDefault();
 
     if (e.touches.length === 1) {
-      // HACK: 重构后touch方法就有问题了
+      const touch = e.touches[0];
+      // Simulate a mouse event for ControllerEntityClickSelectAndMove
+      const mockMouseEvent = {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        preventDefault: () => {},
+      } as MouseEvent;
+      ControllerEntityClickSelectAndMove.mousemove(mockMouseEvent);
     }
     if (e.touches.length === 2) {
       const touch1 = Vector.fromTouch(e.touches[0]);

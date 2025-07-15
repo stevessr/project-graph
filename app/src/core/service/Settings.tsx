@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+// src\core\service\Settings.tsx
+import { appCacheDir } from "@tauri-apps/api/path";
+>>>>>>> origin/lazy
 import { Store } from "@tauri-apps/plugin-store";
 import { useEffect, useState } from "react";
 import { createStore } from "../../utils/store";

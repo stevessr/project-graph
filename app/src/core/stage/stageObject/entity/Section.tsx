@@ -225,7 +225,7 @@ export class Section extends ConnectableEntity {
     }
     // 让内部元素也移动
     for (const child of this.children) {
-      child.move(delta);
+      child.move(delta, true); // 将 skipCollisionResolution 参数设置为 true
     }
 
     // 移动雪花特效

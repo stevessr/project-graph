@@ -1,7 +1,9 @@
+import { invoke } from "../../utils/tauriApi";
 import { open as openFile } from "@tauri-apps/plugin-dialog";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 import { open } from "@tauri-apps/plugin-shell";
 import { BookOpen, Box, PartyPopper, Plug, X } from "lucide-react";
+import { Terminal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Button from "../../../components/Button";
 import { Field } from "../../../components/Field";
@@ -81,13 +83,16 @@ export default function PluginsPage() {
           {t("documentation")}
         </Button>
       </Field>
+      <Field icon={<Terminal />} title={t("core.console")}>
+        <Button
+          onClick={() => invoke("open_devtools")} // Call the new Tauri command
+        >
+          {t("open")}
+        </Button>
+      </Field>
 
       {/* 核心插件，不能卸载 */}
-      <Field
-        icon={<Plug />}
-        title="Core"
-        description={"Provides the core functionality of the app\nAuthor: Project Graph Developers"}
-      >
+      <Field icon={<Plug />} title={t("core.title")} description={t("core.description")}>
         <Button disabled>
           <X />
           {t("uninstall")}

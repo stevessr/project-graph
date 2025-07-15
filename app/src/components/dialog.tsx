@@ -1,5 +1,6 @@
 import { Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
+// src\components\dialog.tsx
 import React from "react";
 import { SubWindow } from "../core/service/SubWindow";
 import { cn } from "../utils/cn";
@@ -67,9 +68,28 @@ export namespace Dialog {
     value?: string;
   }> {
     return new Promise((resolve) => {
-      const win = SubWindow.create({
-        // title: options.title,
-        children: (
+      // 检查是否在桌面/混合应用环境中 (lazy分支的逻辑)
+      if (typeof SubWindow !== "undefined" && typeof SubWindow.create === "function") {
+        const win = SubWindow.create({
+          // title: options.title,
+          children: (
+            <Component
+              {...options}
+              onClose={(button, value) => {
+                resolve({ button, value });
+                SubWindow.close(win.id);
+              }}
+            />
+          ),
+          rect: new Rectangle(new Vector(200, 200), new Vector(400, 300)),
+          titleBarOverlay: true,
+        });
+      } else {
+        // 否则，使用标准的Web浏览器环境逻辑 (upmain分支的逻辑)
+        const container = document.createElement("div");
+        document.body.appendChild(container);
+        const root = createRoot(container);
+        root.render(
           <Component
             {...options}
             onClose={(button, value) => {
@@ -82,8 +102,26 @@ export namespace Dialog {
         titleBarOverlay: true,
         closable: false,
       });
-    });
-  }
+    } else {
+      // 否则，使用标准的Web浏览器环境逻辑 (upmain分支的逻辑)
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      const root = createRoot(container);
+      root.render(
+        <Component
+          {...options}
+          onClose={(button, value) => {
+            resolve({ button, value });
+            setTimeout(() => {
+              root.unmount();
+              container.remove();
+            }, 300);
+          }}
+        />,
+      );
+    }
+  });
+}
 
   function Component({
     title = "",
@@ -153,6 +191,11 @@ export namespace Dialog {
             </div>
           ))}
         </div>
+        <div
+          className={cn("fixed left-0 top-0 z-[100] h-full w-full bg-black opacity-0", {
+            "opacity-30": show,
+          })}
+        ></div>
       </div>
     );
   }

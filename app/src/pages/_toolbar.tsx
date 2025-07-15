@@ -7,6 +7,7 @@ import {
   ChevronsLeftRightEllipsis,
   ChevronsRightLeft,
   ClipboardPaste,
+  ClipboardList, // Import ClipboardList icon
   FolderSymlink,
   GitBranchPlus,
   LayoutDashboard,
@@ -19,8 +20,10 @@ import {
   PaintBucket,
   Palette,
   Pencil,
+  Play,
   RefreshCcw,
   Repeat,
+  RotateCcw,
   SaveAll,
   Shrink,
   Slash,
@@ -46,6 +49,8 @@ import { StageGeneratorAI } from "../core/stage/stageManager/concreteMethods/Sta
 import { ConnectableEntity } from "../core/stage/stageObject/abstract/ConnectableEntity";
 import { MultiTargetUndirectedEdge } from "../core/stage/stageObject/association/MutiTargetUndirectedEdge";
 import { TextNode } from "../core/stage/stageObject/entity/TextNode";
+import { ManualExecutionEngine } from "../core/service/dataGenerateService/autoComputeEngine/manualExecutionEngine";
+import { NodeLogic } from "../core/service/dataGenerateService/autoComputeEngine/functions/nodeLogic";
 import { cn } from "../utils/cn";
 import { openBrowserOrFile, openSelectedImageNode } from "../utils/externalOpen";
 import { isMac } from "../utils/platform";
@@ -195,6 +200,7 @@ export default function Toolbar({ className = "" }: { className?: string }) {
   const [isHaveSelectedEdge, setIsHaveSelectedEdge] = useState(false);
   const [isHaveSelectedMultiTargetEdge, setIsHaveSelectedMultiTargetEdge] = useState(false);
   const [isHaveSelectedCREdge, setIsHaveSelectedCREdge] = useState(false);
+  const [isHaveSelectedLogicNode, setIsHaveSelectedLogicNode] = useState(false);
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [penStrokeColor, setPenStrokeColor] = useState(Color.Transparent);
@@ -549,11 +555,41 @@ export default function Toolbar({ className = "" }: { className?: string }) {
             }}
           />
           <ToolbarItem
-            description={t("textNode.items.aiGenerateNewNode") + "（已欠费，有待更新）"}
+            description={t("textNode.items.aiGenerateNewNode")}
             icon={<BrainCircuit />}
             handleFunction={() => {
               StageGeneratorAI.generateNewTextNodeBySelected();
               this.project.historyManager.recordStep();
+            }}
+          />
+          <ToolbarItem
+            description={t("textNode.items.aiGenerateSummary")}
+            icon={<ClipboardList />}
+            handleFunction={() => {
+              StageGeneratorAI.generateSummaryBySelected(); // Call the new function
+              StageHistoryManager.recordStep();
+            }}
+          />
+        </ToolbarGroup>
+      )}
+
+      {/* 逻辑节点 */}
+      {isHaveSelectedLogicNode && (
+        <ToolbarGroup groupTitle="逻辑节点">
+          <ToolbarItem
+            description="执行选中的逻辑节点"
+            icon={<Play />}
+            handleFunction={() => {
+              ManualExecutionEngine.executeSelectedLogicNodes();
+              StageHistoryManager.recordStep();
+            }}
+          />
+          <ToolbarItem
+            description="重置所有聊天节点执行状态"
+            icon={<RotateCcw />}
+            handleFunction={() => {
+              NodeLogic.resetAllChatNodeExecutionStates();
+              console.log("已重置所有聊天节点执行状态");
             }}
           />
         </ToolbarGroup>
