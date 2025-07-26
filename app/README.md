@@ -48,6 +48,12 @@ Project Graph is an open-source project that aims to provide a next-generation n
 
 ---
 
+## 📚 Documentation
+
+For detailed developer documentation, including architecture, frontend/backend guides, and more, please see our [**Documentation Hub**](./docs/README.md).
+
+---
+
 ## 📥 Installation
 
 Refer to [Documentation](https://project-graph.top/docs/app#%E5%AE%89%E8%A3%85)
