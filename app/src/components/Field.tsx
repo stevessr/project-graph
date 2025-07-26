@@ -59,7 +59,7 @@ export function SettingField({
       icon={icon}
     >
       <RotateCw
-        className="text-panel-details-text h-4 w-4 cursor-pointer opacity-0 hover:rotate-180 group-hover/field:opacity-100"
+        className="text-panel-details-text h-4 w-4 cursor-pointer opacity-0 group-hover/field:opacity-100 hover:rotate-180"
         onClick={() => setValue(Settings.defaultSettings[settingKey])}
       />
       {extra}
@@ -233,7 +233,7 @@ export function FieldGroup({
   return (
     <div className={cn("flex w-full flex-col gap-2", className)}>
       <div
-        className="text-settings-text my-2 flex cursor-pointer items-center gap-2 pl-4 pt-4 text-sm opacity-60 hover:opacity-100"
+        className="text-settings-text my-2 flex cursor-pointer items-center gap-2 pt-4 pl-4 text-sm opacity-60 hover:opacity-100"
         onClick={handleToggle}
       >
         <span>{icon}</span>

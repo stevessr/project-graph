@@ -23,3 +23,5 @@ backup_*
 .DS_Store
 
 .vscode/settings.json
+app/browser-state-*.json
+app/docs/*

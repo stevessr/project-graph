@@ -51,7 +51,7 @@ export default function ExportTreeTextPanel() {
   return (
     <div
       className={cn(
-        "bg-button-bg text-button-text fixed left-1/2 top-1/2 z-10 flex h-4/5 w-3/4 -translate-x-1/2 -translate-y-1/2 transform flex-col items-center overflow-y-scroll rounded-md px-2 py-6",
+        "bg-button-bg text-button-text fixed top-1/2 left-1/2 z-10 flex h-4/5 w-3/4 -translate-x-1/2 -translate-y-1/2 transform flex-col items-center overflow-y-scroll rounded-md px-2 py-6",
         {
           hidden: !isExportTreeTextPanelOpen,
         },
@@ -67,7 +67,7 @@ export default function ExportTreeTextPanel() {
         <CodePre text={plainText} title="纯文本网状" details="网状结构，上面是节点，下面是连接关系" />
       </div>
       <button
-        className="absolute right-0 top-0 rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
+        className="absolute top-0 right-0 rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
         onClick={() => setIsExportTreeTextPanelOpen(false)}
       >
         关闭
@@ -93,7 +93,7 @@ function CodePre({ text, title, details }: { text: string; title: string; detail
       <h4 className="text-center font-bold">{title}</h4>
       <p className="text-panel-text text-center text-xs">{details}</p>
       <Button onClick={handleCopy}>点击复制</Button>
-      <pre className="text-panel-details-text max-h-96 max-w-96 select-text overflow-x-auto rounded-md bg-black p-2 text-xs">
+      <pre className="text-panel-details-text max-h-96 max-w-96 overflow-x-auto rounded-md bg-black p-2 text-xs select-text">
         {text}
       </pre>
     </div>

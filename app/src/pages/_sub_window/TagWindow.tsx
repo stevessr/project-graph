@@ -131,13 +131,13 @@ export default function TagWindow() {
                   {tag.tagName}
                 </span>
                 <span
-                  className="text-panel-text border-panel-details-text border-1 mx-0.5 cursor-pointer rounded text-xs opacity-0 hover:scale-105 active:scale-95 group-hover:opacity-100"
+                  className="text-panel-text border-panel-details-text mx-0.5 cursor-pointer rounded border-1 text-xs opacity-0 group-hover:opacity-100 hover:scale-105 active:scale-95"
                   onClick={handleMoveUp(tag.uuid)}
                 >
                   ↑
                 </span>
                 <span
-                  className="text-panel-text border-panel-details-text border-1 mx-0.5 cursor-pointer rounded text-xs opacity-0 hover:scale-105 active:scale-95 group-hover:opacity-100"
+                  className="text-panel-text border-panel-details-text mx-0.5 cursor-pointer rounded border-1 text-xs opacity-0 group-hover:opacity-100 hover:scale-105 active:scale-95"
                   onClick={handleMoveDown(tag.uuid)}
                 >
                   ↓

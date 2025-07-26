@@ -82,11 +82,9 @@
       ]
     },
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEIyQzM3OTE1QjgwRTRCNzEKUldSeFN3NjRGWG5Ec2hVb05sWGZhVmpJdEVCR2cwNmM4UXlISEN5eHJBeFlCQkF3VjV6Z0tEY08K",
-      "endpoints": ["https://release.project-graph.top/update/{{target}}/{{arch}}/{{current_version}}"],
-      "windows": {
-        "installMode": "passive"
-      }
+      "active": true,
+      "endpoints": ["https://your-update-server.com/updates.json"],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDUwRjIwRDhDMTVDMEVDQTY\nUldTbTdNQVZqQTN5VUp5YTRoQmhzOE03UmR0UUo4MzhaZFA0NUhtS3ltRUNiWUJMVkZRVUpwTy8K"
     },
     "fs": {
       "requireLiteralLeadingDot": false

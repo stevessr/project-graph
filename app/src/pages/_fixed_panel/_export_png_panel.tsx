@@ -84,7 +84,7 @@ export default function ExportPNGPanel() {
   return (
     <div
       className={cn(
-        "bg-panel-bg text-panel-text fixed left-1/2 top-1/2 z-10 flex h-4/5 w-3/4 -translate-x-1/2 -translate-y-1/2 transform flex-col items-center overflow-y-scroll rounded-md px-2 py-6",
+        "bg-panel-bg text-panel-text fixed top-1/2 left-1/2 z-10 flex h-4/5 w-3/4 -translate-x-1/2 -translate-y-1/2 transform flex-col items-center overflow-y-scroll rounded-md px-2 py-6",
         {
           hidden: !isExportPngPanelOpen,
         },
@@ -168,7 +168,7 @@ export default function ExportPNGPanel() {
       </div>
       {/* 关闭按钮 */}
       <button
-        className="absolute right-0 top-0 rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
+        className="absolute top-0 right-0 rounded bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-700"
         onClick={() => setIsExportPngPanelOpen(false)}
       >
         关闭

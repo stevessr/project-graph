@@ -8,10 +8,10 @@ export default function FloatingOutlet() {
 
   return (
     <Popin show={location.pathname !== "/"}>
-      <div className="bg-settings-page-bg shadow-settings-page-bg h-8/9 w-7/8 fixed left-1/2 top-1/2 z-[70] -translate-x-1/2 -translate-y-1/2 rounded-xl shadow-2xl lg:w-4/5">
+      <div className="bg-settings-page-bg shadow-settings-page-bg fixed top-1/2 left-1/2 z-[70] h-8/9 w-7/8 -translate-x-1/2 -translate-y-1/2 rounded-xl shadow-2xl lg:w-4/5">
         <Outlet />
         <X
-          className="text-panel-text absolute right-4 top-4 cursor-pointer hover:rotate-90"
+          className="text-panel-text absolute top-4 right-4 cursor-pointer hover:rotate-90"
           id="close-popin-btn"
           onClick={() => {
             navigate("/");

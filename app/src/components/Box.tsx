@@ -19,6 +19,8 @@ const _Box = <E extends ElementType = "div">(
   }: BoxProps<E>,
   ref: React.Ref<HTMLElement>,
 ) => {
+  const { onUpdate, ...restProps } = props as any;
+
   const [showTooltip, setShowTooltip] = React.useState(false);
   const [tooltipX, setTooltipX] = React.useState(0);
   const [tooltipY, setTooltipY] = React.useState(-1000); // 防止遮挡左上角菜单按钮
@@ -48,7 +50,7 @@ const _Box = <E extends ElementType = "div">(
         onMouseEnter={handleMouseEnter}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        {...props}
+        {...restProps}
       >
         {children}
       </Component>

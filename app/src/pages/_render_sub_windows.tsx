@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
 import { Transition } from "@headlessui/react";
@@ -9,11 +10,12 @@ export default function RenderSubWindows() {
   const subWindows = SubWindow.use();
 
   return (
-    <div className="pointer-events-none fixed left-0 top-0 z-[10000] h-full w-full">
+    <div className="pointer-events-none fixed top-0 left-0 z-[10000] h-full w-full">
       {subWindows.map((win) => (
-        <Transition key={win.id} appear={true} show={!win.closing}>
-          <div
-            data-pg-window-id={win.id}
+        <React.Fragment key={win.id}>
+          <Transition appear={true} show={!win.closing}>
+            <div
+              data-pg-window-id={win.id}
             style={{
               top: win.rect.top + "px",
               left: win.rect.left + "px",
@@ -73,7 +75,7 @@ export default function RenderSubWindows() {
               window.addEventListener("touchmove", onTouchMove);
             }}
           >
-            <div className={cn("flex p-1", win.titleBarOverlay && "pointer-events-none absolute left-0 top-0 w-full")}>
+            <div className={cn("flex p-1", win.titleBarOverlay && "pointer-events-none absolute top-0 left-0 w-full")}>
               <div className="flex-1 px-1" data-pg-drag-region={win.titleBarOverlay ? undefined : ""}>
                 {win.title}
               </div>
@@ -99,7 +101,7 @@ export default function RenderSubWindows() {
             </div>
             {/* 添加一个可调整大小的边缘，这里以右下角为例 */}
             <div
-              className="bg-sub-window-resize-bg absolute bottom-0 right-0 h-4 w-4 cursor-se-resize"
+              className="bg-sub-window-resize-bg absolute right-0 bottom-0 h-4 w-4 cursor-se-resize"
               onMouseDown={(e) => {
                 const start = new Vector(e.clientX, e.clientY);
                 const onMouseUp = () => {
@@ -181,6 +183,8 @@ export default function RenderSubWindows() {
             />
           </div>
         </Transition>
+        <div className="pointer-events-auto">{win.topLayerChildren}</div>
+        </React.Fragment>
       ))}
     </div>
   );

@@ -216,7 +216,7 @@ export default function AlignNodePanel() {
           icon={
             <span className="relative flex h-8 w-8 items-center justify-center">
               <Square className="absolute" />
-              <Network className="absolute -rotate-90 scale-50" />
+              <Network className="absolute scale-50 -rotate-90" />
             </span>
           }
           handleFunction={() => {

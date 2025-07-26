@@ -23,7 +23,7 @@ export default function ErrorHandler() {
   return (
     <div
       className={cn(
-        "max-w-screen pointer-events-none fixed left-1/2 top-1/2 z-50 max-h-screen -translate-x-1/2 -translate-y-1/2 scale-90 overflow-y-auto rounded-lg bg-red-950 p-8 opacity-0 shadow-2xl shadow-red-500/30",
+        "pointer-events-none fixed top-1/2 left-1/2 z-50 max-h-screen max-w-screen -translate-x-1/2 -translate-y-1/2 scale-90 overflow-y-auto rounded-lg bg-red-950 p-8 opacity-0 shadow-2xl shadow-red-500/30",
         {
           "pointer-events-auto scale-100 opacity-100": show,
         },
@@ -53,8 +53,8 @@ export default function ErrorHandler() {
           </p>
         </div>
         <div className="">
-          <div className="mt-4 cursor-text select-text text-xs text-red-300">
-            <pre className="cursor-text select-text overflow-auto rounded-md bg-neutral-900 p-2">
+          <div className="mt-4 cursor-text text-xs text-red-300 select-text">
+            <pre className="cursor-text overflow-auto rounded-md bg-neutral-900 p-2 select-text">
               {error?.stack + "\n\n"}
               {/* 结尾加两个空行，是为了方便从下往上选中，供用户复制 */}
             </pre>

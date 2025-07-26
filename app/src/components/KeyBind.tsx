@@ -69,7 +69,7 @@ export default function KeyBind({
       <Button
         onClick={startInput}
         className={cn(
-          "bg-keybind-bg border-keybind-border max-w-1/3 flex flex-wrap items-center gap-2 outline-0 outline-red-400 hover:cursor-pointer",
+          "bg-keybind-bg border-keybind-border flex max-w-1/3 flex-wrap items-center gap-2 outline-0 outline-red-400 hover:cursor-pointer",
           {
             "outline-4": choosing,
           },

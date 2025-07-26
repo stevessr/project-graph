@@ -2,16 +2,17 @@
 // FIXME: 移除上面的disable注释
 import { restoreStateCurrent, saveWindowState, StateFlags } from "@tauri-apps/plugin-window-state";
 import { useAtom } from "jotai";
-import { Copy, Minus, Pin, PinOff, Square, X } from "lucide-react";
+import { Copy, Minus, Pin, PinOff, Square, X, Settings as SettingsIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog } from "../components/dialog";
+import { AISettingsPanel } from "../core/view/modal/AISettings/AISettingsPanel";
 import { GlobalMenu } from "../core/service/GlobalMenu";
 import { Settings } from "../core/service/Settings";
 import { Themes } from "../core/service/Themes";
 import { activeProjectAtom, projectsAtom } from "../state";
 import { cn } from "../utils/cn";
-import { getCurrentWindow, isDesktop } from "../utils/platform";
+import { getCurrentWindow, isDesktop, isTauri } from "../utils/platform";
 import RenderSubWindows from "./_render_sub_windows";
 import MenuWindow from "./_sub_window/MenuWindow";
 import Welcome from "./_welcome";
@@ -19,6 +20,7 @@ import Welcome from "./_welcome";
 export default function App() {
   const [maximized, _setMaximized] = useState(false);
   const [alwaysOnTop, setAlwaysOnTop] = useState(false);
+  const [showAiSettings, setShowAiSettings] = useState(false);
 
   // 面板状态
   // TODO: start file window
@@ -60,39 +62,44 @@ export default function App() {
       )
         event.preventDefault();
     });
-
+    if (isDesktop) {
+      // 恢复窗口位置大小
+      restoreStateCurrent(StateFlags.SIZE | StateFlags.POSITION | StateFlags.MAXIMIZED);
+    }
     /**
      * 关闭窗口时的事件监听
      */
-    getCurrentWindow().onCloseRequested(async (e) => {
-      e.preventDefault();
-      // 保存窗口位置
-      await saveWindowState(StateFlags.SIZE | StateFlags.POSITION | StateFlags.MAXIMIZED);
-      await Dialog.show({
-        title: "是否保存更改？",
-        buttons: [
-          {
-            text: "保存",
-          },
-          {
-            text: "暂存",
-          },
-          {
-            text: "放弃更改",
-          },
-          {
-            text: "帮助",
-            onClick: async () => {
-              await Dialog.show({
-                title: "暂存是什么东西？",
-                content:
-                  "在 2.0 以后的版本中，应用会定时将文件内容暂存到缓存目录中，防止应用意外关闭造成的文件丢失。您可以在“最近打开”中找回暂存的文件。",
-              });
+    if (isDesktop) {
+      getCurrentWindow().onCloseRequested(async (e) => {
+        e.preventDefault();
+        // 保存窗口位置
+        await saveWindowState(StateFlags.SIZE | StateFlags.POSITION | StateFlags.MAXIMIZED);
+        await Dialog.show({
+          title: "是否保存更改？",
+          buttons: [
+            {
+              text: "保存",
             },
-          },
-        ],
+            {
+              text: "暂存",
+            },
+            {
+              text: "放弃更改",
+            },
+            {
+              text: "帮助",
+              onClick: async () => {
+                await Dialog.show({
+                  title: "暂存是什么东西？",
+                  content:
+                    "在 2.0 以后的版本中，应用会定时将文件内容暂存到缓存目录中，防止应用意外关闭造成的文件丢失。您可以在“最近打开”中找回暂存的文件。",
+                });
+              },
+            },
+          ],
+        });
       });
-    });
+    }
 
     // 监听主题样式切换
     Settings.watch("theme", (value) => {
@@ -110,19 +117,22 @@ export default function App() {
     });
 
     // 恢复窗口位置大小
-    restoreStateCurrent(StateFlags.SIZE | StateFlags.POSITION | StateFlags.MAXIMIZED);
+    if (isDesktop) {
+      restoreStateCurrent(StateFlags.SIZE | StateFlags.POSITION | StateFlags.MAXIMIZED);
+    }
 
     setIsWide(window.innerWidth / window.innerHeight > 1.8);
-
-    const unlisten1 = getCurrentWindow().onResized(() => {
-      if (!isOnResizedDisabled.current) {
-        isMaximizedWorkaround();
-      }
-      setIsWide(window.innerWidth / window.innerHeight > 1.8);
-    });
-    return () => {
-      unlisten1?.then((f) => f());
-    };
+    if (isDesktop) {
+      const unlisten1 = getCurrentWindow().onResized(() => {
+        if (!isOnResizedDisabled.current) {
+          isMaximizedWorkaround();
+        }
+        setIsWide(window.innerWidth / window.innerHeight > 1.8);
+      });
+      return () => {
+        unlisten1?.then((f) => f());
+      };
+    }
   }, []);
 
   // https://github.com/tauri-apps/tauri/issues/5812
@@ -216,6 +226,11 @@ export default function App() {
         {isWide && <Tabs />}
         <div className="h-full flex-1 cursor-grab active:cursor-grabbing" data-tauri-drag-region></div>
         <div className="el-titlebar flex h-8 shrink-0 items-center overflow-hidden rounded-lg border">
+          <div className="*:el-titlebar-control flex h-full *:flex *:h-full *:w-8 *:cursor-pointer *:items-center *:justify-center *:rounded-lg *:transition-all *:active:scale-90 *:active:rounded-2xl">
+              <div onClick={() => setShowAiSettings(s => !s)}>
+                  <SettingsIcon size={14} strokeWidth={2} />
+              </div>
+          </div>
           {isDesktop && (
             <div className="*:el-titlebar-control flex h-full *:flex *:h-full *:w-8 *:cursor-pointer *:items-center *:justify-center *:rounded-lg *:transition-all *:active:scale-90 *:active:rounded-2xl">
               {/* 要确保每一个图标在视觉上的大小和粗细都相同 */}
@@ -277,6 +292,13 @@ export default function App() {
       <RenderSubWindows /> */}
 
       <RenderSubWindows />
+
+      {showAiSettings && (
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 100, background: 'white', padding: '20px', border: '1px solid black', borderRadius: '8px' }}>
+              <AISettingsPanel />
+              <button onClick={() => setShowAiSettings(false)} style={{ marginTop: '10px' }}>Close</button>
+          </div>
+      )}
     </div>
   );
 }

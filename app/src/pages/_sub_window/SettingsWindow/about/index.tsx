@@ -55,7 +55,7 @@ export default function About() {
           style={{
             rotate: `${clickedLogoCount * 15}deg`,
           }}
-          className={cn("rounded-4xl h-32 w-32 cursor-pointer shadow-neutral-800 hover:scale-105 active:scale-95")}
+          className={cn("h-32 w-32 cursor-pointer rounded-4xl shadow-neutral-800 hover:scale-105 active:scale-95")}
           onClick={() => {
             setClickedLogoCount(clickedLogoCount + 1);
           }}

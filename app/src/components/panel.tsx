@@ -79,7 +79,7 @@ export namespace Panel {
       <>
         <div
           className={cn(
-            "bg-panel-bg text-panel-text fixed bottom-0 right-0 top-0 z-[99] flex translate-x-full flex-col",
+            "bg-panel-bg text-panel-text fixed top-0 right-0 bottom-0 z-[99] flex translate-x-full flex-col",
             {
               "translate-x-0": show,
             },

@@ -70,7 +70,7 @@ export function ToolbarItem({ icon, handleFunction, description, color = Color.T
       onClick={handleFunction}
     >
       {icon}
-      <span className="bg-toolbar-tooltip-bg border-toolbar-tooltip-border text-toolbar-tooltip-text pointer-events-none absolute bottom-8 z-10 w-auto origin-right scale-90 whitespace-nowrap rounded border p-1 text-xs opacity-0 group-hover:scale-100 group-hover:opacity-100">
+      <span className="bg-toolbar-tooltip-bg border-toolbar-tooltip-border text-toolbar-tooltip-text pointer-events-none absolute bottom-8 z-10 w-auto origin-right scale-90 rounded border p-1 text-xs whitespace-nowrap opacity-0 group-hover:scale-100 group-hover:opacity-100">
         {description}
       </span>
       {/* {isHighlight && <div className="bg-panel-success-text absolute top-0 h-1 w-6 rounded-b-md" />} */}

@@ -82,7 +82,7 @@ export default async function Page(props: { params: Promise<{ tag: string; lang:
               })}
             <Link
               href="https://aur.archlinux.org/packages/project-graph-bin"
-              className="not-hover:no-underline flex w-max items-center gap-2"
+              className="flex w-max items-center gap-2 not-hover:no-underline"
             >
               <ExternalLink />
               AUR: project-graph-bin
@@ -101,7 +101,7 @@ function DownloadLink({ href, proxy }: { href?: string; proxy?: boolean }) {
     href && (
       <Link
         href={proxy ? `https://ghproxy.net/${href}` : href}
-        className="not-hover:no-underline flex w-max items-center gap-2"
+        className="flex w-max items-center gap-2 not-hover:no-underline"
       >
         <Download />
         {href.split("/").pop()}

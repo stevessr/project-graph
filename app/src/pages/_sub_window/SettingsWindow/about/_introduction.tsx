@@ -32,7 +32,7 @@ export default function Introduction() {
 
 function CheckingUpdates({ isLatest }: { isLatest: boolean }) {
   return (
-    <div className="rounded-4xl flex items-center gap-2 bg-gradient-to-br from-purple-950 via-blue-950 to-green-950 p-4">
+    <div className="flex items-center gap-2 rounded-4xl bg-gradient-to-br from-purple-950 via-blue-950 to-green-950 p-4">
       {isLatest ? (
         <>
           <Check />
@@ -89,7 +89,7 @@ function UpdateAvailable({ update }: { update: Update | null }) {
   return (
     <div
       className={cn(
-        "rounded-4xl absolute bottom-0 left-0 right-0 top-0 z-10 flex origin-top flex-col gap-4 bg-gradient-to-br from-purple-950 via-blue-950 to-green-950 p-8 duration-1000",
+        "absolute top-0 right-0 bottom-0 left-0 z-10 flex origin-top flex-col gap-4 rounded-4xl bg-gradient-to-br from-purple-950 via-blue-950 to-green-950 p-8 duration-1000",
         update ? "scale-y-100" : "scale-y-0",
       )}
     >

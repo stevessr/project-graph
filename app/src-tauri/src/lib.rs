@@ -1,5 +1,6 @@
-mod cmd;
+pub mod cmd;
 
+use cmd::{device, fs};
 use tauri::Manager;
 
 #[tauri::command]
@@ -41,7 +42,9 @@ pub fn run() {
             {
                 let window = app.get_webview_window("main").unwrap();
                 window.open_devtools();
-                app.handle().plugin(tauri_plugin_devtools::init())?;
+                let mut builder = tauri_plugin_devtools::Builder::default();
+                builder.port(4000);
+                app.handle().plugin(builder.init())?;
             }
             #[cfg(desktop)]
             {
@@ -55,7 +58,8 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            cmd::device::get_device_id,
+            device::get_device_id,
+            fs::read_file,
             write_stdout,
             write_stderr,
             exit

@@ -1,4 +1,5 @@
 import { getDeviceId } from "../../utils/otherApi";
+import { universalFetch } from "../../utils/fetch";
 import { FeatureFlags } from "./FeatureFlags";
 
 export namespace Telemetry {
@@ -11,7 +12,7 @@ export namespace Telemetry {
     if (!deviceId) {
       deviceId = await getDeviceId();
     }
-    await fetch(import.meta.env.LR_API_BASE_URL + "/telemetry", {
+    await universalFetch(import.meta.env.LR_API_BASE_URL + "/telemetry", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

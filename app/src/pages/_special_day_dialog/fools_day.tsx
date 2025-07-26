@@ -4,7 +4,7 @@ import { RecentFileManager } from "../../core/service/dataFileService/RecentFile
 export default function FoolsDayButton() {
   return (
     <div
-      className="fixed bottom-0 right-8 h-2 w-2 cursor-pointer rounded-full bg-red-500 transition-all hover:bg-red-700"
+      className="fixed right-8 bottom-0 h-2 w-2 cursor-pointer rounded-full bg-red-500 transition-all hover:bg-red-700"
       onClick={showDialogWhen4_1}
     />
   );

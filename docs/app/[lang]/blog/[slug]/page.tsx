@@ -13,7 +13,7 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>
       <DocsTitle>{page.data.title}</DocsTitle>
-      <div className="flex flex-row items-center gap-2 border-b pb-6 pt-2">
+      <div className="flex flex-row items-center gap-2 border-b pt-2 pb-6">
         <img src={`https://github.com/${page.data.author}.png`} alt="" className="h-6 w-6 rounded-full" />
         <span>{page.data.author}</span>
         <span>{page.data.date.toLocaleDateString()}</span>

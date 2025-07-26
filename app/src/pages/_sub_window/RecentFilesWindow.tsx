@@ -305,7 +305,7 @@ export default function RecentFilesWindow({ winId = "" }: { winId?: string }) {
         </div>
       )}
 
-      <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+      <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
         {recentFilesFiltered.map((file, index) => (
           <div
             key={index}

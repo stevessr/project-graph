@@ -38,7 +38,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
         {t("news")}
       </div>
       {/* slogan */}
-      <h1 className="flex flex-col items-center bg-gradient-to-br from-blue-400 to-lime-500 bg-clip-text text-7xl font-semibold leading-tight text-transparent">
+      <h1 className="flex flex-col items-center bg-gradient-to-br from-blue-400 to-lime-500 bg-clip-text text-7xl leading-tight font-semibold text-transparent">
         {t("slogan").map((word, index) => (
           <span key={index}>{word}</span>
         ))}

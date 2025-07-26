@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { spawn } from "child_process";
 
 // 从环境变量获取参数并分割成数组

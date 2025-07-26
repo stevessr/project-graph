@@ -142,134 +142,196 @@ export namespace Settings {
     agreeTerms: boolean;
     allowTelemetry: boolean;
     // AI
-    aiApiBaseUrl: string;
+    openaiApiBaseUrl: string;
+    googleApiBaseUrl: string;
+    anthropicApiBaseUrl: string;
     aiApiKey: string;
+    aiApiKeyOpenAI: string;
+    aiApiKeyGemini: string;
+    aiApiKeyAnthropic: string;
+    aiApiKeyOpenRouter: string;
     aiModel: string;
+    aiModelGemini: string;
+    aiModelAnthropic: string;
+    aiModelOpenRouter: string;
     aiShowTokenCount: boolean;
+    /**
+     * The AI provider to use.
+     * @default "openai"
+     */
+     aiProvider: "openai" | "google" | "anthropic" | "openrouter";
+     mcpServers?: { id: string; url: string; enabled: boolean }[];
+     googleEnableGoogleSearch: boolean;
+     googleEnableUrlContext: boolean;
+    googleEnableCodeExecution: boolean;
+    googleEnableThinkingConfig: boolean;
+    googleThinkingBudget: number;
+    /**
+     * Whether to enable streaming responses.
+     * @default true
+     */
+    enableStream: boolean;
+    /**
+     * The response format for OpenAI.
+     * @default "chat"
+     */
+    openaiResponseType: "chat" | "response";
+    /**
+     * The response format for OpenAI.
+     * @default "response"
+     */
+    openaiResponseFormat: "response" | "traditional";
+    geminiTtsModel: string;
+    geminiTtsLanguage: string;
+    aiModelGeminiTTS: string;
+    customSystemMessage: string;
   };
   export const defaultSettings: Settings = {
-    language: "zh_CN",
-    // 视觉相关
-    lineStyle: "straight",
-    theme: "dark",
-    showTipsOnUI: true,
-    isClassroomMode: false,
-    isRenderCenterPointer: false,
-    showGrid: true,
-    showBackgroundHorizontalLines: true,
-    showBackgroundVerticalLines: true,
-    showBackgroundDots: false,
-    showBackgroundCartesian: true, // 1.4.17 开始必须要默认显示坐标系，没有坐标系可能会让用户迷路
-    windowBackgroundAlpha: 0.9,
-    enableTagTextNodesBigDisplay: true,
-    showDebug: false, // 从1.4.7开始，以后用户安装软件后不默认显示调试信息，进而避免出现让用户感到困惑“这一大堆字是什么”
-    alwaysShowDetails: false,
-    protectingPrivacy: false,
-    useNativeTitleBar: false,
-    entityDetailsFontSize: 18,
-    entityDetailsLinesLimit: 4,
-    entityDetailsWidthLimit: 200,
-    nodeDetailsPanel: "vditor",
-    sectionBitTitleRenderType: "cover",
-
-    windowCollapsingWidth: 300,
-    windowCollapsingHeight: 300,
-
-    limitCameraInCycleSpace: false,
-    cameraCycleSpaceSizeX: 1000,
-    cameraCycleSpaceSizeY: 1000,
-    cameraResetViewPaddingRate: 1.5,
-    // 性能相关
-    compatibilityMode: false,
-    historySize: 20,
-    effectsPerferences: {},
-    isEnableEntityCollision: false,
-    isPauseRenderWhenManipulateOvertime: true,
-    renderOverTimeWhenNoManipulateTime: 5,
-    ignoreTextNodeTextRenderLessThanCameraScale: 0.065,
-    showTextNodeBorder: true,
-    autoRefreshStageByMouseAction: true,
-    compressPastedImages: true,
-    maxPastedImageSize: 1920,
-    textCacheSize: 100,
-    textScalingBehavior: "temp",
-    antialiasing: "low",
-    maxFps: 60,
-    maxFpsUnfocused: 30,
-    // 自动相关
-    autoNamerTemplate: "...",
-    autoNamerSectionTemplate: "Section_{{i}}",
-    autoFillNodeColor: [0, 0, 0, 0],
-    autoFillNodeColorEnable: true,
-    autoFillEdgeColor: [0, 0, 0, 0],
-    autoFillPenStrokeColor: [0, 0, 0, 0],
-    autoFillPenStrokeColorEnable: true,
-    autoOpenPath: "", // 废弃
-    autoSaveWhenClose: false,
-    autoSave: true,
-    autoSaveInterval: 10,
-    autoBackup: true,
-    autoBackupInterval: 600,
-    autoBackupDraftPath: "",
-    autoBackupLimitCount: 10,
-    generateTextNodeByStringTabCount: 4,
-    autoLayoutWhenTreeGenerate: true,
-    // 控制相关
-    enableCollision: true,
-    enableDragAutoAlign: true,
-    enableDragAlignToGrid: false,
-    enableWindowsTouchPad: true,
-    rectangleSelectWhenLeft: "contain",
-    rectangleSelectWhenRight: "intersect",
-    scaleExponent: 0.11,
-    allowMoveCameraByWSAD: false,
-    cameraFollowsSelectedNodeOnArrowKeys: false,
-    cameraKeyboardMoveReverse: false,
-    scaleCameraByMouseLocation: true,
-    cameraKeyboardScaleRate: 0.2,
-    allowAddCycleEdge: false,
-    moveAmplitude: 2,
-    moveFriction: 0.1,
-    gamepadDeadzone: 0.1,
-    mouseRightDragBackground: "cut",
-    textNodeContentLineBreak: "shiftEnter",
-    textNodeExitEditMode: "enter",
-    textNodeStartEditMode: "enter",
-    textNodeSelectAllWhenStartEditByKeyboard: false,
-    textNodeSelectAllWhenStartEditByMouseClick: true,
-    mouseLeftMode: "selectAndMove",
-    mouseWheelMode: "zoom",
-    mouseWheelWithShiftMode: "moveX",
-    mouseWheelWithCtrlMode: "move",
-    mouseWheelWithAltMode: "none",
-    mouseSideWheelMode: "cameraMoveToMouse",
-    doubleClickMiddleMouseButton: "adjustCamera",
-    macTrackpadAndMouseWheelDifference: "trackpadIntAndWheelFloat",
-    macMouseWheelIsSmoothed: false,
-    macTrackpadScaleSensitivity: 0.5,
-    // 音效相关
-    soundEnabled: true,
-    cuttingLineStartSoundFile: "",
-    connectLineStartSoundFile: "",
-    connectFindTargetSoundFile: "",
-    cuttingLineReleaseSoundFile: "",
-    alignAndAttachSoundFile: "",
-    uiButtonEnterSoundFile: "",
-    uiButtonClickSoundFile: "",
-    uiSwitchButtonOnSoundFile: "",
-    uiSwitchButtonOffSoundFile: "",
-    // github 相关
-    githubToken: "",
-    githubUser: "",
-    // 用户协议
-    agreeTerms: false,
-    allowTelemetry: false,
-    // AI
-    aiApiBaseUrl: "https://generativelanguage.googleapis.com/v1beta/openai/",
-    aiApiKey: "",
-    aiModel: "gemini-2.5-flash",
-    aiShowTokenCount: false,
-  };
+      language: "zh_CN",
+      // 视觉相关
+      lineStyle: "straight",
+      theme: "dark",
+      showTipsOnUI: true,
+      isClassroomMode: false,
+      isRenderCenterPointer: false,
+      showGrid: true,
+      showBackgroundHorizontalLines: true,
+      showBackgroundVerticalLines: true,
+      showBackgroundDots: false,
+      showBackgroundCartesian: true, // 1.4.17 开始必须要默认显示坐标系，没有坐标系可能会让用户迷路
+      windowBackgroundAlpha: 0.9,
+      enableTagTextNodesBigDisplay: true,
+      showDebug: false, // 从1.4.7开始，以后用户安装软件后不默认显示调试信息，进而避免出现让用户感到困惑“这一大堆字是什么”
+      alwaysShowDetails: false,
+      protectingPrivacy: false,
+      useNativeTitleBar: false,
+      entityDetailsFontSize: 18,
+      entityDetailsLinesLimit: 4,
+      entityDetailsWidthLimit: 200,
+      nodeDetailsPanel: "vditor",
+      sectionBitTitleRenderType: "cover",
+  
+      windowCollapsingWidth: 300,
+      windowCollapsingHeight: 300,
+  
+      limitCameraInCycleSpace: false,
+      cameraCycleSpaceSizeX: 1000,
+      cameraCycleSpaceSizeY: 1000,
+      cameraResetViewPaddingRate: 1.5,
+      // 性能相关
+      compatibilityMode: false,
+      historySize: 20,
+      effectsPerferences: {},
+      isEnableEntityCollision: false,
+      isPauseRenderWhenManipulateOvertime: true,
+      renderOverTimeWhenNoManipulateTime: 5,
+      ignoreTextNodeTextRenderLessThanCameraScale: 0.065,
+      showTextNodeBorder: true,
+      autoRefreshStageByMouseAction: true,
+      compressPastedImages: true,
+      maxPastedImageSize: 1920,
+      textCacheSize: 100,
+      textScalingBehavior: "temp",
+      antialiasing: "low",
+      maxFps: 60,
+      maxFpsUnfocused: 30,
+      // 自动相关
+      autoNamerTemplate: "...",
+      autoNamerSectionTemplate: "Section_{{i}}",
+      autoFillNodeColor: [0, 0, 0, 0],
+      autoFillNodeColorEnable: true,
+      autoFillEdgeColor: [0, 0, 0, 0],
+      autoFillPenStrokeColor: [0, 0, 0, 0],
+      autoFillPenStrokeColorEnable: true,
+      autoOpenPath: "", // 废弃
+      autoSaveWhenClose: false,
+      autoSave: true,
+      autoSaveInterval: 10,
+      autoBackup: true,
+      autoBackupInterval: 600,
+      autoBackupDraftPath: "",
+      autoBackupLimitCount: 10,
+      generateTextNodeByStringTabCount: 4,
+      autoLayoutWhenTreeGenerate: true,
+      // 控制相关
+      enableCollision: true,
+      enableDragAutoAlign: true,
+      enableDragAlignToGrid: false,
+      enableWindowsTouchPad: true,
+      rectangleSelectWhenLeft: "contain",
+      rectangleSelectWhenRight: "intersect",
+      scaleExponent: 0.11,
+      allowMoveCameraByWSAD: false,
+      cameraFollowsSelectedNodeOnArrowKeys: false,
+      cameraKeyboardMoveReverse: false,
+      scaleCameraByMouseLocation: true,
+      cameraKeyboardScaleRate: 0.2,
+      allowAddCycleEdge: false,
+      moveAmplitude: 2,
+      moveFriction: 0.1,
+      gamepadDeadzone: 0.1,
+      mouseRightDragBackground: "cut",
+      textNodeContentLineBreak: "shiftEnter",
+      textNodeExitEditMode: "enter",
+      textNodeStartEditMode: "enter",
+      textNodeSelectAllWhenStartEditByKeyboard: false,
+      textNodeSelectAllWhenStartEditByMouseClick: true,
+      mouseLeftMode: "selectAndMove",
+      mouseWheelMode: "zoom",
+      mouseWheelWithShiftMode: "moveX",
+      mouseWheelWithCtrlMode: "move",
+      mouseWheelWithAltMode: "none",
+      mouseSideWheelMode: "cameraMoveToMouse",
+      doubleClickMiddleMouseButton: "adjustCamera",
+      macTrackpadAndMouseWheelDifference: "trackpadIntAndWheelFloat",
+      macMouseWheelIsSmoothed: false,
+      macTrackpadScaleSensitivity: 0.5,
+      // 音效相关
+      soundEnabled: true,
+      cuttingLineStartSoundFile: "",
+      connectLineStartSoundFile: "",
+      connectFindTargetSoundFile: "",
+      cuttingLineReleaseSoundFile: "",
+      alignAndAttachSoundFile: "",
+      uiButtonEnterSoundFile: "",
+      uiButtonClickSoundFile: "",
+      uiSwitchButtonOnSoundFile: "",
+      uiSwitchButtonOffSoundFile: "",
+      // github 相关
+      githubToken: "",
+      githubUser: "",
+      // 用户协议
+      agreeTerms: false,
+      allowTelemetry: false,
+      // AI
+      openaiApiBaseUrl: "https://api.openai.com/v1",
+      googleApiBaseUrl: "https://generativelanguage.googleapis.com/v1beta",
+      anthropicApiBaseUrl: "https://api.anthropic.com/v1",
+      aiApiKey: "",
+      aiApiKeyOpenAI: "",
+      aiApiKeyGemini: "",
+      aiApiKeyAnthropic: "",
+      aiApiKeyOpenRouter: "",
+      aiModel: "gemini-2.5-flash",
+      aiModelGemini: "gemini-2.5-flash",
+      aiModelAnthropic: "claude-4-haiku",
+      aiModelOpenRouter: "google/gemini-2.5-flash",
+      aiShowTokenCount: false,
+      aiProvider: "openai",
+      mcpServers: [],
+      googleEnableGoogleSearch: false,
+      googleEnableUrlContext: false,
+      googleEnableCodeExecution: false,
+      googleEnableThinkingConfig: false,
+      googleThinkingBudget: 1024,
+      enableStream: true,
+      openaiResponseType: "chat",
+      openaiResponseFormat: "response",
+      geminiTtsModel: "gemini-2.5-flash-preview-tts",
+      geminiTtsLanguage: "en-US",
+      aiModelGeminiTTS: "gemini-2.5-flash-preview-tts",
+      customSystemMessage: "",
+    };
 
   export const sync = defaultSettings;
 
@@ -373,3 +435,5 @@ export namespace Settings {
     return [value, setValue];
   }
 }
+
+export const defaultSettings = Settings.defaultSettings;

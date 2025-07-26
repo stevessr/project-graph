@@ -1,11 +1,11 @@
 import { Octokit } from "@octokit/rest";
-import { fetch } from "@tauri-apps/plugin-http";
+import { universalFetch } from "../../../utils/fetch";
 import { open } from "@tauri-apps/plugin-shell";
 import { LogIn, User } from "lucide-react";
 import React from "react";
 import { Dialog } from "../../../components/dialog";
-import { ButtonField } from "../../../components/Field";
 import { Settings } from "../../../core/service/Settings";
+import { ButtonField } from "../../../components/Field";
 import { isMobile } from "../../../utils/platform";
 
 export default function GithubPage() {
@@ -13,7 +13,7 @@ export default function GithubPage() {
   const [user, setUser] = React.useState("");
 
   React.useEffect(() => {
-    Settings.get("githubUser").then((v) => setUser(v || "未登录"));
+    Settings.get("githubUser").then((v: any) => setUser(v || "未登录"));
   }, []);
 
   const login = async () => {
@@ -65,7 +65,7 @@ export default function GithubPage() {
       url2.searchParams.set("code", dialog2.value);
       url2.searchParams.set("redirect_uri", "https://liren.zty012.de/oauth/github");
       const token = await (
-        await fetch(url2.href, {
+        await universalFetch(url2.href, {
           method: "POST",
           headers: {
             Accept: "application/json",

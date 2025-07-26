@@ -4,7 +4,7 @@
   "description": "An open-source project that aims to provide a next-generation node diagram tool for visual thinking.",
   "type": "module",
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --filter=@graphif/project-graph",
     "tauri:dev": "turbo run tauri:dev",
     "tauri:dev:android": "turbo run tauri:dev:android",
     "build": "turbo run build",
@@ -42,13 +42,22 @@
         "search-insights"
       ]
     },
+    "overrides": {
+      "vite": "^5.0.0"
+    },
     "onlyBuiltDependencies": [
       "@swc/core",
+      "@tailwindcss/oxide",
       "bcrypt",
+      "core-js",
       "esbuild",
       "msw",
-      "sharp"
+      "sharp",
+      "lightningcss"
     ]
   },
-  "packageManager": "pnpm@10.6.5"
+  "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "lightningcss": "^1.30.1"
+  }
 }

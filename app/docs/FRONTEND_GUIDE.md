@@ -106,3 +106,40 @@ console.log(theme); // 输出: { mode: 'dark' }
 // 4. 删除数据
 await settingsStore.delete("theme");
 ```
+
+## 5. 网络请求 (Networking)
+
+为了统一项目中的网络请求并解决跨平台问题，我们提供了一个通用的 `universalFetch` 函数。
+
+### 统一的 Fetch 接口
+
+`universalFetch` 是项目中进行所有网络请求的推荐方式。它位于 [`'src/utils/fetch.ts'`](src/utils/fetch.ts:0)，用法与标准的 `fetch` API 完全一致。
+
+### 跨平台能力
+
+该函数的核心优势在于其跨平台适应能力。它会自动检测当前的运行环境，并选择最优的实现方式：
+
+- **Web 浏览器**: 在浏览器环境中，它直接使用原生支持的 `window.fetch` 方法。
+- **Tauri 桌面应用**: 在 Tauri 环境中，它会切换到使用 [`@tauri-apps/plugin-http`](https://github.com/tauri-apps/plugins-workspace/tree/v1/plugins/http) 的 `fetch` 功能。这有助于绕过 Web 环境中常见的 CORS（跨源资源共享）限制，从而更自由地与外部 API 通信。
+
+### 基本用法
+
+你可以从 [`'src/utils/fetch.ts'`](src/utils/fetch.ts:0) 导入 `universalFetch`，然后像使用标准 `fetch` 一样调用它。
+
+```typescript
+import { universalFetch } from "utils/fetch";
+
+async function getUserData() {
+  try {
+    const response = await universalFetch("https://api.example.com/user/1");
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+    } else {
+      console.error("Network response was not ok.");
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
+}
+```

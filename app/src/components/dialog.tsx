@@ -100,7 +100,7 @@ export namespace Dialog {
     return (
       <div
         data-pg-drag-region
-        className={cn("flex h-full flex-col gap-4 text-wrap break-words p-8", `el-dialog-${type}`)}
+        className={cn("flex h-full flex-col gap-4 p-8 text-wrap break-words", `el-dialog-${type}`)}
       >
         <h1 className="text-2xl font-bold">{title}</h1>
         <div className="flex-1 overflow-auto">
@@ -112,7 +112,7 @@ export namespace Dialog {
           <div className="flex flex-col gap-2">
             {/* <h2 className="text-lg font-bold">代码</h2> */}
             <pre
-              className="cursor-copy select-text overflow-auto rounded-md bg-neutral-900 p-2 text-sm text-white"
+              className="cursor-copy overflow-auto rounded-md bg-neutral-900 p-2 text-sm text-white select-text"
               onClick={() => {
                 navigator.clipboard
                   .writeText(code)

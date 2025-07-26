@@ -6,7 +6,7 @@ import pgTheme from "@graphif/vite-plugin-pg-theme";
 import ViteYaml from "@modyfi/vite-plugin-yaml";
 import reactScan from "@react-scan/vite-plugin-react-scan";
 import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react-oxc";
+import react from "@vitejs/plugin-react-swc";
 import { createLogger, defineConfig } from "vite";
 import svgr from "vite-plugin-svgr";
 
@@ -32,7 +32,9 @@ export default defineConfig({
     // import config from "./config.yaml"
     ViteYaml(),
     // react插件
-    react(),
+    react({
+      tsDecorators: true,
+    }),
     // 自动生成路由文件
     generouted(),
     // 分析组件性能

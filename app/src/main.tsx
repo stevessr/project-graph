@@ -1,4 +1,4 @@
-import { routes } from "@generouted/react-router";
+import { routes } from "@generouted/react-router/lazy";
 // import { Menu, MenuItem } from "@tauri-apps/api/menu";
 import { configureSerializer } from "@graphif/serializer";
 import { getMatches } from "@tauri-apps/plugin-cli";
@@ -50,15 +50,55 @@ const el = document.getElementById("root")!;
 
   const matches = !isWeb && isDesktop ? await getMatches() : null;
   const isCliMode = isDesktop && matches?.args.output?.occurrences === 1;
-  await Promise.all([
-    Settings.init(),
-    RecentFileManager.init(),
-    StartFilesManager.init(),
-    ColorManager.init(),
-    Tourials.init(),
-    UserScriptsManager.init(),
-    UserState.init(),
-  ]);
+  try {
+    await Promise.all([
+      Settings.init(),
+      RecentFileManager.init(),
+      StartFilesManager.init(),
+      ColorManager.init(),
+      Tourials.init(),
+      UserScriptsManager.init(),
+      UserState.init(),
+    ]);
+  } catch (error) {
+    console.error("Initial settings initialization failed, attempting recovery.", error);
+    // Assuming the error is due to missing AI settings, set a default and retry.
+    const defaultSettings = {
+        defaultProviderId: 'aipg',
+        providers: {
+            'aipg': {
+                id: 'aipg',
+                name: 'AI Platform Gateway',
+                enabled: true,
+                model: 'default-model',
+                credentials: { apiKey: '' }
+            }
+        }
+    };
+    // We cannot use Settings.set() as init() failed.
+    // A more robust solution would be to interact with the low-level store,
+    // but for now, we will assume a simple localStorage backend for the web store.
+    // This is a guess, but a common pattern.
+    if(typeof localStorage !== 'undefined') {
+        localStorage.setItem('settings.aiProvidersSettings', JSON.stringify(defaultSettings));
+        console.log("Default AI settings have been written to localStorage.");
+        
+        // Retry initialization
+        await Promise.all([
+          Settings.init(),
+          RecentFileManager.init(),
+          StartFilesManager.init(),
+          ColorManager.init(),
+          Tourials.init(),
+          UserScriptsManager.init(),
+          UserState.init(),
+        ]);
+    } else {
+        // If not in a browser environment or localStorage fails, re-throw.
+        throw new Error("Could not recover from settings initialization error: localStorage is not available.");
+    }
+  }
+
   // 这些东西依赖上面的东西，所以单独一个Promise.all
   await Promise.all([loadLanguageFiles(), loadSyncModules()]);
   await renderApp(isCliMode);
