@@ -20,7 +20,6 @@ export class SectionInOutManager {
         // 自己不能包自己
         continue;
       }
-      section.childrenUUIDs.push(entity.uuid);
       section.children.push(entity);
     }
     this.project.stageManager.updateReferences();
@@ -52,7 +51,7 @@ export class SectionInOutManager {
 
   private entityDropParent(entity: Entity) {
     for (const section of this.project.stageManager.getSections()) {
-      if (section.childrenUUIDs.includes(entity.uuid)) {
+      if (section.children.includes(entity)) {
         this.sectionDropChild(section, entity);
       }
     }
@@ -72,7 +71,6 @@ export class SectionInOutManager {
         newChildren.push(child);
       }
     }
-    section.childrenUUIDs = newChildrenUUID;
     section.children = newChildren;
   }
 }

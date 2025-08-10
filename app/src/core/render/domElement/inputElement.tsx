@@ -175,6 +175,9 @@ export class InputElement {
         onChange(textareaElement.value, textareaElement);
         removeElement();
       });
+      textareaElement.addEventListener("input", () => {
+        onChange(textareaElement.value, textareaElement);
+      });
       let isComposing = false;
       textareaElement.addEventListener("compositionstart", () => {
         isComposing = true;

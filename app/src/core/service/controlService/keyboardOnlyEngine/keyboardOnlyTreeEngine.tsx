@@ -131,7 +131,6 @@ export class KeyboardOnlyTreeEngine {
     // 如果是在框里，则把新生长的节点也纳入到框里
     const fatherSections = this.project.sectionMethods.getFatherSections(parent);
     for (const section of fatherSections) {
-      section.childrenUUIDs.push(newNode.uuid);
       section.children.push(newNode);
     }
     // 连接节点

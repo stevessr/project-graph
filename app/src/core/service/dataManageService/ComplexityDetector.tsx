@@ -244,7 +244,7 @@ export class ComplexityDetector {
         countResultObject.maxSectionDepth,
         this.project.sectionMethods.getSectionMaxDeep(section),
       );
-      if (section.childrenUUIDs.length === 0) {
+      if (section.children.length === 0) {
         countResultObject.emptySetCount++;
       }
     }
