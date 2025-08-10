@@ -22,11 +22,10 @@ let useCache = true;
  * @returns
  */
 export function getTextSize(text: string, size: number): Vector {
-  // const t1 = performance.now();
   if (useCache) {
-    const value = _cache.get(`${text}-${size}`);
-    if (value) {
-      return new Vector(value, size);
+    const cachedValue = _cache.get(`${text}-${size}`);
+    if (cachedValue) {
+      return new Vector(cachedValue, size);
     }
   }
 
@@ -36,12 +35,16 @@ export function getTextSize(text: string, size: number): Vector {
 
   _context.font = `${size}px normal ${FONT}`;
   const metrics = _context.measureText(text);
-  // const t2 = performance.now();
+
+  // Calculate actual text height using font metrics
+  const actualHeight =
+    (metrics.actualBoundingBoxAscent || size * 0.8) + (metrics.actualBoundingBoxDescent || size * 0.2);
+
   if (useCache) {
     _cache.set(`${text}-${size}`, metrics.width);
   }
 
-  return new Vector(metrics.width, size);
+  return new Vector(metrics.width, actualHeight);
 }
 
 /**
