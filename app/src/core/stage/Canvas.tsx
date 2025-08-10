@@ -23,6 +23,16 @@ export class Canvas {
     });
     // 重定向键盘事件
     window.addEventListener("keydown", (event) => {
+      // 在窗口层面拦截浏览器默认快捷键，避免触发系统/浏览器查找/搜索等行为
+      const key = event.key;
+      if (
+        (event.ctrlKey && (key === "f" || key === "F" || key === "g" || key === "G")) ||
+        key === "F3" ||
+        key === "F5" ||
+        key === "F7"
+      ) {
+        event.preventDefault();
+      }
       if (project.isRunning) {
         element.dispatchEvent(
           new KeyboardEvent("keydown", {
