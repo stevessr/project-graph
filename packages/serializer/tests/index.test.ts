@@ -69,6 +69,48 @@ describe("对象序列化", () => {
     expect(deserialized.nestedInstance).toBeInstanceOf(A);
     expect(deserialized.propString).toBe("@graphif/serializer");
   });
+  // 指针引用同一性的反序列化测试（数组与对象容器）
+  class B {
+    @serializable
+    public items: number[];
+    @serializable
+    public meta: { tag: string; count: number };
+    @serializable
+    public mirrorItems?: number[];
+    @serializable
+    public mirrorMeta?: { tag: string; count: number };
+
+    constructor(
+      items: number[],
+      meta: { tag: string; count: number },
+      mirrorItems?: number[],
+      mirrorMeta?: { tag: string; count: number },
+    ) {
+      this.items = items;
+      this.meta = meta;
+      this.mirrorItems = mirrorItems;
+      this.mirrorMeta = mirrorMeta;
+    }
+  }
+
+  test("反序列化时，数组与对象容器通过指针保持同一实例", () => {
+    const json = {
+      _: "B",
+      items: [1, 2, 3],
+      meta: { tag: "t", count: 2 },
+      mirrorItems: { $: "/items" },
+      mirrorMeta: { $: "/meta" },
+    };
+    const b = deserialize(json) as B;
+
+    expect(b).toBeInstanceOf(B);
+    expect(Array.isArray(b.items)).toBe(true);
+    expect(Array.isArray(b.mirrorItems)).toBe(true);
+    expect(b.items).toBe(b.mirrorItems);
+
+    expect(typeof b.meta).toBe("object");
+    expect(b.meta).toBe(b.mirrorMeta);
+  });
 });
 
 describe("数组序列化", () => {

@@ -252,6 +252,7 @@ export class Project extends EventEmitter<{
     }
     this.stage = serializedStageObjects.map((it) => deserialize(it, this));
     this.state = ProjectState.Saved;
+    window.test = this.stage;
   }
 
   loop() {

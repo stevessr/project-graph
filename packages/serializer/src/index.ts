@@ -99,12 +99,24 @@ function isComplex(obj: Record<string, any>): boolean {
 }
 
 export function deserialize(originalJson: any, extra?: any): any {
+  const cache = new WeakMap<object, any>();
   function _deserialize(json: any, extra?: any): any {
     if (json instanceof Array) {
-      return json.map((v) => _deserialize(v, extra));
+      if (cache.has(json)) {
+        return cache.get(json);
+      }
+      // 就地转换并缓存，保证同一数组节点被反序列化为同一实例
+      cache.set(json, json);
+      for (let i = 0; i < json.length; i++) {
+        json[i] = _deserialize(json[i], extra);
+      }
+      return json;
     }
     if (!isSerializedObject(json)) {
       return json;
+    }
+    if (cache.has(json)) {
+      return cache.get(json);
     }
     const className = json._;
     const class_ = classes.get(className);
@@ -134,7 +146,9 @@ export function deserialize(originalJson: any, extra?: any): any {
     if (Reflect.hasMetadata(passExtraAtLastArgSymbol, class_)) {
       args.push(extra);
     }
-    return new class_(...args);
+    const instance = new class_(...args);
+    cache.set(json, instance);
+    return instance;
   }
   return _deserialize(replaceRef(originalJson), extra);
 }
