@@ -140,7 +140,7 @@ export function GlobalMenu() {
                   }}
                 >
                   <File />
-                  {file.uri.toString()}
+                  {decodeURI(file.uri.toString())}
                 </Item>
               ))}
               <Separator />
