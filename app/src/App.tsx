@@ -7,7 +7,7 @@ import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Dialog } from "@/components/ui/dialog";
 import Welcome from "@/components/welcome-page";
 import { Project, ProjectState } from "@/core/Project";
-import { GlobalMenu } from "@/core/service/GlobalMenu";
+import { GlobalMenu, onOpenFile } from "@/core/service/GlobalMenu";
 import { Settings } from "@/core/service/Settings";
 import { Telemetry } from "@/core/service/Telemetry";
 import { Themes } from "@/core/service/Themes";
@@ -21,6 +21,8 @@ import { CloudUpload, Copy, Dot, Minus, Square, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { URI } from "vscode-uri";
+import { cn } from "./utils/cn";
 
 export default function App() {
   const [maximized, _setMaximized] = useState(false);
@@ -35,6 +37,7 @@ export default function App() {
   const [isClassroomMode, setIsClassroomMode] = Settings.use("isClassroomMode");
   const [isWide, setIsWide] = useState(false);
   const [telemetryEventSent, setTelemetryEventSent] = useState(false);
+  const [dropState, setDropState] = useState<"none" | "open" | "append">("none");
 
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef(0); // 用于保存滚动位置的 ref，防止切换标签页时滚动位置丢失
@@ -97,6 +100,35 @@ export default function App() {
       }
       setIsWide(window.innerWidth / window.innerHeight > 1.8);
     });
+    const unlisten2 = getCurrentWindow().onDragDropEvent((event) => {
+      if (event.payload.type === "over") {
+        console.log("正在拖入文件");
+        if (event.payload.position.y <= 96) {
+          // 拖拽到标签页栏区域
+          setDropState("open");
+        } else {
+          // 拖拽到画布区域
+          setDropState("append");
+        }
+      } else if (event.payload.type === "leave") {
+        setDropState("none");
+      } else if (event.payload.type === "drop") {
+        setDropState("none");
+        if (event.payload.position.y <= 96) {
+          // 拖拽到标签页栏区域
+          for (const path of event.payload.paths) {
+            if (path.endsWith(".prg") || path.endsWith(".json")) {
+              onOpenFile(URI.file(path), "拖入窗口");
+            } else {
+              toast("不支持打开此文件");
+            }
+          }
+        } else {
+          // 拖拽到画布区域
+          toast("追加到画布……待完善");
+        }
+      }
+    });
 
     if (!telemetryEventSent) {
       setTelemetryEventSent(true);
@@ -112,6 +144,7 @@ export default function App() {
 
     return () => {
       unlisten1?.then((f) => f());
+      unlisten2?.then((f) => f());
     };
   }, []);
 
@@ -275,7 +308,13 @@ export default function App() {
   };
 
   const Tabs = () => (
-    <div ref={tabsContainerRef} className="hide-scrollbar z-10 flex h-9 gap-2 overflow-x-auto whitespace-nowrap">
+    <div
+      ref={tabsContainerRef}
+      className={cn(
+        "hide-scrollbar z-10 flex h-9 gap-2 overflow-x-auto whitespace-nowrap",
+        dropState === "open" && "bg-accent/50",
+      )}
+    >
       {projects.map((project) => (
         <Button
           key={project.uri.toString()}
