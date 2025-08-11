@@ -237,6 +237,7 @@ export class Project extends EventEmitter<{
       if (entry.filename === "stage.msgpack") {
         const stageRawData = await entry.getData!(new Uint8ArrayWriter());
         serializedStageObjects = this.decoder.decode(stageRawData) as any[];
+        // console.log(JSON.stringify(serializedStageObjects, null, 2));
       } else if (entry.filename.startsWith("attachments/")) {
         const match = entry.filename.trim().match(/^attachments\/([a-zA-Z0-9-]+)\.([a-zA-Z0-9]+)$/);
         if (!match) {

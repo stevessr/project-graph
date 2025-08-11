@@ -1,5 +1,3 @@
-import { encode } from "@msgpack/msgpack";
-import { md5 } from "js-md5";
 import "reflect-metadata";
 
 let getOriginalNameOf: (class_: { [x: string | number | symbol]: any; new (...args: any[]): any }) => string = (
@@ -35,10 +33,13 @@ export const passExtraAtLastArg = Reflect.metadata(passExtraAtLastArgSymbol, tru
 const passObjectSymbol = Symbol("passObject");
 export const passObject = Reflect.metadata(passObjectSymbol, true);
 
+const idSymbol = Symbol("id");
+export const id = Reflect.metadata(idSymbol, true);
+
 const classes: Map<string, any> = new Map();
 
 export function serialize(originalObj: any): any {
-  const obj2path = new Map<string, string>();
+  const id2path = new Map<string, string>();
   function _serialize(obj: any, path: string): any {
     if (obj instanceof Array) {
       return obj.map((v, i) => _serialize(v, `${path}/${i}`));
@@ -67,16 +68,22 @@ export function serialize(originalObj: any): any {
       const result: any = {
         _: className,
       };
+      let id: any;
       for (const key in obj) {
         if (!Reflect.hasMetadata(serializableSymbol, obj, key)) continue;
+        if (Reflect.hasMetadata(idSymbol, obj, key)) {
+          id = obj[key];
+        }
         result[key] = _serialize(obj[key], `${path}/${key}`);
       }
-      const okey = md5(encode(result));
-      if (obj2path.has(okey)) {
-        return { $: obj2path.get(okey) };
-        // 使用引用机制防止重复序列化相同对象
-      } else {
-        obj2path.set(okey, path);
+      if (id) {
+        if (id2path.has(id)) {
+          // 如果已经有了id，直接使用之前的路径
+          return { $: id2path.get(id) };
+        } else {
+          // 如果没有id，记录路径
+          id2path.set(id, path);
+        }
       }
       return result;
     } else if (typeof obj === "undefined") {

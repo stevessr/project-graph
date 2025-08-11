@@ -9,7 +9,7 @@ import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox
 import { Section } from "@/core/stage/stageObject/entity/Section";
 import { getMultiLineTextSize } from "@/utils/font";
 import { Color, ProgressNumber, Vector } from "@graphif/data-structures";
-import { passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
+import { id, passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
 import { Rectangle } from "@graphif/shapes";
 
 /**
@@ -20,6 +20,7 @@ import { Rectangle } from "@graphif/shapes";
 @passExtraAtArg1
 @passObject
 export class TextNode extends ConnectableEntity implements ResizeAble {
+  @id
   @serializable
   uuid: string;
   @serializable
