@@ -1,24 +1,32 @@
-import { Color, ProgressNumber, Vector } from "@graphif/data-structures";
-import { Rectangle } from "@graphif/shapes";
-import { Serialized } from "@/types/node";
-import { getTextSize } from "@/utils/font";
 import { Project } from "@/core/Project";
 import { Renderer } from "@/core/render/canvas2d/renderer";
 import { NodeMoveShadowEffect } from "@/core/service/feedbackService/effectEngine/concrete/NodeMoveShadowEffect";
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
+import { getTextSize } from "@/utils/font";
+import { Color, ProgressNumber, Vector } from "@graphif/data-structures";
+import { id, passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
+import { Rectangle } from "@graphif/shapes";
 
 /**
  * 网页链接节点
  * 通过在舞台上ctrl+v触发创建
  * 一旦创建，url就不能改了，因为也不涉及修改。
  */
+@passExtraAtArg1
+@passObject
 export class UrlNode extends ConnectableEntity {
+  @id
+  @serializable
   uuid: string;
+  @serializable
   title: string;
   // 网页链接
+  @serializable
   url: string;
+  @serializable
   color: Color;
+  @serializable
   public collisionBox: CollisionBox;
 
   static width: number = 300;
@@ -89,22 +97,21 @@ export class UrlNode extends ConnectableEntity {
   constructor(
     protected readonly project: Project,
     {
-      uuid,
+      uuid = crypto.randomUUID() as string,
       title = "",
       details = "",
       url = "",
-      location = [0, 0],
-      size = [UrlNode.width, UrlNode.height],
-      color = [0, 0, 0, 0],
-    }: Partial<Serialized.UrlNode> & { uuid: string },
+      collisionBox = new CollisionBox([new Rectangle(Vector.getZero(), new Vector(UrlNode.width, UrlNode.height))]),
+      color = Color.Transparent,
+    },
   ) {
     super();
     this.uuid = uuid;
     this.details = details;
     this.title = title;
     this.url = url;
-    this.color = new Color(...color);
-    this.collisionBox = new CollisionBox([new Rectangle(new Vector(...location), new Vector(...size))]);
+    this.color = color;
+    this.collisionBox = collisionBox;
   }
 
   rename(title: string): void {

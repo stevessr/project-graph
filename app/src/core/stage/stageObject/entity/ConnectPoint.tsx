@@ -3,7 +3,7 @@ import { CircleChangeRadiusEffect } from "@/core/service/feedbackService/effectE
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
 import { Vector } from "@graphif/data-structures";
-import { passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
+import { id, passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
 import { Rectangle } from "@graphif/shapes";
 
 // HACK: 【现在没问题了2025-7-9】这里继承了ConnectableEntity的话，TextNode模块就会报错，原因未知
@@ -19,6 +19,7 @@ export class ConnectPoint extends ConnectableEntity {
 
   @serializable
   collisionBox: CollisionBox;
+  @id
   @serializable
   uuid: string;
 

@@ -234,17 +234,19 @@ export class CopyEngine {
 
     if (isSvgString(item)) {
       // 是SVG类型
+      const attachmentId = this.project.addAttachment(new Blob([item], { type: "image/svg+xml" }));
       entity = new SvgNode(this.project, {
-        content: item,
+        attachmentId,
         collisionBox,
       });
     } else if (PathString.isValidURL(item)) {
       // 是URL类型
       entity = new UrlNode(this.project, {
         title: "链接",
-        uuid: crypto.randomUUID(),
         url: item,
-        location: [MouseLocation.x, MouseLocation.y],
+        collisionBox: new CollisionBox([
+          new Rectangle(this.project.renderer.transformView2World(MouseLocation.vector()), new Vector(300, 150)),
+        ]),
       });
     } else if (isMermaidGraphString(item)) {
       // 是Mermaid图表类型

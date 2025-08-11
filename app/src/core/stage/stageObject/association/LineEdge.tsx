@@ -6,12 +6,13 @@ import { EdgeCollisionBoxGetter } from "@/core/stage/stageObject/association/Edg
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
 import { getMultiLineTextSize } from "@/utils/font";
 import { Color, Vector } from "@graphif/data-structures";
-import { passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
+import { id, passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
 import { Rectangle } from "@graphif/shapes";
 
 @passExtraAtArg1
 @passObject
 export class LineEdge extends Edge {
+  @id
   @serializable
   public uuid: string;
   @serializable

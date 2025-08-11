@@ -7,7 +7,7 @@ import { Entity } from "@/core/stage/stageObject/abstract/StageEntity";
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
 import { getTextSize } from "@/utils/font";
 import { Color, ProgressNumber, Vector } from "@graphif/data-structures";
-import { passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
+import { id, passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
 import { Line, Rectangle, Shape } from "@graphif/shapes";
 
 @passExtraAtArg1
@@ -17,6 +17,7 @@ export class Section extends ConnectableEntity {
    * 节点是否被选中
    */
   _isSelected: boolean = false;
+  @id
   @serializable
   public uuid: string;
   _isEditingTitle: boolean = false;
