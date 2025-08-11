@@ -117,8 +117,28 @@ export default function SettingsTab() {
 }
 
 const categories = {
-  ai: {
-    api: ["aiApiBaseUrl", "aiApiKey", "aiModel", "aiShowTokenCount"],
+  visual: {
+    basic: ["language", "isClassroomMode", "windowBackgroundAlpha"],
+    background: [
+      "isRenderCenterPointer",
+      "showBackgroundHorizontalLines",
+      "showBackgroundVerticalLines",
+      "showBackgroundDots",
+      "showBackgroundCartesian",
+    ],
+    node: ["enableTagTextNodesBigDisplay", "showTextNodeBorder"],
+    edge: ["lineStyle"],
+    section: ["sectionBitTitleRenderType"],
+    entityDetails: [
+      "nodeDetailsPanel",
+      "alwaysShowDetails",
+      "entityDetailsFontSize",
+      "entityDetailsLinesLimit",
+      "entityDetailsWidthLimit",
+    ],
+    debug: ["showDebug", "protectingPrivacy"],
+    miniWindow: ["windowCollapsingWidth", "windowCollapsingHeight"],
+    experimental: ["limitCameraInCycleSpace", "cameraCycleSpaceSizeX", "cameraCycleSpaceSizeY"],
   },
   automation: {
     autoNamer: ["autoNamerTemplate", "autoNamerSectionTemplate"],
@@ -177,28 +197,8 @@ const categories = {
     ],
     experimental: ["compatibilityMode", "isEnableEntityCollision"],
   },
-  visual: {
-    basic: ["language", "showTipsOnUI", "useNativeTitleBar", "isClassroomMode", "windowBackgroundAlpha"],
-    background: [
-      "isRenderCenterPointer",
-      "showBackgroundHorizontalLines",
-      "showBackgroundVerticalLines",
-      "showBackgroundDots",
-      "showBackgroundCartesian",
-    ],
-    node: ["enableTagTextNodesBigDisplay", "showTextNodeBorder"],
-    edge: ["lineStyle"],
-    section: ["sectionBitTitleRenderType"],
-    entityDetails: [
-      "nodeDetailsPanel",
-      "alwaysShowDetails",
-      "entityDetailsFontSize",
-      "entityDetailsLinesLimit",
-      "entityDetailsWidthLimit",
-    ],
-    debug: ["showDebug", "protectingPrivacy"],
-    miniWindow: ["windowCollapsingWidth", "windowCollapsingHeight"],
-    experimental: ["limitCameraInCycleSpace", "cameraCycleSpaceSizeX", "cameraCycleSpaceSizeY"],
+  ai: {
+    api: ["aiApiBaseUrl", "aiApiKey", "aiModel", "aiShowTokenCount"],
   },
 };
 

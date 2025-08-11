@@ -4,8 +4,6 @@ import z from "zod";
 
 export const settingsSchema = z.object({
   language: z.union([z.literal("en"), z.literal("zh_CN"), z.literal("zh_TW")]).default("zh_CN"),
-  showTipsOnUI: z.boolean().default(true),
-  useNativeTitleBar: z.boolean().default(false),
   isClassroomMode: z.boolean().default(false),
   windowBackgroundAlpha: z.number().min(0).max(1).default(0.9),
   isRenderCenterPointer: z.boolean().default(false),
