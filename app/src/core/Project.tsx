@@ -250,7 +250,7 @@ export class Project extends EventEmitter<{
         this.attachments.set(uuid, attachment);
       }
     }
-    this.stage = serializedStageObjects.map((it) => deserialize(it, this));
+    this.stage = deserialize(serializedStageObjects, this);
     this.state = ProjectState.Saved;
     window.test = this.stage;
   }
@@ -350,7 +350,7 @@ export class Project extends EventEmitter<{
     // await writeFile(stashFilePath, encoded);
   }
   async save() {
-    const serializedStage = this.stage.map((stageObject) => serialize(stageObject));
+    const serializedStage = serialize(this.stage);
     const encodedStage = this.encoder.encodeSharedRef(serializedStage);
     const uwriter = new Uint8ArrayWriter();
 

@@ -74,8 +74,8 @@ export function serialize(originalObj: any): any {
       const okey = md5(encode(result));
       if (obj2path.has(okey)) {
         return { $: obj2path.get(okey) };
-        // 只有对象比较复杂的时候才会使用引用机制
-      } else if (isComplex(result)) {
+        // 使用引用机制防止重复序列化相同对象
+      } else {
         obj2path.set(okey, path);
       }
       return result;
@@ -86,16 +86,6 @@ export function serialize(originalObj: any): any {
     }
   }
   return _serialize(originalObj, "");
-}
-
-function isComplex(obj: Record<string, any>): boolean {
-  // const objects = Object.values(obj).filter((v) => typeof v === "object" && v !== null).length;
-  // const arrays = Object.values(obj).filter((v) => v instanceof Array).length;
-  const stringLengthTotal = Object.values(obj)
-    .filter((v) => typeof v === "string")
-    .reduce((acc, v) => acc + v.length, 0);
-  // return objects + arrays >= 2 || stringLengthTotal >= 50;
-  return Object.keys(obj).length > 5 || stringLengthTotal >= 50;
 }
 
 export function deserialize(originalJson: any, extra?: any): any {
