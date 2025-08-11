@@ -1,5 +1,5 @@
-import { Field, FieldGroup } from "@/components/field";
-import KeyBind from "@/components/key-bind";
+import { Field, FieldGroup } from "@/components/ui/field";
+import KeyBind from "@/components/ui/key-bind";
 import { shortcutKeysGroups } from "@/core/service/controlService/shortcutKeysEngine/shortcutKeysGroup";
 import { activeProjectAtom } from "@/state";
 import { useAtom } from "jotai";
@@ -32,7 +32,7 @@ export default function KeyBindsPage() {
   };
 
   const { t } = useTranslation("keyBinds");
-  const t2 = useTranslation("keyBindsGroup");
+  const { t: t2 } = useTranslation("keyBindsGroup");
 
   return activeProject ? (
     <>
@@ -40,8 +40,8 @@ export default function KeyBindsPage() {
         return (
           <FieldGroup
             icon={group.icon}
-            title={t2.t(`${group.title}.title`)}
-            description={t2.t(`${group.title}.description`)}
+            title={t2(`${group.title}.title`)}
+            description={t2(`${group.title}.description`)}
             key={i}
           >
             {group.keys.map((id) => (
@@ -70,7 +70,7 @@ export default function KeyBindsPage() {
           </FieldGroup>
         );
       })}
-      <FieldGroup title={t2.t(`otherKeys.title`)} description={t2.t(`otherKeys.description`)} icon={<FileQuestion />}>
+      <FieldGroup title={t2(`otherKeys.title`)} description={t2(`otherKeys.description`)} icon={<FileQuestion />}>
         {getUnGroupedKeys().map((id) => (
           <Field
             key={id}

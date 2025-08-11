@@ -66,14 +66,7 @@ export default function KeyBind({
   return (
     <>
       <Button onClick={startInput} variant={choosing ? "outline" : "default"} className="gap-0">
-        {value
-          ? parseEmacsKey(value.trim()).map((key, index) => (
-              <span key={index} className="not-first:before:content-[',_'] flex gap-1">
-                <Modifiers modifiers={key} />
-                {key.key.startsWith("<") ? <MouseButton key_={key.key} /> : key.key}
-              </span>
-            ))
-          : t("none")}
+        {value ? parseEmacsKey(value.trim()).map((key, index) => <RenderKey key={index} data={key} />) : t("none")}
       </Button>
       {choosing && (
         <>
@@ -94,7 +87,16 @@ export default function KeyBind({
   );
 }
 
-function Modifiers({
+export function RenderKey({ data }: { data: ReturnType<typeof parseEmacsKey>[number] }) {
+  return (
+    <span className="not-first:before:content-[',_'] flex gap-1">
+      <Modifiers modifiers={data} />
+      {data.key.startsWith("<") ? <MouseButton key_={data.key} /> : data.key}
+    </span>
+  );
+}
+
+export function Modifiers({
   modifiers,
 }: {
   modifiers: {
@@ -153,7 +155,7 @@ function Modifiers({
   return mods.map((modifier, index) => <span key={index}>{modifier}</span>);
 }
 
-function MouseButton({ key_ }: { key_: string }) {
+export function MouseButton({ key_ }: { key_: string }) {
   const button = key_.slice(1, -1);
 
   return <span>{button === "MWU" ? "鼠标滚轮向上" : button === "MWD" ? "鼠标滚轮向下" : `鼠标按键${button}`}</span>;

@@ -11,22 +11,25 @@ import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { activeProjectAtom } from "@/state";
 import { useAtom } from "jotai";
 import {
+  AlignCenterHorizontal,
+  AlignCenterVertical,
   AlignEndHorizontal,
   AlignEndVertical,
+  AlignHorizontalSpaceBetween,
   AlignStartHorizontal,
   AlignStartVertical,
+  AlignVerticalSpaceBetween,
   Asterisk,
   Box,
   Clipboard,
   Copy,
-  LayoutDashboard,
   Package,
   Plus,
   Scissors,
   TextSelect,
   Trash,
 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import KeyTooltip from "./key-tooltip";
 
 const Content = ContextMenuContent;
 const Item = ContextMenuItem;
@@ -42,41 +45,119 @@ export default function MyContextMenuContent() {
   return (
     <Content>
       <Item className="bg-transparent! gap-0 p-0">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Copy />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>复制</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Clipboard />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>粘贴</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Scissors />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>剪切</TooltipContent>
-        </Tooltip>
+        <KeyTooltip keyId="copy">
+          <Button variant="ghost" size="icon">
+            <Copy />
+          </Button>
+        </KeyTooltip>
+        <KeyTooltip keyId="paste">
+          <Button variant="ghost" size="icon">
+            <Clipboard />
+          </Button>
+        </KeyTooltip>
+        <KeyTooltip keyId="cut">
+          <Button variant="ghost" size="icon">
+            <Scissors />
+          </Button>
+        </KeyTooltip>
         {p.stageManager.getSelectedStageObjects().length > 0 && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => p.stageManager.deleteSelectedStageObjects()}>
-                <Trash className="text-destructive" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>删除</TooltipContent>
-          </Tooltip>
+          <KeyTooltip keyId="deleteSelectedStageObjects">
+            <Button variant="ghost" size="icon" onClick={() => p.stageManager.deleteSelectedStageObjects()}>
+              <Trash className="text-destructive" />
+            </Button>
+          </KeyTooltip>
         )}
       </Item>
+      {p.stageManager.getSelectedEntities().length >= 2 && (
+        <>
+          <Item className="bg-transparent! gap-0 p-0">
+            <div className="grid min-w-0 grid-cols-3 grid-rows-3">
+              <KeyTooltip keyId="alignLeft">
+                <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManualAlign.alignLeft()}>
+                  <AlignStartVertical />
+                </Button>
+              </KeyTooltip>
+              <KeyTooltip keyId="alignCenterVertical">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => p.layoutManualAlign.alignCenterVertical()}
+                >
+                  <AlignCenterVertical />
+                </Button>
+              </KeyTooltip>
+              <KeyTooltip keyId="alignRight">
+                <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManualAlign.alignRight()}>
+                  <AlignEndVertical />
+                </Button>
+              </KeyTooltip>
+              <KeyTooltip keyId="alignTop">
+                <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManualAlign.alignTop()}>
+                  <AlignStartHorizontal />
+                </Button>
+              </KeyTooltip>
+              <KeyTooltip keyId="alignCenterHorizontal">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => p.layoutManualAlign.alignCenterHorizontal()}
+                >
+                  <AlignCenterHorizontal />
+                </Button>
+              </KeyTooltip>
+              <KeyTooltip keyId="alignBottom">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => p.layoutManualAlign.alignBottom()}
+                >
+                  <AlignEndHorizontal />
+                </Button>
+              </KeyTooltip>
+              <KeyTooltip keyId="alignHorizontalSpaceBetween">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => p.layoutManualAlign.alignHorizontalSpaceBetween()}
+                >
+                  <AlignHorizontalSpaceBetween />
+                </Button>
+              </KeyTooltip>
+              <div />
+              <KeyTooltip keyId="alignVerticalSpaceBetween">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => p.layoutManualAlign.alignVerticalSpaceBetween()}
+                >
+                  <AlignVerticalSpaceBetween />
+                </Button>
+              </KeyTooltip>
+            </div>
+          </Item>
+          <Item onClick={() => p.stageManager.packEntityToSectionBySelected()}>
+            <Box />
+            打包为 Section
+          </Item>
+          <Sub>
+            <SubTrigger>
+              <Plus />
+              创建关系
+            </SubTrigger>
+            <SubContent>
+              <Item>
+                <Asterisk />
+                无源多向边
+              </Item>
+            </SubContent>
+          </Sub>
+        </>
+      )}
       {p.stageManager.getSelectedStageObjects().length === 0 && (
         <>
           <Item
@@ -102,50 +183,6 @@ export default function MyContextMenuContent() {
                 质点
               </Item> */}
               <Item>待完善...</Item>
-            </SubContent>
-          </Sub>
-        </>
-      )}
-      {p.stageManager.getSelectedEntities().length >= 2 && (
-        <>
-          <Sub>
-            <SubTrigger>
-              <LayoutDashboard />
-              对齐
-            </SubTrigger>
-            <SubContent className="grid min-w-0 grid-cols-3 grid-rows-3">
-              <div />
-              <Button variant="ghost" size="icon" className="size-6">
-                <AlignStartHorizontal />
-              </Button>
-              <div />
-              <Button variant="ghost" size="icon" className="size-6">
-                <AlignStartVertical />
-              </Button>
-              <div />
-              <Button variant="ghost" size="icon" className="size-6">
-                <AlignEndVertical />
-              </Button>
-              <div />
-              <Button variant="ghost" size="icon" className="size-6">
-                <AlignEndHorizontal />
-              </Button>
-            </SubContent>
-          </Sub>
-          <Item onClick={() => p.stageManager.packEntityToSectionBySelected()}>
-            <Box />
-            打包为 Section
-          </Item>
-          <Sub>
-            <SubTrigger>
-              <Plus />
-              创建关系
-            </SubTrigger>
-            <SubContent>
-              <Item>
-                <Asterisk />
-                无源多向边
-              </Item>
             </SubContent>
           </Sub>
         </>

@@ -660,10 +660,10 @@ appMenu:
   location:
     title: 位置
     items:
-      openDataFolder: 
+      openDataFolder:
         title: 配置数据
         description: 打开软件用户配置数据文件夹，内部存放用户自定义设置等数据
-      openProjectFolder: 
+      openProjectFolder:
         title: 当前位置
         description: 打开当前编辑的 工程文件 所在的文件夹
       openCacheFolder:
@@ -672,7 +672,7 @@ appMenu:
   import:
     title: 导入
     items:
-      generateSectionByFolder: 
+      generateSectionByFolder:
         title: 根据本地文件夹生成框图
         description: 选择一个本地文件夹后，将该文件夹下所有文件生成为一个框嵌套图
   export:
@@ -685,7 +685,7 @@ appMenu:
   view:
     title: 视图
     items:
-      resetByAll: 
+      resetByAll:
         title: 重置全部
         description: 根据全部内容重置视野
       resetBySelect:
@@ -844,7 +844,7 @@ effects:
     description: |
       用于垂直方向键盘移动实体
 
-  
+
 
 keys:
   none: 未绑定快捷键，点击绑定
@@ -932,7 +932,7 @@ keyBindsGroup:
     title: 对齐相关
     description: |
       关于实体对齐的一些功能
-  
+
 
 keyBinds:
   title: 快捷键绑定
@@ -1304,16 +1304,16 @@ keyBinds:
     title: 减少笔刷不透明度通道值
     description: ""
   alignTop:
-    title: 将选中实体顶部对齐，选中的连线从源实体的顶边缘射出，到目标实体底边缘结束
+    title: 上对齐
     description: 小键盘的向上
   alignBottom:
-    title: 将选中实体底部对齐，选中的连线从源实体的底边缘射出，到目标实体顶边缘结束
+    title: 下对齐
     description: 小键盘的向下
   alignLeft:
-    title: 将选中实体左侧对齐，选中的连线从源实体的左边缘射出，到目标实体右边缘结束
+    title: 左对齐
     description: 小键盘的向左
   alignRight:
-    title: 将选中实体右侧对齐，选中的连线从源实体的右边缘射出，到目标实体左边缘结束
+    title: 右对齐
     description: 小键盘的向右
   alignHorizontalSpaceBetween:
     title: 相等间距水平对齐
