@@ -1,9 +1,22 @@
+import { RecentFileManager } from "@/core/service/dataFileService/RecentFileManager";
 import { onNewDraft, onOpenFile } from "@/core/service/GlobalMenu";
+import { Path } from "@/utils/path";
 import { open as shellOpen } from "@tauri-apps/plugin-shell";
 import { Earth, FilePlus, FolderOpen, Info, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
 import SettingsWindow from "../sub/SettingsWindow";
 
 export default function WelcomePage() {
+  const [recentFiles, setRecentFiles] = useState<RecentFileManager.RecentFile[]>([]);
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  async function refresh() {
+    setRecentFiles(await RecentFileManager.getRecentFiles());
+  }
+
   return (
     <div className="bg-stage-background text-stage-node-details-text flex h-full w-full items-center justify-center">
       <div className="flex flex-col gap-8">
@@ -24,26 +37,12 @@ export default function WelcomePage() {
               </div>
             </div>
             <div className="flex flex-col gap-2 *:flex *:cursor-pointer *:flex-col *:*:last:text-sm *:*:last:opacity-50 *:hover:opacity-75">
-              <div>
-                <span>2.0保存测试.prg</span>
-                <span>/home/user/Desktop</span>
-              </div>
-              <div>
-                <span>2.0保存测试123.prg</span>
-                <span>/home/user/hello</span>
-              </div>
-              <div>
-                <span>待RecentFileManager开发完成</span>
-                <span>/home/user/dev/project-graph</span>
-              </div>
-              <div>
-                <span>placeholder</span>
-                <span>/tmp</span>
-              </div>
-              <div>
-                <span>此处最多显示5个</span>
-                <span>/usr/local/bin</span>
-              </div>
+              {recentFiles.slice(0, 5).map((file, index) => (
+                <div key={index}>
+                  <span>{new Path(file.uri).nameWithoutExt}</span>
+                  <span>{file.uri.fsPath}</span>
+                </div>
+              ))}
             </div>
           </div>
           <div className="flex flex-col gap-2 *:flex *:w-max *:cursor-pointer *:gap-2 *:hover:opacity-75 *:active:scale-90">

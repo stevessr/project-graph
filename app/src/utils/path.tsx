@@ -1,7 +1,9 @@
+import { sep } from "@tauri-apps/api/path";
 import { URI } from "vscode-uri";
 
 export class Path {
   private readonly path: string;
+  static sep = sep();
 
   constructor(path: string);
   constructor(uri: URI);
@@ -14,12 +16,12 @@ export class Path {
   }
 
   get parent() {
-    const parts = this.path.split("/");
+    const parts = this.path.split(Path.sep);
     parts.pop();
-    return new Path(parts.join("/"));
+    return new Path(parts.join(Path.sep));
   }
   get name() {
-    const parts = this.path.split("/");
+    const parts = this.path.split(Path.sep);
     return parts[parts.length - 1];
   }
   get ext() {
@@ -31,15 +33,14 @@ export class Path {
     }
   }
   get nameWithoutExt() {
-    const parts = this.path.split(".");
+    const parts = this.name.split(".");
     if (parts.length > 1) {
-      return parts.slice(0, -1).join(".");
-    } else {
-      return this.name;
+      parts.pop();
     }
+    return parts.join(".");
   }
   join(path: string) {
-    return new Path(this.path + "/" + path);
+    return new Path(this.path + Path.sep + path);
   }
   toUri() {
     return URI.file(this.path);
