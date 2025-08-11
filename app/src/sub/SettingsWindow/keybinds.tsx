@@ -35,7 +35,7 @@ export default function KeyBindsPage() {
   const { t: t2 } = useTranslation("keyBindsGroup");
 
   return activeProject ? (
-    <>
+    <div className="max-w-2/3 mx-auto h-full">
       {shortcutKeysGroups.map((group, i) => {
         return (
           <FieldGroup
@@ -50,6 +50,7 @@ export default function KeyBindsPage() {
                 icon={<Keyboard />}
                 title={t(`${id}.title`, { defaultValue: id })}
                 description={t(`${id}.description`, { defaultValue: "" })}
+                className="border-accent border-b"
               >
                 <KeyBind
                   defaultValue={data.find((item) => item[0] === id)?.[1]}
@@ -77,6 +78,7 @@ export default function KeyBindsPage() {
             icon={<Keyboard />}
             title={t(`${id}.title`, { defaultValue: id })}
             description={t(`${id}.description`, { defaultValue: "" })}
+            className="border-accent border-b"
           >
             <KeyBind
               defaultValue={data.find((item) => item[0] === id)?.[1]}
@@ -95,7 +97,7 @@ export default function KeyBindsPage() {
           </Field>
         ))}
       </FieldGroup>
-    </>
+    </div>
   ) : (
     <Field color="warning" title="需要先打开一个工程文件才能编辑快捷键设置" />
   );

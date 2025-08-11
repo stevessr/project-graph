@@ -97,7 +97,6 @@ export class Renderer {
   }
 
   private renderViewElements(viewRectangle: Rectangle) {
-    this.renderDraggingFileTips();
     this.renderSpecialKeys();
     this.renderCenterPointer();
     this.renderPrivacyBoard(viewRectangle);
@@ -116,7 +115,6 @@ export class Renderer {
     this.renderConnectingLine();
     this.renderKeyboardOnly();
     this.rendererLayerMovingLine();
-    this.renderClipboard();
     this.project.searchContentHighlightRenderer.render(this.frameIndex);
     // renderViewRectangle(viewRectangle);
   }
@@ -446,25 +444,6 @@ export class Renderer {
     );
   }
 
-  /** 拖拽文件进入窗口时的提示效果 */
-  private renderDraggingFileTips() {
-    if (this.project.controller.dragFile.isDraggingFile) {
-      this.project.shapeRenderer.renderRect(
-        this.transformWorld2View(this.getCoverWorldRectangle()),
-        new Color(0, 0, 0, 0.5),
-        Color.Transparent,
-        1,
-      );
-      this.project.shapeRenderer.renderCircle(
-        this.transformWorld2View(this.project.controller.dragFile.draggingLocation),
-        100,
-        Color.Transparent,
-        Color.White,
-        2,
-      );
-    }
-  }
-
   /** 待删除的节点和边 */
   private renderWarningStageObjects() {
     // 待删除的节点
@@ -530,102 +509,6 @@ export class Renderer {
         this.project.edgeRenderer.renderCrEdge(association);
       }
       this.renderedEdges++;
-    }
-  }
-
-  /** 画粘贴板上的信息 */
-  private renderClipboard() {
-    if (this.project.copyEngine.isVirtualClipboardEmpty()) {
-      return;
-    }
-    const clipboardBlue = this.project.stageStyleManager.currentStyle.effects.successShadow;
-    // 粘贴板有内容
-    // 获取粘贴板中所有节点的外接矩形
-    if (this.project.copyEngine.copyBoardDataRectangle) {
-      // 画一个原位置
-      this.project.shapeRenderer.renderRect(
-        this.transformWorld2View(this.project.copyEngine.copyBoardDataRectangle),
-        Color.Transparent,
-        new Color(255, 255, 255, 0.5),
-        1,
-      );
-      // 在原位置下写标注
-      this.project.textRenderer.renderText(
-        "ctrl+shift+v 原位置叠加粘贴",
-        this.transformWorld2View(
-          new Vector(
-            this.project.copyEngine.copyBoardDataRectangle.location.x,
-            this.project.copyEngine.copyBoardDataRectangle.location.y +
-              this.project.copyEngine.copyBoardDataRectangle.size.y +
-              20,
-          ),
-        ),
-        12,
-        clipboardBlue,
-      );
-      // 画一个鼠标位置
-      this.project.shapeRenderer.renderRect(
-        this.transformWorld2View(
-          new Rectangle(
-            this.project.copyEngine.copyBoardDataRectangle.location.add(this.project.copyEngine.copyBoardMouseVector),
-            this.project.copyEngine.copyBoardDataRectangle.size,
-          ),
-        ),
-        Color.Transparent,
-        clipboardBlue,
-        1,
-      );
-      // 写下标注
-      this.project.textRenderer.renderMultiLineText(
-        "ctrl+v 粘贴\n点击左键粘贴\nEsc键清空粘贴板取消粘贴\n跨文件粘贴请直接在软件内切换文件",
-        this.transformWorld2View(
-          new Vector(
-            this.project.copyEngine.copyBoardDataRectangle.location.x + this.project.copyEngine.copyBoardMouseVector.x,
-            this.project.copyEngine.copyBoardDataRectangle.location.y +
-              this.project.copyEngine.copyBoardDataRectangle.size.y +
-              this.project.copyEngine.copyBoardMouseVector.y +
-              20,
-          ),
-        ),
-        12,
-        Infinity,
-        clipboardBlue,
-      );
-      for (const entity of this.project.copyEngine.copyBoardData.entities) {
-        if (entity.type === "core:connect_point") {
-          this.project.shapeRenderer.renderCircle(
-            this.transformWorld2View(new Vector(...entity.location)),
-            10 * this.project.camera.currentScale,
-            Color.Transparent,
-            Color.White,
-            2 * this.project.camera.currentScale,
-          );
-        } else if (entity.type === "core:pen_stroke") {
-          this.project.shapeRenderer.renderRect(
-            this.transformWorld2View(
-              new Rectangle(
-                new Vector(...entity.location).add(this.project.copyEngine.copyBoardMouseVector),
-                new Vector(10, 10),
-              ),
-            ),
-            Color.Transparent,
-            clipboardBlue,
-            2 * this.project.camera.currentScale,
-          );
-        } else {
-          this.project.shapeRenderer.renderRect(
-            this.transformWorld2View(
-              new Rectangle(
-                new Vector(...entity.location).add(this.project.copyEngine.copyBoardMouseVector),
-                new Vector(...entity.size),
-              ),
-            ),
-            Color.Transparent,
-            clipboardBlue,
-            2 * this.project.camera.currentScale,
-          );
-        }
-      }
     }
   }
 

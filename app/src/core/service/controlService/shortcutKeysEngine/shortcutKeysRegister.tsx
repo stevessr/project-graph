@@ -433,9 +433,10 @@ export class KeyBindsRegistrar {
       this.project.copyEngine.paste();
     });
 
-    await this.project.keyBinds.create("pasteWithOriginLocation", "C-v", () => {
+    await this.project.keyBinds.create("pasteWithOriginLocation", "C-S-v", () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
-      this.project.copyEngine.pasteWithOriginLocation();
+      // this.project.copyEngine.pasteWithOriginLocation();
+      toast("todo");
     });
 
     await this.project.keyBinds.create("checkoutLeftMouseToSelectAndMove", "v", async () => {

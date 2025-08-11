@@ -5,9 +5,10 @@ import { Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
 import { useState } from "react";
 import AppearanceTab from "./appearance";
+import KeyBindsPage from "./keybinds";
 import SettingsTab from "./settings";
 
-type TabName = "settings" | "appearance" | "startFile";
+type TabName = "settings" | "keybinds" | "appearance" | "startFile";
 
 export default function SettingsWindow({ defaultTab = "settings" }: { defaultTab?: TabName }) {
   const [currentTab, setCurrentTab] = useState<TabName>(defaultTab);
@@ -17,15 +18,19 @@ export default function SettingsWindow({ defaultTab = "settings" }: { defaultTab
       <div className="flex">
         <TabsList>
           <TabsTrigger value="settings">设置</TabsTrigger>
+          <TabsTrigger value="keybinds">快捷键</TabsTrigger>
           <TabsTrigger value="appearance">个性化</TabsTrigger>
           <TabsTrigger value="startFile">启动文件</TabsTrigger>
         </TabsList>
         <div data-pg-drag-region className="h-full flex-1" />
       </div>
-      <TabsContent value="settings" className="h-full">
+      <TabsContent value="settings" className="overflow-auto">
         <SettingsTab />
       </TabsContent>
-      <TabsContent value="appearance" className="h-full">
+      <TabsContent value="keybinds" className="overflow-auto">
+        <KeyBindsPage />
+      </TabsContent>
+      <TabsContent value="appearance" className="overflow-auto">
         <AppearanceTab />
       </TabsContent>
     </Tabs>
