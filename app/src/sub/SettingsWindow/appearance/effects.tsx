@@ -1,4 +1,4 @@
-import { ButtonField, Field } from "@/components/field";
+import { ButtonField, Field } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import { Settings } from "@/core/service/Settings";
 import { Check, Stars, X } from "lucide-react";

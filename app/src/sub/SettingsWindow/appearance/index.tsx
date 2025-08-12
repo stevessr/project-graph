@@ -7,8 +7,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Palette } from "lucide-react";
+import { Palette, Sparkles } from "lucide-react";
 import { Fragment, useState } from "react";
+import EffectsPage from "./effects";
 import ThemePage from "./theme";
 
 export default function AppearanceTab() {
@@ -50,5 +51,10 @@ const categories = {
     name: "主题",
     icon: Palette,
     component: ThemePage,
+  },
+  effects: {
+    name: "特效",
+    icon: Sparkles,
+    component: EffectsPage,
   },
 };

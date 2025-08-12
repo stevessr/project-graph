@@ -4,11 +4,12 @@ import { activeProjectAtom, store } from "@/state";
 import { Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
 import { useState } from "react";
+import AboutTab from "./about";
 import AppearanceTab from "./appearance";
 import KeyBindsPage from "./keybinds";
 import SettingsTab from "./settings";
 
-type TabName = "settings" | "keybinds" | "appearance" | "startFile";
+type TabName = "settings" | "keybinds" | "appearance" | "about";
 
 export default function SettingsWindow({ defaultTab = "settings" }: { defaultTab?: TabName }) {
   const [currentTab, setCurrentTab] = useState<TabName>(defaultTab);
@@ -20,7 +21,7 @@ export default function SettingsWindow({ defaultTab = "settings" }: { defaultTab
           <TabsTrigger value="settings">设置</TabsTrigger>
           <TabsTrigger value="keybinds">快捷键</TabsTrigger>
           <TabsTrigger value="appearance">个性化</TabsTrigger>
-          <TabsTrigger value="startFile">启动文件</TabsTrigger>
+          <TabsTrigger value="about">关于</TabsTrigger>
         </TabsList>
         <div data-pg-drag-region className="h-full flex-1" />
       </div>
@@ -32,6 +33,9 @@ export default function SettingsWindow({ defaultTab = "settings" }: { defaultTab
       </TabsContent>
       <TabsContent value="appearance" className="overflow-auto">
         <AppearanceTab />
+      </TabsContent>
+      <TabsContent value="about" className="overflow-auto">
+        <AboutTab />
       </TabsContent>
     </Tabs>
   );
