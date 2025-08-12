@@ -1,21 +1,39 @@
 import logoUrl from "@/assets/icon.png";
+import { Dialog } from "@/components/ui/dialog";
 import { getVersion } from "@tauri-apps/api/app";
 import { open } from "@tauri-apps/plugin-shell";
 import { useEffect, useState } from "react";
 
 export default function AboutTab() {
-  const [appVersion, setAppVersion] = useState<string>("unknown");
+  const [appVersion, setAppVersion] = useState("unknown");
+  const [logoClickCount, setLogoClickCount] = useState(0);
 
   useEffect(() => {
     (async () => {
       setAppVersion(await getVersion());
     })();
   }, []);
+  useEffect(() => {
+    (async () => {
+      if (logoClickCount >= 10) {
+        const url = await Dialog.input("navigate", "此操作将放弃所有未保存的文件");
+        if (url && url.length > 5) {
+          window.location.href = url;
+        }
+        setLogoClickCount(0);
+      }
+    })();
+  }, [logoClickCount]);
 
   return (
     <div className="max-w-1/2 items-between mx-auto flex h-full w-full flex-col justify-center gap-4">
       <img src={logoUrl} alt="Project Graph Logo" className="absolute inset-0 -z-10 size-full blur-[150px]" />
-      <img src={logoUrl} alt="Project Graph Logo" className="mx-auto size-64" />
+      <img
+        src={logoUrl}
+        alt="Project Graph Logo"
+        className="mx-auto size-64"
+        onClick={() => setLogoClickCount((it) => it + 1)}
+      />
 
       <header className="flex items-center justify-between">
         <div>
