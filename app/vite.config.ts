@@ -8,7 +8,6 @@ import path from "node:path";
 import { createLogger, defineConfig } from "vite";
 import svgr from "vite-plugin-svgr";
 
-const host = "127.0.0.1";
 export const viteLogger = createLogger("info", { prefix: "[project-graph]" });
 
 // https://vitejs.dev/config/
@@ -37,14 +36,6 @@ export default defineConfig({
     port: 1420,
     // 端口冲突时直接报错，不尝试下一个可用端口
     strictPort: true,
-    host: host || false,
-    hmr: host
-      ? {
-          protocol: "ws",
-          host,
-          port: 1421,
-        }
-      : undefined,
     watch: {
       ignored: ["**/src-tauri/**"],
     },
