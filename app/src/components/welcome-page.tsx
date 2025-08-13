@@ -38,7 +38,13 @@ export default function WelcomePage() {
             </div>
             <div className="flex flex-col gap-2 *:flex *:cursor-pointer *:flex-col *:*:last:text-sm *:*:last:opacity-50 *:hover:opacity-75">
               {recentFiles.slice(0, 5).map((file, index) => (
-                <div key={index}>
+                <div
+                  key={index}
+                  onClick={async () => {
+                    await onOpenFile(file.uri, "GlobalMenu最近打开的文件");
+                    await refresh();
+                  }}
+                >
                   <span>{new Path(file.uri).nameWithoutExt}</span>
                   <span>{file.uri.fsPath}</span>
                 </div>
