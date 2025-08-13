@@ -347,7 +347,7 @@ export class KeyBindsRegistrar {
     });
 
     await this.project.keyBinds.create("clickAppMenuSettingsButton", "S-!", () => {
-      SettingsWindow.open();
+      SettingsWindow.open("settings");
     });
     // await this.project.keyBinds.create("clickTagPanelButton", "S-@", () => {
     //   TagWindow.open();

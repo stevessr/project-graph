@@ -111,7 +111,7 @@ export default function AIWindow() {
       </div>
       <div className="flex flex-col gap-2 rounded-xl border p-2">
         <div className="flex gap-2">
-          <SettingsIcon className="cursor-pointer" onClick={() => SettingsWindow.open("ai")} />
+          <SettingsIcon className="cursor-pointer" onClick={() => SettingsWindow.open("settings")} />
           {showTokenCount && (
             <>
               <div className="flex-1"></div>

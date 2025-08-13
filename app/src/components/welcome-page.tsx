@@ -46,7 +46,7 @@ export default function WelcomePage() {
             </div>
           </div>
           <div className="flex flex-col gap-2 *:flex *:w-max *:cursor-pointer *:gap-2 *:hover:opacity-75 *:active:scale-90">
-            <div onClick={() => SettingsWindow.open("visual")}>
+            <div onClick={() => SettingsWindow.open("settings")}>
               <Settings />
               <span>设置</span>
             </div>
