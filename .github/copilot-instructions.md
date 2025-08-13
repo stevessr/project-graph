@@ -12,8 +12,8 @@ Project Graph is a desktop application designed to visualize and manage complex 
 - Never silently discard errors with `catch {}` or `catch (e) { console.error(e) }` on fallible operations. Always handle errors appropriately:
   - Don't catch errors, let the calling function to handle them
   - If the error should be ignored, show a dialog instead of logging to console. User cannot see logs in the console.
+  - Ensure errors propagate to the top of DOM (eg. `window`), so `ErrorHandler` component can catch it and show an user-friendly dialog
   - Example: avoid `try { something() } catch (e) { console.error(e) }` - use `something()` instead
-- When implementing async operations that may fail, ensure errors propagate to the top of DOM (eg. `window`) so users get meaningful feedback.
 - Always use `something.tsx` instead of a single `index.tsx` in a directory.
 
 ## Tech-stack
