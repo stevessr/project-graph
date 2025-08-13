@@ -32,7 +32,7 @@ export default function ThemePage() {
 function getThemeGradient(theme: string) {
   const { content: colors } = Themes.getThemeById(theme)!;
   // 获取上面数组中定义的颜色
-  const gradientColors = [colors.background, colors.popover, colors.secondary, colors.accent, colors.stage.Background]
+  const gradientColors = [colors.primary, colors.secondary, colors.stage.Background]
     .map((it) => Color.fromCss(it))
     .sort((a, b) => {
       const hslA = a.rgbToHsl();
