@@ -30,7 +30,7 @@ export default function AboutTab() {
   }, [logoClickCount]);
 
   return (
-    <div className="max-w-1/2 items-between mx-auto flex h-full w-full flex-col justify-center gap-4">
+    <div className="max-w-1/2 items-between mx-auto flex h-full w-full flex-col justify-center gap-4 text-white">
       <img src={logoUrl} alt="Project Graph Logo" className="absolute inset-0 -z-10 size-full blur-[150px]" />
       <img
         src={logoUrl}
@@ -45,7 +45,7 @@ export default function AboutTab() {
           <p className="text-sm opacity-50">图形化思维与知识管理桌面应用</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="border-border text-foreground inline-flex items-center rounded-md border px-2 py-1 text-xs">
+          <span className="border-border inline-flex items-center rounded-md border px-2 py-1 text-xs">
             v{appVersion}
           </span>
         </div>
