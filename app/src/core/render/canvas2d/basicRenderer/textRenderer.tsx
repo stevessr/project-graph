@@ -156,6 +156,11 @@ export class TextRenderer {
     limitLines: number = Infinity,
   ): void {
     if (text.trim().length === 0) return;
+    // 如果文本里面没有换行符就直接渲染单行文本，不要计算了
+    if (!text.includes("\n")) {
+      this.renderText(text, location, fontSize, color);
+      return;
+    }
     let currentY = 0; // 顶部偏移量
     let textLineArray = this.textToTextArrayWrapCache(text, fontSize, limitWidth);
     // 限制行数
