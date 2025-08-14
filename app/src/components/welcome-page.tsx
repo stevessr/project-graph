@@ -40,17 +40,13 @@ export default function WelcomePage() {
             </div>
             <div className="flex flex-col gap-2 *:flex *:cursor-pointer *:flex-col *:*:last:text-sm *:*:last:opacity-50 *:hover:opacity-75">
               {recentFiles.slice(0, 5).map((file, index) => (
-<<<<<<< HEAD
                 <div
                   key={index}
                   onClick={async () => {
-                    await onOpenFile(file.uri, "GlobalMenu最近打开的文件");
+                    await onOpenFile(file.uri, "欢迎页面-最近打开的文件");
                     await refresh();
                   }}
                 >
-=======
-                <div key={index} onClick={() => onOpenFile(file.uri, "欢迎页面-最近打开的文件")}>
->>>>>>> c484786a (:globe_with_meridians: 给GlobalMenu添加i18n)
                   <span>{new Path(file.uri).nameWithoutExt}</span>
                   <span>{file.uri.fsPath}</span>
                 </div>
