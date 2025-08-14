@@ -109,7 +109,7 @@ export const settingsIcons = {
   isPauseRenderWhenManipulateOvertime: Hourglass,
   renderOverTimeWhenNoManipulateTime: Hourglass,
   ignoreTextNodeTextRenderLessThanCameraScale: ScanText,
-  cacheTextBitmap: Layers,
+  cacheTextAsBitmap: Layers,
   textCacheSize: MemoryStick,
   textScalingBehavior: Text,
   antialiasing: Calculator,

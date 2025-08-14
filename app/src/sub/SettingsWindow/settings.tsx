@@ -191,7 +191,7 @@ const categories = {
       "renderOverTimeWhenNoManipulateTime",
       "scaleExponent",
       "ignoreTextNodeTextRenderLessThanCameraScale",
-      "cacheTextBitmap",
+      "cacheTextAsBitmap",
       "textCacheSize",
       "textScalingBehavior",
       "antialiasing",

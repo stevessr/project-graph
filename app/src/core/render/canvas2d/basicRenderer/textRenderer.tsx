@@ -85,7 +85,7 @@ export class TextRenderer {
     if (text.trim().length === 0) return;
     text = Settings.protectingPrivacy ? replaceTextWhenProtect(text) : text;
 
-    if (!Settings.cacheTextBitmap) {
+    if (!Settings.cacheTextAsBitmap) {
       // 如果不开启位图渲染，则直接渲染
       this.renderTempText(text, location, size, color);
       return;
