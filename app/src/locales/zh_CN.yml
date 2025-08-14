@@ -605,6 +605,11 @@ settings:
       密钥将会明文存储在本地
   aiModel:
     title: AI 模型
+  cacheTextBitmap:
+    title: 开启位图式渲染文本
+    description: |
+      开启后，文本节点的位图缓存将会被保留，以提升渲染速度
+      但可能会造成模糊
   textCacheSize:
     title: 文本缓存限制
     description: |

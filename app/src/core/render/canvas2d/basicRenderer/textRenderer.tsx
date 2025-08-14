@@ -84,13 +84,23 @@ export class TextRenderer {
   renderText(text: string, location: Vector, size: number, color: Color = Color.White): void {
     if (text.trim().length === 0) return;
     text = Settings.protectingPrivacy ? replaceTextWhenProtect(text) : text;
+
+    if (!Settings.cacheTextBitmap) {
+      // 如果不开启位图渲染，则直接渲染
+      this.renderTempText(text, location, size, color);
+      return;
+    }
+
     // 如果有缓存，直接渲染
     const cache = this.getCache(text, size);
     if (cache) {
       this.project.canvas.ctx.drawImage(cache, location.x, location.y);
       return;
     }
-    if (Settings.textScalingBehavior !== "cacheEveryTick") {
+    if (Settings.textScalingBehavior === "cacheEveryTick") {
+      // 每帧都缓存
+      this.project.canvas.ctx.drawImage(this.buildCache(text, size, color), location.x, location.y);
+    } else {
       // 如果摄像机正在缩放，就找到大小最接近的缓存图片，然后位图缩放
       const currentScale = this.project.camera.currentScale.toFixed(2);
       const targetScale = this.project.camera.targetScale.toFixed(2);
@@ -104,12 +114,12 @@ export class TextRenderer {
             return;
           }
         } else if (Settings.textScalingBehavior === "temp") {
+          // 不走缓存
           this.renderTempText(text, location, size, color);
           return;
         }
       }
     }
-    this.project.canvas.ctx.drawImage(this.buildCache(text, size, color), location.x, location.y);
   }
   /**
    * 渲染临时文字，不构建缓存，不使用缓存
