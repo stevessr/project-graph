@@ -6,14 +6,8 @@
 Next-Generation Node Diagram Tool for Visual Thinking
 <br>
 
-![Badge Workflow]
-![Badge License]
-![Badge Language]
-![Badge Issues]
-
-**[<kbd> <br> Install <br> </kbd>][Install]** 
-**[<kbd> <br> Website <br> </kbd>][Website]** 
-**[<kbd> <br> Online Demo <br> </kbd>][Online Demo]**
+![License](https://img.shields.io/badge/License-MIT%20and%20GPL%203.0-green.svg)
+[![website](https://img.shields.io/badge/website-project--graph.top-purple)](https://project-graph.top)
 
 ---
 
@@ -54,16 +48,15 @@ Refer to [Documentation](https://project-graph.top/docs/app#%E5%AE%89%E8%A3%85)
 
 **System Requirements**:
 
-- Windows 10+ (Edge WebView2)
-- Linux (webkit2gtk, gtk)
-- _macOS 14+ support in development_
+- Windows 10+
+- Linux
+- macOS 14+
 
 ## 🎮 Quick Start
 
 1. **Create Nodes**: Double-click canvas to add nodes.
 2. **Edit Content**: Double-click nodes to rename; Ctrl+double-click for descriptions.
 3. **Connect Nodes**: Right-drag between nodes to create links.
-4. **Extend Node with AI**: Click "AI" button to generate child nodes with suggested relationships.
 
 For advanced features like compute engine, see [Full Documentation](https://project-graph.top).
 
