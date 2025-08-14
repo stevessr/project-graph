@@ -32,7 +32,7 @@ export const settingsSchema = z.object({
   isPauseRenderWhenManipulateOvertime: z.boolean().default(true),
   renderOverTimeWhenNoManipulateTime: z.number().min(1).max(10).int().default(5),
   ignoreTextNodeTextRenderLessThanCameraScale: z.number().min(0.01).max(0.3).default(0.065),
-  cacheTextBitmap: z.boolean().default(true),
+  cacheTextBitmap: z.boolean().default(false),
   textCacheSize: z.number().default(100),
   textScalingBehavior: z
     .union([z.literal("temp"), z.literal("nearestCache"), z.literal("cacheEveryTick")])
