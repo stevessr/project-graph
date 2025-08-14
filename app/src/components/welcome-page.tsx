@@ -4,10 +4,12 @@ import { Path } from "@/utils/path";
 import { open as shellOpen } from "@tauri-apps/plugin-shell";
 import { Earth, FilePlus, FolderOpen, Info, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import SettingsWindow from "../sub/SettingsWindow";
 
 export default function WelcomePage() {
   const [recentFiles, setRecentFiles] = useState<RecentFileManager.RecentFile[]>([]);
+  const { t } = useTranslation("welcome");
 
   useEffect(() => {
     refresh();
@@ -22,22 +24,23 @@ export default function WelcomePage() {
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-2">
           <div className="text-3xl">Project Graph</div>
-          <div className="text-lg opacity-50">笔起思涌，图见真意</div>
+          <div className="text-lg opacity-50">{t("slogan")}</div>
         </div>
         <div className="flex gap-16">
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-2 *:flex *:w-max *:cursor-pointer *:gap-2 *:hover:opacity-75 *:active:scale-90">
               <div onClick={onNewDraft}>
                 <FilePlus />
-                <span>新建文件</span>
+                <span>{t("newDraft")}</span>
               </div>
               <div onClick={() => onOpenFile(undefined, "欢迎页面")}>
                 <FolderOpen />
-                <span>打开文件</span>
+                <span>{t("openFile")}</span>
               </div>
             </div>
             <div className="flex flex-col gap-2 *:flex *:cursor-pointer *:flex-col *:*:last:text-sm *:*:last:opacity-50 *:hover:opacity-75">
               {recentFiles.slice(0, 5).map((file, index) => (
+<<<<<<< HEAD
                 <div
                   key={index}
                   onClick={async () => {
@@ -45,6 +48,9 @@ export default function WelcomePage() {
                     await refresh();
                   }}
                 >
+=======
+                <div key={index} onClick={() => onOpenFile(file.uri, "欢迎页面-最近打开的文件")}>
+>>>>>>> c484786a (:globe_with_meridians: 给GlobalMenu添加i18n)
                   <span>{new Path(file.uri).nameWithoutExt}</span>
                   <span>{file.uri.fsPath}</span>
                 </div>
@@ -54,15 +60,15 @@ export default function WelcomePage() {
           <div className="flex flex-col gap-2 *:flex *:w-max *:cursor-pointer *:gap-2 *:hover:opacity-75 *:active:scale-90">
             <div onClick={() => SettingsWindow.open("settings")}>
               <Settings />
-              <span>设置</span>
+              <span>{t("settings")}</span>
             </div>
             <div onClick={() => SettingsWindow.open("about")}>
               <Info />
-              <span>关于</span>
+              <span>{t("about")}</span>
             </div>
             <div onClick={() => shellOpen("https://project-graph.top")}>
               <Earth />
-              <span>官网</span>
+              <span>{t("website")}</span>
             </div>
           </div>
         </div>

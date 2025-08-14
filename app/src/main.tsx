@@ -76,7 +76,7 @@ async function loadLanguageFiles() {
     // debug: import.meta.env.DEV,
     debug: false,
     defaultNS: "",
-    fallbackLng: "zh_CN",
+    fallbackLng: false,
     saveMissing: false,
     resources: {
       en: await import("./locales/en.yml").then((m) => m.default),

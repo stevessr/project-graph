@@ -1,75 +1,72 @@
 welcome:
-  language: 语言
-  next: 下一步
-  website: 网站
-  github: GitHub
-  bilibili: 哔哩哔哩
-  qq: QQ 群
+  slogan: 笔起思涌，图见真意
+  newDraft: 新建文件
+  openFile: 打开文件
+  settings: 设置
+  about: 关于
+  website: 官网
 
-about:
-  updater:
-    available: 新版本
-    downloading: 下载中
-    checkingUpdate: 检查新版本中……
-    checkUpdateFail: 无法获取最新版本信息，请检查网络
-  links:
-    website: 官方网站
-    documentation: 文档
-    github: Github
-    video: 视频教程
-    qq: QQ 群
-    forum: 论坛
-    community:
-      title: 社区
-      description: 加入社区，包含QQ群、论坛、Discord、Telegram等，分享您的想法、经验、教程、资源、问题、建议等。
-    importantAnnouncement: 重要公告
-  intro:
-  - 软件介绍
-  - 这是一个基于tauri框架的快速绘制节点图的工具，可以用于项目拓扑图绘制、快速头脑风暴草稿
-  - Xmind 只能用来绘制树形结构图，FigJam 和 draw.io 可以用来绘制但网页打开有点慢了
-  - 所以做了这个小软件
-  contact:
-  - 联系我们
-  - 我们致力于为“图论”设计一个最快速方便的绘制方法论，同时也在可视化思考、拓扑型 todo list 等方向进行探索创新。
-  - 如果您想快速获得反馈和提供建议，或者有任何想法、疑问，欢迎加入我们的 QQ 群：1018716404
-  techEnvironment: 技术支持与生态环境
-  developers:
-    title: 开发者名单
-    proposer: 项目提出与创立
-    conceptDesigner: 概念设计
-    featureDesigner: 功能设计
-    feedbackManager: 反馈管理
-    logoDesigner: 图标设计
-    uiDesigner: UI 设计
-    softwareArchitect: 软件架构
-    bezierCurveDesigner: 贝塞尔曲线设计
-    animationEffectDesigner: 动画特效设计
-    automationBuilder: 自动化构建
-    xlings: 自动化环境搭建
-    websiteMaintainer: 网站维护
-    performanceSupervisor: 性能督导
-    videoPromoter: 视频推广
-    translator: 翻译
-    tester: 测试
-    encourager: 程序员鼓励师
-    encouragerEncourager: 鼓励师的鼓励师
-    atmosphereAdjuster: 气氛调节
-  ideaSources:
-  - 灵感来源
-  - 未支持深色风格的 FigJam
-  - 所长林超的画分析框架详解视频
-  - 《数据结构与算法》中的拓扑排序、图论，以及状态机、集合论的概念
-  - 头脑风暴法、认知负荷理论、卡片创意法
-  - 游戏《Minecraft》中的“命令方块”、跨世界预览的地狱传送门模组
-  - 游戏《水果忍者》中挥刀的动画效果
-  - 游戏《Mindustry》中的工厂流水线设计成逻辑节点
-  team:
-  - 团队简介
-  - 理刃科技(LiRen Tech)是一个由Littlefean和Rutubet在2017年5月1日创立的小型团队，后续ZTY加入团队。
-  - 以其年轻化的团队氛围、对创新创意的重视、以及理性思维与文化包容的特点，在软件开发领域独树一帜。
-  - 不仅专注于开发工具软件和游戏，还涉足Minecraft游戏插件开发、游戏服务器运营以及网站建设等多元化业务。
-  - 理刃科技的代表作品包括CannonWar这个内容丰富的塔防游戏、BitMountain算法竞赛网站、Watch小桌面软件，以及MinecraftPvP职业战争服务器。
-  - 团队以浅蓝色和代码绿为代表颜色，象征着逻辑合理与整活幽默并存的团队文化。
+globalMenu:
+  file:
+    title: 文件
+    new: 新建
+    open: 打开
+    recentFiles: 最近打开的文件
+    clear: 清空
+    save: 保存
+    saveAs: 另存为
+    import: 导入
+    importFromFolder: 根据文件夹生成嵌套图
+    export: 导出
+    exportAsSVG: 导出为 SVG
+    exportAll: 导出全部内容
+    exportSelected: 导出选中内容
+    plainText: 纯文本
+    exportSuccess: 导出成功
+  location:
+    title: 位置
+    openConfigFolder: 打开软件配置文件夹
+    openCacheFolder: 打开软件缓存文件夹
+    openCurrentProjectFolder: 打开当前项目文件夹
+  view:
+    title: 视野
+    resetViewAll: 根据全部内容重置视野
+    resetViewSelected: 根据选中内容重置视野
+    resetViewScale: 重置视野缩放到标准大小
+    moveViewToOrigin: 移动视野到坐标轴原点
+  actions:
+    title: 操作
+    refresh: 刷新
+    undo: 撤销
+    redo: 重做
+    releaseKeys: 松开按键
+    confirmClearStage: 确认清空舞台？
+    irreversible: 此操作无法撤销！
+    clearStage: 清空舞台
+  settings:
+    title: 设置
+    appearance: 个性化
+    experimental: 测试功能
+    testOnly: 仅供测试使用！
+    serializeReference: 序列化引用机制
+    triggerBug: 连带bug
+    editTextNode: 编辑文本节点
+  ai:
+    title: AI
+    openAIPanel: 打开 AI 面板
+  window:
+    title: 视图
+    fullscreen: 全屏
+    classroomMode: 专注模式
+    classroomModeHint: 左上角菜单按钮仅仅是透明了，并没有消失
+  about:
+    title: 关于
+    guide: 新手引导
+  unstable:
+    title: 测试版
+    notRelease: 此版本并非正式版
+    mayHaveBugs: 可能包含 Bug 和未完善的功能
+    reportBug: "报告 Bug: 在 Issue #487 中评论"
 
 settings:
   title: 设置
@@ -631,98 +628,6 @@ settings:
       medium: 中
       high: 高
 
-plugins:
-  welcome:
-    title: 欢迎使用插件系统
-    description: |
-      插件系统是 Project Graph v2 的计划之一，开发者可以使用 JavaScript 开发插件以扩展应用的功能。
-      目前插件系统还未开发完成，敬请期待。
-  title: 插件管理
-  install: 安装插件
-  uninstall: 卸载
-  documentation: 文档
-
-app:
-  unsaved: "(未保存)"
-  draftUnsaved: " 草稿无法自动保存，需手动保存 "
-  comingSoon: "即将到来……"
-appMenu:
-  file:
-    title: 文件
-    items:
-      new: 新建草稿
-      newFile: 新建文件
-      open: 打开
-      save: 保存
-      saveAs: 另存为
-      recent: 最近打开
-      backup: 手动备份
-  location:
-    title: 位置
-    items:
-      openDataFolder:
-        title: 配置数据
-        description: 打开软件用户配置数据文件夹，内部存放用户自定义设置等数据
-      openProjectFolder:
-        title: 当前位置
-        description: 打开当前编辑的 工程文件 所在的文件夹
-      openCacheFolder:
-        title: 缓存文件夹
-        description: 打开软件缓存文件夹，内部存放软件运行时产生的缓存数据，以及默认的草稿备份文件
-  import:
-    title: 导入
-    items:
-      generateSectionByFolder:
-        title: 根据本地文件夹生成框图
-        description: 选择一个本地文件夹后，将该文件夹下所有文件生成为一个框嵌套图
-  export:
-    title: 导出
-    items:
-      exportAsSvg: SVG
-      exportAsSVGByAll: SVG（全部）
-      exportAsMarkdownBySelected: Markdown
-      exportAsPlainText: 纯文本
-  view:
-    title: 视图
-    items:
-      resetByAll:
-        title: 重置全部
-        description: 根据全部内容重置视野
-      resetBySelect:
-        title: 重置部分
-        description: 根据选中内容重置视野
-      resetScale:
-        title: 重置缩放
-        description: 将缩放重置为标准大小
-      resetLocation:
-        title: 重置位置
-        description: 将视野重置到坐标原点位置
-  more:
-    title: 更多
-    items:
-      settings: 设置
-      about: 关于
-      welcome: 欢迎界面
-  window:
-    title: 窗口
-    items:
-      refresh: 刷新
-      fullscreen: 全屏
-      cancelFullscreen: 退出全屏
-
-startFilePanel:
-  title: 选择启动时自动加载的工程文件
-  tips:
-  - 说明：启动时自动加载的工程文件会在打开时自动加载到舞台，无需手动打开。
-  - 加载：仅将这个文件加载到舞台（您可以通过悬浮透明来查看切换后是否是您想要的文件）
-  - 钉选：切换当前的启动文件，左侧状态中的图标代表当前的启动文件。
-  - 移除：仅从列表中移除文件，不会影响文件本身。
-  buttons:
-    addFile: 添加文件
-    clearList: 清空列表
-    showAbsolutePath: 显示绝对路径
-    showFileTime: 显示文件时间
-
 effects:
   CircleChangeRadiusEffect:
     title: 圆形变换半径效果
@@ -844,23 +749,6 @@ effects:
     description: |
       用于垂直方向键盘移动实体
 
-
-
-keys:
-  none: 未绑定快捷键，点击绑定
-  mouse0: 鼠标左键
-  mouse1: 鼠标中键
-  mouse2: 鼠标右键
-  mouse3: 鼠标侧键1
-  mouse4: 鼠标侧键2
-  " ": 空格
-  arrowup: 上方向键
-  arrowdown: 下方向键
-  arrowleft: 左方向键
-  arrowright: 右方向键
-  wheelup: 滚轮向上
-  wheeldown: 滚轮向下
-
 keyBindsGroup:
   otherKeys:
     title: 未分类的快捷键
@@ -932,7 +820,6 @@ keyBindsGroup:
     title: 对齐相关
     description: |
       关于实体对齐的一些功能
-
 
 keyBinds:
   title: 快捷键绑定

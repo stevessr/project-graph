@@ -67,6 +67,7 @@ import {
   View,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { URI } from "vscode-uri";
 import { ProjectUpgrader } from "../stage/ProjectUpgrader";
@@ -91,6 +92,7 @@ export function GlobalMenu() {
   const [recentFiles, setRecentFiles] = useState<RecentFileManager.RecentFile[]>([]);
   const [version, setVersion] = useState<string>("");
   const [isUnstableVersion, setIsUnstableVersion] = useState(false);
+  const { t } = useTranslation("globalMenu");
 
   useEffect(() => {
     refresh();
@@ -109,12 +111,12 @@ export function GlobalMenu() {
       <Menu>
         <Trigger>
           <File />
-          文件
+          {t("file.title")}
         </Trigger>
         <Content>
           <Item onClick={() => onNewDraft()}>
             <FilePlus />
-            新建
+            {t("file.new")}
           </Item>
           <Item
             onClick={async () => {
@@ -123,12 +125,12 @@ export function GlobalMenu() {
             }}
           >
             <FolderOpen />
-            打开
+            {t("file.open")}
           </Item>
           <Sub>
             <SubTrigger>
               <FileClock />
-              最近打开的文件
+              {t("file.recentFiles")}
             </SubTrigger>
             <SubContent>
               {recentFiles.map((file) => (
@@ -152,7 +154,7 @@ export function GlobalMenu() {
                 }}
               >
                 <Trash />
-                清空
+                {t("file.clear")}
               </Item>
             </SubContent>
           </Sub>
@@ -164,13 +166,13 @@ export function GlobalMenu() {
             }}
           >
             <Save />
-            保存
+            {t("file.save")}
           </Item>
           <Item
             disabled={!activeProject}
             onClick={async () => {
               const path = await open({
-                title: "另存为",
+                title: t("file.saveAs"),
                 directory: false,
                 multiple: false,
                 filters: [{ name: "Project Graph", extensions: ["prg"] }],
@@ -181,25 +183,25 @@ export function GlobalMenu() {
             }}
           >
             <FileDown />
-            另存为
+            {t("file.saveAs")}
           </Item>
           <Separator />
           <Sub>
             <SubTrigger>
               <FileInput />
-              导入
+              {t("file.import")}
             </SubTrigger>
             <SubContent>
               <Item>
                 <FolderTree />
-                根据文件夹生成嵌套图
+                {t("file.importFromFolder")}
               </Item>
             </SubContent>
           </Sub>
           <Sub>
             <SubTrigger disabled={!activeProject}>
               <FileOutput />
-              导出
+              {t("file.export")}
             </SubTrigger>
             <SubContent>
               <Sub>
@@ -212,7 +214,7 @@ export function GlobalMenu() {
                     onClick={async () => {
                       const svg = activeProject!.stageExportSvg.dumpStageToSVGString();
                       const path = await save({
-                        title: "导出为 SVG",
+                        title: t("file.exportAsSVG"),
                         filters: [{ name: "Scalable Vector Graphics", extensions: ["svg"] }],
                       });
                       if (!path) return;
@@ -220,13 +222,13 @@ export function GlobalMenu() {
                     }}
                   >
                     <FileDigit />
-                    导出全部内容
+                    {t("file.exportAll")}
                   </Item>
                   <Item
                     onClick={async () => {
                       const svg = activeProject!.stageExportSvg.dumpSelectedToSVGString();
                       const path = await save({
-                        title: "导出为 SVG",
+                        title: t("file.exportAsSVG"),
                         filters: [{ name: "Scalable Vector Graphics", extensions: ["svg"] }],
                       });
                       if (!path) return;
@@ -234,7 +236,7 @@ export function GlobalMenu() {
                     }}
                   >
                     <MousePointer2 />
-                    导出选中内容
+                    {t("file.exportSelected")}
                   </Item>
                 </SubContent>
               </Sub>
@@ -249,22 +251,22 @@ export function GlobalMenu() {
               <Sub>
                 <SubTrigger>
                   <TextQuote />
-                  纯文本
+                  {t("file.plainText")}
                 </SubTrigger>
                 <SubContent>
                   <Item
                     onClick={() => {
                       const entities = activeProject!.stageManager.getEntities();
                       const result = activeProject!.stageExport.getPlainTextByEntities(entities);
-                      Dialog.copy("导出成功", "", result);
+                      Dialog.copy(t("file.exportSuccess"), "", result);
                     }}
                   >
                     <FileDigit />
-                    导出全部内容
+                    {t("file.exportAll")}
                   </Item>
                   <Item>
                     <MousePointer2 />
-                    导出选中内容
+                    {t("file.exportSelected")}
                   </Item>
                 </SubContent>
               </Sub>
@@ -277,7 +279,7 @@ export function GlobalMenu() {
       <Menu>
         <Trigger>
           <Folder />
-          位置
+          {t("location.title")}
         </Trigger>
         <Content>
           <Item
@@ -287,7 +289,7 @@ export function GlobalMenu() {
             }}
           >
             <FolderCog />
-            打开软件配置文件夹
+            {t("location.openConfigFolder")}
           </Item>
           <Item
             onClick={async () => {
@@ -296,7 +298,7 @@ export function GlobalMenu() {
             }}
           >
             <FolderClock />
-            打开软件缓存文件夹
+            {t("location.openCacheFolder")}
           </Item>
           <Item
             disabled={!activeProject || activeProject.isDraft}
@@ -306,7 +308,7 @@ export function GlobalMenu() {
             }}
           >
             <FolderOpen />
-            打开当前项目文件夹
+            {t("location.openCurrentProjectFolder")}
           </Item>
         </Content>
       </Menu>
@@ -315,7 +317,7 @@ export function GlobalMenu() {
       <Menu>
         <Trigger disabled={!activeProject}>
           <View />
-          视野
+          {t("view.title")}
         </Trigger>
         <Content>
           <Item
@@ -324,7 +326,7 @@ export function GlobalMenu() {
             }}
           >
             <Fullscreen />
-            根据全部内容重置视野
+            {t("view.resetViewAll")}
           </Item>
           <Item
             onClick={() => {
@@ -332,7 +334,7 @@ export function GlobalMenu() {
             }}
           >
             <SquareDashedMousePointer />
-            根据选中内容重置视野
+            {t("view.resetViewSelected")}
           </Item>
           <Item
             onClick={() => {
@@ -340,7 +342,7 @@ export function GlobalMenu() {
             }}
           >
             <Scaling />
-            重置视野缩放到标准大小
+            {t("view.resetViewScale")}
           </Item>
           <Item
             onClick={() => {
@@ -348,7 +350,7 @@ export function GlobalMenu() {
             }}
           >
             <MapPin />
-            移动视野到坐标轴原点
+            {t("view.moveViewToOrigin")}
           </Item>
         </Content>
       </Menu>
@@ -357,12 +359,12 @@ export function GlobalMenu() {
       <Menu>
         <Trigger disabled={!activeProject}>
           <Axe />
-          操作
+          {t("actions.title")}
         </Trigger>
         <Content>
           <Item>
             <RefreshCcwDot />
-            刷新
+            {t("actions.refresh")}
           </Item>
           <Item
             onClick={() => {
@@ -370,7 +372,7 @@ export function GlobalMenu() {
             }}
           >
             <Undo />
-            撤销
+            {t("actions.undo")}
           </Item>
           <Item
             onClick={() => {
@@ -378,7 +380,7 @@ export function GlobalMenu() {
             }}
           >
             <Redo />
-            重做
+            {t("actions.redo")}
           </Item>
           <Item
             onClick={() => {
@@ -386,17 +388,17 @@ export function GlobalMenu() {
             }}
           >
             <Keyboard />
-            松开按键
+            {t("actions.releaseKeys")}
           </Item>
           <Item
             onClick={async () => {
-              if (await Dialog.confirm("确认清空舞台？", "此操作无法撤销！", { destructive: true })) {
+              if (await Dialog.confirm(t("confirmClearStage"), t("irreversible"), { destructive: true })) {
                 activeProject!.stage = [];
               }
             }}
           >
             <Radiation />
-            清空舞台
+            {t("actions.clearStage")}
           </Item>
         </Content>
       </Menu>
@@ -405,24 +407,24 @@ export function GlobalMenu() {
       <Menu>
         <Trigger>
           <SettingsIcon />
-          设置
+          {t("settings.title")}
         </Trigger>
         <Content>
           <Item onClick={() => SettingsWindow.open("settings")}>
             <SettingsIcon />
-            设置
+            {t("settings.title")}
           </Item>
           <Item onClick={() => SettingsWindow.open("appearance")}>
             <Palette />
-            个性化
+            {t("settings.appearance")}
           </Item>
           <Sub>
             <SubTrigger disabled={!activeProject}>
               <TestTube2 />
-              测试功能
+              {t("settings.experimental")}
             </SubTrigger>
             <SubContent>
-              <Item variant="destructive">仅供测试使用！</Item>
+              <Item variant="destructive">{t("testOnly")}</Item>
               <Item
                 onClick={() => {
                   const tn1 = new TextNode(activeProject!, { text: "tn1" });
@@ -431,7 +433,7 @@ export function GlobalMenu() {
                   console.log(serialize([tn1, tn2, le]));
                 }}
               >
-                序列化引用机制
+                {t("settings.serializeReference")}
               </Item>
               <Item
                 onClick={() => {
@@ -440,7 +442,7 @@ export function GlobalMenu() {
                   };
                 }}
               >
-                连带bug
+                {t("settings.triggerBug")}
               </Item>
               <Item
                 onClick={() => {
@@ -452,14 +454,14 @@ export function GlobalMenu() {
                     });
                 }}
               >
-                编辑文本节点
+                {t("settings.editTextNode")}
               </Item>
               <Item
                 onClick={() => {
                   window.location.reload();
                 }}
               >
-                refresh
+                {t("actions.refresh")}
               </Item>
             </SubContent>
           </Sub>
@@ -470,12 +472,12 @@ export function GlobalMenu() {
       <Menu>
         <Trigger disabled={!activeProject}>
           <Bot />
-          AI
+          {t("ai.title")}
         </Trigger>
         <Content>
           <Item onClick={() => AIWindow.open()}>
             <ExternalLink />
-            打开 AI 面板
+            {t("ai.openAIPanel")}
           </Item>
         </Content>
       </Menu>
@@ -484,7 +486,7 @@ export function GlobalMenu() {
       <Menu>
         <Trigger>
           <AppWindow />
-          视图
+          {t("window.title")}
         </Trigger>
         <Content>
           <Item
@@ -495,19 +497,19 @@ export function GlobalMenu() {
             }
           >
             <Fullscreen />
-            全屏
+            {t("window.fullscreen")}
           </Item>
           <Item
             onClick={async () => {
               if (!isClassroomMode) {
-                toast.info("左上角菜单按钮仅仅是透明了，并没有消失");
+                toast.info(t("classroomModeHint"));
               }
               const newValue = !isClassroomMode;
               setIsClassroomMode(newValue);
             }}
           >
             <Airplay />
-            专注模式
+            {t("window.classroomMode")}
           </Item>
           {/* TODO: 隐私模式 */}
           {/* <Item>
@@ -521,16 +523,16 @@ export function GlobalMenu() {
       <Menu>
         <Trigger>
           <CircleAlert />
-          关于
+          {t("about.title")}
         </Trigger>
         <Content>
           <Item onClick={() => SettingsWindow.open()}>
             <MessageCircleWarning />
-            关于
+            {t("about.title")}
           </Item>
           <Item>
             <PersonStanding />
-            新手引导
+            {t("about.guide")}
           </Item>
         </Content>
       </Menu>
@@ -539,16 +541,16 @@ export function GlobalMenu() {
         <Menu>
           <Trigger className="*:text-destructive! text-destructive!">
             <MessageCircleWarning />
-            测试版
+            {t("unstable.title")}
           </Trigger>
           <Content>
             <Item variant="destructive">v{version}</Item>
-            <Item variant="destructive">此版本并非正式版</Item>
-            <Item variant="destructive">可能包含 Bug 和未完善的功能</Item>
+            <Item variant="destructive">{t("unstable.notRelease")}</Item>
+            <Item variant="destructive">{t("unstable.mayHaveBugs")}</Item>
             <Separator />
             <Item onClick={() => shellOpen("https://github.com/graphif/project-graph/issues/487")}>
               <Bug />
-              报告 Bug: 在 Issue #487 中评论
+              {t("unstable.reportBug")}
             </Item>
           </Content>
         </Menu>
