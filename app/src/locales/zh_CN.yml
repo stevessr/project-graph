@@ -68,6 +68,14 @@ globalMenu:
     mayHaveBugs: 可能包含 Bug 和未完善的功能
     reportBug: "报告 Bug: 在 Issue #487 中评论"
 
+contextMenu:
+  createTextNode: 创建文本节点
+  createConnectPoint: 创建质点
+  packToSection: 打包为框
+  createMTUEdgeLine: 创建无源多向边
+  createMTUEdgeConvex: 创建凸包
+  convertToSection: 转换为框
+
 settings:
   title: 设置
   categories:

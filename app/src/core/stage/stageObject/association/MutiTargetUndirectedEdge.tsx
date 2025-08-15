@@ -1,13 +1,26 @@
-import { Color, Vector } from "@graphif/data-structures";
-import { Line, Rectangle, Shape } from "@graphif/shapes";
-import { v4 } from "uuid";
-import { Serialized } from "@/types/node";
-import { getMultiLineTextSize } from "@/utils/font";
 import { Project } from "@/core/Project";
 import { Renderer } from "@/core/render/canvas2d/renderer";
 import { ConnectableAssociation } from "@/core/stage/stageObject/abstract/Association";
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
+import { getMultiLineTextSize } from "@/utils/font";
+import { Color, Vector } from "@graphif/data-structures";
+import { id, passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
+import { Line, Rectangle, Shape } from "@graphif/shapes";
+
+/**
+ * 无向边的箭头类型
+ * inner：--> xxx <--
+ * outer：<-- xxx -->
+ * none： --- xxx ---
+ */
+export type UndirectedEdgeArrowType = "inner" | "outer" | "none";
+/**
+ * 无向边的渲染方式
+ * line：内部连线式渲染
+ * convex：凸包连线式渲染
+ */
+export type MultiTargetUndirectedEdgeRenderType = "line" | "convex";
 
 /**
  * 多端无向边
@@ -15,29 +28,38 @@ import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox
  * 超边。
  * 以后可以求最大强独立集
  */
+@passExtraAtArg1
+@passObject
 export class MultiTargetUndirectedEdge extends ConnectableAssociation {
+  @id
+  @serializable
   public uuid: string;
 
   get collisionBox(): CollisionBox {
     // 计算多个节点的外接矩形的中心点
-    const nodes = this.project.stageManager.getEntitiesByUUIDs(this.targetUUIDs);
     const center = this.centerLocation;
 
     const shapes: Shape[] = [];
-    for (const node of nodes) {
+    for (const node of this.associationList) {
       const line = new Line(center, node.collisionBox.getRectangle().center);
       shapes.push(line);
     }
     return new CollisionBox(shapes);
   }
 
+  @serializable
   public text: string;
+  @serializable
   public color: Color;
-  public targetUUIDs: string[];
+  @serializable
   public rectRates: Vector[];
+  @serializable
   public centerRate: Vector;
-  public arrow: Serialized.UndirectedEdgeArrowType = "none";
-  public renderType: Serialized.MultiTargetUndirectedEdgeRenderType = "line";
+  @serializable
+  public arrow: UndirectedEdgeArrowType = "none";
+  @serializable
+  public renderType: MultiTargetUndirectedEdgeRenderType = "line";
+  @serializable
   public padding: number;
 
   public rename(text: string) {
@@ -46,16 +68,16 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
   constructor(
     protected readonly project: Project,
     {
-      targets,
-      text,
-      uuid,
-      color,
-      rectRates,
-      arrow,
-      centerRate,
-      padding,
-      renderType,
-    }: Serialized.MultiTargetUndirectedEdge,
+      associationList = [] as ConnectableEntity[],
+      text = "",
+      uuid = crypto.randomUUID() as string,
+      color = Color.Transparent,
+      rectRates = associationList.map(() => Vector.same(0.5)),
+      arrow = "none" as UndirectedEdgeArrowType,
+      centerRate = Vector.same(0.5),
+      padding = 10,
+      renderType = "line" as MultiTargetUndirectedEdgeRenderType,
+    },
     /** true表示解析状态，false表示解析完毕 */
     public unknown = false,
   ) {
@@ -63,10 +85,10 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
 
     this.text = text;
     this.uuid = uuid;
-    this.color = new Color(...color);
-    this.targetUUIDs = targets;
-    this.rectRates = rectRates.map((v) => new Vector(v[0], v[1]));
-    this.centerRate = new Vector(centerRate[0], centerRate[1]);
+    this.color = color;
+    this.associationList = associationList;
+    this.rectRates = rectRates;
+    this.centerRate = centerRate;
     this.arrow = arrow;
     this.renderType = renderType;
     this.padding = padding;
@@ -76,17 +98,16 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
    * 获取中心点
    */
   public get centerLocation(): Vector {
-    if (this.targetUUIDs.length === 2) {
+    if (this.associationList.length === 2) {
       // 和lineEdge保持一样的逻辑
-      const twoNode = this.project.stageManager.getEntitiesByUUIDs(this.targetUUIDs);
       const line = new Line(
-        twoNode[0].collisionBox.getRectangle().center,
-        twoNode[1].collisionBox.getRectangle().center,
+        this.associationList[0].collisionBox.getRectangle().center,
+        this.associationList[1].collisionBox.getRectangle().center,
       );
       return line.midPoint();
     }
     const boundingRectangle = Rectangle.getBoundingRectangle(
-      this.project.stageManager.getEntitiesByUUIDs(this.targetUUIDs).map((n) => n.collisionBox.getRectangle()),
+      this.associationList.map((n) => n.collisionBox.getRectangle()),
     );
     return boundingRectangle.getInnerLocationByRateVector(this.centerRate);
   }
@@ -101,26 +122,16 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
     // 自动计算padding
     let padding = 10;
     for (const entity of entities) {
-      const hyperEdges = Hyperthis.project.graphMethods.getHyperEdgesByNode(entity);
+      const hyperEdges = project.graphMethods.getHyperEdgesByNode(entity);
       if (hyperEdges.length > 0) {
         const maxPadding = Math.max(...hyperEdges.map((e) => e.padding));
         padding = Math.max(maxPadding + 10, padding);
       }
     }
 
-    const targetUUIDs = entities.map((e) => e.uuid);
     return new MultiTargetUndirectedEdge(project, {
-      type: "core:multi_target_undirected_edge",
-      targets: targetUUIDs,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      rectRates: entities.map((_) => [0.5, 0.5]),
-      text: "",
-      uuid: v4(),
-      arrow: "none",
-      centerRate: [0.5, 0.5],
-      color: [0, 0, 0, 0],
+      associationList: entities,
       padding,
-      renderType: "line",
     });
   }
 

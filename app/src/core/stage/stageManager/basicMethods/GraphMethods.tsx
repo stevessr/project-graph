@@ -1,6 +1,7 @@
 import { Project, service } from "@/core/Project";
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { Edge } from "@/core/stage/stageObject/association/Edge";
+import { MultiTargetUndirectedEdge } from "../../stageObject/association/MutiTargetUndirectedEdge";
 
 @service("graphMethods")
 export class GraphMethods {
@@ -160,5 +161,18 @@ export class GraphMethods {
       }
     }
     return null;
+  }
+
+  getHyperEdgesByNode(node: ConnectableEntity): MultiTargetUndirectedEdge[] {
+    const edges: MultiTargetUndirectedEdge[] = [];
+    const hyperEdges = this.project.stageManager
+      .getAssociations()
+      .filter((association) => association instanceof MultiTargetUndirectedEdge);
+    for (const hyperEdge of hyperEdges) {
+      if (hyperEdge.associationList.includes(node)) {
+        edges.push(hyperEdge);
+      }
+    }
+    return edges;
   }
 }

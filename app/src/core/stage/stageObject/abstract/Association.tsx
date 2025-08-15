@@ -7,6 +7,7 @@ import { serializable } from "@graphif/serializer";
  * 一切连接关系的抽象
  */
 export abstract class Association extends StageObject {
+  @serializable
   public associationList: StageObject[] = [];
 
   /**

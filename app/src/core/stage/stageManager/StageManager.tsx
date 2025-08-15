@@ -738,11 +738,11 @@ export class StageManager {
       }
     }
     for (const edge of prepareDeleteUndirectedEdge) {
-      if (edge.targetUUIDs.length !== 2) {
+      if (edge.associationList.length !== 2) {
         continue;
       }
 
-      const [fromNode, toNode] = this.getEntitiesByUUIDs(edge.targetUUIDs);
+      const [fromNode, toNode] = edge.associationList;
       if (fromNode && toNode && fromNode instanceof ConnectableEntity && toNode instanceof ConnectableEntity) {
         const lineEdge = LineEdge.fromTwoEntity(this.project, fromNode, toNode);
         lineEdge.text = edge.text;

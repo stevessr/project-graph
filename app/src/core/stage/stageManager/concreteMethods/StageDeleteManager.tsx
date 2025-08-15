@@ -153,7 +153,7 @@ export class DeleteManager {
           visitedAssociations.add(edge.uuid);
         }
       } else if (edge instanceof MultiTargetUndirectedEdge) {
-        if (edge.targetUUIDs.includes(entity.uuid) && visitedAssociations.has(edge.uuid) === false) {
+        if (edge.associationList.includes(entity) && visitedAssociations.has(edge.uuid) === false) {
           prepareDeleteAssociation.push(edge);
           visitedAssociations.add(edge.uuid);
         }

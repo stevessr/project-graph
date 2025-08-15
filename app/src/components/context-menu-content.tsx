@@ -1,12 +1,8 @@
 import { Button } from "@/components/ui/button";
-import {
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-} from "@/components/ui/context-menu";
+import { ContextMenuContent, ContextMenuItem } from "@/components/ui/context-menu";
 import { MouseLocation } from "@/core/service/controlService/MouseLocation";
+import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
+import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { activeProjectAtom } from "@/state";
 import { useAtom } from "jotai";
@@ -23,23 +19,27 @@ import {
   Box,
   Clipboard,
   Copy,
+  Dot,
   Package,
-  Plus,
   Scissors,
+  SquareRoundCorner,
   TextSelect,
   Trash,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import KeyTooltip from "./key-tooltip";
 
 const Content = ContextMenuContent;
 const Item = ContextMenuItem;
-const Sub = ContextMenuSub;
-const SubTrigger = ContextMenuSubTrigger;
-const SubContent = ContextMenuSubContent;
+// const Sub = ContextMenuSub;
+// const SubTrigger = ContextMenuSubTrigger;
+// const SubContent = ContextMenuSubContent;
 // const Separator = ContextMenuSeparator;
 
 export default function MyContextMenuContent() {
   const [p] = useAtom(activeProjectAtom);
+  const { t } = useTranslation("contextMenu");
   if (!p) return <></>;
 
   return (
@@ -142,20 +142,41 @@ export default function MyContextMenuContent() {
           </Item>
           <Item onClick={() => p.stageManager.packEntityToSectionBySelected()}>
             <Box />
-            打包为 Section
+            {t("packToSection")}
           </Item>
-          <Sub>
-            <SubTrigger>
-              <Plus />
-              创建关系
-            </SubTrigger>
-            <SubContent>
-              <Item>
-                <Asterisk />
-                无源多向边
-              </Item>
-            </SubContent>
-          </Sub>
+          <Item
+            onClick={() => {
+              const selectedNodes = p.stageManager
+                .getSelectedEntities()
+                .filter((node) => node instanceof ConnectableEntity);
+              if (selectedNodes.length <= 1) {
+                toast.error("至少选择两个可连接节点");
+                return;
+              }
+              const edge = MultiTargetUndirectedEdge.createFromSomeEntity(p, selectedNodes);
+              p.stageManager.add(edge);
+            }}
+          >
+            <Asterisk />
+            {t("createMTUEdgeLine")}
+          </Item>
+          <Item
+            onClick={() => {
+              const selectedNodes = p.stageManager
+                .getSelectedEntities()
+                .filter((node) => node instanceof ConnectableEntity);
+              if (selectedNodes.length <= 1) {
+                toast.error("至少选择两个可连接节点");
+                return;
+              }
+              const edge = MultiTargetUndirectedEdge.createFromSomeEntity(p, selectedNodes);
+              edge.renderType = "convex";
+              p.stageManager.add(edge);
+            }}
+          >
+            <SquareRoundCorner />
+            {t("createMTUEdgeConvex")}
+          </Item>
         </>
       )}
       {p.stageManager.getSelectedStageObjects().length === 0 && (
@@ -166,36 +187,28 @@ export default function MyContextMenuContent() {
             }
           >
             <TextSelect />
-            新建文本节点
+            {t("createTextNode")}
           </Item>
-          <Sub>
-            <SubTrigger>
-              <Plus />
-              新建节点
-            </SubTrigger>
-            <SubContent>
-              {/* <Item
-                onClick={() =>
-                  p.controllerUtils.createConnectPoint(p.renderer.transformView2World(MouseLocation.vector()))
-                }
-              >
-                <Dot />
-                质点
-              </Item> */}
-              <Item>待完善...</Item>
-            </SubContent>
-          </Sub>
+          <Item
+            onClick={() => p.controllerUtils.createConnectPoint(p.renderer.transformView2World(MouseLocation.vector()))}
+          >
+            <Dot />
+            {t("createConnectPoint")}
+          </Item>
         </>
       )}
       {p.stageManager.getSelectedEntities().filter((it) => it instanceof TextNode).length > 0 && (
         <>
           <Item
             onClick={() =>
-              p.stageManager.getSelectedEntities().map((it) => p.sectionPackManager.targetTextNodeToSection(it))
+              p.stageManager
+                .getSelectedEntities()
+                .filter((it) => it instanceof TextNode)
+                .map((it) => p.sectionPackManager.targetTextNodeToSection(it))
             }
           >
             <Package />
-            {p.stageManager.getSelectedEntities().length >= 2 && "分别"}转换为 Section
+            {t("convertToSection")}
           </Item>
         </>
       )}

@@ -1,7 +1,7 @@
-import { Vector } from "@graphif/data-structures";
-import { Rectangle } from "@graphif/shapes";
 import { Project, service } from "@/core/Project";
 import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
+import { Vector } from "@graphif/data-structures";
+import { Rectangle } from "@graphif/shapes";
 
 /**
  * 多源无向边移动中心点
@@ -27,7 +27,7 @@ export class MultiTargetEdgeMove {
       // const endMouseDragLocation = startMouseDragLocation.add(diffLocation);
 
       const boundingRectangle = Rectangle.getBoundingRectangle(
-        this.project.stageManager.getEntitiesByUUIDs(association.targetUUIDs).map((n) => n.collisionBox.getRectangle()),
+        association.associationList.map((n) => n.collisionBox.getRectangle()),
       );
       // 当前的中心点
       const currentCenter = association.centerLocation;
