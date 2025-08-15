@@ -1,5 +1,6 @@
 import { LazyStore } from "@tauri-apps/plugin-store";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import z from "zod";
 
 export const settingsSchema = z.object({
@@ -151,10 +152,32 @@ export const settingsSchema = z.object({
 
 export type Settings = z.infer<typeof settingsSchema>;
 
+const listeners: Partial<Record<string, ((value: any) => void)[]>> = {};
+
 const store = new LazyStore("settings.json");
 await store.init();
 
-const listeners: Record<string, ((value: any) => void)[]> = {};
+// store加载完成后，推送所有listeners初始值
+// for (const key in listeners) {
+//   if (Object.prototype.hasOwnProperty.call(listeners, key)) {
+//     // 取store中的值，如果没有则用默认值
+//     let value = await store.get(key);
+//     if (value === undefined) {
+//       value = settingsSchema._def.shape()[key as keyof Settings]._def.defaultValue();
+//     }
+//     listeners[key]?.forEach((cb) => cb(value));
+//   }
+// }
+let savedSettings = settingsSchema.parse({});
+try {
+  console.log(Object.fromEntries(await store.entries()));
+  savedSettings = settingsSchema.parse(Object.fromEntries(await store.entries()));
+} catch (e) {
+  if (e instanceof z.ZodError) {
+    console.error(e);
+    toast.error(`设置文件格式错误\n${JSON.stringify(e.issues)}`);
+  }
+}
 
 export const Settings = new Proxy<
   Settings & {
@@ -163,7 +186,7 @@ export const Settings = new Proxy<
   }
 >(
   {
-    ...settingsSchema.parse({}),
+    ...savedSettings,
     watch: () => () => {},
     use: () => [undefined as any, () => {}],
   },
