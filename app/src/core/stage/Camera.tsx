@@ -129,8 +129,8 @@ export class Camera {
     }
 
     // 回弹效果
-    if (this.currentScale < 0.005) {
-      this.targetScale = 0.01;
+    if (this.currentScale < 0.0005) {
+      this.targetScale = 0.001;
     }
     // 彩蛋
     if (this.currentScale > 100) {
