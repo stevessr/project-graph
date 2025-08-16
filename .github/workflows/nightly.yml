@@ -1,9 +1,9 @@
-name: "Nightly Build"
-run-name: "Nightly Build ${{ github.run_number }}"
+name: "Nightly"
+run-name: "Nightly ${{ github.run_number }}"
 
 on:
-  # schedule:
-  #   - cron: "0 0 * * *"
+  schedule:
+    - cron: "0 0 * * *"
   workflow_dispatch:
 
 jobs:
@@ -14,25 +14,23 @@ jobs:
     with:
       android_key_alias: "upload"
       android_key_path: "upload.jks"
-      app_version: "0.0.0-nightly.r${{ github.run_number }}"
-      app_version_android: "0.0.${{ github.run_number }}"
-      aur_version: "r${{ github.run_number }}"
+      app_version: 0.0.0-nightly.${{ github.run_number }}
+      app_version_android: 0.0.${{ github.run_number }}
+      aur_version: r${{ github.run_number }}
       aur_key_algorithm: "ed25519"
       aur_package_name: "project-graph-nightly-bin"
       delete_release: true
       prerelease: true
-      release_name: "Nightly Build ${{ github.run_number }}"
-      release_tag: "nightly"
+      release_name: Nightly ${{ inputs.version }}
+      release_tag: nightly
       task_build: "tauri:build"
       task_build_android: "tauri:build:android"
       turbo_team: "zty012"
+      include_devtools: true
     secrets:
       ANDROID_KEYSTORE: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_PASSWORD }}
       AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-      BUILD_ENV: |
-        LR_API_BASE_URL=${{ secrets.ENV_API_BASE_URL }}
-        LR_GITHUB_CLIENT_SECRET=${{ secrets.ENV_GITHUB_CLIENT_SECRET }}
       TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
       TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
