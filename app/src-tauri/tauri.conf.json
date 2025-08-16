@@ -90,6 +90,9 @@
     },
     "fs": {
       "requireLiteralLeadingDot": false
+    },
+    "shell": {
+      "open": ".*"
     }
   }
 }
