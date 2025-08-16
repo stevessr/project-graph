@@ -40,6 +40,7 @@ export class Canvas {
             altKey: event.altKey,
             ctrlKey: event.ctrlKey,
             shiftKey: event.shiftKey,
+            metaKey: event.metaKey,
           }),
         );
       }
@@ -52,6 +53,7 @@ export class Canvas {
             altKey: event.altKey,
             ctrlKey: event.ctrlKey,
             shiftKey: event.shiftKey,
+            metaKey: event.metaKey,
           }),
         );
       }
