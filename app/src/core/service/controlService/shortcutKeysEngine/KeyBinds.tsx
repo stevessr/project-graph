@@ -3,6 +3,7 @@ import { Store } from "@tauri-apps/plugin-store";
 import { matchEmacsKey } from "@/utils/emacs";
 import { createStore } from "@/utils/store";
 import { Project, service } from "@/core/Project";
+import { isMac } from "@/utils/platform";
 
 /**
  * 用于管理快捷键绑定
@@ -80,9 +81,21 @@ export class KeyBinds {
   // 仅用于初始化软件时注册快捷键
   registered: Set<string> = new Set();
 
+  /**
+   * 注册快捷键，注意：Mac会自动将此进行替换
+   * @param id 确保唯一的描述性字符串
+   * @param defaultKey 例如 "C-A-S-t" 表示 Ctrl+Alt+Shift+t，如果是mac，会自动将C-和M-互换！！
+   * @param onPress 按下后的执行函数
+   * @returns
+   */
   async create(id: string, defaultKey: string, onPress = () => {}): Promise<_Bind> {
     if (this.registered.has(id)) {
       throw new Error(`Keybind ${id} 已经注册过了`);
+    }
+    if (isMac) {
+      defaultKey = defaultKey.replace("C-", "Control-");
+      defaultKey = defaultKey.replace("M-", "C-");
+      defaultKey = defaultKey.replace("Control-", "M-");
     }
     this.registered.add(id);
     let userSetKey = await this.get(id);
