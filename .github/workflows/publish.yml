@@ -132,7 +132,7 @@ jobs:
           gh release create "$tag" --target "$branch" --title "$name" --notes "$notes" ${{ inputs.prerelease == true && '--prerelease' || '' }}
 
   publish-tauri:
-    needs: [create-release, build-frontend]
+    needs: [create-release]
     outputs:
       hash: ${{ steps.sha256sum.outputs.hash }}
     permissions:
