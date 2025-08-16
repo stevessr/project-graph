@@ -21,7 +21,7 @@ import { appCacheDir, dataDir, join } from "@tauri-apps/api/path";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
-import { open as openFilePath, open as shellOpen } from "@tauri-apps/plugin-shell";
+import { open as shellOpen } from "@tauri-apps/plugin-shell";
 import { useAtom } from "jotai";
 import {
   Airplay,
@@ -285,7 +285,8 @@ export function GlobalMenu() {
           <Item
             onClick={async () => {
               const path = await join(await dataDir(), "liren.project-graph");
-              openFilePath(path);
+              console.log(path);
+              await open({ directory: true, defaultPath: path });
             }}
           >
             <FolderCog />
@@ -294,7 +295,7 @@ export function GlobalMenu() {
           <Item
             onClick={async () => {
               const path = await appCacheDir();
-              openFilePath(path);
+              await open({ directory: true, defaultPath: path });
             }}
           >
             <FolderClock />
@@ -304,7 +305,7 @@ export function GlobalMenu() {
             disabled={!activeProject || activeProject.isDraft}
             onClick={async () => {
               const absPath = activeProject!.uri.fsPath;
-              openFilePath(absPath);
+              await open({ directory: true, defaultPath: absPath });
             }}
           >
             <FolderOpen />
