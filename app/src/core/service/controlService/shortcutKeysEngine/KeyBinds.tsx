@@ -140,6 +140,8 @@ class _Bind {
   private check() {
     if (matchEmacsKey(this.key, this.events.arrayList)) {
       this.onPress();
+      // 执行了快捷键之后，清空队列
+      this.events.clear();
     }
   }
 
