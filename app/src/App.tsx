@@ -322,6 +322,12 @@ export default function App() {
           onClick={() => {
             setActiveProject(project);
           }}
+          onMouseDown={async (e) => {
+            if (e.button === 1) {
+              e.preventDefault();
+              await closeProject(project);
+            }
+          }}
         >
           <span className="text-sm">
             {project.uri.scheme === "draft"
