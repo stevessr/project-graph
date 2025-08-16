@@ -1,3 +1,9 @@
+// 此处configureSerializer必须在所有代码的最开头
+// 否则@serializable装饰器无法获取正确的类名
+import { configureSerializer } from "@graphif/serializer";
+import { getOriginalNameOf } from "virtual:original-class-name";
+configureSerializer(getOriginalNameOf);
+
 import { runCli } from "@/cli";
 import { Toaster } from "@/components/ui/sonner";
 import { UserScriptsManager } from "@/core/plugin/UserScriptsManager";
@@ -12,7 +18,6 @@ import { EdgeCollisionBoxGetter } from "@/core/stage/stageObject/association/Edg
 import { store } from "@/state";
 import { exit, writeStderr } from "@/utils/otherApi";
 import { getCurrentWindow, isDesktop, isMobile, isWeb } from "@/utils/platform";
-import { configureSerializer } from "@graphif/serializer";
 import { getMatches } from "@tauri-apps/plugin-cli";
 import "driver.js/dist/driver.css";
 import i18next from "i18next";
@@ -20,11 +25,9 @@ import { Provider } from "jotai";
 import { createRoot } from "react-dom/client";
 import { initReactI18next } from "react-i18next";
 import VConsole from "vconsole";
-import { getOriginalNameOf } from "virtual:original-class-name";
 import App from "./App";
 import "./css/index.css";
 
-configureSerializer(getOriginalNameOf);
 if (import.meta.env.DEV && isMobile) {
   new VConsole();
 }
@@ -35,8 +38,6 @@ const el = document.getElementById("root")!;
 // 在这里看着清爽一些，像一个列表清单一样。也方便调整顺序
 
 (async () => {
-  configureSerializer(getOriginalNameOf);
-
   const matches = !isWeb && isDesktop ? await getMatches() : null;
   const isCliMode = isDesktop && matches?.args.output?.occurrences === 1;
   await Promise.all([
