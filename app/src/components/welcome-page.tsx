@@ -20,7 +20,7 @@ export default function WelcomePage() {
   }
 
   return (
-    <div className="bg-stage-background text-stage-node-details-text flex h-full w-full items-center justify-center">
+    <div className="flex h-full w-full items-center justify-center bg-[var(--stage-background)]">
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-2">
           <div className="text-3xl">Project Graph</div>
