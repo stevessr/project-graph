@@ -122,7 +122,9 @@ export class NodeAdder {
       newNode.moveTo(targetLocation);
     }
     if (direction === Direction.Up) {
-      const targetLocation = entityRectangle.leftTop.add(new Vector(0, newNode.collisionBox.getRectangle().height));
+      const targetLocation = entityRectangle.leftTop.subtract(
+        new Vector(0, newNode.collisionBox.getRectangle().height),
+      );
       newNode.moveTo(targetLocation);
     }
     if (direction === Direction.Down) {
