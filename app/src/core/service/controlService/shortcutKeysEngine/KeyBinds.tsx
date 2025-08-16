@@ -33,6 +33,11 @@ export class KeyBinds {
     }
   }
 
+  /**
+   * 获取曾经设置过的快捷键 按法
+   * @param id
+   * @returns
+   */
   async get(id: string): Promise<string | null> {
     if (!this.store) {
       throw new Error("Store not initialized.");
@@ -79,7 +84,7 @@ export class KeyBinds {
   }
 
   // 仅用于初始化软件时注册快捷键
-  registered: Set<string> = new Set();
+  registeredIdSet: Set<string> = new Set();
 
   /**
    * 注册快捷键，注意：Mac会自动将此进行替换
@@ -89,7 +94,7 @@ export class KeyBinds {
    * @returns
    */
   async create(id: string, defaultKey: string, onPress = () => {}): Promise<_Bind> {
-    if (this.registered.has(id)) {
+    if (this.registeredIdSet.has(id)) {
       throw new Error(`Keybind ${id} 已经注册过了`);
     }
     if (isMac) {
@@ -97,7 +102,7 @@ export class KeyBinds {
       defaultKey = defaultKey.replace("M-", "C-");
       defaultKey = defaultKey.replace("Control-", "M-");
     }
-    this.registered.add(id);
+    this.registeredIdSet.add(id);
     let userSetKey = await this.get(id);
     if (!userSetKey) {
       // 注册新的快捷键
@@ -113,6 +118,9 @@ export class KeyBinds {
   }
 }
 
+/**
+ * 快捷键绑定对象，一个此对象表示一个 快捷键功能绑定
+ */
 class _Bind {
   public button: number = -1;
   // @ts-expect-error // TODO: dblclick
@@ -120,12 +128,15 @@ class _Bind {
   private events = new Queue<MouseEvent | KeyboardEvent | WheelEvent>();
 
   private enqueue(event: MouseEvent | KeyboardEvent | WheelEvent) {
-    // 队列里面最多20个
+    // 队列里面最多20个（因为秘籍键长度最大20）
     while (this.events.length >= 20) {
       this.events.dequeue();
     }
     this.events.enqueue(event);
   }
+  /**
+   * 每发生一个事件，都会调用这个函数
+   */
   private check() {
     if (matchEmacsKey(this.key, this.events.arrayList)) {
       this.onPress();

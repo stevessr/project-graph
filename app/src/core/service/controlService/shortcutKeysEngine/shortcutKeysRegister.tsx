@@ -144,7 +144,7 @@ export class KeyBindsRegistrar {
         toast.error("至少选择两个可连接节点");
         return;
       }
-      const multiTargetUndirectedEdge = MultiTargetUndirectedEdge.createFromSomeEntity(selectedNodes);
+      const multiTargetUndirectedEdge = MultiTargetUndirectedEdge.createFromSomeEntity(this.project, selectedNodes);
       this.project.stageManager.add(multiTargetUndirectedEdge);
     });
 
