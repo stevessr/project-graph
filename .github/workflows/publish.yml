@@ -219,6 +219,7 @@ jobs:
         if: ${{ inputs.include_devtools }}
         run: |
           node ./.github/scripts/set-tauri-features.mjs devtools
+          node ./.github/scripts/enable-sourcemap.mjs
       - name: Android - Set app version
         if: matrix.android
         run: |
