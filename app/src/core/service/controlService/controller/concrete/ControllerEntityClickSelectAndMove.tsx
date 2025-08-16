@@ -55,7 +55,7 @@ export class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
           .map((entity) => entity.collisionBox.getRectangle());
         const boundingRectangle = Rectangle.getBoundingRectangle(rectangles);
         this.project.effects.addEffect(RectangleRenderEffect.fromShiftClickSelect(boundingRectangle));
-        this.project.effects.addEffect(RectangleNoteEffect.fromShiftClickSelect(boundingRectangle));
+        this.project.effects.addEffect(RectangleNoteEffect.fromShiftClickSelect(this.project, boundingRectangle));
         for (const entity of this.project.stageManager.getStageObjects()) {
           if (entity.collisionBox.isIntersectsWithRectangle(boundingRectangle)) {
             entity.isSelected = true;

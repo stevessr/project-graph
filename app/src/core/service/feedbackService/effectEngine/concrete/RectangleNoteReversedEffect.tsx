@@ -1,7 +1,7 @@
 import { Project } from "@/core/Project";
 import { Effect } from "@/core/service/feedbackService/effectEngine/effectObject";
 import { reverseAnimate } from "@/core/service/feedbackService/effectEngine/mathTools/animateFunctions";
-import { easeOutQuint } from "@/core/service/feedbackService/effectEngine/mathTools/easings";
+import { easeInQuint } from "@/core/service/feedbackService/effectEngine/mathTools/easings";
 import { Color, mixColors, ProgressNumber, Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
 
@@ -14,21 +14,13 @@ import { Rectangle } from "@graphif/shapes";
  *
  * 目标矩形大小是世界坐标系
  */
-export class RectangleNoteEffect extends Effect {
+export class RectangleNoteReversedEffect extends Effect {
   constructor(
     public override timeProgress: ProgressNumber,
     public targetRectangle: Rectangle,
     public strokeColor: Color,
   ) {
     super(timeProgress);
-  }
-
-  static fromShiftClickSelect(project: Project, rectangle: Rectangle) {
-    return new RectangleNoteEffect(
-      new ProgressNumber(0, 50),
-      rectangle,
-      project.stageStyleManager.currentStyle.CollideBoxPreSelected.toSolid(),
-    );
   }
 
   render(project: Project) {
@@ -38,17 +30,17 @@ export class RectangleNoteEffect extends Effect {
     const startRect = project.renderer.getCoverWorldRectangle();
     const currentRect = new Rectangle(
       startRect.location.add(
-        this.targetRectangle.location.subtract(startRect.location).multiply(easeOutQuint(this.timeProgress.rate)),
+        this.targetRectangle.location.subtract(startRect.location).multiply(easeInQuint(1 - this.timeProgress.rate)),
       ),
       new Vector(
-        startRect.size.x + (this.targetRectangle.size.x - startRect.size.x) * easeOutQuint(this.timeProgress.rate),
-        startRect.size.y + (this.targetRectangle.size.y - startRect.size.y) * easeOutQuint(this.timeProgress.rate),
+        startRect.size.x + (this.targetRectangle.size.x - startRect.size.x) * easeInQuint(1 - this.timeProgress.rate),
+        startRect.size.y + (this.targetRectangle.size.y - startRect.size.y) * easeInQuint(1 - this.timeProgress.rate),
       ),
     );
     project.shapeRenderer.renderRect(
       project.renderer.transformWorld2View(currentRect),
       Color.Transparent,
-      mixColors(Color.Transparent, this.strokeColor, reverseAnimate(this.timeProgress.rate)),
+      mixColors(this.strokeColor, Color.Transparent, reverseAnimate(this.timeProgress.rate)),
       2,
       5,
     );

@@ -3,7 +3,6 @@
  * 因为tauri的剪贴板插件用的是arboard
  * 而arboard不能写入自定义mime type的数据
  * 所以复制舞台对象要用虚拟剪贴板
- * 数据阅后即焚
  */
 export namespace VirtualClipboard {
   let data: any = null;
@@ -12,9 +11,7 @@ export namespace VirtualClipboard {
     data = newData;
   }
   export function paste() {
-    const dataToReturn = data;
-    data = null;
-    return dataToReturn;
+    return data;
   }
   export function clear() {
     data = null;

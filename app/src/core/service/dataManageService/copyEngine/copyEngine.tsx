@@ -1,5 +1,6 @@
 import { Project, service } from "@/core/Project";
 import { Entity } from "@/core/stage/stageObject/abstract/StageEntity";
+import { StageObject } from "@/core/stage/stageObject/abstract/StageObject";
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
 import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
 import { SvgNode } from "@/core/stage/stageObject/entity/SvgNode";
@@ -7,13 +8,15 @@ import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { UrlNode } from "@/core/stage/stageObject/entity/UrlNode";
 import { Serialized } from "@/types/node";
 import { PathString } from "@/utils/pathString";
-import { isMac } from "@/utils/platform";
-import { Vector } from "@graphif/data-structures";
+import { Color, ProgressNumber, Vector } from "@graphif/data-structures";
+import { deserialize, serialize } from "@graphif/serializer";
 import { Rectangle } from "@graphif/shapes";
 import { Image } from "@tauri-apps/api/image";
 import { readImage, readText, writeImage, writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { toast } from "sonner";
 import { MouseLocation } from "../../controlService/MouseLocation";
+import { RectangleNoteEffect } from "../../feedbackService/effectEngine/concrete/RectangleNoteEffect";
+import { RectangleNoteReversedEffect } from "../../feedbackService/effectEngine/concrete/RectangleNoteReversedEffect";
 import { RectanglePushInEffect } from "../../feedbackService/effectEngine/concrete/RectanglePushInEffect";
 import { VirtualClipboard } from "./VirtualClipboard";
 
@@ -31,11 +34,7 @@ export class CopyEngine {
    */
   copy() {
     // 获取所有选中的实体
-    const stageObjects = this.project.stageManager.getSelectedStageObjects().map((it) => ({
-      // 重刷一遍uuid
-      ...it,
-      uuid: crypto.randomUUID(),
-    }));
+    const stageObjects = this.project.stageManager.getSelectedStageObjects();
     if (stageObjects.length === 0) {
       // 如果没有选中东西，就是清空虚拟粘贴板
       VirtualClipboard.clear();
@@ -44,6 +43,8 @@ export class CopyEngine {
 
     // 更新虚拟剪贴板
     VirtualClipboard.copy(stageObjects);
+    const rect = Rectangle.getBoundingRectangle(stageObjects.map((it) => it.collisionBox.getRectangle()));
+    this.project.effects.addEffect(new RectangleNoteReversedEffect(new ProgressNumber(0, 100), rect, Color.Green));
 
     // 更新系统剪贴板
     // 如果只有一张图片就直接复制图片
@@ -69,19 +70,46 @@ export class CopyEngine {
   paste() {
     // 如果有虚拟粘贴板数据，则优先粘贴虚拟粘贴板上的东西
     if (VirtualClipboard.hasData()) {
-      const data = VirtualClipboard.paste();
+      // 获取虚拟粘贴板上数据的外接矩形
+      const rect = Rectangle.getBoundingRectangle(
+        VirtualClipboard.paste().map((it: StageObject) => it.collisionBox.getRectangle()),
+      );
+      // 将鼠标位置转换为世界坐标
+      const mouseWorldLocation = this.project.renderer.transformView2World(MouseLocation.vector());
+      // 计算偏移量，使得粘贴的内容在鼠标位置附近
+      const delta = mouseWorldLocation.subtract(rect.location);
+      const data: StageObject[] = VirtualClipboard.paste().map((it: StageObject) => {
+        if (it instanceof Entity) {
+          return deserialize(
+            {
+              ...serialize(it),
+              uuid: undefined,
+              collisionBox: new CollisionBox([it.collisionBox.getRectangle().translate(delta)]),
+            },
+            this.project,
+          );
+        }
+      });
       this.project.stage.push(...data);
+      this.project.effects.addEffect(
+        new RectangleNoteEffect(new ProgressNumber(0, 50), rect.translate(delta), Color.Green),
+      );
+      data.map((it) => {
+        if (it instanceof Entity) {
+          it.isSelected = true;
+        }
+        return it;
+      });
+      this.project.stageObjectSelectCounter.update();
     } else {
       this.readClipboard();
     }
-    if (isMac) {
-      // mac下无法直接粘贴，还要点一个按钮，但这导致
-      // 按下按钮后，程序中依然显示 meta v 仍然在按下状态
-      // 因此需要主动删除
-      setTimeout(() => {
-        this.project.controller.pressingKeySet.clear();
-      }, 500);
-    }
+  }
+
+  /** 复制，然后删除选中的舞台对象 */
+  cut() {
+    this.copy();
+    this.project.stageManager.deleteSelectedStageObjects();
   }
 
   async readClipboard() {

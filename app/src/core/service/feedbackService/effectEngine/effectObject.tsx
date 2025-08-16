@@ -1,5 +1,5 @@
-import { ProgressNumber } from "@graphif/data-structures";
 import { Project } from "@/core/Project";
+import { ProgressNumber } from "@graphif/data-structures";
 
 /**
  * 一次性特效类
@@ -18,8 +18,13 @@ export abstract class Effect {
   protected subEffects: Effect[] = [];
 
   tick(project: Project): void {
-    // 自动+1帧
-    this.timeProgress.add(1);
+    if (this.timeProgress.maxValue > this.timeProgress.curValue) {
+      // 自动+1帧
+      this.timeProgress.add(1);
+    } else {
+      // 倒放
+      this.timeProgress.subtract(1);
+    }
     // 子特效tick
     for (const subEffect of this.subEffects) {
       subEffect.tick(project);

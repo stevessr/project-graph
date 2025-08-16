@@ -46,17 +46,17 @@ export default function MyContextMenuContent() {
     <Content>
       <Item className="bg-transparent! gap-0 p-0">
         <KeyTooltip keyId="copy">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={() => p.copyEngine.copy()}>
             <Copy />
           </Button>
         </KeyTooltip>
         <KeyTooltip keyId="paste">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={() => p.copyEngine.paste()}>
             <Clipboard />
           </Button>
         </KeyTooltip>
         <KeyTooltip keyId="cut">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={() => p.copyEngine.cut()}>
             <Scissors />
           </Button>
         </KeyTooltip>

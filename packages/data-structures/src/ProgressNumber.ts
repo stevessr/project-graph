@@ -27,7 +27,7 @@ export class ProgressNumber {
   }
 
   get isFull(): boolean {
-    return this.curValue >= this.maxValue;
+    return this.curValue == this.maxValue;
   }
 
   get isEmpty(): boolean {
