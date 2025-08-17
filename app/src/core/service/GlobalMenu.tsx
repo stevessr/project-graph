@@ -15,6 +15,7 @@ import { Project } from "@/core/Project";
 import { activeProjectAtom, isClassroomModeAtom, projectsAtom, store } from "@/state";
 import AIWindow from "@/sub/AIWindow";
 import SettingsWindow from "@/sub/SettingsWindow";
+import { getDeviceId } from "@/utils/otherApi";
 import { deserialize, serialize } from "@graphif/serializer";
 import { getVersion } from "@tauri-apps/api/app";
 import { appCacheDir, dataDir, join } from "@tauri-apps/api/path";
@@ -74,6 +75,7 @@ import { ProjectUpgrader } from "../stage/ProjectUpgrader";
 import { LineEdge } from "../stage/stageObject/association/LineEdge";
 import { TextNode } from "../stage/stageObject/entity/TextNode";
 import { RecentFileManager } from "./dataFileService/RecentFileManager";
+import { FeatureFlags } from "./FeatureFlags";
 import { Telemetry } from "./Telemetry";
 
 const Content = MenubarContent;
@@ -419,53 +421,6 @@ export function GlobalMenu() {
             <Palette />
             {t("settings.appearance")}
           </Item>
-          <Sub>
-            <SubTrigger disabled={!activeProject}>
-              <TestTube2 />
-              {t("settings.experimental")}
-            </SubTrigger>
-            <SubContent>
-              <Item variant="destructive">{t("testOnly")}</Item>
-              <Item
-                onClick={() => {
-                  const tn1 = new TextNode(activeProject!, { text: "tn1" });
-                  const tn2 = new TextNode(activeProject!, { text: "tn2" });
-                  const le = LineEdge.fromTwoEntity(activeProject!, tn1, tn2);
-                  console.log(serialize([tn1, tn2, le]));
-                }}
-              >
-                {t("settings.serializeReference")}
-              </Item>
-              <Item
-                onClick={() => {
-                  activeProject!.renderer.tick = function () {
-                    throw new Error("test");
-                  };
-                }}
-              >
-                {t("settings.triggerBug")}
-              </Item>
-              <Item
-                onClick={() => {
-                  activeProject!.stageManager
-                    .getSelectedEntities()
-                    .filter((it) => it instanceof TextNode)
-                    .forEach((it) => {
-                      it.text = "hello world";
-                    });
-                }}
-              >
-                {t("settings.editTextNode")}
-              </Item>
-              <Item
-                onClick={() => {
-                  window.location.reload();
-                }}
-              >
-                {t("actions.refresh")}
-              </Item>
-            </SubContent>
-          </Sub>
         </Content>
       </Menu>
 
@@ -553,6 +508,69 @@ export function GlobalMenu() {
               <Bug />
               {t("unstable.reportBug")}
             </Item>
+            <Separator />
+            <Sub>
+              <SubTrigger disabled={!activeProject}>
+                <TestTube2 />
+                {t("unstable.test")}
+              </SubTrigger>
+              <SubContent>
+                <Item variant="destructive">仅供开发使用</Item>
+                <Item
+                  onClick={() => {
+                    const tn1 = new TextNode(activeProject!, { text: "tn1" });
+                    const tn2 = new TextNode(activeProject!, { text: "tn2" });
+                    const le = LineEdge.fromTwoEntity(activeProject!, tn1, tn2);
+                    console.log(serialize([tn1, tn2, le]));
+                  }}
+                >
+                  serialize
+                </Item>
+                <Item
+                  onClick={() => {
+                    activeProject!.renderer.tick = function () {
+                      throw new Error("test");
+                    };
+                  }}
+                >
+                  trigger bug
+                </Item>
+                <Item
+                  onClick={() => {
+                    activeProject!.stageManager
+                      .getSelectedEntities()
+                      .filter((it) => it instanceof TextNode)
+                      .forEach((it) => {
+                        it.text = "hello world";
+                      });
+                  }}
+                >
+                  edit text node
+                </Item>
+                <Item
+                  onClick={() => {
+                    window.location.reload();
+                  }}
+                >
+                  reload
+                </Item>
+                <Item
+                  onClick={async () => {
+                    toast(await getDeviceId());
+                  }}
+                >
+                  get device
+                </Item>
+                <Sub>
+                  <SubTrigger>feature flags</SubTrigger>
+                  <SubContent>
+                    <Item disabled>telemetry = {FeatureFlags.TELEMETRY ? "true" : "false"}</Item>
+                    <Item disabled>ai = {FeatureFlags.AI ? "true" : "false"}</Item>
+                    <Item disabled>user = {FeatureFlags.USER ? "true" : "false"}</Item>
+                  </SubContent>
+                </Sub>
+              </SubContent>
+            </Sub>
           </Content>
         </Menu>
       )}

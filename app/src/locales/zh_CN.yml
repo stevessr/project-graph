@@ -46,11 +46,6 @@ globalMenu:
   settings:
     title: 设置
     appearance: 个性化
-    experimental: 测试功能
-    testOnly: 仅供测试使用！
-    serializeReference: 序列化引用机制
-    triggerBug: 连带bug
-    editTextNode: 编辑文本节点
   ai:
     title: AI
     openAIPanel: 打开 AI 面板
@@ -67,6 +62,7 @@ globalMenu:
     notRelease: 此版本并非正式版
     mayHaveBugs: 可能包含 Bug 和未完善的功能
     reportBug: "报告 Bug: 在 Issue #487 中评论"
+    test: 测试功能
 
 contextMenu:
   createTextNode: 创建文本节点
