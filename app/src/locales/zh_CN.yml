@@ -71,6 +71,7 @@ contextMenu:
   createMTUEdgeLine: 创建无源多向边
   createMTUEdgeConvex: 创建凸包
   convertToSection: 转换为框
+  toggleSectionCollapse: 切换折叠状态
 
 settings:
   title: 设置

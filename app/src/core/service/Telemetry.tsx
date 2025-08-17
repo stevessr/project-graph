@@ -10,16 +10,20 @@ export namespace Telemetry {
     if (!deviceId) {
       deviceId = await getDeviceId();
     }
-    await fetch(import.meta.env.LR_API_BASE_URL + "/api/telemetry", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        event,
-        user: deviceId,
-        data,
-      }),
-    });
+    try {
+      await fetch(import.meta.env.LR_API_BASE_URL + "/api/telemetry", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          event,
+          user: deviceId,
+          data,
+        }),
+      });
+    } catch (e) {
+      console.warn(e);
+    }
   }
 }

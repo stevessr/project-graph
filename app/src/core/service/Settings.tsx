@@ -211,7 +211,7 @@ export const Settings = new Proxy<
             listeners[key].push(callback);
             callback(target[key]);
             return () => {
-              listeners[key] = listeners[key].filter((cb) => cb !== callback);
+              listeners[key] = listeners[key]?.filter((cb) => cb !== callback);
             };
           };
         }
@@ -224,14 +224,15 @@ export const Settings = new Proxy<
               }
               listeners[key].push(setValue);
               return () => {
-                listeners[key] = listeners[key].filter((cb) => cb !== setValue);
+                listeners[key] = listeners[key]?.filter((cb) => cb !== setValue);
               };
             }, []);
             return [
               value,
               (newValue: Settings[T]) => {
+                console.log(newValue);
                 store.set(key, newValue);
-                listeners[key].forEach((cb) => cb(newValue));
+                listeners[key]?.forEach((cb) => cb(newValue));
               },
             ];
           };

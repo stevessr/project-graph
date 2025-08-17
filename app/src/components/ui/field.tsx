@@ -69,7 +69,19 @@ export function SettingField({ settingKey, extra = <></> }: { settingKey: keyof 
             }
             className="w-48"
           />
-          <Input value={value} onChange={setValue} type="number" className="w-24" />
+          <Input
+            value={value}
+            onChange={(e) => setValue(parseFloat(e.target.value))}
+            type="number"
+            min={schema._def.innerType._def.checks.find((it) => it.kind === "min")?.value ?? 0}
+            max={schema._def.innerType._def.checks.find((it) => it.kind === "max")?.value ?? 1}
+            step={
+              schema._def.innerType._def.checks.find((it) => it.kind === "int")
+                ? 1
+                : (schema._def.innerType._def.checks.find((it) => it.kind === "multipleOf")?.value ?? 0.01)
+            }
+            className="w-24"
+          />
         </>
       ) : schema._def.innerType._def.typeName === "ZodNumber" ? (
         <Input value={value} onChange={(e) => setValue(e.target.valueAsNumber)} type="number" className="w-32" />

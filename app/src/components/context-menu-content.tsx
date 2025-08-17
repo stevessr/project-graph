@@ -3,6 +3,7 @@ import { ContextMenuContent, ContextMenuItem } from "@/components/ui/context-men
 import { MouseLocation } from "@/core/service/controlService/MouseLocation";
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
+import { Section } from "@/core/stage/stageObject/entity/Section";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { activeProjectAtom } from "@/state";
 import { useAtom } from "jotai";
@@ -209,6 +210,14 @@ export default function MyContextMenuContent() {
           >
             <Package />
             {t("convertToSection")}
+          </Item>
+        </>
+      )}
+      {p.stageManager.getSelectedEntities().filter((it) => it instanceof Section).length > 0 && (
+        <>
+          <Item onClick={() => p.stageManager.sectionSwitchCollapse()}>
+            <Package />
+            {t("toggleSectionCollapse")}
           </Item>
         </>
       )}
