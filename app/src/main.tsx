@@ -13,13 +13,17 @@ import { store } from "@/state";
 import { exit, writeStderr } from "@/utils/otherApi";
 import { getCurrentWindow, isDesktop, isMobile, isWeb } from "@/utils/platform";
 import { getMatches } from "@tauri-apps/plugin-cli";
+import { exists } from "@tauri-apps/plugin-fs";
 import "driver.js/dist/driver.css";
 import i18next from "i18next";
 import { Provider } from "jotai";
 import { createRoot } from "react-dom/client";
 import { initReactI18next } from "react-i18next";
+import { toast } from "sonner";
 import VConsole from "vconsole";
+import { URI } from "vscode-uri";
 import App from "./App";
+import { onOpenFile } from "./core/service/GlobalMenu";
 import "./css/index.css";
 
 if (import.meta.env.DEV && isMobile) {
@@ -45,6 +49,7 @@ const el = document.getElementById("root")!;
   // 这些东西依赖上面的东西，所以单独一个Promise.all
   await Promise.all([loadLanguageFiles(), loadSyncModules()]);
   await renderApp(isCliMode);
+  await loadStartFile();
   if (isCliMode) {
     try {
       await runCli(matches);
@@ -102,5 +107,18 @@ async function renderApp(cli: boolean = false) {
         <App />
       </Provider>,
     );
+  }
+}
+
+async function loadStartFile() {
+  const cliMatches = await getMatches();
+  if (cliMatches.args.path.value) {
+    const path = cliMatches.args.path.value as string;
+    const isExists = await exists(path);
+    if (isExists) {
+      onOpenFile(URI.file(path), "CLI或双击文件");
+    } else {
+      toast.error("文件不存在");
+    }
   }
 }
