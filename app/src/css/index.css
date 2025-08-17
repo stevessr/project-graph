@@ -7,11 +7,7 @@
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
 } */
 
-@layer base {
-  body,
-  #root {
-    @apply h-screen bg-transparent;
-  }
+@layer components {
   * {
     @apply box-border cursor-default select-none [-webkit-user-drag:none];
     font-family: -apple-system, BlinkMacSystemFont, system-ui, "MiSans", "Noto Sans CJK SC", sans-serif;
