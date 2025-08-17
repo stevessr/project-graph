@@ -6,7 +6,7 @@ import { CubicCatmullRomSplineEdge } from "@/core/stage/stageObject/association/
 import { LineEdge } from "@/core/stage/stageObject/association/LineEdge";
 import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
 import { getTextSize } from "@/utils/font";
-import { isFrame, isLinux } from "@/utils/platform";
+import { isFrame, isLinux, isMac } from "@/utils/platform";
 import { Color, mixColors, Vector } from "@graphif/data-structures";
 import { CubicBezierCurve, Rectangle } from "@graphif/shapes";
 
@@ -518,7 +518,7 @@ export class Renderer {
   private renderBackground() {
     const rect = this.getCoverWorldRectangle();
     if (this.isRenderBackground) {
-      if (isLinux && Settings.windowBackgroundAlpha < 1) {
+      if ((isLinux || isMac) && Settings.windowBackgroundAlpha < 1) {
         this.project.canvas.ctx.clearRect(0, 0, this.w, this.h);
       }
       this.project.shapeRenderer.renderRect(
