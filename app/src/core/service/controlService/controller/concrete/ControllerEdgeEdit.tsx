@@ -1,5 +1,4 @@
 import { Dialog } from "@/components/ui/dialog";
-
 import { ControllerClass } from "@/core/service/controlService/controller/ControllerClass";
 
 /**
@@ -30,21 +29,19 @@ export class ControllerEdgeEditClass extends ControllerClass {
 
   keydown = (event: KeyboardEvent) => {
     if (event.key === "Enter") {
-      // 先检测是否有选择了的边
-      const isHaveEdgeSelected = this.project.stageManager.getLineEdges().some((edge) => edge.isSelected);
-      if (!isHaveEdgeSelected) {
+      const selectedEdges = this.project.stageManager.getLineEdges().filter((edge) => edge.isSelected);
+      if (selectedEdges.length === 1) {
+        this.project.controllerUtils.editEdgeText(selectedEdges[0]);
+      } else if (selectedEdges.length === 0) {
         return;
+      } else {
+        Dialog.input("编辑所有选中的边").then((result) => {
+          if (!result) return;
+          selectedEdges.forEach((edge) => {
+            edge.rename(result);
+          });
+        });
       }
-
-      Dialog.input("重命名边").then((value) => {
-        if (value) {
-          for (const edge of this.project.stageManager.getLineEdges()) {
-            if (edge.isSelected) {
-              edge.rename(value);
-            }
-          }
-        }
-      });
     }
   };
 }
