@@ -1,5 +1,6 @@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SettingField } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import {
   Sidebar,
   SidebarContent,
@@ -12,9 +13,8 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { ChevronRight } from "lucide-react";
-import { useState } from "react";
-
+import { settingsSchema } from "@/core/service/Settings";
+import Fuse from "fuse.js";
 import {
   AppWindowMac,
   ArrowUpRight,
@@ -23,6 +23,7 @@ import {
   Brain,
   Bug,
   Camera,
+  ChevronRight,
   Clock,
   Cpu,
   Eye,
@@ -35,6 +36,7 @@ import {
   PictureInPicture,
   ReceiptText,
   Save,
+  Search,
   Sparkle,
   SquareDashedMousePointer,
   Text,
@@ -45,12 +47,34 @@ import {
   Zap,
   ZoomIn,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function SettingsTab() {
   const { t } = useTranslation("settings");
-  const [currentCategory, setCurrentCategory] = useState("");
+  const [currentCategory, setCurrentCategory] = useState("search");
   const [currentGroup, setCurrentGroup] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchResult, setSearchResult] = useState<string[]>([]);
+  const fuse = useRef<Fuse<{ key: string; i18n: { title: string; description: string } }>>(null);
+
+  useEffect(() => {
+    fuse.current = new Fuse(
+      Object.keys(settingsSchema._def.shape()).map(
+        (key) =>
+          ({
+            key,
+            i18n: t(key, { returnObjects: true }),
+          }) as any,
+      ),
+      { keys: ["key", "i18n.title", "i18n.description"], useExtendedSearch: true },
+    );
+  }, []);
+  useEffect(() => {
+    if (!fuse.current) return;
+    const result = fuse.current.search(searchKeyword).map((it) => it.item.key);
+    setSearchResult(result);
+  }, [searchKeyword, fuse]);
 
   return (
     <div className="flex h-full">
@@ -59,6 +83,18 @@ export default function SettingsTab() {
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={currentCategory === "search"}
+                    onClick={() => setCurrentCategory("search")}
+                  >
+                    <div>
+                      <Search />
+                      <span>搜索</span>
+                    </div>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 {Object.entries(categories).map(([category, value]) => {
                   // @ts-expect-error fuck ts
                   const CategoryIcon = categoryIcons[category].icon;
@@ -107,10 +143,39 @@ export default function SettingsTab() {
         </SidebarContent>
       </Sidebar>
       <div className="mx-auto flex w-2/3 flex-col overflow-auto">
-        {currentCategory &&
+        {currentCategory === "search" ? (
+          <>
+            <Input
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              placeholder="搜索..."
+              autoFocus
+            />
+            {searchResult.length === 0 && (
+              <>
+                <span className="h-4"></span>
+                <span>直接输入: 模糊匹配</span>
+                <span>空格分割: “与”</span>
+                <span>竖线分割: “或”</span>
+                <span>=: 精确匹配</span>
+                <span>&apos;: 包含</span>
+                <span>!: 反向匹配</span>
+                <span>^: 匹配开头</span>
+                <span>!^: 反向匹配开头</span>
+                <span>^: 匹配结尾</span>
+                <span>!^: 反向匹配结尾</span>
+              </>
+            )}
+            {searchResult.map((it) => (
+              <SettingField key={it} settingKey={it as any} />
+            ))}
+          </>
+        ) : (
+          currentCategory &&
           currentGroup &&
           // @ts-expect-error fuck ts
-          categories[currentCategory][currentGroup].map((key) => <SettingField key={key} settingKey={key} />)}
+          categories[currentCategory][currentGroup]?.map((key) => <SettingField key={key} settingKey={key} />)
+        )}
       </div>
     </div>
   );

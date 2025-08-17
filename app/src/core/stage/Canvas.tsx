@@ -33,6 +33,10 @@ export class Canvas {
       ) {
         event.preventDefault();
       }
+      if (document.activeElement?.tagName === "INPUT") {
+        // 如果当前焦点在输入框上，则不处理键盘事件
+        return;
+      }
       if (project.isRunning) {
         element.dispatchEvent(
           new KeyboardEvent("keydown", {
