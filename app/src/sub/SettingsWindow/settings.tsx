@@ -162,8 +162,8 @@ export default function SettingsTab() {
                 <span>!: 反向匹配</span>
                 <span>^: 匹配开头</span>
                 <span>!^: 反向匹配开头</span>
-                <span>^: 匹配结尾</span>
-                <span>!^: 反向匹配结尾</span>
+                <span>$: 匹配结尾</span>
+                <span>!$: 反向匹配结尾</span>
               </>
             )}
             {searchResult.map((it) => (
