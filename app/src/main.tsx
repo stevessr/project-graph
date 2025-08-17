@@ -1,9 +1,3 @@
-// 此处configureSerializer必须在所有代码的最开头
-// 否则@serializable装饰器无法获取正确的类名
-import { configureSerializer } from "@graphif/serializer";
-import { getOriginalNameOf } from "virtual:original-class-name";
-configureSerializer(getOriginalNameOf);
-
 import { runCli } from "@/cli";
 import { Toaster } from "@/components/ui/sonner";
 import { UserScriptsManager } from "@/core/plugin/UserScriptsManager";
