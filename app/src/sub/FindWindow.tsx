@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { SubWindow } from "@/core/service/SubWindow";
-import { Camera } from "@/core/stage/Camera";
-import { StageManager } from "@/core/stage/stageManager/StageManager";
-import { cn } from "@/utils/cn";
+import { activeProjectAtom } from "@/state";
 import { Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
-import { CaseSensitive, CaseUpper, Delete, SquareDashedMousePointer, Telescope } from "lucide-react";
-import { useState } from "react";
+import { useAtom } from "jotai";
+import { CaseSensitive, SquareDashedMousePointer, Telescope } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 /**
@@ -18,70 +18,37 @@ export default function FindWindow() {
   const [searchString, setSearchString] = useState("");
   const [searchResults, setSearchResults] = useState<{ title: string; uuid: string }[]>([]);
   // 是否开启快速瞭望模式
-  const [isMouseEnterMoveCameraAble, setIsMouseEnterMoveCameraAble] = useState(false);
+  const [isMouseEnterCameraMovable, setIsMouseEnterCameraMovable] = useState(true);
+  const [project] = useAtom(activeProjectAtom);
 
   const selectAllResult = () => {
     for (const result of searchResults) {
-      const node = StageManager.getStageObjectByUUID(result.uuid);
+      const node = project?.stageManager.get(result.uuid);
       if (node) {
         node.isSelected = true;
       }
     }
-    toast.success(`${searchResults.length}个结果已全部选中`);
+    toast.success(`${searchResults.length} 个结果已全部选中`);
   };
 
+  useEffect(() => {
+    if (!project) return;
+    project.contentSearch.isCaseSensitive = isCaseSensitive;
+  }, [project, isCaseSensitive]);
+
+  if (!project) return <></>;
   return (
     <div className="flex flex-col gap-2 p-4">
-      <div className="my-1 flex flex-wrap gap-3">
-        <Button
-          size="icon"
-          onClick={() => {
-            const currentResult = !isCaseSensitive;
-            setIsCaseSensitive(currentResult);
-            Stage.contentSearchEngine.isCaseSensitive = currentResult;
-          }}
-          tooltip={isCaseSensitive ? "不区分大小写" : "区分大小写"}
-        >
-          {isCaseSensitive ? <CaseSensitive /> : <CaseUpper />}
-        </Button>
-        <Button size="icon" onClick={selectAllResult} disabled={searchResults.length === 0} tooltip="将全部结果选中">
-          <SquareDashedMousePointer />
-        </Button>
-
-        {searchResults.length >= 3 && (
-          <Button
-            size="icon"
-            onClick={() => {
-              setIsMouseEnterMoveCameraAble(!isMouseEnterMoveCameraAble);
-            }}
-            tooltip={isMouseEnterMoveCameraAble ? "快速瞭望模式" : "点击跳转模式"}
-          >
-            <Telescope />
-          </Button>
-        )}
-
-        <Button
-          size="icon"
-          onClick={() => {
-            setSearchString("");
-            Stage.contentSearchEngine.startSearch("", false);
-            setSearchResults([]);
-          }}
-          tooltip="取消"
-        >
-          <Delete />
-        </Button>
-      </div>
-
       <Input
         placeholder="请输入要在舞台上搜索的内容"
         autoFocus
-        onChange={(value) => {
-          setSearchString(value);
-          Stage.contentSearchEngine.startSearch(value, false);
+        type="search"
+        onChange={(e) => {
+          setSearchString(e.target.value);
+          project.contentSearch.startSearch(e.target.value, false);
           setSearchResults(
-            Stage.contentSearchEngine.searchResultNodes.map((node) => ({
-              title: Stage.contentSearchEngine.getStageObjectText(node),
+            project.contentSearch.searchResultNodes.map((node) => ({
+              title: project.contentSearch.getStageObjectText(node),
               uuid: node.uuid,
             })),
           );
@@ -100,29 +67,71 @@ export default function FindWindow() {
         }}
         value={searchString}
       />
-      <div className="overflow-y-auto">
-        {searchResults.map((result, index) => (
+      <div className="my-1 flex flex-wrap gap-3">
+        <Tooltip>
+          <TooltipTrigger>
+            <Button
+              size="icon"
+              variant={isCaseSensitive ? "default" : "outline"}
+              onClick={() => {
+                const currentResult = !isCaseSensitive;
+                setIsCaseSensitive(currentResult);
+              }}
+            >
+              <CaseSensitive />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>区分大小写</TooltipContent>
+        </Tooltip>
+        {searchResults.length > 0 && (
+          <Tooltip>
+            <TooltipTrigger>
+              <Button size="icon" variant="outline" onClick={selectAllResult}>
+                <SquareDashedMousePointer />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>将全部结果选中</TooltipContent>
+          </Tooltip>
+        )}
+
+        {searchResults.length >= 3 && (
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                size="icon"
+                variant={isMouseEnterCameraMovable ? "default" : "outline"}
+                onClick={() => {
+                  setIsMouseEnterCameraMovable(!isMouseEnterCameraMovable);
+                }}
+              >
+                <Telescope />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>快速瞭望模式</TooltipContent>
+          </Tooltip>
+        )}
+      </div>
+      <div className="flex flex-col gap-1 overflow-y-auto">
+        {searchResults.map((result) => (
           <div
             key={result.uuid}
-            className={cn("hover:text-panel-success-text cursor-pointer truncate", {
-              "font-bold": index === Stage.contentSearchEngine.currentSearchResultIndex,
-            })}
+            className="hover:text-panel-success-text flex cursor-pointer truncate"
             onMouseEnter={() => {
-              if (isMouseEnterMoveCameraAble) {
-                const node = StageManager.getStageObjectByUUID(result.uuid);
+              if (isMouseEnterCameraMovable) {
+                const node = project.stageManager.get(result.uuid);
                 if (node) {
-                  Camera.location = node.collisionBox.getRectangle().center;
+                  project.camera.bombMove(node.collisionBox.getRectangle().center);
                 }
               }
             }}
             onClick={() => {
-              const node = StageManager.getStageObjectByUUID(result.uuid);
+              const node = project.stageManager.get(result.uuid);
               if (node) {
-                Camera.location = node.collisionBox.getRectangle().center;
+                project.camera.bombMove(node.collisionBox.getRectangle().center);
               }
             }}
           >
-            <span className="bg-settings-page-bg mr-0.5 rounded-sm px-1">{index + 1}</span>
+            {/*<span className="bg-secondary rounded-sm px-2 py-1">{index + 1}</span>*/}
             {result.title}
           </div>
         ))}
