@@ -104,7 +104,13 @@ export function GlobalMenu() {
     setRecentFiles(await RecentFileManager.getRecentFiles());
     const ver = await getVersion();
     setVersion(ver);
-    setIsUnstableVersion(ver.includes("alpha") || ver.includes("beta") || ver.includes("rc") || ver.includes("dev"));
+    setIsUnstableVersion(
+      ver.includes("alpha") ||
+        ver.includes("beta") ||
+        ver.includes("rc") ||
+        ver.includes("dev") ||
+        ver.includes("nightly"),
+    );
   }
 
   return (
