@@ -125,7 +125,11 @@ export class CopyEngine {
       const bytes = await image.rgba();
       const buffer = bytes.buffer;
       const blob = new Blob(
-        [buffer instanceof SharedArrayBuffer ? (buffer.slice(0) as unknown as ArrayBuffer) : buffer],
+        [
+          "SharedArrayBuffer" in window && buffer instanceof SharedArrayBuffer
+            ? (buffer.slice(0) as unknown as ArrayBuffer)
+            : (buffer as ArrayBuffer),
+        ],
         {
           type: "image/png",
         },
