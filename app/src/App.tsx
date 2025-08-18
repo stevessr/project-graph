@@ -22,7 +22,6 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { URI } from "vscode-uri";
-import { cn } from "./utils/cn";
 
 export default function App() {
   const [maximized, _setMaximized] = useState(false);
@@ -102,7 +101,6 @@ export default function App() {
     });
     const unlisten2 = getCurrentWindow().onDragDropEvent((event) => {
       if (event.payload.type === "over") {
-        console.log("正在拖入文件");
         if (event.payload.position.y <= 96) {
           // 拖拽到标签页栏区域
           setDropState("open");
@@ -120,7 +118,7 @@ export default function App() {
             if (path.endsWith(".prg") || path.endsWith(".json")) {
               onOpenFile(URI.file(path), "拖入窗口");
             } else {
-              toast("不支持打开此文件");
+              toast.error("不支持打开此文件");
             }
           }
         } else {
@@ -311,13 +309,7 @@ export default function App() {
   };
 
   const Tabs = () => (
-    <div
-      ref={tabsContainerRef}
-      className={cn(
-        "hide-scrollbar z-10 flex h-9 gap-2 overflow-x-auto whitespace-nowrap",
-        dropState === "open" && "bg-accent/50",
-      )}
-    >
+    <div ref={tabsContainerRef} className="hide-scrollbar z-10 flex h-9 w-full gap-2 overflow-x-auto whitespace-nowrap">
       {projects.map((project) => (
         <Button
           key={project.uri.toString()}
@@ -352,6 +344,9 @@ export default function App() {
           </div>
         </Button>
       ))}
+      {dropState !== "none" && (
+        <Button variant={dropState === "open" ? "default" : "outline"}>拖拽到此处打开文件</Button>
+      )}
     </div>
   );
 
