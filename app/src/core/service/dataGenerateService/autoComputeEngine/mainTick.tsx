@@ -1,10 +1,4 @@
 import { Project, service } from "@/core/Project";
-import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
-import { LineEdge } from "@/core/stage/stageObject/association/LineEdge";
-import { Section } from "@/core/stage/stageObject/entity/Section";
-import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
-import { RectangleLittleNoteEffect } from "@/core/service/feedbackService/effectEngine/concrete/RectangleLittleNoteEffect";
-import { TextRaiseEffectLocated } from "@/core/service/feedbackService/effectEngine/concrete/TextRaiseEffectLocated";
 import { CompareFunctions } from "@/core/service/dataGenerateService/autoComputeEngine/functions/compareLogic";
 import { MathFunctions } from "@/core/service/dataGenerateService/autoComputeEngine/functions/mathLogic";
 import { NodeLogic } from "@/core/service/dataGenerateService/autoComputeEngine/functions/nodeLogic";
@@ -14,6 +8,12 @@ import {
   LogicNodeNameEnum,
   LogicNodeSimpleOperatorEnum,
 } from "@/core/service/dataGenerateService/autoComputeEngine/logicNodeNameEnum";
+import { RectangleLittleNoteEffect } from "@/core/service/feedbackService/effectEngine/concrete/RectangleLittleNoteEffect";
+import { TextRaiseEffectLocated } from "@/core/service/feedbackService/effectEngine/concrete/TextRaiseEffectLocated";
+import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
+import { LineEdge } from "@/core/stage/stageObject/association/LineEdge";
+import { Section } from "@/core/stage/stageObject/entity/Section";
+import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 
 type MathFunctionType = (args: number[]) => number[];
 type StringFunctionType = (args: string[]) => string[];

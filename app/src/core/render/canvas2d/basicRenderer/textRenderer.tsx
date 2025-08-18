@@ -97,28 +97,30 @@ export class TextRenderer {
       this.project.canvas.ctx.drawImage(cache, location.x, location.y);
       return;
     }
-    if (Settings.textScalingBehavior === "cacheEveryTick") {
-      // 每帧都缓存
-      this.project.canvas.ctx.drawImage(this.buildCache(text, size, color), location.x, location.y);
-    } else {
-      // 如果摄像机正在缩放，就找到大小最接近的缓存图片，然后位图缩放
-      const currentScale = this.project.camera.currentScale.toFixed(2);
-      const targetScale = this.project.camera.targetScale.toFixed(2);
-      if (currentScale !== targetScale) {
-        if (Settings.textScalingBehavior === "nearestCache") {
-          // 文字应该渲染成什么大小
-          const textSize = getTextSize(text, size);
-          const nearestBitmap = this.getCacheNearestSize(text, size);
-          if (nearestBitmap) {
-            this.project.canvas.ctx.drawImage(nearestBitmap, location.x, location.y, textSize.x, textSize.y * 1.5);
-            return;
-          }
-        } else if (Settings.textScalingBehavior === "temp") {
-          // 不走缓存
-          this.renderTempText(text, location, size, color);
+    const currentScale = this.project.camera.currentScale.toFixed(2);
+    const targetScale = this.project.camera.targetScale.toFixed(2);
+    // 如果摄像机正在缩放，就找到大小最接近的缓存图片，然后位图缩放
+    if (currentScale !== targetScale) {
+      if (Settings.textScalingBehavior === "cacheEveryTick") {
+        // 每帧都缓存
+        this.project.canvas.ctx.drawImage(this.buildCache(text, size, color), location.x, location.y);
+      } else if (Settings.textScalingBehavior === "nearestCache") {
+        // 文字应该渲染成什么大小
+        const textSize = getTextSize(text, size);
+        const nearestBitmap = this.getCacheNearestSize(text, size);
+        if (nearestBitmap) {
+          this.project.canvas.ctx.drawImage(nearestBitmap, location.x, location.y, textSize.x, textSize.y * 1.5);
           return;
         }
+      } else if (Settings.textScalingBehavior === "temp") {
+        // 不走缓存
+        this.renderTempText(text, location, size, color);
+        return;
       }
+    } else {
+      // 如果摄像机没有缩放，直接缓存然后渲染
+      const cache = this.getCache(text, size) ?? this.buildCache(text, size, color);
+      this.project.canvas.ctx.drawImage(cache, location.x, location.y);
     }
   }
   /**
@@ -165,7 +167,7 @@ export class TextRenderer {
     lineHeight: number = 1.2,
     limitLines: number = Infinity,
   ): void {
-    if (text.trim().length === 0) return;
+    if (text.length === 0) return;
     // 如果文本里面没有换行符就直接渲染单行文本，不要计算了
     if (!text.includes("\n")) {
       this.renderText(text, location, fontSize, color);
