@@ -122,30 +122,14 @@ export class CopyEngine {
     try {
       // https://github.com/HuLaSpark/HuLa/blob/fe37c246777cde3325555ed2ba2fcf860888a4a8/src/utils/ImageUtils.ts#L121
       const image = await readImage();
-      const imageData = await image.rgba();
-      const { width, height } = await image.size();
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d")!;
-      const canvasImageData = ctx.createImageData(width, height);
-      let uint8Array: Uint8Array;
-      if (imageData.buffer instanceof ArrayBuffer) {
-        uint8Array = new Uint8Array(imageData.buffer, imageData.byteOffset, imageData.byteLength);
-      } else {
-        uint8Array = new Uint8Array(imageData);
-      }
-      canvasImageData.data.set(uint8Array);
-      ctx.putImageData(canvasImageData, 0, 0);
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (!blob) {
-            reject();
-          } else {
-            resolve(blob);
-          }
-        }, "image/png");
-      });
+      const bytes = await image.rgba();
+      const buffer = bytes.buffer;
+      const blob = new Blob(
+        [buffer instanceof SharedArrayBuffer ? (buffer.slice(0) as unknown as ArrayBuffer) : buffer],
+        {
+          type: "image/png",
+        },
+      );
       this.copyEnginePasteImage(blob);
     } catch (err) {
       console.warn("图片剪贴板是空的", err);
