@@ -322,64 +322,14 @@ export namespace ProjectUpgrader {
     json = ProjectUpgrader.upgrade(json);
 
     const uuidMap = new Map<string, Record<string, any>>();
-    const stage: Record<string, any>[] = [];
+    // 最终要返回的结果
+    const resultStage: Record<string, any>[] = [];
 
     // 遍历每一个实体
     for (const entity of json.entities) {
-      let data;
-      if (entity.type === "core:text_node") {
-        data = {
-          _: "TextNode",
-          uuid: entity.uuid,
-          text: entity.text,
-          details: entity.details,
-          collisionBox: {
-            _: "CollisionBox",
-            shapes: [
-              {
-                _: "Rectangle",
-                location: {
-                  _: "Vector",
-                  x: entity.location[0],
-                  y: entity.location[1],
-                },
-                size: {
-                  _: "Vector",
-                  x: entity.size[0],
-                  y: entity.size[1],
-                },
-              },
-            ],
-          },
-          color: {
-            _: "Color",
-            r: entity.color[0],
-            g: entity.color[1],
-            b: entity.color[2],
-            a: entity.color[3],
-          },
-          sizeAdjust: entity.sizeAdjust,
-        };
-      } else if (entity.type === "core:pen_stroke") {
-        // 涂鸦
-      } else if (entity.type === "core:image_node") {
-        // 图片
-      } else if (entity.type === "core:section") {
-        // 框
-      } else if (entity.type === "core:connect_point") {
-        // 连接点
-      } else if (entity.type === "core:url_node") {
-        // 链接
-      } else if (entity.type === "core:portal_node") {
-        // 传送门，先不管
-      } else if (entity.type === "core:svg_node") {
-        // svg节点，先不管
-      } else {
-        console.warn(`未知的实体类型${entity.type}`);
-      }
+      const data = convertEntityVAnyToN1(entity, uuidMap, json.entities);
       if (data) {
-        stage.push(data);
-        uuidMap.set(entity.uuid, data);
+        resultStage.push(data);
       }
     }
 
@@ -396,7 +346,7 @@ export namespace ProjectUpgrader {
           continue;
         }
 
-        stage.push({
+        resultStage.push({
           _: "LineEdge",
           uuid: association.uuid,
           associationList: [fromNode, toNode],
@@ -429,6 +379,139 @@ export namespace ProjectUpgrader {
     // 遍历所有标签
     // TODO
 
-    return stage;
+    return resultStage;
+  }
+
+  function convertTextNodeVAnyToN1(entity: Record<string, any>) {
+    const data = {
+      _: "TextNode",
+      uuid: entity.uuid,
+      text: entity.text,
+      details: entity.details,
+      collisionBox: {
+        _: "CollisionBox",
+        shapes: [
+          {
+            _: "Rectangle",
+            location: {
+              _: "Vector",
+              x: entity.location[0],
+              y: entity.location[1],
+            },
+            size: {
+              _: "Vector",
+              x: entity.size[0],
+              y: entity.size[1],
+            },
+          },
+        ],
+      },
+      color: {
+        _: "Color",
+        r: entity.color[0],
+        g: entity.color[1],
+        b: entity.color[2],
+        a: entity.color[3],
+      },
+      sizeAdjust: entity.sizeAdjust,
+    };
+    return data;
+  }
+
+  function convertEntityVAnyToN1(
+    entity: Record<string, any>,
+    uuidMap: Map<string, Record<string, any>>,
+    entities: Array<Record<string, any>>,
+  ) {
+    let data;
+    if (entity.type === "core:text_node") {
+      data = convertTextNodeVAnyToN1(entity);
+    } else if (entity.type === "core:pen_stroke") {
+      // 涂鸦
+    } else if (entity.type === "core:image_node") {
+      // 图片
+    } else if (entity.type === "core:section") {
+      // 框
+      data = convertSectionVAnyToN1(entity, uuidMap, entities);
+    } else if (entity.type === "core:connect_point") {
+      // 连接点
+    } else if (entity.type === "core:url_node") {
+      // 链接
+    } else if (entity.type === "core:portal_node") {
+      // 传送门，先不管
+    } else if (entity.type === "core:svg_node") {
+      // svg节点，先不管
+    } else {
+      console.warn(`未知的实体类型${entity.type}`);
+    }
+    // 序列化完了之后立刻缓存一下
+    if (data) {
+      uuidMap.set(entity.uuid, data);
+    }
+    return data;
+  }
+
+  function convertSectionVAnyToN1(
+    entity: Record<string, any>,
+    uuidMap: Map<string, Record<string, any>>,
+    entities: Array<Record<string, any>>,
+  ) {
+    // 先构建这个框的内部孩子
+    const children: Array<Record<string, any>> = [];
+    if (entity.children) {
+      for (const child of entity.children) {
+        const uuid = uuidMap.get(child);
+        if (uuid) {
+          children.push(uuid);
+        } else {
+          // 没有，可能还没有序列化
+          for (const e of entities) {
+            if (e.uuid !== child) {
+              continue;
+            }
+            const data = convertEntityVAnyToN1(e, uuidMap, entities);
+            if (data) {
+              children.push(data);
+              break;
+            }
+          }
+        }
+      }
+    }
+    return {
+      _: "Section",
+      uuid: entity.uuid,
+      text: entity.text,
+      details: entity.details,
+      isCollapsed: entity.isCollapsed,
+      isHidden: entity.isHidden,
+      children,
+      collisionBox: {
+        _: "CollisionBox",
+        shapes: [
+          {
+            _: "Rectangle",
+            location: {
+              _: "Vector",
+              x: entity.location[0],
+              y: entity.location[1],
+            },
+            size: {
+              _: "Vector",
+              x: entity.size[0],
+              y: entity.size[1],
+            },
+          },
+        ],
+      },
+
+      color: {
+        _: "Color",
+        r: entity.color[0],
+        g: entity.color[1],
+        b: entity.color[2],
+        a: entity.color[3],
+      },
+    };
   }
 }

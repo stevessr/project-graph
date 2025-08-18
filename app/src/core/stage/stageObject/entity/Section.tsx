@@ -37,6 +37,7 @@ export class Section extends ConnectableEntity {
    */
   static bigTitleCameraScale = 0.2;
 
+  @serializable
   public get collisionBox(): CollisionBox {
     if (this.isCollapsed) {
       return this._collisionBoxWhenCollapsed;
@@ -127,6 +128,11 @@ export class Section extends ConnectableEntity {
     this.adjustLocationAndSize();
   }
 
+  /**
+   * 根据子内容 自动调整Section框的位置和大小
+   * 如果没有子内容，则
+   *   自动调整大小为 标题+padding，位置为 当前碰撞箱外接矩形的左上角
+   */
   adjustLocationAndSize() {
     let rectangle: Rectangle;
     const titleSize = getTextSize(this.text, Renderer.FONT_SIZE);

@@ -9,6 +9,9 @@ export function configureSerializer(
   getOriginalNameOf = getOriginalNameOfFn;
 }
 
+/**
+ * 序列化装饰器
+ */
 const serializableSymbol = Symbol("serializable");
 const lastSerializableIndexSymbol = Symbol("lastSerializableIndex");
 export const serializable = (target: any, key: string) => {
