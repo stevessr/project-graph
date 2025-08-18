@@ -84,6 +84,7 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
           new PenStrokeSegment(new Vector(startX, startY), 1),
           new PenStrokeSegment(new Vector(endX, endY), 1),
         ],
+        color: this.getCurrentStrokeColor(),
       });
       this.project.stageManager.add(stroke);
     } else {
