@@ -8,7 +8,7 @@ import { Vector } from "@graphif/data-structures";
  *
  * 当有节点编辑时，会把摄像机锁定住
  */
-export class ControllerSectionEdit extends ControllerClass {
+export class ControllerSectionEditClass extends ControllerClass {
   constructor(protected readonly project: Project) {
     super(project);
   }

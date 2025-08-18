@@ -19,7 +19,7 @@ import { ControllerNodeEditClass } from "@/core/service/controlService/controlle
 import { ControllerPenStrokeControlClass } from "@/core/service/controlService/controller/concrete/ControllerPenStrokeControl";
 import { ControllerPenStrokeDrawingClass } from "@/core/service/controlService/controller/concrete/ControllerPenStrokeDrawing";
 import { ControllerRectangleSelectClass } from "@/core/service/controlService/controller/concrete/ControllerRectangleSelect";
-import { ControllerSectionEdit } from "@/core/service/controlService/controller/concrete/ControllerSectionEdit";
+import { ControllerSectionEditClass } from "@/core/service/controlService/controller/concrete/ControllerSectionEdit";
 import { CursorNameEnum } from "@/types/cursors";
 import { isMac } from "@/utils/platform";
 import { Settings } from "../../Settings";
@@ -327,6 +327,6 @@ declare module "./Controller" {
     penStrokeControl: ControllerPenStrokeControlClass;
     penStrokeDrawing: ControllerPenStrokeDrawingClass;
     rectangleSelect: ControllerRectangleSelectClass;
-    sectionEdit: ControllerSectionEdit;
+    sectionEdit: ControllerSectionEditClass;
   }
 }
