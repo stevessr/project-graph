@@ -1,15 +1,9 @@
 import { Project } from "@/core/Project";
 import { ControllerClass } from "@/core/service/controlService/controller/ControllerClass";
-import { CircleChangeRadiusEffect } from "@/core/service/feedbackService/effectEngine/concrete/CircleChangeRadiusEffect";
-import { CircleFlameEffect } from "@/core/service/feedbackService/effectEngine/concrete/CircleFlameEffect";
-import { EntityCreateFlashEffect } from "@/core/service/feedbackService/effectEngine/concrete/EntityCreateFlashEffect";
 import { Settings } from "@/core/service/Settings";
 import { PenStroke, PenStrokeSegment } from "@/core/stage/stageObject/entity/PenStroke";
-import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
-import { CursorNameEnum } from "@/types/cursors";
 import { isMac } from "@/utils/platform";
-import { Color, mixColors, ProgressNumber, Vector } from "@graphif/data-structures";
-import { v4 } from "uuid";
+import { Color, Vector } from "@graphif/data-structures";
 
 /**
  * 涂鸦功能
@@ -18,19 +12,9 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
   private _isUsing: boolean = false;
 
   /** 在移动的过程中，记录这一笔画的笔迹 */
-  public currentStroke: PenStrokeSegment[] = [];
-
-  /**
-   * 初始按下的起始点的位置
-   */
-  public pressStartWordLocation = Vector.getZero();
+  public currentSegments: PenStrokeSegment[] = [];
   /** 当前是否是在绘制直线 */
   public isDrawingLine = false;
-
-  /**
-   * 当前画笔的粗度
-   */
-  public currentStrokeWidth = 5;
 
   /**
    * 初始化函数
@@ -39,16 +23,8 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
     super(project);
   }
 
-  /**
-   * 记录笔迹划过位置
-   */
-  private recordLocation: Vector[] = [];
-
-  public mousedown: (event: MouseEvent) => void = (event: MouseEvent) => {
-    if (Settings.mouseLeftMode !== "draw") {
-      return;
-    }
-    if (!(event.button === 0 && Settings.mouseLeftMode === "draw")) {
+  public mousedown = (event: PointerEvent) => {
+    if (event.button === 0 && Settings.mouseLeftMode !== "draw" && event.pointerType !== "pen") {
       return;
     }
     this._isUsing = true;
@@ -57,12 +33,7 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
     if (this.project.controller.pressingKeySet.has("shift")) {
       this.isDrawingLine = true;
     }
-    this.pressStartWordLocation = pressWorldLocation.clone();
-    this.recordLocation.push(pressWorldLocation.clone());
-
     this.lastMoveLocation = pressWorldLocation.clone();
-
-    this.project.controller.setCursorNameHook(CursorNameEnum.Crosshair);
   };
 
   public mousemove = (event: PointerEvent) => {
@@ -74,18 +45,7 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
     for (const e of events) {
       const isPen = e.pointerType === "pen";
       const worldLocation = this.project.renderer.transformView2World(new Vector(e.clientX, e.clientY));
-      const limitDistance = 8 / this.project.camera.currentScale;
-      // 检测：如果移动距离不超过一个距离，则不记录
-      if (worldLocation.distance(this.lastMoveLocation) < limitDistance) {
-        return;
-      }
-      this.recordLocation.push(worldLocation.clone());
-
-      // 记录笔刷
-      this.currentStroke.push(
-        new PenStrokeSegment(this.lastMoveLocation, worldLocation, this.currentStrokeWidth * (isPen ? e.pressure : 1)),
-      );
-      this.lastMoveLocation = worldLocation.clone();
+      this.currentSegments.push(new PenStrokeSegment(worldLocation, isPen ? e.pressure : 1));
     }
   };
 
@@ -94,117 +54,49 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
     if (!(event.button === 0 && Settings.mouseLeftMode === "draw")) {
       return;
     }
-    const releaseWorldLocation = this.project.renderer.transformView2World(new Vector(event.clientX, event.clientY));
+    if (this.currentSegments.length <= 2) return;
+    // 正常的划过一段距离
+    // 生成笔触
+    if (this.project.controller.pressingKeySet.has("shift")) {
+      // 直线
+      const from = this.currentSegments[0].location.clone();
+      const to = this.currentSegments[this.currentSegments.length - 1].location.clone();
 
-    this.recordLocation.push(releaseWorldLocation.clone());
-    if (releaseWorldLocation.subtract(this.pressStartWordLocation).magnitude() < 2) {
-      // 判断当前位置是否有舞台对象，如果有则更改颜色。
-      const entity = this.project.stageManager.findEntityByLocation(releaseWorldLocation);
-      if (entity) {
-        if (entity instanceof TextNode) {
-          const currentPenColor = this.getCurrentStrokeColor().clone();
-          if (this.project.controller.pressingKeySet.has("shift")) {
-            // 颜色叠加
-            entity.color = mixColors(entity.color, currentPenColor, 0.1);
-          } else {
-            entity.color = currentPenColor.clone();
-          }
-          this.project.effects.addEffect(EntityCreateFlashEffect.fromCreateEntity(entity));
+      if (this.project.controller.pressingKeySet.has(isMac ? "meta" : "control")) {
+        // 垂直于坐标轴的直线
+        const dy = Math.abs(to.y - from.y);
+        const dx = Math.abs(to.x - from.x);
+        if (dy > dx) {
+          // 垂直
+          to.x = from.x;
+        } else {
+          // 水平
+          to.y = from.y;
         }
       }
-      // 如果没有，则画一个圈。
-      // 增加特效
-      // 只是点了一下，应该有特殊效果
-      this.project.effects.addEffect(
-        new CircleFlameEffect(
-          new ProgressNumber(0, 20),
-          releaseWorldLocation.clone(),
-          50,
-          this.getCurrentStrokeColor().clone(),
-        ),
-      );
-      this.project.effects.addEffect(
-        new CircleChangeRadiusEffect(
-          new ProgressNumber(0, 20),
-          releaseWorldLocation.clone(),
-          1,
-          50,
-          this.getCurrentStrokeColor().clone(),
-        ),
-      );
+      const startX = from.x;
+      const startY = from.y;
+      const endX = to.x;
+      const endY = to.y;
+
+      const stroke = new PenStroke(this.project, {
+        segments: [
+          new PenStrokeSegment(new Vector(startX, startY), 1),
+          new PenStrokeSegment(new Vector(endX, endY), 1),
+        ],
+      });
+      this.project.stageManager.add(stroke);
     } else {
-      // 正常的划过一段距离
-      // 生成笔触
-      if (this.project.controller.pressingKeySet.has("shift")) {
-        // 直线
-        const startLocation = this.pressStartWordLocation;
-        const endLocation = releaseWorldLocation.clone();
-
-        if (
-          isMac
-            ? this.project.controller.pressingKeySet.has("meta")
-            : this.project.controller.pressingKeySet.has("control")
-        ) {
-          // 垂直于坐标轴的直线
-          const dy = Math.abs(endLocation.y - startLocation.y);
-          const dx = Math.abs(endLocation.x - startLocation.x);
-          if (dy > dx) {
-            // 垂直
-            endLocation.x = startLocation.x;
-          } else {
-            // 水平
-            endLocation.y = startLocation.y;
-          }
-        }
-        const startX = startLocation.x.toFixed(1);
-        const startY = startLocation.y.toFixed(1);
-        const endX = endLocation.x.toFixed(1);
-        const endY = endLocation.y.toFixed(1);
-
-        const strokeStringList: string[] = [
-          `${startX},${startY},${this.currentStrokeWidth}`,
-          `${endX},${endY},${this.currentStrokeWidth}`,
-          `${endX},${endY},${this.currentStrokeWidth}`,
-        ];
-        const contentString = strokeStringList.join("~");
-        const stroke = new PenStroke({
-          type: "core:pen_stroke",
-          content: contentString,
-          color: this.getCurrentStrokeColor().toArray(),
-          uuid: v4(),
-          location: [0, 0],
-          details: "",
-        });
-        stroke.setColor(this.getCurrentStrokeColor());
-        this.project.stageManager.add(stroke);
-      } else {
-        // 普通笔迹
-        const strokeStringList: string[] = [];
-        for (const segment of this.currentStroke) {
-          strokeStringList.push(
-            `${segment.startLocation.x.toFixed(2)},${segment.startLocation.y.toFixed(2)},${segment.width}`,
-          );
-        }
-        const contentString = strokeStringList.join("~");
-
-        const stroke = new PenStroke({
-          type: "core:pen_stroke",
-          content: contentString,
-          color: this.getCurrentStrokeColor().toArray(),
-          uuid: v4(),
-          location: [0, 0],
-          details: "",
-        });
-        stroke.setColor(this.getCurrentStrokeColor());
-        this.project.stageManager.add(stroke);
-      }
+      // 普通笔迹
+      const stroke = new PenStroke(this.project, {
+        segments: this.currentSegments,
+        color: this.getCurrentStrokeColor(),
+      });
+      this.project.stageManager.add(stroke);
     }
 
     // 清理
-    this.recordLocation = [];
-    this.currentStroke = [];
-
-    this.project.controller.setCursorNameHook(CursorNameEnum.Crosshair);
+    this.currentSegments = [];
     this._isUsing = false;
     this.isDrawingLine = false;
   };

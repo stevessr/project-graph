@@ -246,7 +246,7 @@ export class EntityRenderer {
    * @param penStroke
    */
   private renderPenStroke(penStroke: PenStroke) {
-    let penStrokeColor = penStroke.getColor();
+    let penStrokeColor = penStroke.color;
     if (penStrokeColor.a === 0) {
       penStrokeColor = this.project.stageStyleManager.currentStyle.StageObjectBorder.clone();
     }
@@ -264,13 +264,10 @@ export class EntityRenderer {
     //     penStroke.getSegmentList()[0].width * this.project.camera.currentScale,
     //   );
     // }
-    const segmentList = penStroke.getSegmentList();
-
     this.project.curveRenderer.renderPenStroke(
-      segmentList.map((segment) => ({
-        startLocation: this.project.renderer.transformWorld2View(segment.startLocation),
-        endLocation: this.project.renderer.transformWorld2View(segment.endLocation),
-        width: segment.width * this.project.camera.currentScale,
+      penStroke.segments.map((segment) => ({
+        location: this.project.renderer.transformWorld2View(segment.location),
+        pressure: segment.pressure,
       })),
       penStrokeColor,
     );

@@ -1,7 +1,7 @@
-import { Color, Vector } from "@graphif/data-structures";
-import { CubicBezierCurve, SymmetryCurve } from "@graphif/shapes";
 import { Project, service } from "@/core/Project";
 import { PenStrokeSegment } from "@/core/stage/stageObject/entity/PenStroke";
+import { Color, Vector } from "@graphif/data-structures";
+import { CubicBezierCurve, SymmetryCurve } from "@graphif/shapes";
 
 /**
  * 关于各种曲线和直线的渲染
@@ -45,30 +45,29 @@ export class CurveRenderer {
   }
   renderPenStroke(stroke: PenStrokeSegment[], color: Color): void {
     this.project.canvas.ctx.strokeStyle = color.toString();
-    // 在canvas上绘制笔画
-    this.project.canvas.ctx.beginPath();
     this.project.canvas.ctx.lineJoin = "round";
-    this.project.canvas.ctx.moveTo(stroke[0].startLocation.x, stroke[0].startLocation.y);
-    for (let i = 0; i < stroke.length; i++) {
-      /*
-      // 修改循环开始从0
-      if (i > 0) {
-        this.project.canvas.ctx.lineTo(stroke[i].endLocation.x, stroke[i].endLocation.y);
-      }
-        */
-      // 上述代码这样，导致开头少了一段。如果是按住shift键画出来的直线就看不到了。
+    if (stroke.length < 2) return;
 
-      this.project.canvas.ctx.lineTo(stroke[i].endLocation.x, stroke[i].endLocation.y);
+    this.project.canvas.ctx.beginPath();
+    this.project.canvas.ctx.moveTo(stroke[0].location.x, stroke[0].location.y);
 
-      this.project.canvas.ctx.lineWidth = stroke[i].width; // 更新线宽为当前线段的宽度
-      this.project.canvas.ctx.stroke(); // 为了确保每个线段按照不同的宽度绘制，需要在这里调用stroke
-      if (i < stroke.length - 1) {
-        this.project.canvas.ctx.beginPath(); // 开始新的路径，以便每个线段可以有不同的宽度
-        this.project.canvas.ctx.moveTo(stroke[i].endLocation.x, stroke[i].endLocation.y);
-      }
+    for (let i = 1; i < stroke.length - 1; i++) {
+      const curr = stroke[i].location;
+      const next = stroke[i + 1].location;
+      // 取当前点和下一个点的中点
+      const midX = (curr.x + next.x) / 2;
+      const midY = (curr.y + next.y) / 2;
+
+      this.project.canvas.ctx.lineWidth = stroke[i].pressure * 5 * this.project.camera.currentScale;
+      this.project.canvas.ctx.quadraticCurveTo(curr.x, curr.y, midX, midY);
+      this.project.canvas.ctx.stroke();
+      this.project.canvas.ctx.beginPath();
+      this.project.canvas.ctx.moveTo(midX, midY);
     }
-    // this.project.canvas.ctx.strokeStyle = color.toString();
-    // 更改颜色要在操作之前就更改，否则会出现第一笔画的颜色还是上一次的颜色这种诡异现象。
+    // 处理最后一个点
+    const last = stroke[stroke.length - 1].location;
+    this.project.canvas.ctx.lineTo(last.x, last.y);
+    this.project.canvas.ctx.stroke();
   }
 
   /**

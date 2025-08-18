@@ -1,7 +1,7 @@
-import { Color, ProgressNumber, Vector } from "@graphif/data-structures";
 import { Project } from "@/core/Project";
-import { PenStroke } from "@/core/stage/stageObject/entity/PenStroke";
 import { Effect } from "@/core/service/feedbackService/effectEngine/effectObject";
+import { PenStroke } from "@/core/stage/stageObject/entity/PenStroke";
+import { Color, ProgressNumber, Vector } from "@graphif/data-structures";
 
 export class PenStrokeDeletedEffect extends Effect {
   private pathList: Vector[] = [];
@@ -14,13 +14,10 @@ export class PenStrokeDeletedEffect extends Effect {
     penStroke: PenStroke,
   ) {
     super(timeProgress);
-    const segmentList = penStroke.getSegmentList();
+    const segmentList = penStroke.segments;
     this.pathList = penStroke.getPath();
-    this.color = penStroke.getColor();
-    if (this.color.a === 0) {
-      this.color = this.project.stageStyleManager.currentStyle.StageObjectBorder.clone();
-    }
-    this.width = segmentList[0].width;
+    this.color = penStroke.color;
+    this.width = segmentList[0].pressure * 5;
   }
 
   static fromPenStroke(penStroke: PenStroke): PenStrokeDeletedEffect {

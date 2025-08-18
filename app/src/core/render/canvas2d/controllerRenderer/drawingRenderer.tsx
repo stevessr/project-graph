@@ -18,8 +18,8 @@ export class DrawingControllerRenderer {
 
     if (Settings.mouseLeftMode === "draw") {
       // 画鼠标绘制过程，还未抬起鼠标左键的 笔迹
-      if (this.project.controller.penStrokeDrawing.currentStroke.length > 0) {
-        const startLocation = this.project.controller.penStrokeDrawing.currentStroke[0].startLocation;
+      if (this.project.controller.penStrokeDrawing.currentSegments.length > 0) {
+        const startLocation = this.project.controller.penStrokeDrawing.currentSegments[0].location;
         const endLocation = this.project.renderer.transformView2World(MouseLocation.vector());
 
         // 正在绘制直线
@@ -42,7 +42,7 @@ export class DrawingControllerRenderer {
               currentStrokeColor.a === 0
                 ? this.project.stageStyleManager.currentStyle.StageObjectBorder
                 : currentStrokeColor,
-              this.project.controller.penStrokeDrawing.currentStrokeWidth * this.project.camera.currentScale,
+              5 * this.project.camera.currentScale,
             );
           } else {
             this.project.curveRenderer.renderSolidLine(
@@ -51,15 +51,14 @@ export class DrawingControllerRenderer {
               currentStrokeColor.a === 0
                 ? this.project.stageStyleManager.currentStyle.StageObjectBorder
                 : currentStrokeColor,
-              this.project.controller.penStrokeDrawing.currentStrokeWidth * this.project.camera.currentScale,
+              5 * this.project.camera.currentScale,
             );
           }
         } else {
           this.project.curveRenderer.renderPenStroke(
-            this.project.controller.penStrokeDrawing.currentStroke.map((segment) => ({
-              startLocation: this.project.renderer.transformWorld2View(segment.startLocation),
-              endLocation: this.project.renderer.transformWorld2View(segment.endLocation),
-              width: segment.width * this.project.camera.currentScale,
+            this.project.controller.penStrokeDrawing.currentSegments.map((segment) => ({
+              location: this.project.renderer.transformWorld2View(segment.location),
+              pressure: segment.pressure,
             })),
             currentStrokeColor.a === 0
               ? this.project.stageStyleManager.currentStyle.StageObjectBorder
@@ -74,7 +73,7 @@ export class DrawingControllerRenderer {
         // 鼠标正在调整状态
         this.project.shapeRenderer.renderCircle(
           circleCenter,
-          (this.project.controller.penStrokeDrawing.currentStrokeWidth / 2) * this.project.camera.currentScale,
+          (5 / 2) * this.project.camera.currentScale,
           currentStrokeColor.a === 0
             ? this.project.stageStyleManager.currentStyle.StageObjectBorder
             : currentStrokeColor,
@@ -83,14 +82,8 @@ export class DrawingControllerRenderer {
         );
         // 当前粗细显示
         this.project.textRenderer.renderTextFromCenter(
-          `2R: ${this.project.controller.penStrokeDrawing.currentStrokeWidth}px`,
-          circleCenter.add(
-            new Vector(
-              0,
-              (-(this.project.controller.penStrokeDrawing.currentStrokeWidth / 2) - 40) *
-                this.project.camera.currentScale,
-            ),
-          ),
+          `2R: ${5}px`,
+          circleCenter.add(new Vector(0, (-(5 / 2) - 40) * this.project.camera.currentScale)),
           24,
           currentStrokeColor.a === 0
             ? this.project.stageStyleManager.currentStyle.StageObjectBorder
@@ -99,27 +92,15 @@ export class DrawingControllerRenderer {
       } else {
         // 画跟随鼠标的笔头
         // 如果粗细大于一定程度，则渲染成空心的
-        if (this.project.controller.penStrokeDrawing.currentStrokeWidth > 10) {
-          this.project.shapeRenderer.renderCircle(
-            MouseLocation.vector(),
-            (this.project.controller.penStrokeDrawing.currentStrokeWidth / 2) * this.project.camera.currentScale,
-            Color.Transparent,
-            currentStrokeColor.a === 0
-              ? this.project.stageStyleManager.currentStyle.StageObjectBorder
-              : currentStrokeColor,
-            2 * this.project.camera.currentScale,
-          );
-        } else {
-          this.project.shapeRenderer.renderCircle(
-            MouseLocation.vector(),
-            (this.project.controller.penStrokeDrawing.currentStrokeWidth / 2) * this.project.camera.currentScale,
-            currentStrokeColor.a === 0
-              ? this.project.stageStyleManager.currentStyle.StageObjectBorder
-              : currentStrokeColor,
-            Color.Transparent,
-            0,
-          );
-        }
+        this.project.shapeRenderer.renderCircle(
+          MouseLocation.vector(),
+          (5 / 2) * this.project.camera.currentScale,
+          currentStrokeColor.a === 0
+            ? this.project.stageStyleManager.currentStyle.StageObjectBorder
+            : currentStrokeColor,
+          Color.Transparent,
+          0,
+        );
         // 如果按下shift键，说明正在画直线
         if (this.project.controller.pressingKeySet.has("shift")) {
           this.renderAxisMouse();

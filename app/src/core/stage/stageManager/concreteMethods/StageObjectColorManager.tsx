@@ -1,5 +1,5 @@
-import { Color } from "@graphif/data-structures";
 import { Project, service } from "@/core/Project";
+import { Color } from "@graphif/data-structures";
 
 /**
  * 管理所有 节点/连线 的颜色
@@ -22,7 +22,7 @@ export class StageObjectColorManager {
     }
     for (const entity of this.project.stageManager.getPenStrokes()) {
       if (entity.isSelected) {
-        entity.setColor(color);
+        entity.color = color;
       }
     }
     for (const entity of this.project.stageManager.getSvgNodes()) {
