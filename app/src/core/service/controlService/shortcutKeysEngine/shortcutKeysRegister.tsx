@@ -409,20 +409,20 @@ export class KeyBindsRegistrar {
       }
     });
 
-    await this.project.keyBinds.create("penStrokeWidthIncrease", "=", async () => {
-      if (Settings.mouseLeftMode === "draw") {
-        const newWidth = this.project.controller.penStrokeDrawing.currentStrokeWidth + 4;
-        this.project.controller.penStrokeDrawing.currentStrokeWidth = Math.max(1, Math.min(newWidth, 1000));
-        toast(`画笔粗细: ${this.project.controller.penStrokeDrawing.currentStrokeWidth}px`);
-      }
-    });
-    await this.project.keyBinds.create("penStrokeWidthDecrease", "-", async () => {
-      if (Settings.mouseLeftMode === "draw") {
-        const newWidth = this.project.controller.penStrokeDrawing.currentStrokeWidth - 4;
-        this.project.controller.penStrokeDrawing.currentStrokeWidth = Math.max(1, Math.min(newWidth, 1000));
-        toast(`画笔粗细: ${this.project.controller.penStrokeDrawing.currentStrokeWidth}px`);
-      }
-    });
+    // await this.project.keyBinds.create("penStrokeWidthIncrease", "=", async () => {
+    //   if (Settings.mouseLeftMode === "draw") {
+    //     const newWidth = this.project.controller.penStrokeDrawing.currentStrokeWidth + 4;
+    //     this.project.controller.penStrokeDrawing.currentStrokeWidth = Math.max(1, Math.min(newWidth, 1000));
+    //     toast(`画笔粗细: ${this.project.controller.penStrokeDrawing.currentStrokeWidth}px`);
+    //   }
+    // });
+    // await this.project.keyBinds.create("penStrokeWidthDecrease", "-", async () => {
+    //   if (Settings.mouseLeftMode === "draw") {
+    //     const newWidth = this.project.controller.penStrokeDrawing.currentStrokeWidth - 4;
+    //     this.project.controller.penStrokeDrawing.currentStrokeWidth = Math.max(1, Math.min(newWidth, 1000));
+    //     toast(`画笔粗细: ${this.project.controller.penStrokeDrawing.currentStrokeWidth}px`);
+    //   }
+    // });
 
     await this.project.keyBinds.create("copy", "C-c", () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
@@ -441,29 +441,29 @@ export class KeyBindsRegistrar {
 
     await this.project.keyBinds.create("checkoutLeftMouseToSelectAndMove", "v", async () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
-      Stage.MouseModeManager.checkoutSelectAndMoveHook();
+      Settings.mouseLeftMode = "selectAndMove";
     });
     await this.project.keyBinds.create("checkoutLeftMouseToDrawing", "p", async () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
-      Stage.MouseModeManager.checkoutDrawingHook();
+      Settings.mouseLeftMode = "draw";
     });
 
     // 鼠标左键切换为连接模式
     // let lastMouseMode = "selectAndMove";
     await this.project.keyBinds.create("checkoutLeftMouseToConnectAndCutting", "c", async () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
-      Stage.MouseModeManager.checkoutConnectAndCuttingHook();
+      // lastMouseMode = Settings.mouseLeftMode;
     });
 
-    await this.project.keyBinds.create("checkoutLeftMouseToConnectAndCuttingOnlyPressed", "z", async () => {
-      // lastMouseMode = Settings.mouseLeftMode;
-      if (!this.project.keyboardOnlyEngine.isOpenning()) return;
-      Stage.MouseModeManager.checkoutConnectAndCuttingHook();
-    });
-    // .up(async () => {
+    // await this.project.keyBinds.create("checkoutLeftMouseToConnectAndCuttingOnlyPressed", "z", async () => {
+    //   // lastMouseMode = Settings.mouseLeftMode;
     //   if (!this.project.keyboardOnlyEngine.isOpenning()) return;
-    //   Stage.MouseModeManager.checkoutSelectAndMoveHook();
-    // });
+    //   Stage.MouseModeManager.checkoutConnectAndCuttingHook();
+    // })
+    // // .up(async () => {
+    // //   if (!this.project.keyboardOnlyEngine.isOpenning()) return;
+    // //   Stage.MouseModeManager.checkoutSelectAndMoveHook();
+    // // });
 
     await this.project.keyBinds.create("selectEntityByPenStroke", "C-w", () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
