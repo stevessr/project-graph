@@ -141,7 +141,7 @@ export function GlobalMenu() {
               {t("file.recentFiles")}
             </SubTrigger>
             <SubContent>
-              {recentFiles.map((file) => (
+              {recentFiles.toReversed().map((file) => (
                 <Item
                   key={file.uri.toString()}
                   onClick={async () => {
