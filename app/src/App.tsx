@@ -142,6 +142,9 @@ export default function App() {
       })();
     }
 
+    // 加载完成了，显示窗口
+    getCurrentWindow().show();
+
     return () => {
       unlisten1?.then((f) => f());
       unlisten2?.then((f) => f());

@@ -17,7 +17,7 @@
         "height": 800,
         "decorations": false,
         "transparent": true,
-        "dragDropEnabled": false
+        "visible": false
       }
     ],
     "macOSPrivateApi": true,
