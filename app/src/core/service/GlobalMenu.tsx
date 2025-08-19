@@ -14,6 +14,7 @@ import { loadAllServices } from "@/core/loadAllServices";
 import { Project } from "@/core/Project";
 import { activeProjectAtom, isClassroomModeAtom, projectsAtom, store } from "@/state";
 import AIWindow from "@/sub/AIWindow";
+import ExportPngWindow from "@/sub/ExportPngWindow";
 import SettingsWindow from "@/sub/SettingsWindow";
 import { getDeviceId } from "@/utils/otherApi";
 import { deserialize, serialize } from "@graphif/serializer";
@@ -246,7 +247,7 @@ export function GlobalMenu() {
                   </Item>
                 </SubContent>
               </Sub>
-              <Item>
+              <Item onClick={() => ExportPngWindow.open()}>
                 <FileImage />
                 PNG
               </Item>

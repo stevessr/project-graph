@@ -1,54 +1,31 @@
 import { Project, service } from "@/core/Project";
-import { Settings } from "@/core/service/Settings";
 import { sleep } from "@/utils/sleep";
 import { Vector } from "@graphif/data-structures";
+import EventEmitter from "events";
+
+interface EventMap {
+  progress: [progress: number];
+  complete: [blob: Blob];
+  error: [error: Error];
+}
 
 @service("stageExportPng")
 export class StageExportPng {
   constructor(private readonly project: Project) {}
 
   /**
-   * 系统缩放因子
-   */
-  static SCALE = window.devicePixelRatio;
-
-  /**
-   * 导出时，相机缩放因子
-   */
-  private cameraScaleWhenExport = 0.5;
-
-  static PADDING = 100;
-
-  changeCameraScaleWhenExport(scale: number) {
-    this.cameraScaleWhenExport = scale;
-  }
-
-  /**
-   * 是否有背景
-   */
-  private isHaveBackground = false;
-  setHaveBackground(have: boolean) {
-    this.isHaveBackground = have;
-  }
-  /**
    * 将整个舞台导出为png图片
    */
-  private async exportStage_() {
+  private async exportStage_(emitter: EventEmitter<EventMap>, signal: AbortSignal) {
     // 创建一个新的画布
     const resultCanvas = this.generateCanvasNode();
     const resultCtx = resultCanvas.getContext("2d")!;
     // 创建完毕
-
     const stageRect = this.project.stageManager.getBoundingRectangle();
-    const topLeft = stageRect.leftTop.subtract(new Vector(StageExportPng.PADDING, StageExportPng.PADDING));
-    const bottomRight = stageRect.rightBottom.add(new Vector(StageExportPng.PADDING, StageExportPng.PADDING));
-    // 开始把画布内容渲染到新画布上
-    this.project.camera.targetScale = this.cameraScaleWhenExport;
-    this.project.camera.currentScale = this.cameraScaleWhenExport;
+    const topLeft = stageRect.leftTop.subtract(new Vector(100, 100));
+    const bottomRight = stageRect.rightBottom.add(new Vector(100, 100));
     const viewRect = this.project.renderer.getCoverWorldRectangle();
-
     const leftTopLocList: { x: number; y: number }[] = [];
-
     // 遍历xy，xy是切割分块后的目标视野矩形的左上角
     for (let y = topLeft.y; y <= bottomRight.y; y += viewRect.size.y) {
       for (let x = topLeft.x; x <= bottomRight.x; x += viewRect.size.x) {
@@ -70,106 +47,50 @@ export class StageExportPng {
       const imageData = this.project.canvas.ctx.getImageData(
         0,
         0,
-        viewRect.size.x * StageExportPng.SCALE,
-        viewRect.size.y * StageExportPng.SCALE,
+        viewRect.size.x * devicePixelRatio,
+        viewRect.size.y * devicePixelRatio,
       );
       resultCtx.putImageData(
         imageData,
-        (x - topLeft.x) * StageExportPng.SCALE * this.cameraScaleWhenExport,
-        (y - topLeft.y) * StageExportPng.SCALE * this.cameraScaleWhenExport,
+        (x - topLeft.x) * devicePixelRatio * this.project.camera.targetScale,
+        (y - topLeft.y) * devicePixelRatio * this.project.camera.targetScale,
       );
-      this.tickRenderer(i, leftTopLocList.length);
       i++;
+      // 计算进度
+      const progress = (i + 1) / leftTopLocList.length;
+      emitter.emit("progress", progress);
+      signal.throwIfAborted();
     }
-    const imageData = resultCanvas.toDataURL("image/png");
+    const blob = await new Promise<Blob>((resolve) => {
+      resultCanvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          resolve(new Blob());
+        }
+      }, "image/png");
+    });
+    emitter.emit("complete", blob);
     // 移除画布
     resultCanvas.remove();
-
-    const imageNode = this.getImageNodeByImageData(imageData);
-    const imageBox = document.getElementById("export-png-image-box");
-    if (imageBox) {
-      imageBox.appendChild(imageNode);
-    }
   }
 
-  startRender = () => {};
-
-  finishRender = () => {};
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  tickRenderer = (_c: number, _t: number) => {};
-
-  async exportStage() {
-    this.startRender();
-
-    // 背景网格信息
-    const showBackgroundCartesian = Settings.showBackgroundCartesian;
-    Settings.showBackgroundCartesian = false;
-    const showBackgroundDots = Settings.showBackgroundDots;
-    Settings.showBackgroundDots = false;
-    const showBackgroundHorizontalLines = Settings.showBackgroundHorizontalLines;
-    Settings.showBackgroundHorizontalLines = false;
-    const showBackgroundVerticalLines = Settings.showBackgroundVerticalLines;
-    Settings.showBackgroundVerticalLines = false;
-
-    // 渲染问题
-    const isPauseRenderWhenManipulateOvertime = Settings.isPauseRenderWhenManipulateOvertime;
-    Settings.isPauseRenderWhenManipulateOvertime = false;
-    if (this.isHaveBackground) {
-      this.project.renderer.isRenderBackground = true;
-    }
-    // 先记录摄像机信息
-    const cameraLocation = this.project.camera.location.clone();
-    const cameraTargetLocation = this.project.camera.targetLocationByScale.clone();
-    const cameraScale = this.project.camera.currentScale;
-    // 开始渲染
-    await this.exportStage_();
-    this.project.renderer.isRenderBackground = false;
-    // 恢复摄像机信息
-    this.project.camera.location = cameraLocation;
-    this.project.camera.targetLocationByScale = cameraTargetLocation;
-    this.project.camera.currentScale = cameraScale;
-
-    // 背景网格信息
-    Settings.showBackgroundCartesian = showBackgroundCartesian;
-    Settings.showBackgroundDots = showBackgroundDots;
-    Settings.showBackgroundHorizontalLines = showBackgroundHorizontalLines;
-    Settings.showBackgroundVerticalLines = showBackgroundVerticalLines;
-    Settings.isPauseRenderWhenManipulateOvertime = isPauseRenderWhenManipulateOvertime;
-
-    this.finishRender();
+  exportStage(signal: AbortSignal) {
+    const emitter = new EventEmitter<EventMap>();
+    this.exportStage_(emitter, signal).catch((err) => emitter.emit("error", err));
+    return emitter;
   }
 
   generateCanvasNode(): HTMLCanvasElement {
     const resultCanvas = document.createElement("canvas");
-    resultCanvas.style.position = "fixed";
-    resultCanvas.style.top = "50%";
-    resultCanvas.style.left = "80%";
-    // 暂时看不见这个
-    resultCanvas.style.zIndex = "99999";
-    resultCanvas.style.pointerEvents = "none";
-
-    const stageSize = this.project.stageManager
-      .getSize()
-      .add(new Vector(StageExportPng.PADDING * 2, StageExportPng.PADDING * 2));
+    const stageSize = this.project.stageManager.getSize().add(new Vector(100 * 2, 100 * 2));
     // 设置大小
-    resultCanvas.width = stageSize.x * StageExportPng.SCALE * this.cameraScaleWhenExport;
-    resultCanvas.height = stageSize.y * StageExportPng.SCALE * this.cameraScaleWhenExport;
-    resultCanvas.style.width = `${stageSize.x * 1 * this.cameraScaleWhenExport}px`;
-    resultCanvas.style.height = `${stageSize.y * 1 * this.cameraScaleWhenExport}px`;
+    resultCanvas.width = stageSize.x * devicePixelRatio * this.project.camera.targetScale;
+    resultCanvas.height = stageSize.y * devicePixelRatio * this.project.camera.targetScale;
+    resultCanvas.style.width = `${stageSize.x * 1 * this.project.camera.targetScale}px`;
+    resultCanvas.style.height = `${stageSize.y * 1 * this.project.camera.targetScale}px`;
     const ctx = resultCanvas.getContext("2d")!;
-    ctx.scale(StageExportPng.SCALE, StageExportPng.SCALE);
-    // 设置大小完毕
-
-    document.body.appendChild(resultCanvas);
+    ctx.scale(devicePixelRatio, devicePixelRatio);
     return resultCanvas;
-  }
-
-  getImageNodeByImageData(imageData: string) {
-    const imageNode = new Image();
-    imageNode.src = imageData;
-    imageNode.style.outline = "solid 1px red";
-    imageNode.style.margin = "10px";
-    imageNode.style.transform = "scale(1)";
-    return imageNode;
   }
 }
