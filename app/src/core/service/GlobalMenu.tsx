@@ -179,10 +179,8 @@ export function GlobalMenu() {
           <Item
             disabled={!activeProject}
             onClick={async () => {
-              const path = await open({
+              const path = await save({
                 title: t("file.saveAs"),
-                directory: false,
-                multiple: false,
                 filters: [{ name: "Project Graph", extensions: ["prg"] }],
               });
               if (!path) return;
@@ -293,8 +291,7 @@ export function GlobalMenu() {
           <Item
             onClick={async () => {
               const path = await join(await dataDir(), "liren.project-graph");
-              console.log(path);
-              await open({ directory: true, defaultPath: path });
+              await shellOpen(path);
             }}
           >
             <FolderCog />
@@ -303,7 +300,7 @@ export function GlobalMenu() {
           <Item
             onClick={async () => {
               const path = await appCacheDir();
-              await open({ directory: true, defaultPath: path });
+              await shellOpen(path);
             }}
           >
             <FolderClock />
@@ -312,8 +309,8 @@ export function GlobalMenu() {
           <Item
             disabled={!activeProject || activeProject.isDraft}
             onClick={async () => {
-              const absPath = activeProject!.uri.fsPath;
-              await open({ directory: true, defaultPath: absPath });
+              const path = await join(activeProject!.uri.fsPath, "..");
+              await shellOpen(path);
             }}
           >
             <FolderOpen />
