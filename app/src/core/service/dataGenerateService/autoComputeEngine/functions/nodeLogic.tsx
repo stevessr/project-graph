@@ -1,15 +1,15 @@
-import { Color, Vector } from "@graphif/data-structures";
-import { v4 } from "uuid";
-import { Renderer } from "@/core/render/canvas2d/renderer";
-import { Camera } from "@/core/stage/Camera";
-import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
-import { ConnectPoint } from "@/core/stage/stageObject/entity/ConnectPoint";
-import { PenStroke } from "@/core/stage/stageObject/entity/PenStroke";
-import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Project } from "@/core/Project";
 import { MouseLocation } from "@/core/service/controlService/MouseLocation";
 import { PenStrokeDeletedEffect } from "@/core/service/feedbackService/effectEngine/concrete/PenStrokeDeletedEffect";
 import { SoundService } from "@/core/service/feedbackService/SoundService";
-import { AutoComputeUtils } from "@/core/service/dataGenerateService/autoComputeEngine/AutoComputeUtils";
+import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
+import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
+import { ConnectPoint } from "@/core/stage/stageObject/entity/ConnectPoint";
+import { PenStroke } from "@/core/stage/stageObject/entity/PenStroke";
+import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
+import { Color, Vector } from "@graphif/data-structures";
+import { Rectangle } from "@graphif/shapes";
 
 /**
  * 直接获取输入节点和下游输出节点
@@ -30,7 +30,11 @@ export namespace NodeLogic {
    * @param childNodes
    * @returns
    */
-  export function setColorByRGB(fatherNodes: ConnectableEntity[], childNodes: ConnectableEntity[]): string[] {
+  export function setColorByRGB(
+    _project: Project,
+    fatherNodes: ConnectableEntity[],
+    childNodes: ConnectableEntity[],
+  ): string[] {
     if (fatherNodes.length !== 3) {
       return [];
     }
@@ -50,7 +54,11 @@ export namespace NodeLogic {
     return [];
   }
 
-  export function setColorByRGBA(fatherNodes: ConnectableEntity[], childNodes: ConnectableEntity[]): string[] {
+  export function setColorByRGBA(
+    _project: Project,
+    fatherNodes: ConnectableEntity[],
+    childNodes: ConnectableEntity[],
+  ): string[] {
     if (fatherNodes.length !== 4) {
       return [];
     }
@@ -78,8 +86,8 @@ export namespace NodeLogic {
   }
 
   export function getLocation(
+    _project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     // 只获取第一个父节点元素
@@ -91,7 +99,11 @@ export namespace NodeLogic {
     return [location.x.toString(), location.y.toString()];
   }
 
-  export function setLocation(fatherNodes: ConnectableEntity[], childNodes: ConnectableEntity[]): string[] {
+  export function setLocation(
+    _project: Project,
+    fatherNodes: ConnectableEntity[],
+    childNodes: ConnectableEntity[],
+  ): string[] {
     if (fatherNodes.length < 2) {
       return [];
     }
@@ -112,8 +124,8 @@ export namespace NodeLogic {
   }
 
   export function setLocationByUUID(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 3) {
@@ -123,7 +135,7 @@ export namespace NodeLogic {
     const fatherNode2 = fatherNodes[1];
     const fatherNode3 = fatherNodes[2];
     if (fatherNode1 instanceof TextNode && fatherNode2 instanceof TextNode && fatherNode3 instanceof TextNode) {
-      const findEntity = this.project.stageManager.getEntitiesByUUIDs([fatherNode1.text])[0];
+      const findEntity = project.stageManager.getEntitiesByUUIDs([fatherNode1.text])[0];
       if (!findEntity) {
         return ["Error: cannot find entity by uuid"];
       }
@@ -143,13 +155,13 @@ export namespace NodeLogic {
   }
 
   export function getLocationByUUID(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     const fatherNode1 = fatherNodes[0];
     if (fatherNode1 instanceof TextNode) {
-      const findEntity = this.project.stageManager.getEntitiesByUUIDs([fatherNode1.text])[0];
+      const findEntity = project.stageManager.getEntitiesByUUIDs([fatherNode1.text])[0];
       if (!findEntity) {
         return ["Error: cannot find entity by uuid"];
       }
@@ -161,8 +173,8 @@ export namespace NodeLogic {
   }
 
   export function getSize(
+    _project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     // 只获取第一个父节点元素
@@ -175,9 +187,8 @@ export namespace NodeLogic {
   }
 
   export function getMouseLocation(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _project: Project,
     _fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     const mouseLocation = MouseLocation.vector();
@@ -185,29 +196,27 @@ export namespace NodeLogic {
   }
 
   export function getMouseWorldLocation(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    project: Project,
     _fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     const mouseLocation = MouseLocation.vector();
-    const worldLocation = Renderer.transformView2World(mouseLocation);
+    const worldLocation = project.renderer.transformView2World(mouseLocation);
     return [worldLocation.x.toString(), worldLocation.y.toString()];
   }
 
   export function getCameraLocation(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    project: Project,
     _fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
-    const cameraLocation = Camera.location;
+    const cameraLocation = project.camera.location;
     return [cameraLocation.x.toString(), cameraLocation.y.toString()];
   }
 
   export function setCameraLocation(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 2) {
@@ -218,24 +227,23 @@ export namespace NodeLogic {
     if (fatherNode1 instanceof TextNode && fatherNode2 instanceof TextNode) {
       const x = parseFloat(fatherNode1.text);
       const y = parseFloat(fatherNode2.text);
-      Camera.location = new Vector(x, y);
+      project.camera.location = new Vector(x, y);
     }
     return [];
   }
 
   export function getCameraScale(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    project: Project,
     _fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
-    const cameraScale = Camera.currentScale;
+    const cameraScale = project.camera.currentScale;
     return [cameraScale.toString()];
   }
 
   export function setCameraScale(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 1) {
@@ -244,12 +252,16 @@ export namespace NodeLogic {
     const fatherNode = fatherNodes[0];
     if (fatherNode instanceof TextNode) {
       const scale = parseFloat(fatherNode.text);
-      Camera.targetScale = scale;
+      project.camera.targetScale = scale;
     }
     return [];
   }
 
-  export function isCollision(fatherNodes: ConnectableEntity[], childNodes: ConnectableEntity[]): string[] {
+  export function isCollision(
+    _project: Project,
+    fatherNodes: ConnectableEntity[],
+    childNodes: ConnectableEntity[],
+  ): string[] {
     if (fatherNodes.length < 1) {
       return ["0"];
     }
@@ -261,9 +273,8 @@ export namespace NodeLogic {
   }
 
   export function getTime(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _project: Project,
     _fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     const time = new Date().getTime();
@@ -271,9 +282,8 @@ export namespace NodeLogic {
   }
 
   export function getDateTime(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _project: Project,
     _fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     const date = new Date();
@@ -292,8 +302,8 @@ export namespace NodeLogic {
   }
 
   export function addDateTime(
+    _project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 8) {
@@ -351,8 +361,8 @@ export namespace NodeLogic {
    * @param _childNodes
    */
   export function playSound(
+    _project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 1) {
@@ -370,17 +380,16 @@ export namespace NodeLogic {
     return [];
   }
   export function getFps(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    project: Project,
     _fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
-    return [Renderer.fps.toString()];
+    return [project.renderer.fps.toString()];
   }
 
   export function collectNodeNameByRGBA(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 4) {
@@ -398,9 +407,9 @@ export namespace NodeLogic {
       const a = parseFloat(fatherNodes[3].text);
       const matchColor = new Color(r, g, b, a);
       const matchNodes: TextNode[] = [];
-      for (const node of this.project.stageManager.getTextNodes()) {
+      for (const node of project.stageManager.getTextNodes()) {
         // 避开与逻辑节点相连的节点
-        if (AutoComputeUtils.isNodeConnectedWithLogicNode(node)) {
+        if (project.autoComputeUtils.isNodeConnectedWithLogicNode(node)) {
           continue;
         }
         if (node.text.trim() === "") {
@@ -422,11 +431,11 @@ export namespace NodeLogic {
   /**
    * 通过RGBA四个数字来收集颜色匹配的节点
    * @param fatherNodes
-   * @param childNodes
+   * @param _childNodes
    */
   export function collectNodeDetailsByRGBA(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 4) {
@@ -444,9 +453,9 @@ export namespace NodeLogic {
       const a = parseFloat(fatherNodes[3].text);
       const matchColor = new Color(r, g, b, a);
       const matchNodes: TextNode[] = [];
-      for (const node of this.project.stageManager.getTextNodes()) {
+      for (const node of project.stageManager.getTextNodes()) {
         // 避开与逻辑节点相连的节点
-        if (AutoComputeUtils.isNodeConnectedWithLogicNode(node)) {
+        if (project.autoComputeUtils.isNodeConnectedWithLogicNode(node)) {
           continue;
         }
         if (node.details.trim() === "") {
@@ -466,8 +475,8 @@ export namespace NodeLogic {
   }
 
   export function getNodeRGBA(
+    _project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 1) {
@@ -482,8 +491,8 @@ export namespace NodeLogic {
   }
 
   export function getNodeUUID(
+    _project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 1) {
@@ -501,8 +510,8 @@ export namespace NodeLogic {
    * @returns
    */
   export function createTextNodeOnLocation(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 4) {
@@ -522,15 +531,11 @@ export namespace NodeLogic {
       if (b === 1) {
         const x = parseFloat(fatherNode1.text);
         const y = parseFloat(fatherNode2.text);
-        const textNode = new TextNode(this.project, {
-          uuid: v4(),
-          details: "",
-          location: [x, y],
-          size: [100, 100],
-          color: [0, 0, 0, 0],
+        const textNode = new TextNode(project, {
+          collisionBox: new CollisionBox([new Rectangle(new Vector(x, y), new Vector(100, 50))]),
           text: fatherNode3.text,
         });
-        this.project.stageManager.add(textNode);
+        project.stageManager.add(textNode);
         return [textNode.uuid];
       } else {
         return ["暂停创建节点"];
@@ -546,8 +551,8 @@ export namespace NodeLogic {
    * @param _childNodes
    */
   export function isHaveEntityOnLocation(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 2) {
@@ -559,7 +564,7 @@ export namespace NodeLogic {
       const x = parseFloat(fatherNode1.text);
       const y = parseFloat(fatherNode2.text);
       if (Number.isFinite(x) && Number.isFinite(y)) {
-        const entity = this.project.stageManager.isEntityOnLocation(new Vector(x, y));
+        const entity = project.stageManager.isEntityOnLocation(new Vector(x, y));
         if (entity) {
           return ["1"];
         } else {
@@ -574,8 +579,8 @@ export namespace NodeLogic {
   }
 
   export function replaceGlobalContent(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length !== 2) {
@@ -585,9 +590,9 @@ export namespace NodeLogic {
     if (fatherNodes[0] instanceof TextNode && fatherNodes[0].text.trim() !== "" && fatherNodes[1] instanceof TextNode) {
       const content = fatherNodes[0].text;
       const newString = fatherNodes[1].text;
-      for (const node of this.project.stageManager.getTextNodes()) {
+      for (const node of project.stageManager.getTextNodes()) {
         // 避开与逻辑节点相连的节点
-        if (AutoComputeUtils.isNodeConnectedWithLogicNode(node)) {
+        if (project.autoComputeUtils.isNodeConnectedWithLogicNode(node)) {
           continue;
         }
         if (node.text.trim() !== "" && node.text.includes(content)) {
@@ -605,8 +610,8 @@ export namespace NodeLogic {
    * @param _childNodes
    */
   export function searchContent(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length !== 2) {
@@ -619,7 +624,7 @@ export namespace NodeLogic {
         return ["第二个参数只能输入 0/1"];
       }
       const searchResultNodes: TextNode[] = [];
-      for (const node of this.project.stageManager.getTextNodes()) {
+      for (const node of project.stageManager.getTextNodes()) {
         if (isCaseSensitive) {
           if (node.text.includes(searchString)) {
             searchResultNodes.push(node);
@@ -636,8 +641,8 @@ export namespace NodeLogic {
   }
 
   export function deletePenStrokeByColor(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 4) {
@@ -654,14 +659,14 @@ export namespace NodeLogic {
       const b = parseInt(fatherNodes[2].text);
       const a = parseFloat(fatherNodes[3].text);
       const collectPenStrokes: PenStroke[] = [];
-      for (const penStroke of this.project.stageManager.getPenStrokes()) {
-        if (penStroke.getColor().equals(new Color(r, g, b, a))) {
+      for (const penStroke of project.stageManager.getPenStrokes()) {
+        if (penStroke.color.equals(new Color(r, g, b, a))) {
           collectPenStrokes.push(penStroke);
         }
       }
       for (const penStroke of collectPenStrokes) {
-        this.project.effects.addEffect(PenStrokeDeletedEffect.fromPenStroke(penStroke));
-        this.project.stageManager.deleteOnePenStroke(penStroke);
+        project.effects.addEffect(PenStrokeDeletedEffect.fromPenStroke(penStroke));
+        project.stageManager.delete(penStroke);
       }
     }
     return [];
@@ -677,8 +682,8 @@ export namespace NodeLogic {
    *   - 如果当前步数没有输出，返回默认字符串。
    */
   export function delayCopy(
+    project: Project,
     fatherNodes: ConnectableEntity[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _childNodes: ConnectableEntity[],
   ): string[] {
     if (fatherNodes.length < 4) {
@@ -711,6 +716,7 @@ export namespace NodeLogic {
         state = [];
       }
       // 在未来的(step + delayTime)刻时把str输出
+      // TODO: step
       state[step + delayTime] = str;
       if (state[step] !== undefined) {
         const result = state[step];

@@ -17,7 +17,11 @@ import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 
 type MathFunctionType = (args: number[]) => number[];
 type StringFunctionType = (args: string[]) => string[];
-type OtherFunctionType = (fatherNodes: ConnectableEntity[], childNodes: ConnectableEntity[]) => string[];
+type OtherFunctionType = (
+  project: Project,
+  fatherNodes: ConnectableEntity[],
+  childNodes: ConnectableEntity[],
+) => string[];
 type StringFunctionMap = Record<string, StringFunctionType>;
 type OtherFunctionMap = Record<string, OtherFunctionType>;
 
@@ -280,6 +284,7 @@ export class AutoCompute {
         if (name === LogicNodeNameEnum.DELAY_COPY) {
           // 延迟复制要传逻辑节点本身的uuid
           const result = this.MapOtherFunction[name](
+            this.project,
             [...this.project.autoComputeUtils.getParentEntities(node), node],
             this.project.autoComputeUtils.getChildTextNodes(node),
           );
@@ -287,6 +292,7 @@ export class AutoCompute {
           continue;
         }
         const result = this.MapOtherFunction[name](
+          this.project,
           this.project.autoComputeUtils.getParentEntities(node),
           this.project.autoComputeUtils.getChildTextNodes(node),
         );
