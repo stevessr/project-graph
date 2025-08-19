@@ -52,7 +52,7 @@ import type { Camera } from "@/core/stage/Camera";
 import type { Canvas } from "@/core/stage/Canvas";
 import { GraphMethods } from "@/core/stage/stageManager/basicMethods/GraphMethods";
 import { SectionMethods } from "@/core/stage/stageManager/basicMethods/SectionMethods";
-import type { LayoutManualAlign } from "@/core/stage/stageManager/concreteMethods/layoutManager/layoutManualAlignManager";
+import type { LayoutManager } from "@/core/stage/stageManager/concreteMethods/LayoutManager";
 import type { AutoAlign } from "@/core/stage/stageManager/concreteMethods/StageAutoAlignManager";
 import type { DeleteManager } from "@/core/stage/stageManager/concreteMethods/StageDeleteManager";
 import type { EntityMoveManager } from "@/core/stage/stageManager/concreteMethods/StageEntityMoveManager";
@@ -427,7 +427,7 @@ declare module "./Project" {
     copyEngine: CopyEngine;
     autoLayout: AutoLayout;
     autoLayoutFastTree: AutoLayoutFastTree;
-    layoutManualAlign: LayoutManualAlign;
+    layoutManager: LayoutManager;
     autoAlign: AutoAlign;
     mouseInteraction: MouseInteraction;
     contentSearch: ContentSearch;

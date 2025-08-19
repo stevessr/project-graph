@@ -603,51 +603,51 @@ export class KeyBindsRegistrar {
 
     // 对齐相关快捷键
     await this.project.keyBinds.create("alignTop", "8 8", () => {
-      this.project.layoutManualAlign.alignTop();
+      this.project.layoutManager.alignTop();
       this.project.stageManager.changeSelectedEdgeConnectLocation(Direction.Up, true);
       this.project.stageManager.changeSelectedEdgeConnectLocation(Direction.Down);
     });
 
     await this.project.keyBinds.create("alignBottom", "2 2", () => {
-      this.project.layoutManualAlign.alignBottom();
+      this.project.layoutManager.alignBottom();
       this.project.stageManager.changeSelectedEdgeConnectLocation(Direction.Down, true);
       this.project.stageManager.changeSelectedEdgeConnectLocation(Direction.Up);
     });
 
     await this.project.keyBinds.create("alignLeft", "4 4", () => {
-      this.project.layoutManualAlign.alignLeft();
+      this.project.layoutManager.alignLeft();
       this.project.stageManager.changeSelectedEdgeConnectLocation(Direction.Left, true);
       this.project.stageManager.changeSelectedEdgeConnectLocation(Direction.Right);
     });
 
     await this.project.keyBinds.create("alignRight", "6 6", () => {
-      this.project.layoutManualAlign.alignRight();
+      this.project.layoutManager.alignRight();
       this.project.stageManager.changeSelectedEdgeConnectLocation(Direction.Right, true);
       this.project.stageManager.changeSelectedEdgeConnectLocation(Direction.Left);
     });
 
     await this.project.keyBinds.create("alignHorizontalSpaceBetween", "4 6 4 6", () => {
-      this.project.layoutManualAlign.alignHorizontalSpaceBetween();
+      this.project.layoutManager.alignHorizontalSpaceBetween();
     });
 
     await this.project.keyBinds.create("alignVerticalSpaceBetween", "8 2 8 2", () => {
-      this.project.layoutManualAlign.alignVerticalSpaceBetween();
+      this.project.layoutManager.alignVerticalSpaceBetween();
     });
 
     await this.project.keyBinds.create("alignCenterHorizontal", "5 4 6", () => {
-      this.project.layoutManualAlign.alignCenterHorizontal();
+      this.project.layoutManager.alignCenterHorizontal();
     });
 
     await this.project.keyBinds.create("alignCenterVertical", "5 8 2", () => {
-      this.project.layoutManualAlign.alignCenterVertical();
+      this.project.layoutManager.alignCenterVertical();
     });
 
     await this.project.keyBinds.create("alignLeftToRightNoSpace", "4 5 6", () => {
-      this.project.layoutManualAlign.alignLeftToRightNoSpace();
+      this.project.layoutManager.alignLeftToRightNoSpace();
     });
 
     await this.project.keyBinds.create("alignTopToBottomNoSpace", "8 5 2", () => {
-      this.project.layoutManualAlign.alignTopToBottomNoSpace();
+      this.project.layoutManager.alignTopToBottomNoSpace();
     });
 
     // 全连接
@@ -797,7 +797,7 @@ export class KeyBindsRegistrar {
         newNodes.forEach((newNode) => {
           newNode.isSelected = true;
         });
-        this.project.layoutManualAlign.alignTopToBottomNoSpace();
+        this.project.layoutManager.alignTopToBottomNoSpace();
         newNodes.forEach((newNode) => {
           newNode.isSelected = false;
         });

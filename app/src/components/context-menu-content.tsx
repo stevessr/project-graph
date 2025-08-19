@@ -12,15 +12,24 @@ import {
   AlignCenterVertical,
   AlignEndHorizontal,
   AlignEndVertical,
+  AlignHorizontalJustifyEnd,
   AlignHorizontalSpaceBetween,
   AlignStartHorizontal,
   AlignStartVertical,
+  AlignVerticalJustifyEnd,
   AlignVerticalSpaceBetween,
+  ArrowDownUp,
+  ArrowLeftRight,
   Asterisk,
   Box,
+  ChevronsRightLeft,
   Clipboard,
+  Code,
   Copy,
   Dot,
+  Grip,
+  MoveHorizontal,
+  Network,
   Package,
   Scissors,
   SquareRoundCorner,
@@ -42,6 +51,11 @@ export default function MyContextMenuContent() {
   const [p] = useAtom(activeProjectAtom);
   const { t } = useTranslation("contextMenu");
   if (!p) return <></>;
+
+  const selectedTreeRoot =
+    p.stageManager.getSelectedEntities().length === 1 &&
+    p.stageManager.getSelectedEntities()[0] instanceof ConnectableEntity &&
+    p.graphMethods.isTree(p.stageManager.getSelectedEntities()[0] as ConnectableEntity);
 
   return (
     <Content>
@@ -69,78 +83,212 @@ export default function MyContextMenuContent() {
           </KeyTooltip>
         )}
       </Item>
+      <Item className="bg-transparent! gap-0 p-0">
+        {p.stageManager.getSelectedEntities().length >= 2 && (
+          <div className="grid min-w-0 grid-cols-3 grid-rows-3">
+            <KeyTooltip keyId="alignLeft">
+              <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManager.alignLeft()}>
+                <AlignStartVertical />
+              </Button>
+            </KeyTooltip>
+            <KeyTooltip keyId="alignCenterVertical">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.layoutManager.alignCenterVertical()}
+              >
+                <AlignCenterVertical />
+              </Button>
+            </KeyTooltip>
+            <KeyTooltip keyId="alignRight">
+              <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManager.alignRight()}>
+                <AlignEndVertical />
+              </Button>
+            </KeyTooltip>
+            <KeyTooltip keyId="alignTop">
+              <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManager.alignTop()}>
+                <AlignStartHorizontal />
+              </Button>
+            </KeyTooltip>
+            <KeyTooltip keyId="alignCenterHorizontal">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.layoutManager.alignCenterHorizontal()}
+              >
+                <AlignCenterHorizontal />
+              </Button>
+            </KeyTooltip>
+            <KeyTooltip keyId="alignBottom">
+              <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManager.alignBottom()}>
+                <AlignEndHorizontal />
+              </Button>
+            </KeyTooltip>
+            <KeyTooltip keyId="alignHorizontalSpaceBetween">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.layoutManager.alignHorizontalSpaceBetween()}
+              >
+                <AlignHorizontalSpaceBetween />
+              </Button>
+            </KeyTooltip>
+            <KeyTooltip keyId="layoutToSquare">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.layoutManager.layoutToSquare(p.stageManager.getSelectedEntities())}
+              >
+                <Grip />
+              </Button>
+            </KeyTooltip>
+            <KeyTooltip keyId="alignVerticalSpaceBetween">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.layoutManager.alignVerticalSpaceBetween()}
+              >
+                <AlignVerticalSpaceBetween />
+              </Button>
+            </KeyTooltip>
+          </div>
+        )}
+        <div className="grid min-w-0 grid-cols-3 grid-rows-3">
+          {selectedTreeRoot ? (
+            <KeyTooltip keyId="treeReverseY">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() =>
+                  p.autoLayoutFastTree.treeReverseY(p.stageManager.getSelectedEntities()[0] as ConnectableEntity)
+                }
+              >
+                <ArrowDownUp />
+              </Button>
+            </KeyTooltip>
+          ) : (
+            <div />
+          )}
+          {selectedTreeRoot ? (
+            <KeyTooltip keyId="autoLayoutSelectedFastTreeModeRight">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() =>
+                  p.autoAlign.autoLayoutSelectedFastTreeModeRight(
+                    p.stageManager.getSelectedEntities()[0] as ConnectableEntity,
+                  )
+                }
+              >
+                <Network className="-rotate-90" />
+              </Button>
+            </KeyTooltip>
+          ) : (
+            <div />
+          )}
+          {p.stageManager.getSelectedEntities().length >= 2 ? (
+            <KeyTooltip keyId="alignLeftToRightNoSpace">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.layoutManager.alignLeftToRightNoSpace()}
+              >
+                <AlignHorizontalJustifyEnd />
+              </Button>
+            </KeyTooltip>
+          ) : (
+            <div />
+          )}
+          {selectedTreeRoot ? (
+            <KeyTooltip keyId="treeReverseX">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() =>
+                  p.autoLayoutFastTree.treeReverseX(p.stageManager.getSelectedEntities()[0] as ConnectableEntity)
+                }
+              >
+                <ArrowLeftRight />
+              </Button>
+            </KeyTooltip>
+          ) : (
+            <div />
+          )}
+          {selectedTreeRoot ? (
+            <KeyTooltip keyId="autoLayoutSelectedFastTreeModeDown">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() =>
+                  p.autoAlign.autoLayoutSelectedFastTreeModeDown(
+                    p.stageManager.getSelectedEntities()[0] as ConnectableEntity,
+                  )
+                }
+              >
+                <Network />
+              </Button>
+            </KeyTooltip>
+          ) : (
+            <div />
+          )}
+          {p.stageManager.getSelectedEntities().length >= 2 && (
+            <>
+              <KeyTooltip keyId="alignTopToBottomNoSpace">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => p.layoutManager.alignTopToBottomNoSpace()}
+                >
+                  <AlignVerticalJustifyEnd />
+                </Button>
+              </KeyTooltip>
+              <KeyTooltip keyId="adjustSelectedTextNodeWidthMin">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => p.layoutManager.adjustSelectedTextNodeWidth("minWidth")}
+                >
+                  <ChevronsRightLeft />
+                </Button>
+              </KeyTooltip>
+              <KeyTooltip keyId="adjustSelectedTextNodeWidthAverage">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => p.layoutManager.adjustSelectedTextNodeWidth("average")}
+                >
+                  <MoveHorizontal />
+                </Button>
+              </KeyTooltip>
+              <KeyTooltip keyId="adjustSelectedTextNodeWidthMax">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => p.layoutManager.adjustSelectedTextNodeWidth("maxWidth")}
+                >
+                  <Code />
+                </Button>
+              </KeyTooltip>
+            </>
+          )}
+        </div>
+      </Item>
       {p.stageManager.getSelectedEntities().length >= 2 && (
         <>
-          <Item className="bg-transparent! gap-0 p-0">
-            <div className="grid min-w-0 grid-cols-3 grid-rows-3">
-              <KeyTooltip keyId="alignLeft">
-                <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManualAlign.alignLeft()}>
-                  <AlignStartVertical />
-                </Button>
-              </KeyTooltip>
-              <KeyTooltip keyId="alignCenterVertical">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-6"
-                  onClick={() => p.layoutManualAlign.alignCenterVertical()}
-                >
-                  <AlignCenterVertical />
-                </Button>
-              </KeyTooltip>
-              <KeyTooltip keyId="alignRight">
-                <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManualAlign.alignRight()}>
-                  <AlignEndVertical />
-                </Button>
-              </KeyTooltip>
-              <KeyTooltip keyId="alignTop">
-                <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManualAlign.alignTop()}>
-                  <AlignStartHorizontal />
-                </Button>
-              </KeyTooltip>
-              <KeyTooltip keyId="alignCenterHorizontal">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-6"
-                  onClick={() => p.layoutManualAlign.alignCenterHorizontal()}
-                >
-                  <AlignCenterHorizontal />
-                </Button>
-              </KeyTooltip>
-              <KeyTooltip keyId="alignBottom">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-6"
-                  onClick={() => p.layoutManualAlign.alignBottom()}
-                >
-                  <AlignEndHorizontal />
-                </Button>
-              </KeyTooltip>
-              <KeyTooltip keyId="alignHorizontalSpaceBetween">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-6"
-                  onClick={() => p.layoutManualAlign.alignHorizontalSpaceBetween()}
-                >
-                  <AlignHorizontalSpaceBetween />
-                </Button>
-              </KeyTooltip>
-              <div />
-              <KeyTooltip keyId="alignVerticalSpaceBetween">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-6"
-                  onClick={() => p.layoutManualAlign.alignVerticalSpaceBetween()}
-                >
-                  <AlignVerticalSpaceBetween />
-                </Button>
-              </KeyTooltip>
-            </div>
-          </Item>
           <Item onClick={() => p.stageManager.packEntityToSectionBySelected()}>
             <Box />
             {t("packToSection")}

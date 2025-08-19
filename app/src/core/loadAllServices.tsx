@@ -53,7 +53,7 @@ import { Camera } from "@/core/stage/Camera";
 import { Canvas } from "@/core/stage/Canvas";
 import { GraphMethods } from "@/core/stage/stageManager/basicMethods/GraphMethods";
 import { SectionMethods } from "@/core/stage/stageManager/basicMethods/SectionMethods";
-import { LayoutManualAlign } from "@/core/stage/stageManager/concreteMethods/layoutManager/layoutManualAlignManager";
+import { LayoutManager } from "@/core/stage/stageManager/concreteMethods/LayoutManager";
 import { AutoAlign } from "@/core/stage/stageManager/concreteMethods/StageAutoAlignManager";
 import { DeleteManager } from "@/core/stage/stageManager/concreteMethods/StageDeleteManager";
 import { EntityMoveManager } from "@/core/stage/stageManager/concreteMethods/StageEntityMoveManager";
@@ -97,7 +97,7 @@ export function loadAllServices(project: Project): void {
   project.loadService(CopyEngine);
   project.loadService(AutoLayout);
   project.loadService(AutoLayoutFastTree);
-  project.loadService(LayoutManualAlign);
+  project.loadService(LayoutManager);
   project.loadService(AutoAlign);
   project.loadService(MouseInteraction);
   project.loadService(ContentSearch);
