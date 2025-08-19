@@ -10,7 +10,6 @@ import { Direction } from "@/types/directions";
 import { MarkdownNode, parseMarkdownToJSON } from "@/utils/markdownParse";
 import { Color, MonoStack, ProgressNumber, Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
-import { v4 as uuidv4 } from "uuid";
 
 /**
  * 包含增加节点的方法
@@ -31,11 +30,8 @@ export class NodeAdder {
     addToSections: Section[],
     selectCurrent = false,
   ): Promise<string> {
-    const newUUID = uuidv4();
     const node = new TextNode(this.project, {
-      uuid: newUUID,
       text: await this.getAutoName(),
-      details: "",
       collisionBox: new CollisionBox([new Rectangle(clickWorldLocation, Vector.getZero())]),
     });
     node.color = await this.getAutoColor();
@@ -61,7 +57,7 @@ export class NodeAdder {
     }
 
     this.project.historyManager.recordStep();
-    return newUUID;
+    return node.uuid;
   }
 
   /**
@@ -152,10 +148,8 @@ export class NodeAdder {
   }
 
   public addConnectPoint(clickWorldLocation: Vector, addToSections: Section[]): string {
-    const newUUID = uuidv4();
     const connectPoint = new ConnectPoint(this.project, {
-      uuid: newUUID,
-      location: [clickWorldLocation.x, clickWorldLocation.y],
+      collisionBox: new CollisionBox([new Rectangle(clickWorldLocation, Vector.getZero())]),
     });
     this.project.stageManager.add(connectPoint);
     for (const section of addToSections) {

@@ -8,7 +8,6 @@ import { StageObject } from "@/core/stage/stageObject/abstract/StageObject";
 import { Edge } from "@/core/stage/stageObject/association/Edge";
 import { LineEdge } from "@/core/stage/stageObject/association/LineEdge";
 import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
-import { PortalNode } from "@/core/stage/stageObject/entity/PortalNode";
 import { Section } from "@/core/stage/stageObject/entity/Section";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { UrlNode } from "@/core/stage/stageObject/entity/UrlNode";
@@ -250,57 +249,6 @@ export class ControllerUtils {
       });
   }
 
-  editPortalNodeTitle(clickedPortalNode: PortalNode) {
-    this.project.controller.isCameraLocked = true;
-    // 编辑节点
-    clickedPortalNode.isEditingTitle = true;
-    this.project.inputElement
-      .input(
-        this.project.renderer
-          .transformWorld2View(clickedPortalNode.rectangle.location)
-          .add(Vector.same(Renderer.NODE_PADDING).multiply(this.project.camera.currentScale)),
-        clickedPortalNode.title,
-        (text) => {
-          clickedPortalNode?.rename(text);
-        },
-        {
-          fontSize: Renderer.FONT_SIZE * this.project.camera.currentScale + "px",
-          backgroundColor: "transparent",
-          color: this.project.stageStyleManager.currentStyle.StageObjectBorder.toString(),
-          outline: "none",
-          marginTop: -8 * this.project.camera.currentScale + "px",
-          width: "100vw",
-        },
-      )
-      .then(() => {
-        clickedPortalNode!.isEditingTitle = false;
-        this.project.controller.isCameraLocked = false;
-        this.project.historyManager.recordStep();
-      });
-  }
-
-  /**
-   * 一个全局对象，用于编辑节点的钩子函数
-   */
-  editTextNodeHookGlobal = {
-    /**
-     * 编辑节点的钩子函数，用于开始编辑，弹窗触发
-     * @param _
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    hookFunctionStart(_: Entity) {
-      // 在外部将被修改
-    },
-    /**
-     * 编辑节点的钩子函数，用于结束编辑，弹窗关闭
-     * @param _
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    hookFunctionEnd(_: Entity) {
-      // 在外部将被修改
-    },
-  };
-
   /**
    * 通过快捷键的方式来打开Entity的详细信息编辑
    */
@@ -318,14 +266,12 @@ export class ControllerUtils {
     // 编辑节点详细信息的视野移动锁定解除，——用户：快深频
 
     clickedNode.isEditingDetails = true;
-    this.editTextNodeHookGlobal.hookFunctionStart(clickedNode);
   }
 
   async addTextNodeByLocation(location: Vector, selectCurrent: boolean = false) {
     const sections = this.project.sectionMethods.getSectionsByInnerLocation(location);
     // 新建节点
     const uuid = await this.project.nodeAdder.addTextNodeByClick(location, sections, selectCurrent);
-    this.textNodeInEditModeByUUID(uuid);
     return uuid;
   }
   createConnectPoint(location: Vector) {
