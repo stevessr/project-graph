@@ -9,7 +9,7 @@ const _cache = new MaxSizeCache<string, number>(10000);
 /** canvas中使用的字体 */
 export let FONT = "-apple-system, BlinkMacSystemFont, MiSans, system-ui, sans-serif";
 if (isMac) {
-  FONT = "PingFang SC, PingFang TC, -apple-system";
+  FONT = "-apple-system, system-ui, sans-serif";
 }
 
 // eslint-disable-next-line prefer-const
