@@ -12,8 +12,8 @@ import { Settings } from "@/core/service/Settings";
 import { Telemetry } from "@/core/service/Telemetry";
 import { Themes } from "@/core/service/Themes";
 import { activeProjectAtom, projectsAtom } from "@/state";
-import { getCurrentWindow } from "@/utils/platform";
 import { getVersion } from "@tauri-apps/api/app";
+import { getAllWindows, getCurrentWindow } from "@tauri-apps/api/window";
 import { arch, platform, version } from "@tauri-apps/plugin-os";
 import { restoreStateCurrent, saveWindowState, StateFlags } from "@tauri-apps/plugin-window-state";
 import { useAtom } from "jotai";
@@ -142,6 +142,13 @@ export default function App() {
 
     // 加载完成了，显示窗口
     getCurrentWindow().show();
+    // 关闭splash
+    getAllWindows().then((windows) => {
+      const splash = windows.find((w) => w.label === "splash");
+      if (splash) {
+        splash.close();
+      }
+    });
 
     return () => {
       unlisten1?.then((f) => f());

@@ -42,8 +42,8 @@ pub fn run() {
         .setup(|app| {
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
-                let window = app.get_webview_window("main").unwrap();
-                window.open_devtools();
+                // let window = app.get_webview_window("main").unwrap();
+                // window.open_devtools();
                 app.handle().plugin(tauri_plugin_devtools::init())?;
             }
             #[cfg(desktop)]

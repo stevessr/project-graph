@@ -1,4 +1,3 @@
-import { getCurrentWindow as tauriGetCurrentWindow, Window } from "@tauri-apps/api/window";
 import { family as osFamily, platform } from "@tauri-apps/plugin-os";
 
 export const isWeb = !("__TAURI_OS_PLUGIN_INTERNALS__" in window);
@@ -27,20 +26,5 @@ export function family() {
     }
   } else {
     return osFamily();
-  }
-}
-
-export function getCurrentWindow(): Window {
-  if (isWeb) {
-    return new Proxy(
-      {},
-      {
-        get() {
-          return async () => {};
-        },
-      },
-    ) as Window;
-  } else {
-    return tauriGetCurrentWindow();
   }
 }
