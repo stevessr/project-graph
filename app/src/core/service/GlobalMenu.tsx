@@ -486,7 +486,7 @@ export function GlobalMenu() {
           {t("about.title")}
         </Trigger>
         <Content>
-          <Item onClick={() => SettingsWindow.open()}>
+          <Item onClick={() => SettingsWindow.open("about")}>
             <MessageCircleWarning />
             {t("about.title")}
           </Item>
