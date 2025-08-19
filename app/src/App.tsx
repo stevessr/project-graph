@@ -316,7 +316,7 @@ export default function App() {
   };
 
   const Tabs = () => (
-    <div ref={tabsContainerRef} className="hide-scrollbar z-10 flex h-9 w-full gap-2 overflow-x-auto whitespace-nowrap">
+    <div ref={tabsContainerRef} className="hide-scrollbar z-10 flex h-9 gap-2 overflow-x-auto whitespace-nowrap">
       {projects.map((project) => (
         <Button
           key={project.uri.toString()}
