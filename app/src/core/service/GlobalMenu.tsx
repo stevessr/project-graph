@@ -14,6 +14,7 @@ import { loadAllServices } from "@/core/loadAllServices";
 import { Project } from "@/core/Project";
 import { activeProjectAtom, isClassroomModeAtom, projectsAtom, store } from "@/state";
 import AIWindow from "@/sub/AIWindow";
+import AttachmentsWindow from "@/sub/AttachmentsWindow";
 import ExportPngWindow from "@/sub/ExportPngWindow";
 import NodeDetailsWindow from "@/sub/NodeDetailsWindow";
 import SettingsWindow from "@/sub/SettingsWindow";
@@ -55,6 +56,7 @@ import {
   MessageCircleWarning,
   MousePointer2,
   Palette,
+  Paperclip,
   PersonStanding,
   Radiation,
   Redo,
@@ -280,6 +282,11 @@ export function GlobalMenu() {
               </Sub>
             </SubContent>
           </Sub>
+          <Separator />
+          <Item disabled={!activeProject} onClick={() => AttachmentsWindow.open()}>
+            <Paperclip />
+            {t("file.attachments")}
+          </Item>
         </Content>
       </Menu>
 
