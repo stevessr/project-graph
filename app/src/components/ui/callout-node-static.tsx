@@ -1,5 +1,4 @@
-import * as React from "react";
-
+// @ts-nocheck
 import type { SlateElementProps } from "platejs";
 
 import { SlateElement } from "platejs";

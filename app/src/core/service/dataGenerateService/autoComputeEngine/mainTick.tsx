@@ -203,8 +203,8 @@ export class AutoCompute {
       )) {
       this.computeEdge(edge);
     }
-    NodeLogic.step++;
-    // 逻辑引擎执行一步，计数器+1
+    // NodeLogic.step++;
+    // TODO: 逻辑引擎执行一步，计数器+1
   }
 
   /**

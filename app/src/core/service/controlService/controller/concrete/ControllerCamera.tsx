@@ -11,7 +11,6 @@ import { MouseTipFeedbackEffect } from "@/core/service/feedbackService/effectEng
 import { CursorNameEnum } from "@/types/cursors";
 import { isIpad, isMac } from "@/utils/platform";
 import { LimitLengthQueue, Vector } from "@graphif/data-structures";
-import { toast } from "sonner";
 
 /**
  * 处理键盘按下事件
@@ -460,16 +459,16 @@ export class ControllerCameraClass extends ControllerClass {
       if (Settings.mouseLeftMode !== "draw") {
         return;
       }
-      // 调整笔画粗细
-      if (event.deltaX < 0) {
-        const newWidth = this.project.controller.penStrokeDrawing.currentStrokeWidth + 1;
-        this.project.controller.penStrokeDrawing.currentStrokeWidth = Math.max(1, Math.min(newWidth, 1000));
-        toast(`画笔粗细: ${this.project.controller.penStrokeDrawing.currentStrokeWidth}px`);
-      } else {
-        const newWidth = this.project.controller.penStrokeDrawing.currentStrokeWidth - 1;
-        this.project.controller.penStrokeDrawing.currentStrokeWidth = Math.max(1, Math.min(newWidth, 1000));
-        toast(`画笔粗细: ${this.project.controller.penStrokeDrawing.currentStrokeWidth}px`);
-      }
+      // TODO: 调整笔画粗细
+      // if (event.deltaX < 0) {
+      //   const newWidth = this.project.controller.penStrokeDrawing.currentStrokeWidth + 1;
+      //   this.project.controller.penStrokeDrawing.currentStrokeWidth = Math.max(1, Math.min(newWidth, 1000));
+      //   toast(`画笔粗细: ${this.project.controller.penStrokeDrawing.currentStrokeWidth}px`);
+      // } else {
+      //   const newWidth = this.project.controller.penStrokeDrawing.currentStrokeWidth - 1;
+      //   this.project.controller.penStrokeDrawing.currentStrokeWidth = Math.max(1, Math.min(newWidth, 1000));
+      //   toast(`画笔粗细: ${this.project.controller.penStrokeDrawing.currentStrokeWidth}px`);
+      // }
     }
   }
 

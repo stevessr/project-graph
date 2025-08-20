@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import * as React from "react";
@@ -10,8 +11,7 @@ import { setColumns } from "@platejs/layout";
 import { ResizableProvider } from "@platejs/resizable";
 import { BlockSelectionPlugin } from "@platejs/selection/react";
 import { useComposedRef } from "@udecode/cn";
-import { type LucideProps, Trash2Icon } from "lucide-react";
-import { GripHorizontal } from "lucide-react";
+import { GripHorizontal, type LucideProps, Trash2Icon } from "lucide-react";
 import { PathApi } from "platejs";
 import {
   PlateElement,

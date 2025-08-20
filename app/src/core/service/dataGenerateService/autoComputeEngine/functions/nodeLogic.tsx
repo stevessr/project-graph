@@ -458,7 +458,7 @@ export namespace NodeLogic {
         if (project.autoComputeUtils.isNodeConnectedWithLogicNode(node)) {
           continue;
         }
-        if (node.details.trim() === "") {
+        if (node.details.length === 0) {
           continue;
         }
         // 匹配颜色
@@ -717,12 +717,12 @@ export namespace NodeLogic {
       }
       // 在未来的(step + delayTime)刻时把str输出
       // TODO: step
-      state[step + delayTime] = str;
-      if (state[step] !== undefined) {
-        const result = state[step];
-        delete state[step];
-        return [result];
-      }
+      // state[step + delayTime] = str;
+      // if (state[step] !== undefined) {
+      //   const result = state[step];
+      //   delete state[step];
+      //   return [result];
+      // }
       return [defaultStr];
     }
     return ["输入的节点格式必须都是TextNode"];

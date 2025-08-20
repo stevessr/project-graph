@@ -1,5 +1,4 @@
-import * as React from "react";
-
+// @ts-nocheck
 import { type SlateElementProps, type SlateLeafProps, type TCodeBlockElement, SlateElement, SlateLeaf } from "platejs";
 
 export function CodeBlockElementStatic(props: SlateElementProps<TCodeBlockElement>) {

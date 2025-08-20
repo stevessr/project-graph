@@ -65,7 +65,6 @@ import type { StageObjectColorManager } from "@/core/stage/stageManager/concrete
 import type { StageObjectSelectCounter } from "@/core/stage/stageManager/concreteMethods/StageObjectSelectCounter";
 import type { SectionInOutManager } from "@/core/stage/stageManager/concreteMethods/StageSectionInOutManager";
 import type { SectionPackManager } from "@/core/stage/stageManager/concreteMethods/StageSectionPackManager";
-import type { SerializedDataAdder } from "@/core/stage/stageManager/concreteMethods/StageSerializedAdder";
 import type { TagManager } from "@/core/stage/stageManager/concreteMethods/StageTagManager";
 import { HistoryManager } from "@/core/stage/stageManager/StageHistoryManager";
 import type { StageManager } from "@/core/stage/stageManager/StageManager";
@@ -472,7 +471,6 @@ declare module "./Project" {
     stageExportPng: StageExportPng;
     stageExportSvg: StageExportSvg;
     generateFromFolder: GenerateFromFolder;
-    serializedDataAdder: SerializedDataAdder;
     keyBindsRegistrar: KeyBindsRegistrar;
     sectionMethods: SectionMethods;
     graphMethods: GraphMethods;

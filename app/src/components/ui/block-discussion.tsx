@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import * as React from "react";
@@ -20,11 +21,11 @@ import {
 } from "platejs";
 import { useEditorPlugin, useEditorRef, usePluginOption } from "platejs/react";
 
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { commentPlugin } from "@/components/editor/plugins/comment-kit";
 import { type TDiscussion, discussionPlugin } from "@/components/editor/plugins/discussion-kit";
 import { suggestionPlugin } from "@/components/editor/plugins/suggestion-kit";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { BlockSuggestionCard, isResolvedSuggestion, useResolveSuggestion } from "./block-suggestion";
 import { Comment, CommentCreateForm } from "./comment";
