@@ -232,7 +232,7 @@ jobs:
       #endregion
       #region Build
       - name: Write BUILD_ENV to .env file
-        if: ${{ matrix.variant != 'foss' && secrets.BUILD_ENV }}
+        if: secrets.BUILD_ENV
         run: |
           echo -e "${{ secrets.BUILD_ENV }}" > app/.env
       - name: Linux Macos - Build
