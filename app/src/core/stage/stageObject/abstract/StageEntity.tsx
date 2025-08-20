@@ -3,6 +3,7 @@ import { StageObject } from "@/core/stage/stageObject/abstract/StageObject";
 import { Vector } from "@graphif/data-structures";
 import { serializable } from "@graphif/serializer";
 import { Rectangle } from "@graphif/shapes";
+import type { Value } from "platejs";
 /**
  * 一切独立存在、能被移动的东西，且放在框里能被连带移动的东西
  * 实体
@@ -27,14 +28,9 @@ export abstract class Entity extends StageObject {
   abstract moveTo(location: Vector): void;
 
   @serializable
-  public details: string = "";
-  public isEditingDetails: boolean = false;
+  public details: Value = [];
   /** 用于交互使用，比如鼠标悬浮显示details */
   public isMouseHover: boolean = false;
-
-  changeDetails(details: string) {
-    this.details = details;
-  }
 
   public detailsButtonRectangle(): Rectangle {
     const thisRectangle = this.collisionBox.getRectangle();

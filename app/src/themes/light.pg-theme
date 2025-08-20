@@ -40,6 +40,7 @@ sidebar-accent: oklch(0.95 0 0)
 sidebar-accent-foreground: oklch(0.145 0 0)
 sidebar-border: oklch(0.145 0 0 / 10%)
 sidebar-ring: oklch(0.708 0 0)
+brand: oklch(0.623 0.214 259.815)
 
 stage:
   Background: "#ffffff"

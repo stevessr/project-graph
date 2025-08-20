@@ -74,7 +74,12 @@ export default function RenderSubWindows() {
               window.addEventListener("touchmove", onTouchMove);
             }}
           >
-            <div className={cn("flex p-1", win.titleBarOverlay && "pointer-events-none absolute left-0 top-0 w-full")}>
+            <div
+              className={cn(
+                "flex p-1",
+                win.titleBarOverlay && "pointer-events-none absolute left-0 top-0 z-[100] w-full",
+              )}
+            >
               <div className="flex-1 px-1" data-pg-drag-region={win.titleBarOverlay ? undefined : ""}>
                 {win.title}
               </div>

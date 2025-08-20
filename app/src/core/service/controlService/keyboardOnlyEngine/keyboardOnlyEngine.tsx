@@ -38,10 +38,7 @@ export class KeyboardOnlyEngine {
       this.project.controllerUtils.editTextNode(selectedNode, Settings.textNodeSelectAllWhenStartEditByKeyboard);
     };
 
-    window.addEventListener("keydown", (event) => {
-      // 防止在编辑节点时，按下其他按键导致编辑失败
-      if (!this.openning) return;
-
+    this.project.canvas.element.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         const enterKeyDetail = getEnterKey(event);
         if (Settings.textNodeStartEditMode === enterKeyDetail) {

@@ -146,21 +146,6 @@ export class EntityRenderer {
     }
   }
 
-  /**
-   * 渲染实体下方的注释（详细信息）
-   * @param entity
-   */
-  renderEntityDetails(entity: Entity) {
-    if (entity.details && !entity.isEditingDetails) {
-      if (Settings.alwaysShowDetails) {
-        this._renderEntityDetails(entity, Renderer.ENTITY_DETAILS_LIENS_LIMIT);
-      } else {
-        if (entity.isMouseHover) {
-          this._renderEntityDetails(entity, Renderer.ENTITY_DETAILS_LIENS_LIMIT);
-        }
-      }
-    }
-  }
   private _renderEntityDetails(entity: Entity, limitLiens: number) {
     this.project.textRenderer.renderMultiLineText(
       entity.details,
@@ -237,7 +222,6 @@ export class EntityRenderer {
         this.project.stageStyleManager.currentStyle.StageObjectBorder,
       );
     }
-    this.renderEntityDetails(imageNode);
   }
 
   /**

@@ -98,9 +98,6 @@ export class TextNodeRenderer {
       //   }
       // }
     }
-    if (this.project.camera.currentScale > Settings.ignoreTextNodeTextRenderLessThanCameraScale) {
-      this.project.entityRenderer.renderEntityDetails(node);
-    }
   }
 
   /**

@@ -28,9 +28,7 @@ export class ControllerNodeEditClass extends ControllerClass {
       return;
     }
 
-    if (
-      isMac ? this.project.controller.pressingKeySet.has("meta") : this.project.controller.pressingKeySet.has("control")
-    ) {
+    if (this.project.controller.pressingKeySet.has(isMac ? "meta" : "control")) {
       this.project.controllerUtils.editNodeDetails(clickedEntity);
       return;
     }

@@ -1,9 +1,9 @@
-import { mixColors, ProgressNumber, Vector } from "@graphif/data-structures";
-import { Rectangle } from "@graphif/shapes";
 import { Random } from "@/core/algorithm/random";
 import { Project } from "@/core/Project";
 import { EffectParticle } from "@/core/service/feedbackService/effectEngine/effectElements/effectParticle";
 import { Effect } from "@/core/service/feedbackService/effectEngine/effectObject";
+import { mixColors, ProgressNumber, Vector } from "@graphif/data-structures";
+import { Rectangle } from "@graphif/shapes";
 
 export class EntityDashTipEffect extends Effect {
   constructor(
@@ -23,7 +23,7 @@ export class EntityDashTipEffect extends Effect {
           pointLocation,
           pointLocation.subtract(rect.center).normalize().multiply(Random.randomFloat(0, initSpeedSize)),
           rect.center.subtract(pointLocation).normalize().multiply(initAccelerationSize),
-          this.project.stageStyleManager.currentStyle.effects.dash,
+          "dash",
           1,
         ),
       );
@@ -36,7 +36,7 @@ export class EntityDashTipEffect extends Effect {
           pointLocation,
           pointLocation.subtract(rect.center).normalize().multiply(Random.randomFloat(0, initSpeedSize)),
           rect.center.subtract(pointLocation).normalize().multiply(initAccelerationSize),
-          this.project.stageStyleManager.currentStyle.effects.dash,
+          "dash",
           1,
         ),
       );
@@ -49,7 +49,7 @@ export class EntityDashTipEffect extends Effect {
           pointLocation,
           pointLocation.subtract(rect.center).normalize().multiply(Random.randomFloat(0, initSpeedSize)),
           rect.center.subtract(pointLocation).normalize().multiply(initAccelerationSize),
-          this.project.stageStyleManager.currentStyle.effects.dash,
+          "dash",
           1,
         ),
       );
@@ -62,7 +62,7 @@ export class EntityDashTipEffect extends Effect {
           pointLocation,
           pointLocation.subtract(rect.center).normalize().multiply(Random.randomFloat(0, initSpeedSize)),
           rect.center.subtract(pointLocation).normalize().multiply(initAccelerationSize),
-          this.project.stageStyleManager.currentStyle.effects.dash,
+          "dash",
           1,
         ),
       );
@@ -86,7 +86,11 @@ export class EntityDashTipEffect extends Effect {
     for (const point of this.dashPoints) {
       project.renderUtils.renderPixel(
         project.renderer.transformWorld2View(point.location),
-        mixColors(point.color, point.color.toTransparent(), this.timeProgress.rate),
+        mixColors(
+          project.stageStyleManager.currentStyle.effects[point.color],
+          project.stageStyleManager.currentStyle.effects[point.color].toTransparent(),
+          this.timeProgress.rate,
+        ),
       );
     }
   }

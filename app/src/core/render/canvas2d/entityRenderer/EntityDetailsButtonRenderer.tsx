@@ -11,7 +11,7 @@ export class EntityDetailsButtonRenderer {
   constructor(private readonly project: Project) {}
 
   render(entity: Entity) {
-    if (!entity.details.trim()) {
+    if (entity.details.length === 0) {
       return;
     }
     // this.project.shapeRenderer.renderRect(
@@ -25,19 +25,18 @@ export class EntityDetailsButtonRenderer {
     // 鼠标悬浮在按钮上提示文字
     if (entity.detailsButtonRectangle().isPointIn(this.project.renderer.transformView2World(MouseLocation.vector()))) {
       isMouseHovering = true;
-      if (!entity.isEditingDetails)
-        // 鼠标悬浮在这上面
-        this.project.textRenderer.renderText(
-          "点击展开或关闭节点注释详情",
-          this.project.renderer.transformWorld2View(
-            entity.detailsButtonRectangle().topCenter.subtract(new Vector(0, 12)),
-          ),
-          12 * this.project.camera.currentScale,
-          this.project.stageStyleManager.currentStyle.DetailsDebugText,
-        );
+      // 鼠标悬浮在这上面
+      this.project.textRenderer.renderText(
+        "点击展开或关闭节点注释详情",
+        this.project.renderer.transformWorld2View(
+          entity.detailsButtonRectangle().topCenter.subtract(new Vector(0, 12)),
+        ),
+        12 * this.project.camera.currentScale,
+        this.project.stageStyleManager.currentStyle.DetailsDebugText,
+      );
     }
     this.project.textRenderer.renderText(
-      entity.isEditingDetails ? "✏️" : "📃",
+      "📃",
       this.project.renderer.transformWorld2View(entity.detailsButtonRectangle().leftTop),
       (isMouseHovering ? getFontSizeByTime() : 20) * this.project.camera.currentScale,
     );

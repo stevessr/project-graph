@@ -15,6 +15,7 @@ import { Project } from "@/core/Project";
 import { activeProjectAtom, isClassroomModeAtom, projectsAtom, store } from "@/state";
 import AIWindow from "@/sub/AIWindow";
 import ExportPngWindow from "@/sub/ExportPngWindow";
+import NodeDetailsWindow from "@/sub/NodeDetailsWindow";
 import SettingsWindow from "@/sub/SettingsWindow";
 import { getDeviceId } from "@/utils/otherApi";
 import { deserialize, serialize } from "@graphif/serializer";
@@ -573,6 +574,7 @@ export function GlobalMenu() {
                     <Item disabled>user = {FeatureFlags.USER ? "true" : "false"}</Item>
                   </SubContent>
                 </Sub>
+                <Item onClick={() => NodeDetailsWindow.open()}>plate</Item>
               </SubContent>
             </Sub>
           </Content>

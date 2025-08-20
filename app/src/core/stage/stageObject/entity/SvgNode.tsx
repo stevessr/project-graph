@@ -17,8 +17,6 @@ export class SvgNode extends ConnectableEntity {
   @serializable
   uuid: string;
   @serializable
-  details: string;
-  @serializable
   scale: number;
   @serializable
   collisionBox: CollisionBox;
@@ -33,7 +31,7 @@ export class SvgNode extends ConnectableEntity {
     protected readonly project: Project,
     {
       uuid = crypto.randomUUID(),
-      details = "",
+      details = [],
       attachmentId = "",
       collisionBox = new CollisionBox([new Rectangle(Vector.getZero(), Vector.getZero())]),
       scale = 1,

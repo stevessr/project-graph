@@ -22,6 +22,7 @@ export class Canvas {
       this.project.loop();
     });
     // 重定向键盘事件
+    element.addEventListener("focus", () => element.blur());
     window.addEventListener("keydown", (event) => {
       // 在窗口层面拦截浏览器默认快捷键，避免触发系统/浏览器查找/搜索等行为
       const key = event.key;
@@ -33,8 +34,12 @@ export class Canvas {
       ) {
         event.preventDefault();
       }
-      if (document.activeElement?.tagName === "INPUT") {
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.getAttribute("contenteditable") === "true"
+      ) {
         // 如果当前焦点在输入框上，则不处理键盘事件
+        console.log("fuck");
         return;
       }
       if (project.isRunning) {

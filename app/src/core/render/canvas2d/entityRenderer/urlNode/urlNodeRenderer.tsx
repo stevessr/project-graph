@@ -56,7 +56,6 @@ export class UrlNodeRenderer {
       Renderer.FONT_SIZE * 0.5 * this.project.camera.currentScale,
       this.project.stageStyleManager.currentStyle.StageObjectBorder,
     );
-    this.project.entityRenderer.renderEntityDetails(urlNode);
     // 绘制特效
     this.renderHoverState(urlNode);
   }

@@ -12,6 +12,7 @@ import { Section } from "@/core/stage/stageObject/entity/Section";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { UrlNode } from "@/core/stage/stageObject/entity/UrlNode";
 import AutoCompleteWindow from "@/sub/AutoCompleteWindow";
+import NodeDetailsWindow from "@/sub/NodeDetailsWindow";
 import { Direction } from "@/types/directions";
 import { isDesktop } from "@/utils/platform";
 import { colorInvert, Vector } from "@graphif/data-structures";
@@ -264,8 +265,10 @@ export class ControllerUtils {
   editNodeDetails(clickedNode: Entity) {
     // this.project.controller.isCameraLocked = true;
     // 编辑节点详细信息的视野移动锁定解除，——用户：快深频
-
-    clickedNode.isEditingDetails = true;
+    console.log();
+    NodeDetailsWindow.open(clickedNode.details, (value) => {
+      clickedNode.details = value;
+    });
   }
 
   async addTextNodeByLocation(location: Vector, selectCurrent: boolean = false) {

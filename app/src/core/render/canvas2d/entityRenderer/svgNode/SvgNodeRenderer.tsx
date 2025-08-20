@@ -22,7 +22,5 @@ export class SvgNodeRenderer {
       this.project.renderer.transformWorld2View(svgNode.collisionBox.getRectangle().location),
       svgNode.scale,
     );
-
-    this.project.entityRenderer.renderEntityDetails(svgNode);
   }
 }

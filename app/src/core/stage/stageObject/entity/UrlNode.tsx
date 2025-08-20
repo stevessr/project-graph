@@ -99,7 +99,7 @@ export class UrlNode extends ConnectableEntity {
     {
       uuid = crypto.randomUUID() as string,
       title = "",
-      details = "",
+      details = [],
       url = "",
       collisionBox = new CollisionBox([new Rectangle(Vector.getZero(), new Vector(UrlNode.width, UrlNode.height))]),
       color = Color.Transparent,

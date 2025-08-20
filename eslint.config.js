@@ -14,13 +14,7 @@ export default [
   },
   // https://github.com/eslint/eslint/discussions/18304
   {
-    ignores: [
-      "app/dist/*/*",
-      "app/src-tauri/*/*",
-      "docs/src/.vitepress/dist/*/*",
-      "docs/src/.vitepress/cache/*/*",
-      "!.storybook",
-    ],
+    ignores: ["app/dist/**/*", "app/src-tauri/**/*", "app/src/components/ui/**/*", "!.storybook"],
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,

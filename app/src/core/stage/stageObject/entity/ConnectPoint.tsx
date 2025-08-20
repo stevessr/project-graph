@@ -75,7 +75,7 @@ export class ConnectPoint extends ConnectableEntity {
     {
       uuid = crypto.randomUUID() as string,
       collisionBox = new CollisionBox([new Rectangle(Vector.getZero(), Vector.getZero())]),
-      details = "",
+      details = [],
     },
     public unknown = false,
   ) {

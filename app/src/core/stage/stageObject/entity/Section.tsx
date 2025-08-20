@@ -84,7 +84,7 @@ export class Section extends ConnectableEntity {
       isHidden = false,
       isCollapsed = false,
       children = [] as Entity[],
-      details = "",
+      details = [],
     } = {},
     public unknown = false,
   ) {

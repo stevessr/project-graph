@@ -232,6 +232,5 @@ export class SectionRenderer {
         );
       }
     }
-    this.project.entityRenderer.renderEntityDetails(section);
   }
 }

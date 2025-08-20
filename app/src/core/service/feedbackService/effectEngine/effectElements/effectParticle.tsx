@@ -1,4 +1,5 @@
-import { Color, Vector } from "@graphif/data-structures";
+import { Vector } from "@graphif/data-structures";
+import { EffectColors } from "../../stageStyle/stageStyle";
 
 /**
  * 粒子类
@@ -8,7 +9,7 @@ export class EffectParticle {
     public location: Vector,
     public velocity: Vector,
     public acceleration: Vector,
-    public color: Color,
+    public color: keyof EffectColors,
     public size: number,
   ) {}
 

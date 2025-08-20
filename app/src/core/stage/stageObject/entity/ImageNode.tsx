@@ -29,8 +29,6 @@ export class ImageNode extends ConnectableEntity {
   @serializable
   public collisionBox: CollisionBox;
   @serializable
-  details: string;
-  @serializable
   attachmentId: string;
   @serializable
   scale: number;
@@ -58,7 +56,7 @@ export class ImageNode extends ConnectableEntity {
     {
       uuid = crypto.randomUUID() as string,
       collisionBox = new CollisionBox([new Rectangle(Vector.getZero(), Vector.getZero())]),
-      details = "",
+      details = [],
       attachmentId = "",
       scale = 1,
     },

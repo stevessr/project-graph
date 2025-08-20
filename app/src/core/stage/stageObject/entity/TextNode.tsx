@@ -26,8 +26,6 @@ export class TextNode extends ConnectableEntity implements ResizeAble {
   @serializable
   text: string;
   @serializable
-  details: string;
-  @serializable
   public collisionBox: CollisionBox;
   @serializable
   color: Color = Color.Transparent;
@@ -96,7 +94,7 @@ export class TextNode extends ConnectableEntity implements ResizeAble {
     {
       uuid = crypto.randomUUID() as string,
       text = "",
-      details = "",
+      details = [],
       collisionBox = new CollisionBox([new Rectangle(Vector.getZero(), Vector.getZero())]),
       color = Color.Transparent,
       sizeAdjust = "auto",
