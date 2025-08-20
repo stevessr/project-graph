@@ -5,7 +5,7 @@ import { Color } from "@graphif/data-structures";
  * 管理所有 节点/连线 的颜色
  * 不仅包括添加颜色和去除颜色，还包括让颜色变暗和变亮等
  */
-@service("stageManagerColorManager")
+@service("stageObjectColorManager")
 export class StageObjectColorManager {
   constructor(private readonly project: Project) {}
 

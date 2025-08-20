@@ -1,5 +1,4 @@
 import { Project, service } from "@/core/Project";
-import { Renderer } from "@/core/render/canvas2d/renderer";
 import { Settings } from "@/core/service/Settings";
 import { Entity } from "@/core/stage/stageObject/abstract/StageEntity";
 import { ConnectPoint } from "@/core/stage/stageObject/entity/ConnectPoint";
@@ -9,7 +8,7 @@ import { Section } from "@/core/stage/stageObject/entity/Section";
 import { SvgNode } from "@/core/stage/stageObject/entity/SvgNode";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { UrlNode } from "@/core/stage/stageObject/entity/UrlNode";
-import { Color, Vector } from "@graphif/data-structures";
+import { Color } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
 
 /**
@@ -146,23 +145,6 @@ export class EntityRenderer {
     }
   }
 
-  private _renderEntityDetails(entity: Entity, limitLiens: number) {
-    this.project.textRenderer.renderMultiLineText(
-      entity.details,
-      this.project.renderer.transformWorld2View(
-        entity.collisionBox.getRectangle().location.add(new Vector(0, entity.collisionBox.getRectangle().size.y)),
-      ),
-      Renderer.FONT_SIZE_DETAILS * this.project.camera.currentScale,
-      Math.max(
-        Renderer.ENTITY_DETAILS_WIDTH * this.project.camera.currentScale,
-        entity.collisionBox.getRectangle().size.x * this.project.camera.currentScale,
-      ),
-      this.project.stageStyleManager.currentStyle.NodeDetailsText,
-      1.2,
-      limitLiens,
-    );
-  }
-
   private renderConnectPoint(connectPoint: ConnectPoint) {
     if (connectPoint.isSelected) {
       // 在外面增加一个框
@@ -178,7 +160,6 @@ export class EntityRenderer {
       this.project.stageStyleManager.currentStyle.StageObjectBorder,
       2 * this.project.camera.currentScale,
     );
-    this.renderEntityDetails(connectPoint);
   }
 
   private renderImageNode(imageNode: ImageNode) {

@@ -1,11 +1,18 @@
 import { Button } from "@/components/ui/button";
-import { ContextMenuContent, ContextMenuItem } from "@/components/ui/context-menu";
+import {
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+} from "@/components/ui/context-menu";
 import { MouseLocation } from "@/core/service/controlService/MouseLocation";
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
 import { Section } from "@/core/stage/stageObject/entity/Section";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { activeProjectAtom } from "@/state";
+import { Color } from "@graphif/data-structures";
 import { useAtom } from "jotai";
 import {
   AlignCenterHorizontal,
@@ -31,6 +38,7 @@ import {
   MoveHorizontal,
   Network,
   Package,
+  Palette,
   Scissors,
   SquareRoundCorner,
   TextSelect,
@@ -38,13 +46,14 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import tailwindColors from "tailwindcss/colors";
 import KeyTooltip from "./key-tooltip";
 
 const Content = ContextMenuContent;
 const Item = ContextMenuItem;
-// const Sub = ContextMenuSub;
-// const SubTrigger = ContextMenuSubTrigger;
-// const SubContent = ContextMenuSubContent;
+const Sub = ContextMenuSub;
+const SubTrigger = ContextMenuSubTrigger;
+const SubContent = ContextMenuSubContent;
 // const Separator = ContextMenuSeparator;
 
 export default function MyContextMenuContent() {
@@ -85,7 +94,7 @@ export default function MyContextMenuContent() {
       </Item>
       <Item className="bg-transparent! gap-0 p-0">
         {p.stageManager.getSelectedEntities().length >= 2 && (
-          <div className="grid min-w-0 grid-cols-3 grid-rows-3">
+          <div className="grid grid-cols-3 grid-rows-3">
             <KeyTooltip keyId="alignLeft">
               <Button variant="ghost" size="icon" className="size-6" onClick={() => p.layoutManager.alignLeft()}>
                 <AlignStartVertical />
@@ -158,7 +167,7 @@ export default function MyContextMenuContent() {
             </KeyTooltip>
           </div>
         )}
-        <div className="grid min-w-0 grid-cols-3 grid-rows-3">
+        <div className="grid grid-cols-3 grid-rows-3">
           {selectedTreeRoot ? (
             <KeyTooltip keyId="treeReverseY">
               <Button
@@ -287,6 +296,30 @@ export default function MyContextMenuContent() {
           )}
         </div>
       </Item>
+      {p.stageManager.getSelectedEntities().length > 0 &&
+        p.stageManager.getSelectedEntities().every((it) => "color" in it) && (
+          <Sub>
+            <SubTrigger>
+              <Palette />
+              {t("changeColor")}
+            </SubTrigger>
+            <SubContent>
+              <Item className="bg-transparent! grid grid-cols-11 flex-col gap-1">
+                {Object.values(tailwindColors)
+                  .filter((it) => typeof it !== "string")
+                  .flatMap((it) => Object.values(it).map(Color.fromCss))
+                  .map((color, index) => (
+                    <div
+                      key={index}
+                      className="h-4 w-4 rounded-full transition hover:scale-125"
+                      style={{ backgroundColor: color.toString() }}
+                      onClick={() => p.stageObjectColorManager.setSelectedStageObjectColor(color)}
+                    />
+                  ))}
+              </Item>
+            </SubContent>
+          </Sub>
+        )}
       {p.stageManager.getSelectedEntities().length >= 2 && (
         <>
           <Item onClick={() => p.stageManager.packEntityToSectionBySelected()}>
