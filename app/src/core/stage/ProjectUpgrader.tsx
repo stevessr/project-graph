@@ -484,6 +484,23 @@ export namespace ProjectUpgrader {
         }
         case "core:connect_point": {
           // 连接点
+          data = {
+            _: "ConnectPoint",
+            uuid: entity.uuid,
+            text: entity.text,
+            details: toDetails(entity.details),
+            collisionBox: {
+              _: "CollisionBox",
+              shapes: [
+                {
+                  _: "Rectangle",
+                  location: toVector(entity.location),
+                  size: toVector([1, 1]),
+                },
+              ],
+            },
+            color: toColor(entity.color),
+          };
           break;
         }
         case "core:url_node": {
