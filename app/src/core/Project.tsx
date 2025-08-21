@@ -228,29 +228,33 @@ export class Project extends EventEmitter<{
     if (!(await this.fs.exists(this.uri))) {
       return;
     }
-    const fileContent = await this.fs.read(this.uri);
-    const reader = new ZipReader(new Uint8ArrayReader(fileContent));
-    const entries = await reader.getEntries();
-    let serializedStageObjects: any[] = [];
-    for (const entry of entries) {
-      if (entry.filename === "stage.msgpack") {
-        const stageRawData = await entry.getData!(new Uint8ArrayWriter());
-        serializedStageObjects = this.decoder.decode(stageRawData) as any[];
-        // console.log(JSON.stringify(serializedStageObjects, null, 2));
-      } else if (entry.filename.startsWith("attachments/")) {
-        const match = entry.filename.trim().match(/^attachments\/([a-zA-Z0-9-]+)\.([a-zA-Z0-9]+)$/);
-        if (!match) {
-          console.warn("[Project] 附件文件名不符合规范: %s", entry.filename);
-          continue;
+    try {
+      const fileContent = await this.fs.read(this.uri);
+      const reader = new ZipReader(new Uint8ArrayReader(fileContent));
+      const entries = await reader.getEntries();
+      let serializedStageObjects: any[] = [];
+      for (const entry of entries) {
+        if (entry.filename === "stage.msgpack") {
+          const stageRawData = await entry.getData!(new Uint8ArrayWriter());
+          serializedStageObjects = this.decoder.decode(stageRawData) as any[];
+          // console.log(JSON.stringify(serializedStageObjects, null, 2));
+        } else if (entry.filename.startsWith("attachments/")) {
+          const match = entry.filename.trim().match(/^attachments\/([a-zA-Z0-9-]+)\.([a-zA-Z0-9]+)$/);
+          if (!match) {
+            console.warn("[Project] 附件文件名不符合规范: %s", entry.filename);
+            continue;
+          }
+          const uuid = match[1];
+          const ext = match[2];
+          const type = mime.getType(ext) || "application/octet-stream";
+          const attachment = await entry.getData!(new BlobWriter(type));
+          this.attachments.set(uuid, attachment);
         }
-        const uuid = match[1];
-        const ext = match[2];
-        const type = mime.getType(ext) || "application/octet-stream";
-        const attachment = await entry.getData!(new BlobWriter(type));
-        this.attachments.set(uuid, attachment);
       }
+      this.stage = deserialize(serializedStageObjects, this);
+    } catch (e) {
+      console.warn(e);
     }
-    this.stage = deserialize(serializedStageObjects, this);
     this.state = ProjectState.Saved;
   }
 

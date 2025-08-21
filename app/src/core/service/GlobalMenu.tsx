@@ -20,11 +20,12 @@ import NodeDetailsWindow from "@/sub/NodeDetailsWindow";
 import SettingsWindow from "@/sub/SettingsWindow";
 import { getDeviceId } from "@/utils/otherApi";
 import { deserialize, serialize } from "@graphif/serializer";
+import { Decoder } from "@msgpack/msgpack";
 import { getVersion } from "@tauri-apps/api/app";
 import { appCacheDir, dataDir, join } from "@tauri-apps/api/path";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { open, save } from "@tauri-apps/plugin-dialog";
-import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import { readFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { open as shellOpen } from "@tauri-apps/plugin-shell";
 import { useAtom } from "jotai";
 import {
@@ -609,8 +610,14 @@ export async function onOpenFile(uri?: URI, source: string = "unknown") {
     uri = URI.file(path);
   }
   let upgraded: ReturnType<typeof ProjectUpgrader.convertVAnyToN1> extends Promise<infer T> ? T : never;
-  if (uri.fsPath.endsWith(".json")) {
-    const content = await readTextFile(uri.fsPath);
+
+  // 读取文件内容并判断格式
+  const fileData = await readFile(uri.fsPath);
+
+  // 检查是否是以 '{' 开头的 JSON 文件
+  if (fileData[0] === 0x7b) {
+    // 0x7B 是 '{' 的 ASCII 码
+    const content = new TextDecoder().decode(fileData);
     const json = JSON.parse(content);
     const t = performance.now();
     upgraded = await toast
@@ -630,6 +637,32 @@ export async function onOpenFile(uri?: URI, source: string = "unknown") {
     toast.info("您正在尝试导入旧版的文件！稍后如果点击了保存文件，文件会保存为相同文件夹内的 .prg 后缀的文件");
     uri = uri.with({ path: uri.path.replace(/\.json$/, ".prg") });
   }
+  // 检查是否是以 0x91 0x86 开头的 msgpack 数据
+  if (fileData.length >= 2 && fileData[0] === 0x84 && fileData[1] === 0xa7) {
+    const decoder = new Decoder();
+    const decodedData = decoder.decode(fileData);
+    if (typeof decodedData !== "object" || decodedData === null) {
+      throw new Error("msgpack 解码结果不是有效的对象");
+    }
+    const t = performance.now();
+    upgraded = await toast
+      .promise(ProjectUpgrader.convertVAnyToN1(decodedData as Record<string, any>, uri), {
+        loading: "正在转换旧版项目文件...",
+        success: () => {
+          const time = performance.now() - t;
+          Telemetry.event("转换vany->n1", { time, length: fileData.length });
+          return `转换成功，耗时 ${time}ms`;
+        },
+        error: (e) => {
+          Telemetry.event("转换vany->n1报错", { error: String(e) });
+          return `转换失败，已发送错误报告，可在群内联系开发者\n${String(e)}`;
+        },
+      })
+      .unwrap();
+    toast.info("您正在尝试导入旧版的文件！稍后如果点击了保存文件，文件会保存为相同文件夹内的 .prg 后缀的文件");
+    uri = uri.with({ path: uri.path.replace(/\.json$/, ".prg") });
+  }
+
   if (store.get(projectsAtom).some((p) => p.uri.toString() === uri.toString())) {
     store.set(activeProjectAtom, store.get(projectsAtom).find((p) => p.uri.toString() === uri.toString())!);
     store.get(activeProjectAtom)?.loop();
