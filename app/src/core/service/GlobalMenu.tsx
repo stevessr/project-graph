@@ -608,13 +608,13 @@ export async function onOpenFile(uri?: URI, source: string = "unknown") {
     if (!path) return;
     uri = URI.file(path);
   }
-  let stage: Record<string, any>[];
+  let upgraded: ReturnType<typeof ProjectUpgrader.convertVAnyToN1> extends Promise<infer T> ? T : never;
   if (uri.fsPath.endsWith(".json")) {
     const content = await readTextFile(uri.fsPath);
     const json = JSON.parse(content);
     const t = performance.now();
-    stage = await toast
-      .promise(ProjectUpgrader.convertVAnyToN1(json), {
+    upgraded = await toast
+      .promise(ProjectUpgrader.convertVAnyToN1(json, uri), {
         loading: "正在转换旧版项目文件...",
         success: () => {
           const time = performance.now() - t;
@@ -649,8 +649,9 @@ export async function onOpenFile(uri?: URI, source: string = "unknown") {
   toast.promise(project.init(), {
     loading: "正在打开文件...",
     success: () => {
-      if (stage) {
-        project.stage = deserialize(stage, project);
+      if (upgraded) {
+        project.stage = deserialize(upgraded.data, project);
+        project.attachments = upgraded.attachments;
       }
       const readFileTime = performance.now() - t;
       store.set(projectsAtom, [...store.get(projectsAtom), project]);

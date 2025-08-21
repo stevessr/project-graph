@@ -1,5 +1,8 @@
 import { Serialized } from "@/types/node";
+import { Path } from "@/utils/path";
+import { readFile } from "@tauri-apps/plugin-fs";
 import { v4 as uuidv4 } from "uuid";
+import { URI } from "vscode-uri";
 
 export namespace ProjectUpgrader {
   export function upgrade(data: Record<string, any>): Record<string, any> {
@@ -317,12 +320,15 @@ export namespace ProjectUpgrader {
     return data;
   }
 
-  export async function convertVAnyToN1(json: Record<string, any>) {
+  export async function convertVAnyToN1(json: Record<string, any>, uri: URI) {
     // 升级json数据到最新版本
-    json = ProjectUpgrader.upgrade(json);
+    // json = ProjectUpgrader.upgrade(json);
 
     const uuidMap = new Map<string, Record<string, any>>();
     const resultStage: Record<string, any>[] = [];
+    const attachments = new Map<string, Blob>();
+
+    const basePath = new Path(uri.fsPath).parent;
 
     // Helper functions for repeated structures
     const toColor = (arr: number[]) => ({
@@ -340,11 +346,11 @@ export namespace ProjectUpgrader {
     });
 
     // Recursively convert all entities
-    function convertEntityVAnyToN1(
+    async function convertEntityVAnyToN1(
       entity: Record<string, any>,
       uuidMap: Map<string, Record<string, any>>,
       entities: Array<Record<string, any>>,
-    ): Record<string, any> | undefined {
+    ): Promise<Record<string, any> | undefined> {
       if (uuidMap.has(entity.uuid)) {
         return uuidMap.get(entity.uuid);
       }
@@ -381,7 +387,7 @@ export namespace ProjectUpgrader {
               if (!childData) {
                 const childEntity = entities.find((e) => e.uuid === childUUID);
                 if (childEntity) {
-                  childData = convertEntityVAnyToN1(childEntity, uuidMap, entities);
+                  childData = await convertEntityVAnyToN1(childEntity, uuidMap, entities);
                 }
               }
               if (childData) {
@@ -417,6 +423,28 @@ export namespace ProjectUpgrader {
         }
         case "core:image_node": {
           // 图片
+          const path = entity.path;
+          const imageContent = await readFile(basePath.join(path).toString());
+          const blob = new Blob([imageContent], { type: "image/png" });
+          const attachmentId = crypto.randomUUID();
+          attachments.set(attachmentId, blob);
+          data = {
+            _: "ImageNode",
+            uuid: entity.uuid,
+            attachmentId,
+            details: entity.details,
+            collisionBox: {
+              _: "CollisionBox",
+              shapes: [
+                {
+                  _: "Rectangle",
+                  location: toVector(entity.location),
+                  size: toVector(entity.size),
+                },
+              ],
+            },
+            scale: entity.scale || 1,
+          };
           break;
         }
         case "core:connect_point": {
@@ -449,7 +477,7 @@ export namespace ProjectUpgrader {
 
     // Convert all top-level entities
     for (const entity of json.entities) {
-      const data = convertEntityVAnyToN1(entity, uuidMap, json.entities);
+      const data = await convertEntityVAnyToN1(entity, uuidMap, json.entities);
       if (data) {
         resultStage.push(data);
       }
@@ -496,6 +524,6 @@ export namespace ProjectUpgrader {
     // 遍历所有标签
     // TODO
 
-    return resultStage;
+    return { data: resultStage, attachments };
   }
 }
