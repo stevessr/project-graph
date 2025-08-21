@@ -74,6 +74,7 @@ contextMenu:
   convertToSection: 转换为框
   toggleSectionCollapse: 切换折叠状态
   changeColor: 更改颜色
+  resetColor: 重置
 
 settings:
   title: 设置

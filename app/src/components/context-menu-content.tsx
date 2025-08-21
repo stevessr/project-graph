@@ -40,6 +40,7 @@ import {
   Package,
   Palette,
   Scissors,
+  Slash,
   SquareRoundCorner,
   TextSelect,
   Trash,
@@ -304,6 +305,10 @@ export default function MyContextMenuContent() {
               {t("changeColor")}
             </SubTrigger>
             <SubContent>
+              <Item onClick={() => p.stageObjectColorManager.setSelectedStageObjectColor(Color.Transparent)}>
+                <Slash />
+                {t("resetColor")}
+              </Item>
               <Item className="bg-transparent! grid grid-cols-11 flex-col gap-1">
                 {Object.values(tailwindColors)
                   .filter((it) => typeof it !== "string")
