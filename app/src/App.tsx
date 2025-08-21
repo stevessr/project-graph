@@ -278,7 +278,7 @@ export default function App() {
     } else if (project.state === ProjectState.Unsaved) {
       // 切换到这个文件
       setActiveProject(project);
-      const response = await Dialog.buttons("是否保存更改？", project.uri.toString(), [
+      const response = await Dialog.buttons("是否保存更改？", decodeURI(project.uri.toString()), [
         { id: "cancel", label: "取消", variant: "ghost" },
         { id: "discard", label: "不保存", variant: "destructive" },
         { id: "save", label: "保存" },

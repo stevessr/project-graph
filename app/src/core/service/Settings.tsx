@@ -147,7 +147,7 @@ export const settingsSchema = z.object({
   uiSwitchButtonOffSoundFile: z.string().default(""),
   githubToken: z.string().default(""),
   githubUser: z.string().default(""),
-  theme: z.string().default("dark"),
+  theme: z.string().default("dark-blue"),
 });
 
 export type Settings = z.infer<typeof settingsSchema>;
