@@ -199,8 +199,8 @@ export class AutoComputeUtils {
    * @returns
    */
   stringToNumber(str: string) {
-    if (ProgramFunctions.isHaveVar(str)) {
-      return parseFloat(ProgramFunctions.getVarInCore(str));
+    if (ProgramFunctions.isHaveVar(this.project, str)) {
+      return parseFloat(ProgramFunctions.getVarInCore(this.project, str));
     }
     return parseFloat(str);
   }

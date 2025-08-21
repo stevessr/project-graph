@@ -1,6 +1,6 @@
+import { SubWindow } from "@/core/service/SubWindow";
 import { Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
-import { SubWindow } from "@/core/service/SubWindow";
 
 export default function AutoCompleteWindow({
   // winId = "",
@@ -25,9 +25,10 @@ export default function AutoCompleteWindow({
 
 AutoCompleteWindow.open = (location: Vector, items: Record<string, string>, onSelect: (value: string) => void) => {
   return SubWindow.create({
-    title: "自动补全",
     children: <AutoCompleteWindow items={items} onSelect={onSelect} />,
     rect: new Rectangle(location, Vector.same(-1)),
     closeWhenClickOutside: true,
+    titleBarOverlay: true,
+    closable: false,
   });
 };

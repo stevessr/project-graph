@@ -1,6 +1,11 @@
 import { Random } from "@/core/algorithm/random";
 import { Project, service } from "@/core/Project";
 import { Renderer } from "@/core/render/canvas2d/renderer";
+import {
+  getLogicNodeRenderName,
+  LogicNodeNameEnum,
+  LogicNodeNameToRenderNameMap,
+} from "@/core/service/dataGenerateService/autoComputeEngine/logicNodeNameEnum";
 import { Settings } from "@/core/service/Settings";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { Color, colorInvert, Vector } from "@graphif/data-structures";

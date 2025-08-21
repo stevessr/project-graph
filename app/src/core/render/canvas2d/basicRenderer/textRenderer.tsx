@@ -167,6 +167,7 @@ export class TextRenderer {
     lineHeight: number = 1.2,
     limitLines: number = Infinity,
   ): void {
+    if (!text) return;
     if (text.length === 0) return;
     // 如果文本里面没有换行符就直接渲染单行文本，不要计算了
     if (!text.includes("\n")) {

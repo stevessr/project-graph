@@ -22,8 +22,10 @@ type OtherFunctionType = (
   fatherNodes: ConnectableEntity[],
   childNodes: ConnectableEntity[],
 ) => string[];
+type VariableFunctionType = (project: Project, args: string[]) => string[];
 type StringFunctionMap = Record<string, StringFunctionType>;
 type OtherFunctionMap = Record<string, OtherFunctionType>;
+type VariableFunctionMap = Record<string, VariableFunctionType>;
 
 @service("autoCompute")
 export class AutoCompute {
@@ -113,6 +115,9 @@ export class AutoCompute {
     [LogicNodeNameEnum.REPLACE]: StringFunctions.replace,
     [LogicNodeNameEnum.CONNECT]: StringFunctions.connect,
     [LogicNodeNameEnum.CHECK_REGEX_MATCH]: StringFunctions.checkRegexMatch,
+  };
+
+  MapVariableFunction: VariableFunctionMap = {
     // 编程类功能
     [LogicNodeNameEnum.SET_VAR]: ProgramFunctions.setVar,
     [LogicNodeNameEnum.GET_VAR]: ProgramFunctions.getVar,
@@ -223,17 +228,12 @@ export class AutoCompute {
   }
 
   isTextNodeLogic(node: TextNode): boolean {
-    for (const name of Object.keys(this.MapNameFunction)) {
-      if (node.text === name) {
-        return true;
-      }
-    }
-    for (const name of Object.keys(this.MapOtherFunction)) {
-      if (node.text === name) {
-        return true;
-      }
-    }
-    return false;
+    const names = [
+      ...Object.keys(this.MapNameFunction),
+      ...Object.keys(this.MapOtherFunction),
+      ...Object.keys(this.MapVariableFunction),
+    ];
+    return names.includes(node.text);
   }
 
   private isSectionLogic(section: Section): boolean {
@@ -297,6 +297,17 @@ export class AutoCompute {
           this.project,
           this.project.autoComputeUtils.getParentEntities(node),
           this.project.autoComputeUtils.getChildTextNodes(node),
+        );
+        this.project.autoComputeUtils.generateMultiResult(node, result);
+      }
+    }
+    // 变量计算
+    for (const name of Object.keys(this.MapVariableFunction)) {
+      if (node.text === name) {
+        // 发现了一个变量节点
+        const result = this.MapVariableFunction[name](
+          this.project,
+          this.project.autoComputeUtils.getParentTextNodes(node).map((p) => p.text),
         );
         this.project.autoComputeUtils.generateMultiResult(node, result);
       }
