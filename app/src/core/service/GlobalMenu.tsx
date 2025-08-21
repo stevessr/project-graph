@@ -689,6 +689,9 @@ export async function onOpenFile(uri?: URI, source: string = "unknown") {
       const readFileTime = performance.now() - t;
       store.set(projectsAtom, [...store.get(projectsAtom), project]);
       store.set(activeProjectAtom, project);
+      setTimeout(() => {
+        project.camera.reset();
+      }, 100);
       Telemetry.event("打开文件", {
         loadServiceTime,
         readFileTime,
