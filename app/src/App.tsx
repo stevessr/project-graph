@@ -19,6 +19,7 @@ import { CloudUpload, Copy, Dot, Minus, Square, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { URI } from "vscode-uri";
+import { cn } from "./utils/cn";
 
 export default function App() {
   const [maximized, _setMaximized] = useState(false);
@@ -29,6 +30,7 @@ export default function App() {
   const [isWide, setIsWide] = useState(false);
   const [telemetryEventSent, setTelemetryEventSent] = useState(false);
   const [dropState, setDropState] = useState<"none" | "open" | "append">("none");
+  const [ignoreMouseEvents, setIgnoreMouseEvents] = useState(false);
 
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef(0); // 用于保存滚动位置的 ref，防止切换标签页时滚动位置丢失
@@ -166,6 +168,12 @@ export default function App() {
     activeProject.canvas.mount(canvasWrapperRef.current);
     activeProject.loop();
     projects.filter((p) => p.uri.toString() !== activeProject.uri.toString()).forEach((p) => p.pause());
+    activeProject.canvas.element.addEventListener("pointerdown", () => {
+      setIgnoreMouseEvents(true);
+    });
+    activeProject.canvas.element.addEventListener("pointerup", () => {
+      setIgnoreMouseEvents(false);
+    });
   }, [activeProject]);
 
   useEffect(() => {
@@ -307,7 +315,13 @@ export default function App() {
   };
 
   const Tabs = () => (
-    <div ref={tabsContainerRef} className="scrollbar-hide z-10 flex h-9 gap-2 overflow-x-auto whitespace-nowrap">
+    <div
+      ref={tabsContainerRef}
+      className={cn(
+        "scrollbar-hide z-10 flex h-9 gap-2 overflow-x-auto whitespace-nowrap",
+        ignoreMouseEvents && "pointer-events-none",
+      )}
+    >
       {projects.map((project) => (
         <Button
           key={project.uri.toString()}
@@ -354,7 +368,7 @@ export default function App() {
       onContextMenu={(e) => e.preventDefault()}
     >
       {/* 菜单 | 标签页 | ...移动窗口区域... | 窗口控制按钮 */}
-      <div className="z-10 flex h-9 gap-2">
+      <div className={cn("z-10 flex h-9 gap-2", ignoreMouseEvents && "pointer-events-none")}>
         {/* <div className=" flex h-8 shrink-0 items-center overflow-hidden rounded-xl border"></div> */}
         <GlobalMenu />
         {isWide && <Tabs />}
