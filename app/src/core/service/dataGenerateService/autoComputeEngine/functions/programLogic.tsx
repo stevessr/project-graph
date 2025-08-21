@@ -1,20 +1,17 @@
-export namespace ProgramFunctions {
-  export const variables: Record<string, string> = {};
+import { Project } from "@/core/Project";
 
+export namespace ProgramFunctions {
   /**
    * 核心代码的获取变量值的方法
    * @param varName
    * @returns
    */
-  export function getVarInCore(varName: string): string {
-    if (varName in variables) {
-      return variables[varName];
-    }
-    return "NaN";
+  export function getVarInCore(project: Project, varName: string): string {
+    return project.autoCompute.variables.get(varName) || "NaN";
   }
 
-  export function isHaveVar(varName: string): boolean {
-    return varName in variables;
+  export function isHaveVar(project: Project, varName: string): boolean {
+    return project.autoCompute.variables.has(varName);
   }
 
   /**
@@ -22,15 +19,12 @@ export namespace ProgramFunctions {
    * @param args
    * @returns
    */
-  export function setVar(args: string[]): string[] {
+  export function setVar(project: Project, args: string[]): string[] {
     if (args.length !== 2) {
       return ["error", "参数数量错误，必须保证两个"];
     }
     const varName = args[0];
-    if (!/^[a-zA-Z\u4e00-\u9fa5]/.test(varName)) {
-      return ["error", "变量名必须以字母或汉字开头"];
-    }
-    variables[varName] = args[1];
+    project.autoCompute.variables.set(varName, args[1]);
     return ["success"];
   }
 
@@ -38,10 +32,10 @@ export namespace ProgramFunctions {
    * 获取现存变量，如果没有，则返回NaN
    * @param args
    */
-  export function getVar(args: string[]): string[] {
+  export function getVar(project: Project, args: string[]): string[] {
     if (args.length === 1) {
       const varName = args[0];
-      return [getVarInCore(varName)];
+      return [project.autoCompute.variables.get(varName) || "NaN"];
     }
     return ["error", "参数数量错误"];
   }

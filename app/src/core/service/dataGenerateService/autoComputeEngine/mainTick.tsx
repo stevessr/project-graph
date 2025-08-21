@@ -153,6 +153,8 @@ export class AutoCompute {
     [LogicNodeNameEnum.DELAY_COPY]: NodeLogic.delayCopy,
   };
 
+  variables = new Map<string, string>();
+
   constructor(private readonly project: Project) {}
 
   private tickNumber = 0;
