@@ -4,16 +4,12 @@ import { Vector } from "@graphif/data-structures";
 import { Project, service } from "@/core/Project";
 import { ControllerAssociationReshapeClass } from "@/core/service/controlService/controller/concrete/ControllerAssociationReshape";
 import { ControllerCameraClass } from "@/core/service/controlService/controller/concrete/ControllerCamera";
-import { ControllerChildCamera } from "@/core/service/controlService/controller/concrete/ControllerChildCamera";
-import { ControllerCopy } from "@/core/service/controlService/controller/concrete/ControllerCopy";
 import { ControllerCuttingClass } from "@/core/service/controlService/controller/concrete/ControllerCutting";
-import { ControllerDragFileClass } from "@/core/service/controlService/controller/concrete/ControllerDragFile";
 import { ControllerEdgeEditClass } from "@/core/service/controlService/controller/concrete/ControllerEdgeEdit";
 import { ControllerEntityClickSelectAndMoveClass } from "@/core/service/controlService/controller/concrete/ControllerEntityClickSelectAndMove";
 import { ControllerEntityCreateClass } from "@/core/service/controlService/controller/concrete/ControllerEntityCreate";
 import { ControllerLayerMovingClass } from "@/core/service/controlService/controller/concrete/ControllerEntityLayerMoving";
 import { ControllerEntityResizeClass } from "@/core/service/controlService/controller/concrete/ControllerEntityResize";
-import { ControllerImageScale } from "@/core/service/controlService/controller/concrete/ControllerImageScale";
 import { ControllerNodeConnectionClass } from "@/core/service/controlService/controller/concrete/ControllerNodeConnection";
 import { ControllerNodeEditClass } from "@/core/service/controlService/controller/concrete/ControllerNodeEdit";
 import { ControllerPenStrokeControlClass } from "@/core/service/controlService/controller/concrete/ControllerPenStrokeControl";
@@ -152,13 +148,13 @@ export class Controller {
   // 以下事件处理函数仅为Controller总控制器修改重要属性使用。不涉及具体的功能逻辑。
 
   private mousedown(event: MouseEvent) {
-    event.preventDefault();
+    // event.preventDefault();
     this.handleMousedown(event.button, event.clientX, event.clientY);
     this.recordManipulate();
   }
 
   private mouseup(event: MouseEvent) {
-    event.preventDefault();
+    // event.preventDefault();
     this.handleMouseup(event.button, event.clientX, event.clientY);
     this.recordManipulate();
   }
@@ -312,16 +308,14 @@ declare module "./Controller" {
   interface Controller {
     associationReshape: ControllerAssociationReshapeClass;
     camera: ControllerCameraClass;
-    childCamera: ControllerChildCamera;
-    copy: ControllerCopy;
+    copy: ControllerCopyClass;
     cutting: ControllerCuttingClass;
-    dragFile: ControllerDragFileClass;
     edgeEdit: ControllerEdgeEditClass;
     entityClickSelectAndMove: ControllerEntityClickSelectAndMoveClass;
     entityCreate: ControllerEntityCreateClass;
     layerMoving: ControllerLayerMovingClass;
     entityResize: ControllerEntityResizeClass;
-    imageScale: ControllerImageScale;
+    imageScale: ControllerImageScaleClass;
     nodeConnection: ControllerNodeConnectionClass;
     nodeEdit: ControllerNodeEditClass;
     penStrokeControl: ControllerPenStrokeControlClass;

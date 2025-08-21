@@ -131,6 +131,7 @@ export class ControllerNodeConnectionClass extends ControllerClass {
   }
 
   public mousedown: (event: MouseEvent) => void = (event) => {
+    console.log("Fuck", event.button);
     if (!(event.button == 2 || event.button == 0)) {
       return;
     }

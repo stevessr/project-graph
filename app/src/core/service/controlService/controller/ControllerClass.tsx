@@ -1,6 +1,6 @@
-import { Vector } from "@graphif/data-structures";
 import { Project } from "@/core/Project";
 import { ViewOutlineFlashEffect } from "@/core/service/feedbackService/effectEngine/concrete/ViewOutlineFlashEffect";
+import { Vector } from "@graphif/data-structures";
 
 /**
  * 控制器类，用于处理事件绑定和解绑
@@ -44,9 +44,9 @@ export class ControllerClass {
     this.project.canvas.element.removeEventListener("pointerup", this._mouseup.bind(this));
     this.project.canvas.element.removeEventListener("pointermove", this.mousemove.bind(this));
     this.project.canvas.element.removeEventListener("wheel", this.mousewheel.bind(this));
-    this.project.canvas.element.removeEventListener("touchstart", this._touchstart.bind(this));
-    this.project.canvas.element.removeEventListener("touchmove", this._touchmove.bind(this));
-    this.project.canvas.element.removeEventListener("touchend", this._touchend.bind(this));
+    // this.project.canvas.element.removeEventListener("touchstart", this._touchstart.bind(this));
+    // this.project.canvas.element.removeEventListener("touchmove", this._touchmove.bind(this));
+    // this.project.canvas.element.removeEventListener("touchend", this._touchend.bind(this));
 
     this.lastMoveLocation = Vector.getZero();
   }
@@ -96,7 +96,7 @@ export class ControllerClass {
   };
 
   private _touchstart = (event: TouchEvent) => {
-    event.preventDefault();
+    // event.preventDefault();
     const touch = {
       ...(event.touches[event.touches.length - 1] as unknown as PointerEvent),
       button: 0, // 通过对象展开实现相对安全的属性合并
@@ -112,7 +112,7 @@ export class ControllerClass {
   };
 
   private _touchmove = (event: TouchEvent) => {
-    event.preventDefault();
+    // event.preventDefault();
     this.onePointTouchMoveLocation = new Vector(
       event.touches[event.touches.length - 1].clientX,
       event.touches[event.touches.length - 1].clientY,
@@ -132,7 +132,7 @@ export class ControllerClass {
   private onePointTouchMoveLocation: Vector = Vector.getZero();
 
   private _touchend = (event: TouchEvent) => {
-    event.preventDefault();
+    // event.preventDefault();
     const touch = {
       ...(event.touches[event.touches.length - 1] as unknown as PointerEvent),
       button: 0, // 通过对象展开实现相对安全的属性合并

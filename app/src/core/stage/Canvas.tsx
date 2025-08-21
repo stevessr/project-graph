@@ -39,7 +39,6 @@ export class Canvas {
         document.activeElement?.getAttribute("contenteditable") === "true"
       ) {
         // 如果当前焦点在输入框上，则不处理键盘事件
-        console.log("fuck");
         return;
       }
       if (project.isRunning) {

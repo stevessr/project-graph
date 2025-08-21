@@ -4,11 +4,11 @@ export const MouseLocation = {
   x: 0,
   y: 0,
   init() {
-    window.addEventListener("pointerdown", (e) => {
-      if (e.button === 2) {
-        e.preventDefault();
-      }
-    });
+    // window.addEventListener("pointerdown", (e) => {
+    //   if (e.button === 2) {
+    //     e.preventDefault();
+    //   }
+    // });
 
     window.addEventListener("pointermove", (event) => {
       this.x = event.clientX;
