@@ -23,9 +23,6 @@ import { URI } from "vscode-uri";
 export default function App() {
   const [maximized, _setMaximized] = useState(false);
 
-  // 面板状态
-  // TODO: start file window
-
   const [projects, setProjects] = useAtom(projectsAtom);
   const [activeProject, setActiveProject] = useAtom(activeProjectAtom);
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
@@ -41,7 +38,6 @@ export default function App() {
 
   useEffect(() => {
     window.addEventListener("keyup", async (event) => {
-      // TODO: 自定义快捷键
       // 这两个按键有待添加到自定义快捷键，但他们函数内部用到了useState，还不太清楚怎么改
       // ——littlefean（2024年12月27日）
       if (event.key === "F11") {

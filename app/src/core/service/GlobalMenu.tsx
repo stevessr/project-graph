@@ -42,15 +42,12 @@ import {
   FileDigit,
   FileDown,
   FileImage,
-  FileInput,
   FileOutput,
   FilePlus,
-  FileType,
   Folder,
   FolderClock,
   FolderCog,
   FolderOpen,
-  FolderTree,
   Fullscreen,
   Keyboard,
   MapPin,
@@ -197,7 +194,7 @@ export function GlobalMenu() {
             {t("file.saveAs")}
           </Item>
           <Separator />
-          <Sub>
+          {/*<Sub>
             <SubTrigger>
               <FileInput />
               {t("file.import")}
@@ -208,7 +205,7 @@ export function GlobalMenu() {
                 {t("file.importFromFolder")}
               </Item>
             </SubContent>
-          </Sub>
+          </Sub>*/}
           <Sub>
             <SubTrigger disabled={!activeProject}>
               <FileOutput />
@@ -255,10 +252,10 @@ export function GlobalMenu() {
                 <FileImage />
                 PNG
               </Item>
-              <Item>
+              {/*<Item>
                 <FileType />
                 Markdown
-              </Item>
+              </Item>*/}
               <Sub>
                 <SubTrigger>
                   <TextQuote />
