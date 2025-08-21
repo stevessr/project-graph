@@ -234,7 +234,7 @@ jobs:
       - name: Write BUILD_ENV to .env file
         if: matrix.variant != 'foss'
         run: |
-          echo -e "${{ secrets.BUILD_ENV }}" > app/.env
+          echo "${{ secrets.BUILD_ENV }}" > app/.env
       - name: Linux Macos - Build
         if: matrix.platform != 'windows-latest'
         run: |
