@@ -1,6 +1,21 @@
+import { BasicBlocksKit } from "@/components/editor/plugins/basic-blocks-kit";
+import { BasicMarksKit } from "@/components/editor/plugins/basic-marks-kit";
+import { CodeBlockKit } from "@/components/editor/plugins/code-block-kit";
+import { FixedToolbarKit } from "@/components/editor/plugins/fixed-toolbar-kit";
+import { FloatingToolbarKit } from "@/components/editor/plugins/floating-toolbar-kit";
+import { FontKit } from "@/components/editor/plugins/font-kit";
+import { LinkKit } from "@/components/editor/plugins/link-kit";
+import { ListKit } from "@/components/editor/plugins/list-kit";
+import { MathKit } from "@/components/editor/plugins/math-kit";
+import { TableKit } from "@/components/editor/plugins/table-kit";
 import { Serialized } from "@/types/node";
 import { Path } from "@/utils/path";
+import { MarkdownPlugin } from "@platejs/markdown";
 import { readFile } from "@tauri-apps/plugin-fs";
+import { createPlateEditor } from "platejs/react";
+import remarkBreaks from "remark-breaks";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import { v4 as uuidv4 } from "uuid";
 import { URI } from "vscode-uri";
 
@@ -338,12 +353,32 @@ export namespace ProjectUpgrader {
       b: arr[2],
       a: arr[3],
     });
-
     const toVector = (arr: number[]) => ({
       _: "Vector",
       x: arr[0],
       y: arr[1],
     });
+    const toDetails = (md: string) => {
+      const editor = createPlateEditor({
+        plugins: [
+          ...FloatingToolbarKit,
+          ...FixedToolbarKit,
+          ...BasicMarksKit,
+          ...BasicBlocksKit,
+          ...FontKit,
+          ...TableKit,
+          ...MathKit,
+          ...CodeBlockKit,
+          ...ListKit,
+          ...LinkKit,
+          MarkdownPlugin,
+        ],
+      });
+      const value = editor.api.markdown.deserialize(md, {
+        remarkPlugins: [remarkGfm, remarkMath, remarkBreaks],
+      });
+      return value;
+    };
 
     // Recursively convert all entities
     async function convertEntityVAnyToN1(
@@ -363,7 +398,7 @@ export namespace ProjectUpgrader {
             _: "TextNode",
             uuid: entity.uuid,
             text: entity.text,
-            details: entity.details,
+            details: toDetails(entity.details),
             collisionBox: {
               _: "CollisionBox",
               shapes: [
@@ -399,7 +434,7 @@ export namespace ProjectUpgrader {
             _: "Section",
             uuid: entity.uuid,
             text: entity.text,
-            details: entity.details,
+            details: toDetails(entity.details),
             isCollapsed: entity.isCollapsed,
             isHidden: entity.isHidden,
             children,
@@ -432,7 +467,7 @@ export namespace ProjectUpgrader {
             _: "ImageNode",
             uuid: entity.uuid,
             attachmentId,
-            details: entity.details,
+            details: toDetails(entity.details),
             collisionBox: {
               _: "CollisionBox",
               shapes: [
