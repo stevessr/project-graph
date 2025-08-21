@@ -11,7 +11,7 @@ import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { activeProjectAtom, store } from "@/state";
-import ColorWindow from "@/sub/ColorWindow";
+// import ColorWindow from "@/sub/ColorWindow";
 import FindWindow from "@/sub/FindWindow";
 import KeyboardRecentFilesWindow from "@/sub/KeyboardRecentFilesWindow";
 import SettingsWindow from "@/sub/SettingsWindow";
