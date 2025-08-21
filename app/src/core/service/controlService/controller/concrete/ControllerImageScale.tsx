@@ -1,10 +1,10 @@
-import { Vector } from "@graphif/data-structures";
-import { isMac } from "@/utils/platform";
+import { ControllerClass } from "@/core/service/controlService/controller/ControllerClass";
 import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
 import { SvgNode } from "@/core/stage/stageObject/entity/SvgNode";
-import { ControllerClass } from "@/core/service/controlService/controller/ControllerClass";
+import { isMac } from "@/utils/platform";
+import { Vector } from "@graphif/data-structures";
 
-export class ControllerImageScale extends ControllerClass {
+export class ControllerImageScaleClass extends ControllerClass {
   mousewheel = (event: WheelEvent) => {
     if (
       isMac ? this.project.controller.pressingKeySet.has("meta") : this.project.controller.pressingKeySet.has("control")
