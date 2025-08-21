@@ -528,7 +528,29 @@ export namespace ProjectUpgrader {
           break;
         }
         case "core:svg_node": {
-          // svg节点，先不管
+          // svg节点，和图片一样，要处理附件
+          const code = entity.content;
+          const attachmentId = crypto.randomUUID();
+          const blob = new Blob([code], { type: "image/svg+xml" });
+          attachments.set(attachmentId, blob);
+          data = {
+            _: "SvgNode",
+            uuid: entity.uuid,
+            attachmentId,
+            details: toDetails(entity.details),
+            collisionBox: {
+              _: "CollisionBox",
+              shapes: [
+                {
+                  _: "Rectangle",
+                  location: toVector(entity.location),
+                  size: toVector(entity.size),
+                },
+              ],
+            },
+            scale: entity.scale || 1,
+            color: toColor(entity.color),
+          };
           break;
         }
         default: {
