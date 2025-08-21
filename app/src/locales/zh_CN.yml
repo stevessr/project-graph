@@ -23,6 +23,7 @@ globalMenu:
     exportSelected: 导出选中内容
     plainText: 纯文本
     exportSuccess: 导出成功
+    attachments: 附件管理器
   location:
     title: 位置
     openConfigFolder: 打开软件配置文件夹
