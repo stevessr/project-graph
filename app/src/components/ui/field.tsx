@@ -30,6 +30,7 @@ export function SettingField({ settingKey, extra = <></> }: { settingKey: keyof 
   }, [value]);
 
   const postTelemetryEvent = _.debounce(() => {
+    if (settingKey === "aiApiKey") return;
     Telemetry.event("修改设置", {
       key: settingKey,
       value,
