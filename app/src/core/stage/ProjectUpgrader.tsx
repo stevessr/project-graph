@@ -487,7 +487,6 @@ export namespace ProjectUpgrader {
           data = {
             _: "ConnectPoint",
             uuid: entity.uuid,
-            text: entity.text,
             details: toDetails(entity.details),
             collisionBox: {
               _: "CollisionBox",
@@ -499,12 +498,29 @@ export namespace ProjectUpgrader {
                 },
               ],
             },
-            color: toColor(entity.color),
           };
           break;
         }
         case "core:url_node": {
           // 链接
+          data = {
+            _: "UrlNode",
+            uuid: entity.uuid,
+            title: entity.title,
+            url: entity.url,
+            details: toDetails(entity.details),
+            collisionBox: {
+              _: "CollisionBox",
+              shapes: [
+                {
+                  _: "Rectangle",
+                  location: toVector(entity.location),
+                  size: toVector(entity.size),
+                },
+              ],
+            },
+            color: toColor(entity.color),
+          };
           break;
         }
         case "core:portal_node": {
