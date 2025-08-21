@@ -28,7 +28,7 @@ export const settingsSchema = z.object({
   limitCameraInCycleSpace: z.boolean().default(false),
   cameraCycleSpaceSizeX: z.number().min(1000).max(10000).int().default(1000),
   cameraCycleSpaceSizeY: z.number().min(1000).max(10000).int().default(1000),
-  historySize: z.number().min(1).max(1000).default(20),
+  historySize: z.number().min(1).max(5000).int().default(150),
   autoRefreshStageByMouseAction: z.boolean().default(true),
   isPauseRenderWhenManipulateOvertime: z.boolean().default(true),
   renderOverTimeWhenNoManipulateTime: z.number().min(1).max(10).int().default(5),

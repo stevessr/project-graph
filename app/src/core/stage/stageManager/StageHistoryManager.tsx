@@ -1,4 +1,5 @@
 import { Project, ProjectState, service } from "@/core/Project";
+import { Settings } from "@/core/service/Settings";
 import { deserialize, serialize } from "@graphif/serializer";
 import { Delta, diff, patch } from "jsondiffpatch";
 import _ from "lodash";
@@ -21,10 +22,6 @@ export class HistoryManager {
    * 历史记录列表数组上的一个指针
    */
   currentIndex = -1;
-  /**
-   * 数组最大长度
-   */
-  historySize = 20;
   initialStage: Record<string, any>[] = [];
 
   // 在软件启动时调用
@@ -43,16 +40,24 @@ export class HistoryManager {
     this.currentIndex++;
     const prev = serialize(this.get(this.currentIndex - 1));
     const current = serialize(this.project.stage);
-    const patch = diff(prev, current);
-    if (!patch) return;
-    this.deltas.push(patch);
-    // if (this.deltas.length > this.historySize) {
-    //   // 数组长度超过最大值时，合并第一个和第二个patch
-    //   const second = this.get(1);
-    //   const merged = diff(this.initialStage, second);
-    //   this.deltas.splice(0, 2, merged);
-    //   this.currentIndex--;
-    // }
+    const patch_ = diff(prev, current);
+    if (!patch_) return;
+    this.deltas.push(patch_);
+    if (this.deltas.length > Settings.historySize) {
+      // 当历史记录超过限制时，需要删除最旧的记录
+      // 但是不能简单删除，因为get方法依赖于从initialStage开始应用所有delta
+      // 所以我们需要将第一个delta合并到initialStage中，然后删除这个delta
+
+      // 步骤1：将第一个delta合并到initialStage中
+      const firstDelta = _.cloneDeep(this.deltas[0]);
+      this.initialStage = patch(_.cloneDeep(this.initialStage), firstDelta) as any;
+
+      // 步骤2：删除最旧的记录（第一个delta）
+      this.deltas.shift();
+
+      // 步骤3：调整当前索引，因为删除了第一个元素，所有索引都向前移动了一位
+      this.currentIndex--;
+    }
     this.project.state = ProjectState.Unsaved;
   }
 
@@ -83,6 +88,11 @@ export class HistoryManager {
   }
 
   get(index: number) {
+    // 处理边界情况：如果索引为负数，直接返回初始状态
+    if (index < 0) {
+      return deserialize(_.cloneDeep(this.initialStage), this.project);
+    }
+
     // 先获取从0到index（包含index）的所有patch
     const deltas = _.cloneDeep(this.deltas.slice(0, index + 1));
     // 从initialStage开始应用patch，得到在index时刻的舞台序列化数据

@@ -70,10 +70,10 @@ export class ControllerUtils {
           const rectWorld = clickedNode.collisionBox.getRectangle();
           const rectView = this.project.renderer.transformWorld2View(rectWorld);
           ele.style.height = "auto";
-          ele.style.height = `${rectView.height.toFixed(2)}px`;
+          ele.style.height = `${rectView.height.toFixed(2) + 8}px`;
           // 自动改变宽度
           ele.style.width = "auto";
-          ele.style.width = `${rectView.width.toFixed(2)}px`;
+          ele.style.width = `${rectView.width.toFixed(2) + 8}px`;
           // 自动调整它的外层框的大小
           const fatherSections = this.project.sectionMethods.getFatherSectionsList(clickedNode);
           for (const section of fatherSections) {
