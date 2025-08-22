@@ -106,7 +106,10 @@ export class CopyEngine {
     }
   }
 
-  /** 复制，然后删除选中的舞台对象 */
+  /**
+   * 剪切
+   * 复制，然后删除选中的舞台对象
+   */
   cut() {
     this.copy();
     this.project.stageManager.deleteSelectedStageObjects();
@@ -204,9 +207,9 @@ export class CopyEngine {
             text: item,
             collisionBox,
           });
-          // entity.move(
-          //   new Vector(-entity.collisionBox.getRectangle().width / 2, -entity.collisionBox.getRectangle().height / 2),
-          // );
+          entity.move(
+            new Vector(-entity.collisionBox.getRectangle().width / 2, -entity.collisionBox.getRectangle().height / 2),
+          );
         }
       }
     }
