@@ -177,30 +177,40 @@ export class CopyEngine {
           new Rectangle(this.project.renderer.transformView2World(MouseLocation.vector()), new Vector(300, 150)),
         ]),
       });
+      entity.move(
+        new Vector(-entity.collisionBox.getRectangle().width / 2, -entity.collisionBox.getRectangle().height / 2),
+      );
     } else if (isMermaidGraphString(item)) {
       // 是Mermaid图表类型
       entity = new TextNode(this.project, {
-        text: "mermaid图表",
-        details: "```mermaid\n" + item + "\n```",
+        text: "mermaid图表，目前暂不支持",
+        // details: "```mermaid\n" + item + "\n```",
         collisionBox,
       });
     } else {
       const { valid, text, url } = PathString.isMarkdownUrl(item);
       if (valid) {
         // 是Markdown链接类型
+        // [text](https://www.example.text.com)
         entity = new UrlNode(this.project, {
           title: text,
           uuid: crypto.randomUUID(),
           url: url,
-          location: [MouseLocation.x, MouseLocation.y],
+          collisionBox: new CollisionBox([
+            new Rectangle(this.project.renderer.transformView2World(MouseLocation.vector()), new Vector(300, 150)),
+          ]),
         });
+        entity.move(
+          new Vector(-entity.collisionBox.getRectangle().width / 2, -entity.collisionBox.getRectangle().height / 2),
+        );
       } else {
         // 只是普通的文本
         if (item.length > 3000) {
           entity = new TextNode(this.project, {
-            text: "粘贴板文字过长",
+            text: "粘贴板文字过长（超过3000字符），已写入节点详细信息",
             collisionBox,
-            details: item,
+            // [ { type: 'p', children: [{ text: 'Serialize just this paragraph.' }] },
+            details: item.split("\n").map((line) => ({ type: "p", children: [{ text: line }] })),
           });
         } else {
           entity = new TextNode(this.project, {
@@ -217,7 +227,11 @@ export class CopyEngine {
     if (entity !== null) {
       this.project.stageManager.add(entity);
       // 添加到section
-      const mouseSections = this.project.sectionMethods.getSectionsByInnerLocation(MouseLocation);
+
+      const mouseSections = this.project.sectionMethods.getSectionsByInnerLocation(
+        this.project.renderer.transformView2World(MouseLocation.vector()),
+      );
+
       if (mouseSections.length > 0) {
         this.project.stageManager.goInSection([entity], mouseSections[0]);
         this.project.effects.addEffect(
@@ -235,8 +249,15 @@ export class CopyEngine {
 
     const imageNode = new ImageNode(this.project, {
       attachmentId,
+      collisionBox: new CollisionBox([
+        new Rectangle(this.project.renderer.transformView2World(MouseLocation.vector()), new Vector(300, 150)),
+      ]),
     });
     this.project.stageManager.add(imageNode);
+    // 图片的更新碰撞箱是 异步的，先不移动了。
+    // imageNode.move(
+    //   new Vector(-imageNode.collisionBox.getRectangle().width / 2, -imageNode.collisionBox.getRectangle().height / 2),
+    // );
   }
 }
 
