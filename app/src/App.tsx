@@ -150,7 +150,7 @@ export default function App() {
   }, []);
 
   // https://github.com/tauri-apps/tauri/issues/5812
-  const isOnResizedDisabled = useRef(true);
+  const isOnResizedDisabled = useRef(false);
   function isMaximizedWorkaround() {
     isOnResizedDisabled.current = true;
     getCurrentWindow()
