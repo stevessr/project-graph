@@ -18,6 +18,8 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { v4 as uuidv4 } from "uuid";
 import { URI } from "vscode-uri";
+import { PenStrokeSegment } from "./stageObject/entity/PenStroke";
+import { Vector } from "@graphif/data-structures";
 
 export namespace ProjectUpgrader {
   export function upgrade(data: Record<string, any>): Record<string, any> {
@@ -454,6 +456,20 @@ export namespace ProjectUpgrader {
         }
         case "core:pen_stroke": {
           // 涂鸦
+          const segments: PenStrokeSegment[] = [];
+          const stringParts = entity.content.split("~");
+          for (const part of stringParts) {
+            const [x, y, pressure] = part.split(",");
+            const segment = new PenStrokeSegment(new Vector(Number(x), Number(y)), Number(pressure) / 5);
+            segments.push(segment);
+          }
+          data = {
+            _: "PenStroke",
+            uuid: entity.uuid,
+            color: toColor(entity.color),
+            segments,
+          };
+
           break;
         }
         case "core:image_node": {

@@ -2,7 +2,7 @@ import { Project } from "@/core/Project";
 import { Entity } from "@/core/stage/stageObject/abstract/StageEntity";
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
 import { Color, Vector } from "@graphif/data-structures";
-import { serializable } from "@graphif/serializer";
+import { id, passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
 import { Line } from "@graphif/shapes";
 
 /**
@@ -20,6 +20,8 @@ export class PenStrokeSegment {
   }
 }
 
+@passExtraAtArg1
+@passObject
 export class PenStroke extends Entity {
   /** 涂鸦不参与吸附对齐 */
   public isAlignExcluded: boolean = true;
@@ -27,6 +29,8 @@ export class PenStroke extends Entity {
   public isHiddenBySectionCollapse: boolean = false;
   // @serializable
   collisionBox: CollisionBox = new CollisionBox([]);
+
+  @id
   @serializable
   public uuid: string;
 
