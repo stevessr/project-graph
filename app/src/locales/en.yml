@@ -369,6 +369,12 @@ settings:
     options:
       cut: Cut and Delete Objects
       moveCamera: Move Viewport
+  mouseLeftMode:
+    title: Mouse Left Button Mode
+    options:
+      selectAndMove: select and move
+      draw: draw
+      connectAndCut: connect and cut
   doubleClickMiddleMouseButton:
     title: Double-Click Middle Mouse Button
     description: |

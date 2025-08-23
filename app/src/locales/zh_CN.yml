@@ -415,6 +415,12 @@ settings:
     options:
       cut: 斩断并删除物体
       moveCamera: 移动视野
+  mouseLeftMode:
+    title: 左键模式切换
+    options:
+      selectAndMove: 选择并移动
+      draw: 画图
+      connectAndCut: 连线与劈砍
   doubleClickMiddleMouseButton:
     title: 双击中键鼠标
     description: |

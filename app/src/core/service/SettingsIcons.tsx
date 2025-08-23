@@ -72,6 +72,7 @@ export const settingsIcons = {
   autoBackupLimitCount: FileStack,
   autoBackupDraftPath: Folder,
   mouseRightDragBackground: MousePointerClick,
+  mouseLeftMode: MousePointerClick,
   enableDragAutoAlign: AlignStartVertical,
   mouseWheelMode: Mouse,
   mouseWheelWithShiftMode: Mouse,

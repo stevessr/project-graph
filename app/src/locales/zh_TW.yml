@@ -312,6 +312,12 @@ settings:
     options:
       cut: 斬斷並刪除物體
       moveCamera: 移動視野
+  mouseLeftMode:
+    title: 左鍵模式
+    options:
+      selectAndMove: 選擇並移動
+      draw: 繪製
+      connectAndCut: 連接並斬斷
   textNodeContentLineBreak:
     title: 文本節點換行方案
     options:

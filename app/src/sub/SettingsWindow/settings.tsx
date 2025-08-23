@@ -213,6 +213,7 @@ const categories = {
   control: {
     mouse: [
       "mouseRightDragBackground",
+      "mouseLeftMode",
       "enableDragAutoAlign",
       "mouseWheelMode",
       "mouseWheelWithShiftMode",
