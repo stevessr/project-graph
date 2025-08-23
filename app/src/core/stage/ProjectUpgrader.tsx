@@ -540,7 +540,23 @@ export namespace ProjectUpgrader {
           break;
         }
         case "core:portal_node": {
-          // 传送门，先不管
+          // 传送门，不能不管，万一有了链接它的Edge可能就报错了
+          // 为了防止报错，先暂时转换为TextNode
+          data = {
+            _: "TextNode",
+            uuid: entity.uuid,
+            text: entity.title,
+            collisionBox: {
+              _: "CollisionBox",
+              shapes: [
+                {
+                  _: "Rectangle",
+                  location: toVector(entity.location),
+                  size: toVector(entity.size),
+                },
+              ],
+            },
+          };
           break;
         }
         case "core:svg_node": {
@@ -614,6 +630,25 @@ export namespace ProjectUpgrader {
         }
         case "core:cublic_catmull_rom_spline_edge": {
           // CR曲线
+          // 先转换成LineEdge，毕竟以前也没做好
+          const fromNode = uuidMap.get(association.source);
+          const toNode = uuidMap.get(association.target);
+
+          if (!fromNode || !toNode) {
+            // toast.warning(`边 ${association.uuid} 关联的节点不存在: ${association.source} -> ${association.target}`);
+            continue;
+          }
+
+          resultStage.push({
+            _: "LineEdge",
+            uuid: association.uuid,
+            associationList: [fromNode, toNode],
+            text: association.text,
+            color: toColor(association.color),
+            sourceRectangleRate: toVector(association.sourceRectRate),
+            targetRectangleRate: toVector(association.targetRectRate),
+          });
+
           break;
         }
         case "core:multi_target_undirected_edge": {
