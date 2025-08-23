@@ -37,6 +37,23 @@ export function parseSingleEmacsKey(key: string): {
   let shift = false;
   let meta = false;
 
+  if (key === "-") {
+    // 真就只是一个 减号，不是组合键
+    return {
+      key: "-",
+      alt,
+      control,
+      shift,
+      meta,
+    };
+  }
+
+  if (key.endsWith("--")) {
+    // 说明是含有一个减号的组合键
+    key = key.replace("--", "-[SUB]");
+    return parseSingleEmacsKey(key);
+  }
+
   const parts = key.split("-");
   if (parts.length === 0) return { key: "", alt, control, shift, meta };
 
@@ -59,6 +76,16 @@ export function parseSingleEmacsKey(key: string): {
         break;
     }
   });
+
+  if (keyPart === "[SUB]") {
+    return {
+      key: "-",
+      alt,
+      control,
+      shift,
+      meta,
+    };
+  }
 
   const specialKeyMatch = /^<(.+?)>$/.exec(keyPart);
   const parsedKey = specialKeyMatch
