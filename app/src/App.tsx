@@ -20,6 +20,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { URI } from "vscode-uri";
 import { cn } from "./utils/cn";
+import { isWindows } from "./utils/platform";
 
 export default function App() {
   const [maximized, _setMaximized] = useState(false);
@@ -396,11 +397,15 @@ export default function App() {
 
       {/* canvas */}
       <div className="absolute inset-0 overflow-hidden" ref={canvasWrapperRef}></div>
+
+      {/* 没有项目处于打开状态时，显示欢迎页面 */}
       {projects.length === 0 && (
         <div className="absolute inset-0 overflow-hidden *:h-full *:w-full">
           <Welcome />
         </div>
       )}
+
+      {/* 右键菜单 */}
       <ContextMenu>
         <ContextMenuTrigger>
           <div ref={contextMenuTriggerRef} />
@@ -417,6 +422,14 @@ export default function App() {
       <RenderSubWindows /> */}
 
       <RenderSubWindows />
+
+      {/* 右上角关闭的触发角 */}
+      {isWindows && (
+        <div
+          className="absolute right-0 top-0 z-50 h-1 w-1 cursor-pointer rounded-bl-xl bg-red-600 transition-all hover:h-10 hover:w-10 hover:bg-yellow-500"
+          onClick={() => getCurrentWindow().close()}
+        ></div>
+      )}
     </div>
   );
 }
