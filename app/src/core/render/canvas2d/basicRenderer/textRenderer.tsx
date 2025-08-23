@@ -267,7 +267,7 @@ export class TextRenderer {
     }
   }
 
-  textArrayCache: LruCache<string, string[]> = new LruCache(100);
+  textArrayCache: LruCache<string, string[]> = new LruCache(1000);
 
   /**
    * 加了缓存后的多行文本渲染函数
@@ -297,6 +297,11 @@ export class TextRenderer {
     this.renderText("", Vector.getZero(), fontSize, Color.White);
     const lines: string[] = [];
 
+    // 保存当前的字体设置
+    const originalFont = this.project.canvas.ctx.font;
+    // 确保使用与实际渲染相同的字体大小
+    this.project.canvas.ctx.font = `${fontSize}px normal ${FONT}`;
+
     for (const char of text) {
       // 新来字符的宽度
       const measureSize = this.project.canvas.ctx.measureText(currentLine + char);
@@ -318,6 +323,10 @@ export class TextRenderer {
     if (currentLine) {
       lines.push(currentLine);
     }
+
+    // 恢复原始字体设置
+    this.project.canvas.ctx.font = originalFont;
+
     return lines;
   }
 
@@ -332,11 +341,21 @@ export class TextRenderer {
     const lines = this.textToTextArrayWrapCache(text, fontSize, limitWidth);
     let maxWidth = 0;
     let totalHeight = 0;
+
+    // 保存当前的字体设置
+    const originalFont = this.project.canvas.ctx.font;
+    // 确保使用与实际渲染相同的字体大小
+    this.project.canvas.ctx.font = `${fontSize}px normal ${FONT}`;
+
     for (const line of lines) {
       const measureSize = this.project.canvas.ctx.measureText(line);
       maxWidth = Math.max(maxWidth, measureSize.width);
       totalHeight += fontSize * lineHeight;
     }
+
+    // 恢复原始字体设置
+    this.project.canvas.ctx.font = originalFont;
+
     return new Vector(Math.ceil(maxWidth), totalHeight);
   }
 }
