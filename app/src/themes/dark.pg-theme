@@ -43,7 +43,7 @@ sidebar-ring: oklch(0.556 0 0)
 brand: oklch(0.707 0.165 254.624)
 
 stage:
-  Background: "#000000"
+  Background: "#171717"
   GridNormal: "rgba(255, 255, 255, 0.2)"
   GridHeavy: "rgba(255, 255, 255, 0.3)"
   DetailsDebugText: "rgba(255, 255, 255, 0.5)"
