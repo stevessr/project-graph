@@ -58,7 +58,6 @@ export class KeyboardOnlyTreeEngine {
     // 如果是在框里，则把新生长的节点也纳入到框里
     const fatherSections = this.project.sectionMethods.getFatherSections(rootNode);
     for (const section of fatherSections) {
-      section.childrenUUIDs.push(newNode.uuid);
       section.children.push(newNode);
     }
 
@@ -121,10 +120,14 @@ export class KeyboardOnlyTreeEngine {
     const newLocation = currentSelectNode.collisionBox.getRectangle().leftBottom.add(new Vector(0, 1));
     const newNode = new TextNode(this.project, {
       text: "新节点",
-      details: "",
+      details: [],
       uuid: v4(),
-      location: [newLocation.x, newLocation.y],
-      size: [parent instanceof TextNode ? parent.collisionBox.getRectangle().width : 100, 100],
+      collisionBox: new CollisionBox([
+        new Rectangle(
+          newLocation.clone(),
+          new Vector(parent instanceof TextNode ? parent.collisionBox.getRectangle().width : 100, 100),
+        ),
+      ]),
       sizeAdjust: parent instanceof TextNode ? parent.sizeAdjust : "auto",
     });
     this.project.stageManager.add(newNode);
