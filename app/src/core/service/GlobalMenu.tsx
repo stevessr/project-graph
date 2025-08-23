@@ -33,7 +33,6 @@ import {
   AppWindow,
   Axe,
   Bot,
-  Bug,
   CircleAlert,
   ExternalLink,
   File,
@@ -513,11 +512,11 @@ export function GlobalMenu() {
             <Item variant="destructive">v{version}</Item>
             <Item variant="destructive">{t("unstable.notRelease")}</Item>
             <Item variant="destructive">{t("unstable.mayHaveBugs")}</Item>
-            <Separator />
+            {/*<Separator />
             <Item onClick={() => shellOpen("https://github.com/graphif/project-graph/issues/487")}>
               <Bug />
               {t("unstable.reportBug")}
-            </Item>
+            </Item>*/}
             <Separator />
             <Sub>
               <SubTrigger disabled={!activeProject}>
