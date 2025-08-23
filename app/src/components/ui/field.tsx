@@ -174,7 +174,7 @@ export function Field({
       style={style}
       onClick={onClick}
     >
-      <div className="flex items-center gap-2 mix-blend-difference">
+      <div className="flex items-center gap-2">
         <span>{icon}</span>
         <div className="flex flex-col">
           <span>{title}</span>
