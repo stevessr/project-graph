@@ -326,7 +326,7 @@ export default function MyContextMenuContent() {
                   .map((color, index) => (
                     <div
                       key={index}
-                      className="size-4"
+                      className="hover:outline-accent-foreground size-4 -outline-offset-2 hover:outline-2"
                       style={{ backgroundColor: color.toString() }}
                       onClick={() => p.stageObjectColorManager.setSelectedStageObjectColor(color)}
                     />
