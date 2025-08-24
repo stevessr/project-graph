@@ -7,6 +7,7 @@ import {
   ContextMenuSubTrigger,
 } from "@/components/ui/context-menu";
 import { MouseLocation } from "@/core/service/controlService/MouseLocation";
+import { Settings } from "@/core/service/Settings";
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
 import { Section } from "@/core/stage/stageObject/entity/Section";
@@ -52,7 +53,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import tailwindColors from "tailwindcss/colors";
 import KeyTooltip from "./key-tooltip";
-import { Settings } from "@/core/service/Settings";
 
 const Content = ContextMenuContent;
 const Item = ContextMenuItem;
@@ -319,14 +319,14 @@ export default function MyContextMenuContent() {
                 <Slash />
                 {t("resetColor")}
               </Item>
-              <Item className="bg-transparent! grid grid-cols-11 flex-col gap-1">
+              <Item className="bg-transparent! grid grid-cols-11 gap-0">
                 {Object.values(tailwindColors)
                   .filter((it) => typeof it !== "string")
                   .flatMap((it) => Object.values(it).map(Color.fromCss))
                   .map((color, index) => (
                     <div
                       key={index}
-                      className="h-4 w-4 rounded-full transition hover:scale-125"
+                      className="size-4"
                       style={{ backgroundColor: color.toString() }}
                       onClick={() => p.stageObjectColorManager.setSelectedStageObjectColor(color)}
                     />
