@@ -7,8 +7,19 @@ import "./assets/font.css";
  * @returns
  */
 export default function CreditsTab() {
+  // 计算从2025年1月至今的月份数
+  const startDate = new Date(2025, 0, 1); // 2025年1月1日
+  const currentDate = new Date();
+  const monthsDiff =
+    (currentDate.getFullYear() - startDate.getFullYear()) * 12 + (currentDate.getMonth() - startDate.getMonth());
+
   return (
     <div className="mx-auto flex w-2/3 flex-col overflow-auto">
+      <div className="mb-6 text-center">
+        <p className="text-foreground text-lg">
+          此鸣谢名单为自2025年1月至今共{monthsDiff}个月来的支持赞助者，按从现到早排列
+        </p>
+      </div>
       <Donation user="勇博" note="" amount={5} />
       <Donation user="ShawnSnow" note="感谢PG" amount={40} />
       <Donation user="飞度" note="做的很酷，真的谢谢你们" amount={50} />
@@ -84,7 +95,12 @@ function Donation({
   currency?: string;
 }) {
   return (
-    <Field icon={<Heart />} title={user} description={note}>
+    <Field
+      icon={<Heart />}
+      title={user.trim() === "" ? "匿名" : user}
+      description={note}
+      className={user.trim() === "" ? "text-muted-foreground" : ""}
+    >
       <div className="flex items-center gap-2 *:font-[DINPro_Bold]">
         <span className="text-2xl">{amount}</span>
         <span className="text-xl">{currency}</span>
