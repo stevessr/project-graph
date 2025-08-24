@@ -9,7 +9,7 @@ import "./assets/font.css";
 export default function CreditsTab() {
   return (
     <div className="mx-auto flex w-2/3 flex-col overflow-auto">
-      <Donation user="看见这行字说明你不认识我" note="您好，project graph软件对我后续学习有帮助，感谢" amount={50} />
+      <Donation user="ShawnSnow" note="感谢PG" amount={20} />
       <Donation user="飞度" note="做的很酷，真的谢谢你们" amount={50} />
       <Donation user="鳕鱼" note="支持开源支持国产，加油" amount={70} />
       <Donation user="木头" amount={100} />
