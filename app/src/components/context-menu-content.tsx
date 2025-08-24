@@ -307,8 +307,8 @@ export default function MyContextMenuContent() {
         </div>
       </Item>
       {/* 存在选中实体 */}
-      {p.stageManager.getSelectedEntities().length > 0 &&
-        p.stageManager.getSelectedEntities().every((it) => "color" in it) && (
+      {p.stageManager.getSelectedStageObjects().length > 0 &&
+        p.stageManager.getSelectedStageObjects().every((it) => "color" in it) && (
           <Sub>
             <SubTrigger>
               <Palette />
