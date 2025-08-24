@@ -24,7 +24,7 @@ export default async function RootLayout({
   const lang = (await params).lang;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         <RootProvider
           search={{
