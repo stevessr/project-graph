@@ -148,6 +148,7 @@ export const settingsSchema = z.object({
   githubToken: z.string().default(""),
   githubUser: z.string().default(""),
   theme: z.string().default("dark-blue"),
+  telemetry: z.boolean().default(true),
 });
 
 export type Settings = z.infer<typeof settingsSchema>;

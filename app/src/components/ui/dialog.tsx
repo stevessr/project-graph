@@ -137,7 +137,7 @@ Dialog.confirm = (title = "你确定？", description = "", { destructive = fals
                     }, 500);
                   }}
                 >
-                  否
+                  取消
                 </Button>
                 <Button
                   variant={destructive ? "destructive" : "default"}
@@ -149,7 +149,7 @@ Dialog.confirm = (title = "你确定？", description = "", { destructive = fals
                     }, 500);
                   }}
                 >
-                  是
+                  确定
                 </Button>
               </DialogFooter>
             </DialogHeader>
