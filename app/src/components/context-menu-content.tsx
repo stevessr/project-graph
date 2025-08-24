@@ -28,6 +28,8 @@ import {
   AlignVerticalSpaceBetween,
   ArrowDownUp,
   ArrowLeftRight,
+  ArrowRightFromLine,
+  ArrowUpToLine,
   Asterisk,
   Box,
   ChevronsRightLeft,
@@ -44,6 +46,7 @@ import {
   Pencil,
   Scissors,
   Slash,
+  SquareDot,
   SquareRoundCorner,
   TextSelect,
   Trash,
@@ -53,6 +56,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import tailwindColors from "tailwindcss/colors";
 import KeyTooltip from "./key-tooltip";
+import { Edge } from "@/core/stage/stageObject/association/Edge";
+import { Direction } from "@/types/directions";
 
 const Content = ContextMenuContent;
 const Item = ContextMenuItem;
@@ -77,7 +82,7 @@ export default function MyContextMenuContent() {
 
   return (
     <Content>
-      {/* 第一行 */}
+      {/* 第一行 Ctrl+c/v/x del */}
       <Item className="bg-transparent! gap-0 p-0">
         <KeyTooltip keyId="copy">
           <Button variant="ghost" size="icon" onClick={() => p.copyEngine.copy()}>
@@ -89,11 +94,6 @@ export default function MyContextMenuContent() {
             <Clipboard />
           </Button>
         </KeyTooltip>
-        <KeyTooltip keyId="cut">
-          <Button variant="ghost" size="icon" onClick={() => p.copyEngine.cut()}>
-            <Scissors />
-          </Button>
-        </KeyTooltip>
         {p.stageManager.getSelectedStageObjects().length > 0 && (
           <KeyTooltip keyId="deleteSelectedStageObjects">
             <Button variant="ghost" size="icon" onClick={() => p.stageManager.deleteSelectedStageObjects()}>
@@ -101,7 +101,14 @@ export default function MyContextMenuContent() {
             </Button>
           </KeyTooltip>
         )}
+        <KeyTooltip keyId="cut">
+          <Button variant="ghost" size="icon" onClick={() => p.copyEngine.cut()}>
+            <Scissors />
+          </Button>
+        </KeyTooltip>
       </Item>
+
+      {/* 对齐面板 */}
       <Item className="bg-transparent! gap-0 p-0">
         {p.stageManager.getSelectedEntities().length >= 2 && (
           <div className="grid grid-cols-3 grid-rows-3">
@@ -377,6 +384,7 @@ export default function MyContextMenuContent() {
           </Item>
         </>
       )}
+      {/* 没有选中实体，提示用户可以创建实体 */}
       {p.stageManager.getSelectedStageObjects().length === 0 && (
         <>
           <Item
@@ -420,6 +428,105 @@ export default function MyContextMenuContent() {
           </Item>
         </>
       )}
+      {/* 存在选中的 Edge */}
+      {p.stageManager.getSelectedAssociations().filter((it) => it instanceof Edge).length > 0 && (
+        // 目前还缺少tooltip提示
+        <Item className="bg-transparent! gap-0 p-0">
+          <div className="grid grid-cols-3 grid-rows-3">
+            <div></div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Up, true)}
+            >
+              <ArrowRightFromLine className="-rotate-90" />
+            </Button>
+            <div></div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Left, true)}
+            >
+              <ArrowRightFromLine className="-rotate-180" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(null, true)}
+            >
+              <SquareDot />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Right, true)}
+            >
+              <ArrowRightFromLine />
+            </Button>
+            <div></div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Down, true)}
+            >
+              <ArrowRightFromLine className="rotate-90" />
+            </Button>
+            <div></div>
+          </div>
+          <div className="grid grid-cols-3 grid-rows-3">
+            <div></div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Up)}
+            >
+              <ArrowUpToLine className="rotate-180" />
+            </Button>
+            <div></div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Left)}
+            >
+              <ArrowUpToLine className="rotate-90" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(null)}
+            >
+              <SquareDot />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Right)}
+            >
+              <ArrowUpToLine className="-rotate-90" />
+            </Button>
+            <div></div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Down)}
+            >
+              <ArrowUpToLine />
+            </Button>
+            <div></div>
+          </div>
+        </Item>
+      )}
+
       {/* 鼠标模式 */}
       <Item className="bg-transparent! gap-0 p-0">
         <Button
