@@ -17,7 +17,7 @@ export default function CreditsTab() {
     <div className="mx-auto flex w-2/3 flex-col overflow-auto">
       <div className="mb-6 text-center">
         <p className="text-foreground text-lg">
-          此鸣谢名单为自2025年1月至今共{monthsDiff}个月来的支持赞助者，按从现到早排列
+          此鸣谢名单为自2025年1月至今共{monthsDiff}个月来的支持者，按从现到早排列
         </p>
       </div>
       <Donation user="勇博" note="" amount={5} />
