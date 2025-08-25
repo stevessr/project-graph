@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Dialog } from "@/components/ui/dialog";
+import { Popover } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { SubWindow } from "@/core/service/SubWindow";
 import { activeProjectAtom } from "@/state";
@@ -12,6 +13,7 @@ import { useAtom } from "jotai";
 import { BrushCleaning, FileOutput, Plus, RefreshCcw, Trash } from "lucide-react";
 import mime from "mime";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function AttachmentsWindow() {
   const [project] = useAtom(activeProjectAtom);
@@ -65,26 +67,29 @@ export default function AttachmentsWindow() {
           <RefreshCcw />
           刷新
         </Button>
-        <Button
-          onClick={async () => {
-            if (await Dialog.confirm("清理未使用的附件", "所有未被任何实体引用的附件将被删除", { destructive: true })) {
-              const referencedAttachmentIds = project.stageManager
-                .getEntities()
-                .map((it) => ("attachmentId" in it ? (it.attachmentId as string) : ""))
-                .filter(Boolean);
-              for (const id of project.attachments.keys()) {
-                if (!referencedAttachmentIds.includes(id)) {
-                  project.attachments.delete(id);
-                }
+        <Popover.Confirm
+          title="清理附件"
+          description="删除所有未被实体引用的附件，且此操作不可撤销，是否继续？"
+          onConfirm={async () => {
+            const referencedAttachmentIds = project.stageManager
+              .getEntities()
+              .map((it) => ("attachmentId" in it ? (it.attachmentId as string) : ""))
+              .filter(Boolean);
+            for (const id of project.attachments.keys()) {
+              if (!referencedAttachmentIds.includes(id)) {
+                project.attachments.delete(id);
               }
-              refresh();
             }
+            refresh();
+            toast.success("ok");
           }}
-          variant="outline"
+          destructive
         >
-          <BrushCleaning />
-          清理
-        </Button>
+          <Button variant="outline">
+            <BrushCleaning />
+            清理
+          </Button>
+        </Popover.Confirm>
       </div>
       {attachments.entries().map(([id, blob]) => (
         <ContextMenu key={id}>

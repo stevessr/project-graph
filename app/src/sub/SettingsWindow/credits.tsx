@@ -1,4 +1,4 @@
-import { Dialog } from "@/components/ui/dialog";
+import { Popover } from "@/components/ui/popover";
 import { open } from "@tauri-apps/plugin-shell";
 import { ExternalLink, Heart, User } from "lucide-react";
 import "./assets/font.css";
@@ -101,27 +101,21 @@ export default function CreditsTab() {
             <span className="text-xl">CNY</span>
           </div>
         </div>
-        <div
-          className="bg-muted/50 **:cursor-pointer group flex flex-1 cursor-pointer flex-col justify-center gap-2 rounded-lg border p-4"
-          onClick={async () => {
-            if (
-              await Dialog.confirm(
-                "heads up!",
-                "此列表并不是实时更新的，开发者将在您捐赠后的下一个版本中手动更新此列表",
-              )
-            ) {
-              await open("https://2y.nz/pgdonate");
-            }
-          }}
+        <Popover.Confirm
+          title="提示"
+          description="此列表并不是实时更新的，开发者将在您捐赠后的下一个版本中手动更新此列表"
+          onConfirm={() => open("https://2y.nz/pgdonate")}
         >
-          <div className="flex items-center justify-center gap-2">
-            <ExternalLink className="h-5 w-5" />
-            <span className="text-lg">前往捐赠页面</span>
+          <div className="bg-muted/50 **:cursor-pointer group flex flex-1 cursor-pointer flex-col justify-center gap-2 rounded-lg border p-4">
+            <div className="flex items-center justify-center gap-2">
+              <ExternalLink className="h-5 w-5" />
+              <span className="text-lg">前往捐赠页面</span>
+            </div>
+            <div className="flex items-end justify-center gap-2 text-center">
+              <span className="underline-offset-4 group-hover:underline">2y.nz/pgdonate</span>
+            </div>
           </div>
-          <div className="flex items-end justify-center gap-2 text-center">
-            <span className="underline-offset-4 group-hover:underline">2y.nz/pgdonate</span>
-          </div>
-        </div>
+        </Popover.Confirm>
       </div>
 
       <div className="columns-1 gap-4 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5">

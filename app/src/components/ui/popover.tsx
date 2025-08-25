@@ -1,9 +1,10 @@
 "use client";
 
-import * as React from "react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
+import * as React from "react";
 
 import { cn } from "@/utils/cn";
+import { Button } from "./button";
 
 function Popover({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Root>) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />;
@@ -39,4 +40,42 @@ function PopoverAnchor({ ...props }: React.ComponentProps<typeof PopoverPrimitiv
   return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />;
 }
 
-export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };
+Popover.Confirm = ({
+  title = "",
+  description = "",
+  onConfirm = () => {},
+  destructive = false,
+  children = <></>,
+}: {
+  title?: string;
+  description?: string;
+  onConfirm?: () => void;
+  destructive?: boolean;
+  children: React.ReactNode;
+}) => {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent className="w-64">
+        <div className="mb-2">{title}</div>
+        <div className="text-muted-foreground mb-2 text-sm">{description}</div>
+        <div className="flex justify-end">
+          <Button
+            size="sm"
+            variant={destructive ? "destructive" : "default"}
+            onClick={() => {
+              onConfirm();
+              setOpen(false);
+            }}
+          >
+            确定
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger };
