@@ -9,7 +9,7 @@ import { Rectangle } from "@graphif/shapes";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readFile, writeFile } from "@tauri-apps/plugin-fs";
 import { useAtom } from "jotai";
-import { FileOutput, Plus, RefreshCcw, Trash } from "lucide-react";
+import { BrushCleaning, FileOutput, Plus, RefreshCcw, Trash } from "lucide-react";
 import mime from "mime";
 import { useEffect, useState } from "react";
 
@@ -64,6 +64,26 @@ export default function AttachmentsWindow() {
         <Button onClick={refresh} variant="outline">
           <RefreshCcw />
           刷新
+        </Button>
+        <Button
+          onClick={async () => {
+            if (await Dialog.confirm("清理未使用的附件", "所有未被任何实体引用的附件将被删除", { destructive: true })) {
+              const referencedAttachmentIds = project.stageManager
+                .getEntities()
+                .map((it) => ("attachmentId" in it ? (it.attachmentId as string) : ""))
+                .filter(Boolean);
+              for (const id of project.attachments.keys()) {
+                if (!referencedAttachmentIds.includes(id)) {
+                  project.attachments.delete(id);
+                }
+              }
+              refresh();
+            }
+          }}
+          variant="outline"
+        >
+          <BrushCleaning />
+          清理
         </Button>
       </div>
       {attachments.entries().map(([id, blob]) => (
