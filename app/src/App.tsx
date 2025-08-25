@@ -67,6 +67,11 @@ export default function App() {
         event.preventDefault();
     });
 
+    // 全局错误处理
+    window.addEventListener("error", (event) => {
+      Telemetry.event("未知错误", event.error);
+    });
+
     // 监听主题样式切换
     Settings.watch("theme", (value) => {
       let styleEl = document.querySelector("#pg-theme");
