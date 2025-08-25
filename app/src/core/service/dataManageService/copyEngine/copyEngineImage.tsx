@@ -54,8 +54,8 @@ export class CopyEngineImage {
     // 处理图片数据格式
     let processedData = this.ensureImageDataFormat(imageData, width, height);
 
-    // 尝试不同的数据处理方式
-    processedData = this.fixWindowsImageData(processedData);
+    // 处理图片数据格式，修复颜色通道顺序
+    processedData = this.fixImageData(processedData);
 
     console.log("处理后的数据长度:", processedData.length);
 
@@ -169,14 +169,17 @@ export class CopyEngineImage {
     console.log("前10个像素样本:", samplePixels);
   }
 
-  private fixWindowsImageData(data: Uint8ClampedArray): Uint8ClampedArray {
-    // Windows特定的数据修复
-    // const expectedLength = width * height * 4;
-
-    // 检查是否是BGRA格式（Windows常见）
+  /**
+   * 修复图片数据格式，处理颜色通道顺序问题
+   */
+  private fixImageData(data: Uint8ClampedArray): Uint8ClampedArray {
+    // 检查是否是BGRA格式
     let isBGRA = false;
     let hasContent = false;
     let allTransparent = true;
+    let rSum = 0;
+    let bSum = 0;
+    let pixelCount = 0;
 
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
@@ -194,17 +197,27 @@ export class CopyEngineImage {
         allTransparent = false;
       }
 
-      // 简单的BGRA检测（如果B值明显高于R，可能是BGRA）
-      if (b > r * 2 && b > 100) {
-        isBGRA = true;
+      // 统计非透明像素的R和B值，用于判断是否为BGRA
+      if (a > 128) {
+        rSum += r;
+        bSum += b;
+        pixelCount++;
       }
+    }
+
+    // 改进的BGRA检测：如果平均B值显著高于平均R值，则认为是BGRA
+    if (pixelCount > 0) {
+      const avgR = rSum / pixelCount;
+      const avgB = bSum / pixelCount;
+      // 如果B平均值是R的1.5倍以上，判断为BGRA
+      isBGRA = avgB > avgR * 1.5 && avgB > 50;
     }
 
     console.log("数据格式检测:", { isBGRA, hasContent, allTransparent });
 
     const fixedData = new Uint8ClampedArray(data);
 
-    // 1. 首先处理BGRA转RGBA
+    // 1. 处理BGRA转RGBA
     if (isBGRA) {
       console.log("检测到BGRA格式，转换为RGBA");
       for (let i = 0; i < fixedData.length; i += 4) {
@@ -216,7 +229,7 @@ export class CopyEngineImage {
       }
     }
 
-    // 2. 关键修复：如果所有alpha为0但有RGB内容，设置alpha为255
+    // 2. 修复：如果所有alpha为0但有RGB内容，设置alpha为255
     if (allTransparent && hasContent) {
       console.log("检测到所有alpha为0但有RGB内容，修复alpha通道");
       for (let i = 0; i < fixedData.length; i += 4) {
@@ -272,6 +285,9 @@ export class CopyEngineImage {
       fixedData.set(processedData.slice(0, Math.min(processedData.length, expectedLength)));
       processedData = fixedData;
     }
+
+    // 处理图片数据格式，修复颜色通道顺序
+    processedData = this.fixImageData(processedData);
 
     // 检查并修复透明数据
     const hasNonTransparentPixels = processedData.some(
