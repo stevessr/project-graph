@@ -20,8 +20,8 @@
     "type-check": "tsc"
   },
   "devDependencies": {
-    "tsdown": "^0.12.9",
-    "typescript": "~5.8.3"
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
   },
   "dependencies": {
     "@graphif/data-structures": "workspace:*",

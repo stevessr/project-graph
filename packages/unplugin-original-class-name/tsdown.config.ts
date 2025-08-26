@@ -1,4 +1,4 @@
-import { defineConfig } from "tsdown/config";
+import { defineConfig } from "tsdown";
 
 export default defineConfig({
   entry: ["src/*.ts"],
