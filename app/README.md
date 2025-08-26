@@ -11,16 +11,6 @@ Next-Generation Node Diagram Tool for Visual Thinking
 
 ---
 
-</div>
-
-# 🌍 Help us translate!
-
-[![Weblate Badge]][Weblate]
-
-Project Graph is an open-source project that aims to provide a next-generation node diagram tool for visual thinking. We need your help to translate the app into different languages.
-
----
-
 **Draw fast, think efficiently** — Unleash creativity and streamline workflows with AI-powered graph design.
 
 ## 🚀 Features
