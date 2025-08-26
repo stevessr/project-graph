@@ -1,6 +1,7 @@
 import { Popover } from "@/components/ui/popover";
+import { cn } from "@/utils/cn";
 import { open } from "@tauri-apps/plugin-shell";
-import { ExternalLink, Heart, User } from "lucide-react";
+import { Calendar, ExternalLink, Heart, Server, User } from "lucide-react";
 import "./assets/font.css";
 
 interface DonationData {
@@ -10,7 +11,12 @@ interface DonationData {
   currency?: string;
 }
 
+// 新的在前
 const donations: DonationData[] = [
+  { user: "购买服务器", note: "zty012", amount: -480 },
+  { user: "域名 2y.nz", note: "zty012", amount: -151.8 },
+  // { user: "MacBook", note: "littlefean", amount: -7599.2 },
+  { user: "域名 project-graph.top", note: "zty012", amount: -13.66 },
   { user: "ShawnSnow", note: "感谢PG", amount: 40 },
   { user: "飞度", note: "做的很酷，真的谢谢你们", amount: 50 },
   { user: "鳕鱼", note: "支持开源支持国产，加油", amount: 70 },
@@ -94,9 +100,29 @@ export default function CreditsTab() {
         <div className="bg-muted/50 flex flex-1 flex-col gap-2 rounded-lg border p-4">
           <div className="flex items-center justify-center gap-2">
             <Heart className="h-5 w-5" />
+            <span className="text-lg">合计</span>
+          </div>
+          <div
+            className={cn(
+              "flex items-end justify-center gap-2 text-center *:font-[DINPro]",
+              totalAmount < 0 ? "text-red-500" : "text-green-500",
+            )}
+          >
+            <span className="text-3xl">{totalAmount.toFixed(2)}</span>
+            <span className="text-xl">CNY</span>
+          </div>
+        </div>
+        <div className="bg-muted/50 flex flex-1 flex-col gap-2 rounded-lg border p-4">
+          <div className="flex items-center justify-center gap-2">
+            <Calendar className="h-5 w-5" />
             <span className="text-lg">平均每月</span>
           </div>
-          <div className="flex items-end justify-center gap-2 text-center *:font-[DINPro]">
+          <div
+            className={cn(
+              "flex items-end justify-center gap-2 text-center *:font-[DINPro]",
+              averageMonthlyAmount < 0 ? "text-red-500" : "text-green-500",
+            )}
+          >
             <span className="text-3xl">{averageMonthlyAmount.toFixed(2)}</span>
             <span className="text-xl">CNY</span>
           </div>
@@ -146,11 +172,13 @@ function Donation({
 }) {
   return (
     <div
-      className="bg-muted/50 mb-4 inline-flex w-full break-inside-avoid flex-col gap-2 rounded-lg border p-4"
-      style={{ pageBreakInside: "avoid" }}
+      className={cn(
+        "bg-muted/50 mb-4 inline-flex w-full break-inside-avoid flex-col gap-2 rounded-lg border p-4",
+        amount < 0 && "bg-destructive/25",
+      )}
     >
       <div className="flex items-center gap-2">
-        <User className="h-4 w-4" />
+        {amount < 0 ? <Server className="size-4" /> : <User className="size-4" />}
         <span className="text-sm font-medium">{user || "匿名"}</span>
       </div>
 
