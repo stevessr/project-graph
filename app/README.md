@@ -4,7 +4,8 @@
 <h1>Project Graph</h1>
 
 Next-Generation Node Diagram Tool for Visual Thinking
-<br>
+
+</div>
 
 ![License](https://img.shields.io/badge/License-MIT%20and%20GPL%203.0-green.svg)
 [![website](https://img.shields.io/badge/website-project--graph.top-purple)](https://project-graph.top)
