@@ -3,7 +3,7 @@
 <img src="app/src/assets/logo-animated.svg" height="150" alt="banner">
 <h1>Project Graph</h1>
 
-Next-Generation Node Diagram Tool for Visual Thinking
+次世代的节点图绘制工具
 
 </div>
 
@@ -57,34 +57,30 @@ For advanced features like compute engine, see [Full Documentation](https://proj
 - ~~**AI Integration**: Leverage LLMs for context-aware diagram generation and knowledge graph enhancement.~~ (WIP)
 - ~~**Real-Time Collaboration**: Sync edits across teams via shared project files or Git integration.~~ (WIP)
 
-## 🌍 Community & Contribution
+## 社区和贡献
 
-Join us and shape the future of visual thinking:
+加入社群: https://project-graph.top/docs/app/community
 
-[https://project-graph.top/docs/app/community](https://project-graph.top/docs/app/community)
+贡献代码: https://project-graph.top/docs/contribute
 
-We welcome PRs! Check [CONTRIBUTING.md](https://project-graph.top/docs/contribute) for guidelines.
+## 鸣谢
 
-# 🏆 Sponsors
+所有捐赠的用户（[见此处](https://github.com/graphif/project-graph/blob/master/app/src/sub/SettingsWindow/credits.tsx#L15)）
 
-[![image](https://beisudianxueuser.oss-cn-beijing.aliyuncs.com/storage/user_avatar/ciallo/2025/04/06/1818c0770e94a4257af5eb7d5530f5fd/Screenshot%202025-04-06%20at%2016-23-03%20NodeSupport%20Promotion.png)](https://yxvm.com/)
-[![ZMTO Logo](https://console.zmto.com/templates/2019/dist/images/logo_white.svg)](https://console.zmto.com/?affid=1574)
+### 服务器提供商
+
+[慕乐云](https://muleyun.com/aff/HLONILNH)
+
+AD: 慕乐云的年度活动太便宜了xD，8c8g 30G系统盘 80G数据盘 只要480CNY/年
+
+[YXVM](https://yxvm.com/)
+
+![yxvm](https://beisudianxueuser.oss-cn-beijing.aliyuncs.com/storage/user_avatar/ciallo/2025/04/06/1818c0770e94a4257af5eb7d5530f5fd/Screenshot%202025-04-06%20at%2016-23-03%20NodeSupport%20Promotion.png)
+
+[ZMTO](https://console.zmto.com/?affid=1574)
+
+![ZMTO Logo](https://console.zmto.com/templates/2019/dist/images/logo_white.svg)
+
+[DartNode](https://dartnode.com)
+
 [![Powered by DartNode](https://dartnode.com/branding/DN-Open-Source-sm.png)](https://dartnode.com "Powered by DartNode - Free VPS for Open Source")
-
-<!----------------------------------------------------------------------------->
-
-[Install]: https://project-graph.top/docs/app
-[Website]: https://project-graph.top
-[Online Demo]: https://web.project-graph.top
-[Weblate]: https://hosted.weblate.org/engage/project-graph/
-
-<!----------------------------------{ Badges }--------------------------------->
-
-[Weblate Badge]: https://hosted.weblate.org/widget/project-graph/open-graph.png
-[Badge Workflow]: https://github.com/LiRenTech/project-graph/actions/workflows/nightly.yml/badge.svg
-[Badge Issues]: https://img.shields.io/github/issues/LiRenTech/project-graph
-[Badge Language]: https://img.shields.io/github/languages/top/LiRenTech/project-graph
-[Badge License]: https://img.shields.io/github/license/LiRenTech/project-graph
-[Badge Lines]: https://img.shields.io/tokei/lines/github/LiRenTech/project-graph
-
-<!----------------------------------{ Images }--------------------------------->
