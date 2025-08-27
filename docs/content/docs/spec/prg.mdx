@@ -6,6 +6,9 @@ import { File, Folder, Files } from "fumadocs-ui/components/files";
 
 - **MIME Type:** `application/vnd.graphif.project-graph+zip`
 - **File Extension:** `.prg`
+- **Author**: zty012 \<[z@2y.nz](mailto:z@2y.nz)>
+- **Version**: 0.1
+- **Status**: Draft
 
 ## 1. Introduction
 
@@ -96,8 +99,67 @@ A `versions/` directory could be introduced to store historical snapshots of the
 
 To avoid the inefficiency of nested ZIP files (storing a `.prg` inside another `.prg`), a `sub/` directory could store additional Stage files. This would allow for complex, multi-stage projects within a single container.
 
-**Structure:** `sub/<uuid>.msgpack`
+<Files>
+  <File name="stage.msgpack" />
+  <Folder name="attachments" defaultOpen>
+    <File name="<uuid>.<ext>" />
+  </Folder>
+  <Folder name="sub" defaultOpen>
+    <Folder name="<uuid>" defaultOpen>
+      <File name="stage.msgpack" />
+      <Folder name="<uuid>" defaultOpen>
+        <File name="stage.msgpack" />
+        <Folder name="<uuid>" defaultOpen>
+          <File name="stage.msgpack" />
+        </Folder>
+        <Folder name="<uuid>" defaultOpen>
+          <File name="stage.msgpack" />
+        </Folder>
+      </Folder>
+    </Folder>
+    <Folder name="<uuid>" defaultOpen>
+      <File name="stage.msgpack" />
+      <Folder name="<uuid>" defaultOpen>
+        <File name="stage.msgpack" />
+      </Folder>
+    </Folder>
+  </Folder>
+</Files>
+
+Sub-stages can be nested to arbitrary depth, with each sub-stage having its own `stage.msgpack` file. References between stages **MUST** be done using the UUID of the sub-stage.
+
+#### 6.3.1 Representing Sub-Stages
+
+Because UUID is unique, so use just one UUID to represent a sub-stage.
 
 ### 6.4. Workspace Settings (`settings.msgpack`)
 
 Application-specific settings (e.g., default node styles, view preferences) could be stored in a root-level file like `settings.json`, making the PRG file a self-contained workspace.
+
+### 6.5. Anchors
+
+To represent a node or a region, we need to design an anchor syntax that can uniquely identify elements within the PRG file. The proposed syntax uses UUIDs to reference specific nodes or regions.
+
+Node UUIDs **MUST** be separated by `;`.
+
+```
+# wrapped for readability
+file:///home/user/project.prg#
+ec32d43d-7890-4e45-a28f-b31bca4dafea;
+6c95db6b-b64e-49e8-a3b0-3a39ee2588c9;
+49828d7f-7d05-48d9-bcb5-a699782f9880
+```
+
+This example references three nodes:
+
+- `ec32d43d-7890-4e45-a28f-b31bca4dafea`
+- `6c95db6b-b64e-49e8-a3b0-3a39ee2588c9`
+- `49828d7f-7d05-48d9-bcb5-a699782f9880`
+
+### 6.6. Fractional indexing
+
+Source: [Realtime editing of ordered sequences | Figma Blog](https://www.figma.com/blog/realtime-editing-of-ordered-sequences/#fractional-indexing)
+
+> Instead of OT, Figma uses a trick that’s often used to implement reordering on top of a database. Every object has a real number as an index and the order of the children for an element of the tree is determined by sorting all children by their index. To insert between two objects, just set the index for the new object to the average index of the two objects on either side. We use arbitrary-precision fractions instead of 64-bit doubles so that we can’t run out of precision after lots of edits.
+
+We can also use numbers to identify nodes in a stage. This can make it easier to represent the order of nodes (z-index).
