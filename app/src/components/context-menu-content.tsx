@@ -29,6 +29,7 @@ import {
   ArrowDownUp,
   ArrowLeftRight,
   ArrowRightFromLine,
+  ArrowUpRight,
   ArrowUpToLine,
   Asterisk,
   Box,
@@ -38,14 +39,19 @@ import {
   Copy,
   Dot,
   Grip,
+  Maximize2,
+  Minimize2,
   MousePointer,
   MoveHorizontal,
+  MoveUpRight,
   Network,
   Package,
   Palette,
   Pencil,
+  RefreshCcw,
   Scissors,
   Slash,
+  Spline,
   SquareDot,
   SquareRoundCorner,
   TextSelect,
@@ -430,101 +436,196 @@ export default function MyContextMenuContent() {
       )}
       {/* 存在选中的 Edge */}
       {p.stageManager.getSelectedAssociations().filter((it) => it instanceof Edge).length > 0 && (
-        // 目前还缺少tooltip提示
-        <Item className="bg-transparent! gap-0 p-0">
-          <div className="grid grid-cols-3 grid-rows-3">
-            <div></div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Up, true)}
-            >
-              <ArrowRightFromLine className="-rotate-90" />
-            </Button>
-            <div></div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Left, true)}
-            >
-              <ArrowRightFromLine className="-rotate-180" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(null, true)}
-            >
-              <SquareDot />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Right, true)}
-            >
-              <ArrowRightFromLine />
-            </Button>
-            <div></div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Down, true)}
-            >
-              <ArrowRightFromLine className="rotate-90" />
-            </Button>
-            <div></div>
-          </div>
-          <div className="grid grid-cols-3 grid-rows-3">
-            <div></div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Up)}
-            >
-              <ArrowUpToLine className="rotate-180" />
-            </Button>
-            <div></div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Left)}
-            >
-              <ArrowUpToLine className="rotate-90" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(null)}
-            >
-              <SquareDot />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Right)}
-            >
-              <ArrowUpToLine className="-rotate-90" />
-            </Button>
-            <div></div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Down)}
-            >
-              <ArrowUpToLine />
-            </Button>
-            <div></div>
-          </div>
-        </Item>
+        <>
+          <Item
+            onClick={() => {
+              p.stageManager.switchEdgeToUndirectedEdge();
+              p.historyManager.recordStep();
+            }}
+          >
+            <Spline />
+            转换为无向边
+          </Item>
+          <Item className="bg-transparent! gap-0 p-0">
+            <div className="grid grid-cols-3 grid-rows-3">
+              <div></div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Up, true)}
+              >
+                <ArrowRightFromLine className="-rotate-90" />
+              </Button>
+              <div></div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Left, true)}
+              >
+                <ArrowRightFromLine className="-rotate-180" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(null, true)}
+              >
+                <SquareDot />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Right, true)}
+              >
+                <ArrowRightFromLine />
+              </Button>
+              <div></div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Down, true)}
+              >
+                <ArrowRightFromLine className="rotate-90" />
+              </Button>
+              <div></div>
+            </div>
+            <div className="grid grid-cols-3 grid-rows-3">
+              <div></div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Up)}
+              >
+                <ArrowUpToLine className="rotate-180" />
+              </Button>
+              <div></div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Left)}
+              >
+                <ArrowUpToLine className="rotate-90" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(null)}
+              >
+                <SquareDot />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Right)}
+              >
+                <ArrowUpToLine className="-rotate-90" />
+              </Button>
+              <div></div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.stageManager.changeSelectedEdgeConnectLocation(Direction.Down)}
+              >
+                <ArrowUpToLine />
+              </Button>
+              <div></div>
+            </div>
+          </Item>
+        </>
+      )}
+
+      {/* 存在选中的 MTUEdge */}
+      {p.stageManager.getSelectedAssociations().filter((it) => it instanceof MultiTargetUndirectedEdge).length > 0 && (
+        <>
+          <Sub>
+            <SubTrigger>
+              <ArrowUpRight />
+              切换箭头形态
+            </SubTrigger>
+            <SubContent>
+              <Item
+                onClick={() => {
+                  const selectedMTUEdges = p.stageManager
+                    .getSelectedAssociations()
+                    .filter((edge) => edge instanceof MultiTargetUndirectedEdge);
+                  for (const multi_target_undirected_edge of selectedMTUEdges) {
+                    multi_target_undirected_edge.arrow = "outer";
+                  }
+                  p.historyManager.recordStep();
+                }}
+              >
+                <Maximize2 />
+                箭头外向
+              </Item>
+              <Item
+                onClick={() => {
+                  const selectedMTUEdges = p.stageManager
+                    .getSelectedAssociations()
+                    .filter((edge) => edge instanceof MultiTargetUndirectedEdge);
+                  for (const multi_target_undirected_edge of selectedMTUEdges) {
+                    multi_target_undirected_edge.arrow = "inner";
+                  }
+                  p.historyManager.recordStep();
+                }}
+              >
+                <Minimize2 />
+                箭头内向
+              </Item>
+              <Item
+                onClick={() => {
+                  const selectedMTUEdges = p.stageManager
+                    .getSelectedAssociations()
+                    .filter((edge) => edge instanceof MultiTargetUndirectedEdge);
+                  for (const multi_target_undirected_edge of selectedMTUEdges) {
+                    multi_target_undirected_edge.arrow = "none";
+                  }
+                  p.historyManager.recordStep();
+                }}
+              >
+                <Slash />
+                关闭箭头显示
+              </Item>
+            </SubContent>
+          </Sub>
+
+          <Item
+            onClick={() => {
+              const selectedMTUEdge = p.stageManager
+                .getSelectedAssociations()
+                .filter((edge) => edge instanceof MultiTargetUndirectedEdge);
+              for (const multi_target_undirected_edge of selectedMTUEdge) {
+                if (multi_target_undirected_edge.renderType === "line") {
+                  multi_target_undirected_edge.renderType = "convex";
+                } else if (multi_target_undirected_edge.renderType === "convex") {
+                  multi_target_undirected_edge.renderType = "line";
+                }
+              }
+              p.historyManager.recordStep();
+            }}
+          >
+            <RefreshCcw />
+            切换渲染形态
+          </Item>
+
+          <Item
+            onClick={() => {
+              p.stageManager.switchUndirectedEdgeToEdge();
+              p.historyManager.recordStep();
+            }}
+          >
+            <MoveUpRight />
+            转换为有向边
+          </Item>
+        </>
       )}
 
       {/* 鼠标模式 */}
