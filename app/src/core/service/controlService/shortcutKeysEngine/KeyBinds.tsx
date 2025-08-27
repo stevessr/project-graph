@@ -1,9 +1,9 @@
+import { Project, service } from "@/core/Project";
+import { matchEmacsKey } from "@/utils/emacs";
+import { isMac } from "@/utils/platform";
+import { createStore } from "@/utils/store";
 import { Queue } from "@graphif/data-structures";
 import { Store } from "@tauri-apps/plugin-store";
-import { matchEmacsKey } from "@/utils/emacs";
-import { createStore } from "@/utils/store";
-import { Project, service } from "@/core/Project";
-import { isMac } from "@/utils/platform";
 
 /**
  * 用于管理快捷键绑定
@@ -85,6 +85,7 @@ export class KeyBinds {
 
   // 仅用于初始化软件时注册快捷键
   registeredIdSet: Set<string> = new Set();
+  binds: Set<_Bind> = new Set();
 
   /**
    * 注册快捷键，注意：Mac会自动将此进行替换
@@ -115,6 +116,13 @@ export class KeyBinds {
       obj.key = value;
     });
     return obj;
+  }
+
+  dispose() {
+    this.binds.forEach((bind) => bind.dispose());
+    this.binds.clear();
+    this.registeredIdSet.clear();
+    this.callbacks = {};
   }
 }
 
@@ -152,18 +160,29 @@ class _Bind {
     private readonly onPress: () => void,
   ) {
     // 有任意事件时，管它是什么，都放进队列
-    this.project.canvas.element.addEventListener("mousedown", (event) => {
-      this.enqueue(event);
-      this.check();
-    });
-    this.project.canvas.element.addEventListener("keydown", (event) => {
-      if (["control", "alt", "shift", "meta"].includes(event.key.toLowerCase())) return;
-      this.enqueue(event);
-      this.check();
-    });
-    this.project.canvas.element.addEventListener("wheel", (event) => {
-      this.enqueue(event);
-      this.check();
-    });
+    this.project.canvas.element.addEventListener("mousedown", this.onMouseDown);
+    this.project.canvas.element.addEventListener("keydown", this.onKeyDown);
+    this.project.canvas.element.addEventListener("wheel", this.onWheel, { passive: true });
+  }
+
+  onMouseDown = (event: MouseEvent) => {
+    this.button = event.button;
+    this.enqueue(event);
+    this.check();
+  };
+  onKeyDown = (event: KeyboardEvent) => {
+    if (["control", "alt", "shift", "meta"].includes(event.key.toLowerCase())) return;
+    this.enqueue(event);
+    this.check();
+  };
+  onWheel = (event: WheelEvent) => {
+    this.enqueue(event);
+    this.check();
+  };
+
+  dispose() {
+    this.project.canvas.element.removeEventListener("mousedown", this.onMouseDown);
+    this.project.canvas.element.removeEventListener("keydown", this.onKeyDown);
+    this.project.canvas.element.removeEventListener("wheel", this.onWheel);
   }
 }

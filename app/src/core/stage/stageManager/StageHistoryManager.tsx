@@ -47,16 +47,13 @@ export class HistoryManager {
       // 当历史记录超过限制时，需要删除最旧的记录
       // 但是不能简单删除，因为get方法依赖于从initialStage开始应用所有delta
       // 所以我们需要将第一个delta合并到initialStage中，然后删除这个delta
-
-      // 步骤1：将第一个delta合并到initialStage中
       const firstDelta = _.cloneDeep(this.deltas[0]);
       this.initialStage = patch(_.cloneDeep(this.initialStage), firstDelta) as any;
-
-      // 步骤2：删除最旧的记录（第一个delta）
-      this.deltas.shift();
-
-      // 步骤3：调整当前索引，因为删除了第一个元素，所有索引都向前移动了一位
       this.currentIndex--;
+    }
+    // 检测index是否越界
+    if (this.currentIndex >= this.deltas.length) {
+      this.currentIndex = this.deltas.length - 1;
     }
     this.project.state = ProjectState.Unsaved;
   }
