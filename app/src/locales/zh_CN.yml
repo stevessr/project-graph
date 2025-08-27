@@ -75,6 +75,12 @@ contextMenu:
   toggleSectionCollapse: 切换折叠状态
   changeColor: 更改颜色
   resetColor: 重置
+  switchMTUEdgeArrow: 切换箭头形态
+  mtuEdgeArrowOuter: 箭头外向
+  mtuEdgeArrowInner: 箭头内向
+  mtuEdgeArrowNone: 关闭箭头显示
+  switchMTUEdgeRenderType: 切换渲染形态
+  convertToDirectedEdge: 转换为有向边
 
 settings:
   title: 设置

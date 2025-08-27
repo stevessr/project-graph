@@ -549,7 +549,7 @@ export default function MyContextMenuContent() {
           <Sub>
             <SubTrigger>
               <ArrowUpRight />
-              切换箭头形态
+              {t("switchMTUEdgeArrow")}
             </SubTrigger>
             <SubContent>
               <Item
@@ -564,7 +564,7 @@ export default function MyContextMenuContent() {
                 }}
               >
                 <Maximize2 />
-                箭头外向
+                {t("mtuEdgeArrowOuter")}
               </Item>
               <Item
                 onClick={() => {
@@ -578,7 +578,7 @@ export default function MyContextMenuContent() {
                 }}
               >
                 <Minimize2 />
-                箭头内向
+                {t("mtuEdgeArrowInner")}
               </Item>
               <Item
                 onClick={() => {
@@ -592,7 +592,7 @@ export default function MyContextMenuContent() {
                 }}
               >
                 <Slash />
-                关闭箭头显示
+                {t("mtuEdgeArrowNone")}
               </Item>
             </SubContent>
           </Sub>
@@ -613,7 +613,7 @@ export default function MyContextMenuContent() {
             }}
           >
             <RefreshCcw />
-            切换渲染形态
+            {t("switchMTUEdgeRenderType")}
           </Item>
 
           <Item
@@ -623,7 +623,7 @@ export default function MyContextMenuContent() {
             }}
           >
             <MoveUpRight />
-            转换为有向边
+            {t("convertToDirectedEdge")}
           </Item>
         </>
       )}
