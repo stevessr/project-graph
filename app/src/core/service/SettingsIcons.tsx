@@ -25,6 +25,7 @@ import {
   Keyboard,
   Languages,
   Layers,
+  LineSquiggle,
   ListCheck,
   ListCollapse,
   ListEnd,
@@ -142,4 +143,5 @@ export const settingsIcons = {
   limitCameraInCycleSpace: Ratio,
   cameraCycleSpaceSizeX: Scaling,
   cameraCycleSpaceSizeY: Scaling,
+  autoAdjustLineEndpointsByMouseTrack: LineSquiggle,
 };

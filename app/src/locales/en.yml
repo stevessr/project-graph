@@ -124,6 +124,10 @@ settings:
     description: |
       For teaching, training.
       When enabled, the buttons at the top of the window will become transparent, and they will revert when the mouse hovers over them. You can customize the shortcut keys to enter and exit focus mode.
+  autoAdjustLineEndpointsByMouseTrack:
+    title: Auto Adjust Line Endpoints by Mouse Track
+    description: |
+      When enabled, the endpoints of the generated lines will be automatically adjusted based on the mouse drag track.
   lineStyle:
     title: Line Style
     options:

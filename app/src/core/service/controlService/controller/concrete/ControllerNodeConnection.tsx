@@ -289,7 +289,13 @@ export class ControllerNodeConnectionClass extends ControllerClass {
     const releaseTargetEntity = this.project.stageManager.findConnectableEntityByLocation(releaseWorldLocation);
 
     // 根据轨迹判断方向
-    const [sourceDirection, targetDirection] = this.getConnectDirectionByMouseTrack();
+    let sourceDirection: Direction | null = null;
+    let targetDirection: Direction | null = null;
+
+    // 如果开启了根据鼠标轨迹自动调整端点位置的功能，则获取方向信息
+    if (Settings.autoAdjustLineEndpointsByMouseTrack) {
+      [sourceDirection, targetDirection] = this.getConnectDirectionByMouseTrack();
+    }
 
     // 结束连线
     if (releaseTargetEntity !== null) {

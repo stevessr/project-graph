@@ -245,7 +245,7 @@ const categories = {
       "textNodeSelectAllWhenStartEditByMouseClick",
       "textNodeSelectAllWhenStartEditByKeyboard",
     ],
-    edge: ["allowAddCycleEdge"],
+    edge: ["allowAddCycleEdge", "autoAdjustLineEndpointsByMouseTrack"],
     generateNode: ["autoLayoutWhenTreeGenerate"],
     gamepad: ["gamepadDeadzone"],
   },

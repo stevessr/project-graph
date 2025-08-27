@@ -84,6 +84,7 @@ export const settingsSchema = z.object({
     .default("cameraMoveToMouse"),
   macMouseWheelIsSmoothed: z.boolean().default(false),
   enableWindowsTouchPad: z.boolean().default(true),
+  autoAdjustLineEndpointsByMouseTrack: z.boolean().default(true),
   macTrackpadAndMouseWheelDifference: z
     .union([z.literal("trackpadIntAndWheelFloat"), z.literal("tarckpadFloatAndWheelInt")])
     .default("trackpadIntAndWheelFloat"),

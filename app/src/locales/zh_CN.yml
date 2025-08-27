@@ -138,6 +138,11 @@ settings:
     description: |
       用于教学、培训等场景。
       开启后窗口顶部按钮会透明，鼠标悬浮上去会恢复，可以修改进入退出专注模式的快捷键
+  autoAdjustLineEndpointsByMouseTrack:
+    title: 根据鼠标拖动轨迹自动调整生成连线的端点位置
+    description: |
+      开启后，在拖拽连线时会根据鼠标移动轨迹自动调整连线端点在实体上的位置
+      关闭后，连线端点将始终位于实体中心
   lineStyle:
     title: 连线样式
     options:

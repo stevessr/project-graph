@@ -442,6 +442,9 @@ settings:
   isClassroomMode:
     title: 專注模式
     description: "用於教學、培訓等場景。\n開啟後視窗頂部按鈕會透明，滑鼠懸浮上去會恢復，可以修改進入退出專注模式的快捷鍵\n"
+  autoAdjustLineEndpointsByMouseTrack:
+    title: 根據滑鼠拖動軌跡自動調整生成連線的端點位置
+    description: "開啟後，生成的連線端點位置將根據滑鼠拖動軌跡自動調整。\n"
   cameraFollowsSelectedNodeOnArrowKeys:
     title: 通過方向鍵切換選中節點時，視野跟隨移動
     description: "開啟後，使用鍵盤移動節點選擇框時，視野跟隨移動\n"
@@ -452,11 +455,11 @@ settings:
     title: 雙擊滑鼠中鍵
     description: "將滾輪鍵快速按下兩次時執行的操作。默認是重置視野。\n關閉此選項，可以防止誤觸發\n"
   enableDragAlignToGrid:
-    description: "建議在顯示中開啟橫向和縱向網格線，並關閉自動吸附對齊\n"
     title: 拖動實體時，吸附到網格
+    description: "建議在顯示中開啟橫向和縱向網格線，並關閉自動吸附對齊\n"
   renderOverTimeWhenNoManipulateTime:
-    description: "超過一段時間未做出舞台操作，舞台渲染會暫停，以節省CPU/GPU資源。\n必須在上述“超時暫停渲染”選項開啟後才會生效。\n"
     title: 超時停止渲染舞台的時間（秒）
+    description: "超過一段時間未做出舞台操作，舞台渲染會暫停，以節省CPU/GPU資源。\n必須在上述“超時暫停渲染”選項開啟後才會生效。\n"
   windowCollapsingHeight:
     title: 迷你視窗的高度
     description: "點擊切換至迷你視窗時，視窗的高度，單位為像素\n"
@@ -471,23 +474,22 @@ settings:
     options:
       trackpadIntAndWheelFloat: 觸控板是整數，滑鼠滾動是小數
       tarckpadFloatAndWheelInt: 觸控板是小數，滑鼠滾動是整數
-    description: 有的macbook滑鼠滾輪是整數，觸控板是小數，有的則相反 您需要根據實際情況選擇一下區分邏輯 區分方法可點擊7次關於介面的軟體logo進入“測試介面”後，滑動滾輪和觸控板查看資料反饋
+    description: "有的macbook滑鼠滾輪是整數，觸控板是小數，有的則相反 您需要根據實際情況選擇一下區分邏輯 區分方法可點擊7次關於介面的軟體logo進入“測試介面”後，滑動滾輪和觸控板查看資料反饋\n"
   cameraResetViewPaddingRate:
     title: 根據選擇節點重置視野時，邊緣留白係數
-    description: "框選一堆節點或一個節點，並按下快捷鍵或點擊按鈕來重置視野後\n視野會調整大小和位置，確保所有選中內容出現在螢幕中央並完全覆蓋\n
-      由於視野縮放大小原因，因此邊緣可能會有留白\n值為1 表示邊緣完全不留白。（非常放大的觀察）\n值為2 表示留白内容恰好為自身内容的一倍\n"
+    description: "框選一堆節點或一個節點，並按下快捷鍵或點擊按鈕來重置視野後\n視野會調整大小和位置，確保所有選中內容出現在螢幕中央並完全覆蓋\n由於視野縮放大小原因，因此邊緣可能會有留白\n值為1 表示邊緣完全不留白。（非常放大的觀察）\n值為2 表示留白内容恰好為自身内容的一倍\n"
   uiSwitchButtonOnSoundFile:
+    title: 按鈕點擊開關按鈕時打開的聲音
     description: "按鈕點擊開關按鈕時打開的聲音文件路徑\n"
-    title: 按鈕點擊開關按鈕時打開惡生因
   uiSwitchButtonOffSoundFile:
     title: 按鈕點擊開關按鈕時關閉的聲音
     description: "按鈕點擊開關按鈕時關閉的聲音文件路徑\n"
   macTrackpadScaleSensitivity:
-    description: 值越大，縮放的速度越快
     title: macbook 的觸控板雙指縮放靈敏度
+    description: "值越大，縮放的速度越快\n"
   uiButtonClickSoundFile:
-    description: "按鈕點擊時播放的聲音文件路徑\n"
     title: 按鈕點擊時的聲音文件
+    description: "按鈕點擊時播放的聲音文件路徑\n"
   uiButtonEnterSoundFile:
     title: 滑鼠進入按鈕區域的聲音
     description: "滑鼠進入按鈕區域的聲音\n"
@@ -504,8 +506,7 @@ settings:
       adjustWindowOpacity: 調整窗口透明度
   mouseWheelWithAltMode:
     title: 按住 Alt 時，滑鼠滾輪模式
-    description: "此功能於2025年4月10日新增\n目前發現還存在問題：win系统下滑動滾輪後需要再點擊一次螢幕才能操作舞台\n提示：這裡的 Alt
-      是 Option\n"
+    description: "此功能於2025年4月10日新增\n目前發現還存在問題：win系统下滑動滾輪後需要再點擊一次螢幕才能操作舞台\n提示：這裡的 Alt 是 Option\n"
     options:
       zoom: 縮放
       move: 縱向移動
@@ -513,7 +514,7 @@ settings:
       none: 無操作
   macMouseWheelIsSmoothed:
     title: macbook 的滑鼠滾輪是否平滑
-    description: 有的macbook滑鼠滾輪是平滑的，有的則是滾動一格觸發一次 可能取決于您是否安裝了Mos等滑鼠修改軟體
+    description: "有的macbook滑鼠滾輪是平滑的，有的則是滾動一格觸發一次 可能取決于您是否安裝了Mos等滑鼠修改軟體\n"
   sectionBitTitleRenderType:
     title: 框的縮略大標題渲染類型
     options:
