@@ -5,7 +5,6 @@ import { Color, ProgressNumber, Vector } from "@graphif/data-structures";
 
 export class PenStrokeDeletedEffect extends Effect {
   private pathList: Vector[] = [];
-  private currentPartList: Vector[] = [];
   private color: Color = new Color(0, 0, 0);
   private width: number = 1;
 
@@ -21,30 +20,26 @@ export class PenStrokeDeletedEffect extends Effect {
   }
 
   static fromPenStroke(penStroke: PenStroke): PenStrokeDeletedEffect {
-    const len = penStroke.getPath().length;
-    return new PenStrokeDeletedEffect(new ProgressNumber(0, len), penStroke);
+    // 将固定时间设置为50帧（大约0.8秒，假设60FPS）
+    // 不再根据路径长度设置进度条最大值
+    return new PenStrokeDeletedEffect(new ProgressNumber(0, 50), penStroke);
   }
 
   override tick(project: Project) {
     super.tick(project);
-    const currentSep = Math.floor(this.pathList.length * this.timeProgress.rate);
-    this.currentPartList = [];
-    for (let i = currentSep; i < this.pathList.length; i++) {
-      this.currentPartList.push(this.pathList[i]);
-    }
+    // 移除基于路径长度的分段逻辑
+    // 简单地使用进度条的进度来控制透明度
   }
 
   render(project: Project) {
     if (this.timeProgress.isFull) {
       return;
     }
-    if (this.currentPartList.length === 0) {
-      return;
-    }
 
+    // 渲染整个路径，但使用进度来控制透明度
     project.curveRenderer.renderSolidLineMultiple(
-      this.currentPartList.map((v) => project.renderer.transformWorld2View(v)),
-      this.color.toNewAlpha(1 - this.timeProgress.rate),
+      this.pathList.map((v) => project.renderer.transformWorld2View(v)),
+      this.color.toNewAlpha(1 - this.timeProgress.rate), // 随着进度增加，透明度逐渐降低
       this.width * project.camera.currentScale,
     );
   }
