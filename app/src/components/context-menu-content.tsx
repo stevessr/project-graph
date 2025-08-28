@@ -341,7 +341,7 @@ export default function MyContextMenuContent() {
                       key={index}
                       className="hover:outline-accent-foreground size-4 -outline-offset-2 hover:outline-2"
                       style={{ backgroundColor: color.toString() }}
-                      onClick={() => p.stageObjectColorManager.setSelectedStageObjectColor(color)}
+                      onMouseEnter={() => p.stageObjectColorManager.setSelectedStageObjectColor(color)}
                     />
                   ))}
               </Item>
