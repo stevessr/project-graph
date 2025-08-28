@@ -1,5 +1,6 @@
 import { Vector } from "@graphif/data-structures";
 import { ControllerClass } from "../ControllerClass";
+import { Settings } from "@/core/service/Settings";
 
 export class ControllerContextMenuClass extends ControllerClass {
   /** view */
@@ -19,6 +20,22 @@ export class ControllerContextMenuClass extends ControllerClass {
 
     const mouseUpLocation = new Vector(event.clientX, event.clientY);
     const distance = this.mouseDownLocation.distance(mouseUpLocation);
+
+    // 检查是否启用了右键点击连线功能并且有实体被选中
+    const hasSelectedConnectableEntities = this.project.stageManager
+      .getConnectableEntity()
+      .some((entity) => entity.isSelected);
+
+    // 转换鼠标位置到世界坐标系
+    const worldLocation = this.project.renderer.transformView2World(mouseUpLocation);
+
+    // 检查点击位置是否在可连接对象上
+    const clickedConnectableEntity = this.project.stageManager.findConnectableEntityByLocation(worldLocation);
+
+    // 如果启用了右键点击连线功能、有实体被选中，并且点击位置在可连接对象上，则不显示右键菜单
+    if (Settings.enableRightClickConnect && hasSelectedConnectableEntities && clickedConnectableEntity !== null) {
+      return;
+    }
 
     if (distance < 5) {
       this.project.emit("contextmenu", mouseUpLocation);

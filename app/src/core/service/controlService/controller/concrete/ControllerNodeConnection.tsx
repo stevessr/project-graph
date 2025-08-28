@@ -408,6 +408,11 @@ export class ControllerNodeConnectionClass extends ControllerClass {
    * @param releaseWorldLocation
    */
   private clickMultiConnect(releaseWorldLocation: Vector) {
+    // 检查是否启用了右键点击连线功能
+    if (!Settings.enableRightClickConnect) {
+      return;
+    }
+
     // 右键点击位置和抬起位置重叠，说明是右键单击事件，没有发生拖拽现象
     const releaseTargetEntity = this.project.stageManager.findConnectableEntityByLocation(releaseWorldLocation);
     if (!releaseTargetEntity) {

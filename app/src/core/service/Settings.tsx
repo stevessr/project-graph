@@ -100,6 +100,7 @@ export const settingsSchema = z.object({
   cameraKeyboardScaleRate: z.number().min(0).max(3).default(0.2),
   rectangleSelectWhenRight: z.union([z.literal("intersect"), z.literal("contain")]).default("intersect"),
   rectangleSelectWhenLeft: z.union([z.literal("intersect"), z.literal("contain")]).default("contain"),
+  enableRightClickConnect: z.boolean().default(true),
   textNodeStartEditMode: z
     .union([
       z.literal("enter"),

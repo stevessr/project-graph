@@ -144,4 +144,5 @@ export const settingsIcons = {
   cameraCycleSpaceSizeX: Scaling,
   cameraCycleSpaceSizeY: Scaling,
   autoAdjustLineEndpointsByMouseTrack: LineSquiggle,
+  enableRightClickConnect: MousePointerClick,
 };
