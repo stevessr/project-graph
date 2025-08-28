@@ -602,6 +602,10 @@ toolbar:
     items:
       generateTextNodeByText: 透過文本生成節點
       autoFillColorSettings: 設置實體創建時自動填充的顏色
+  generate:
+    title: 生成
+    items:
+      generateNodeTreeByText: 根據純文字生成樹狀結構
   stageObjects:
     title: 舞台物件
     items:
@@ -1109,3 +1113,21 @@ keyBindsGroup:
     title: 对齐相关
     description: |
       关于实体对齐的一些功能
+
+  actions:
+    title: 操作
+    refresh: 刷新
+    undo: 撤銷
+    redo: 重做
+    releaseKeys: 釋放按鍵
+    confirmClearStage: 確認清空舞臺？
+    irreversible: 此操作無法撤銷！
+    clearStage: 清空舞臺
+    cancel: 取消
+    confirm: 確定
+    generate:
+      title: 生成
+      generateNodeTreeByText: 根據純文字生成樹狀結構
+      generateNodeTreeByTextDescription: 請輸入樹狀結構文字，每行代表一個節點，縮進表示層級關係
+      generateNodeTreeByTextPlaceholder: 輸入樹狀結構文字...
+      indention: 縮進字元數

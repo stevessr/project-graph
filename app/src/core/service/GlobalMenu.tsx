@@ -1,4 +1,3 @@
-import { Dialog } from "@/components/ui/dialog";
 import {
   Menubar,
   MenubarContent,
@@ -10,6 +9,11 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { loadAllServices } from "@/core/loadAllServices";
 import { Project } from "@/core/Project";
 import { activeProjectAtom, isClassroomModeAtom, projectsAtom, store } from "@/state";
@@ -78,6 +82,9 @@ import { TextNode } from "../stage/stageObject/entity/TextNode";
 import { RecentFileManager } from "./dataFileService/RecentFileManager";
 import { FeatureFlags } from "./FeatureFlags";
 import { Telemetry } from "./Telemetry";
+import { SubWindow } from "./SubWindow";
+import { Rectangle } from "@graphif/shapes";
+import { Vector } from "@graphif/data-structures";
 
 const Content = MenubarContent;
 const Item = MenubarItem;
@@ -412,6 +419,95 @@ export function GlobalMenu() {
             <Radiation />
             {t("actions.clearStage")}
           </Item>
+          {/* 生成子菜单 */}
+          <Sub>
+            <SubTrigger>
+              <RefreshCcwDot />
+              {t("actions.generate.title")}
+            </SubTrigger>
+            <SubContent>
+              <Item
+                onClick={async () => {
+                  // 创建自定义对话框
+                  const result = await new Promise<{ text: string; indention: number } | undefined>((resolve) => {
+                    function CustomDialog({ winId }: { winId?: string }) {
+                      const [text, setText] = useState("");
+                      const [indention, setIndention] = useState("4");
+
+                      return (
+                        <div className="space-y-4 p-6">
+                          <div>
+                            <h3 className="mb-2 text-xl font-semibold">
+                              {t("actions.generate.generateNodeTreeByText")}
+                            </h3>
+                            <p className="text-muted-foreground mb-4">
+                              {t("actions.generate.generateNodeTreeByTextDescription")}
+                            </p>
+                          </div>
+                          <Textarea
+                            value={text}
+                            onChange={(e) => setText(e.target.value)}
+                            placeholder={t("actions.generate.generateNodeTreeByTextPlaceholder")}
+                            className="min-h-[200px]"
+                          />
+                          <div className="flex items-center gap-2">
+                            <label htmlFor="indention">{t("actions.generate.indention")}:</label>
+                            <Input
+                              id="indention"
+                              type="number"
+                              value={indention}
+                              onChange={(e) => setIndention(e.target.value)}
+                              min="1"
+                              max="10"
+                              className="w-20"
+                            />
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                resolve(undefined);
+                                setTimeout(() => {
+                                  SubWindow.close(winId!);
+                                }, 100);
+                              }}
+                            >
+                              {t("actions.cancel")}
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                resolve({ text, indention: parseInt(indention) || 4 });
+                                setTimeout(() => {
+                                  SubWindow.close(winId!);
+                                }, 100);
+                              }}
+                            >
+                              {t("actions.confirm")}
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    SubWindow.create({
+                      title: t("actions.generate.generateNodeTreeByText"),
+                      titleBarOverlay: true,
+                      closable: true,
+                      rect: new Rectangle(Vector.same(100), new Vector(600, 450)),
+                      children: <CustomDialog />,
+                    });
+                  });
+
+                  if (result) {
+                    activeProject?.stageManager.generateNodeTreeByText(result.text, result.indention);
+                  }
+                }}
+              >
+                <RefreshCcwDot />
+                {t("actions.generate.generateNodeTreeByText")}
+              </Item>
+            </SubContent>
+          </Sub>
         </Content>
       </Menu>
 

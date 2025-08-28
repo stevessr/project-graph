@@ -40,10 +40,18 @@ globalMenu:
     refresh: 刷新
     undo: 撤销
     redo: 重做
-    releaseKeys: 松开按键
+    releaseKeys: 释放按键
     confirmClearStage: 确认清空舞台？
     irreversible: 此操作无法撤销！
     clearStage: 清空舞台
+    cancel: 取消
+    confirm: 确定
+    generate:
+      title: 生成
+      generateNodeTreeByText: 根据纯文本生成树状结构
+      generateNodeTreeByTextDescription: 请输入树状结构文本，每行代表一个节点，缩进表示层级关系
+      generateNodeTreeByTextPlaceholder: 输入树状结构文本...
+      indention: 缩进字符数
   settings:
     title: 设置
     appearance: 个性化

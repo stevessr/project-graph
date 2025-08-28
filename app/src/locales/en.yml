@@ -623,6 +623,73 @@ app:
   unsaved: "(Unsaved)"
   comingSoon: "Coming Soon...…"
   draftUnsaved: ' Drafts cannot be saved automatically and require manual saving '
+globalMenu:
+  file:
+    title: File
+    new: New Draft
+    open: Open
+    recentFiles: Recent Files
+    clear: Clear
+    save: Save
+    saveAs: Save As
+    import: Import
+    importFromFolder: Generate Nested Graph from Folder
+    export: Export
+    exportAsSVG: Export as SVG
+    exportAll: Export All Content
+    exportSelected: Export Selected Content
+    plainText: Plain Text
+    exportSuccess: Export Successful
+    attachments: Attachment Manager
+  location:
+    title: Location
+    openConfigFolder: Open Software Configuration Folder
+    openCacheFolder: Open Software Cache Folder
+    openCurrentProjectFolder: Open Current Project Folder
+  view:
+    title: View
+    resetViewAll: Reset View Based on All Content
+    resetViewSelected: Reset View Based on Selected Content
+    resetViewScale: Reset View Scale to Standard Size
+    moveViewToOrigin: Move View to Coordinate Origin
+  actions:
+    title: Actions
+    refresh: Refresh
+    undo: Undo
+    redo: Redo
+    releaseKeys: Release Keys
+    confirmClearStage: Confirm Clear Stage?
+    irreversible: This operation cannot be undone!
+    clearStage: Clear Stage
+    cancel: Cancel
+    confirm: Confirm
+    generate:
+      title: Generate
+      generateNodeTreeByText: Generate Tree Structure from Plain Text
+      generateNodeTreeByTextDescription: Enter tree structure text, each line represents a node, indentation represents hierarchical relationships
+      generateNodeTreeByTextPlaceholder: Enter tree structure text...
+      indention: Indentation Characters
+  settings:
+    title: Settings
+    appearance: Personalization
+  ai:
+    title: AI
+    openAIPanel: Open AI Panel
+  window:
+    title: Window
+    fullscreen: Fullscreen
+    classroomMode: Focus Mode
+    classroomModeHint: The top-left menu button is just transparent, not disappeared
+  about:
+    title: About
+    guide: New User Guide
+  unstable:
+    title: Beta Version
+    notRelease: This version is not official
+    mayHaveBugs: May contain bugs and unfinished features
+    reportBug: "Report Bug: Comment in Issue #487"
+    test: Test Function
+
 appMenu:
   file:
     title: File
