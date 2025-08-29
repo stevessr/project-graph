@@ -1,4 +1,5 @@
 import Github from "@/assets/github.svg?react";
+import { Settings } from "@/core/service/Settings";
 import { SettingField } from "@/components/field";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
