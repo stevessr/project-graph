@@ -20,6 +20,7 @@ import { v4 as uuidv4 } from "uuid";
 import { URI } from "vscode-uri";
 import { PenStrokeSegment } from "./stageObject/entity/PenStroke";
 import { Vector } from "@graphif/data-structures";
+import { toast } from "sonner";
 
 export namespace ProjectUpgrader {
   export function upgrade(data: Record<string, any>): Record<string, any> {
@@ -340,7 +341,7 @@ export namespace ProjectUpgrader {
   export async function convertVAnyToN1(json: Record<string, any>, uri: URI) {
     // 升级json数据到最新版本
     // json = ProjectUpgrader.upgrade(json);
-
+    let isHaveImageNode = false;
     const uuidMap = new Map<string, Record<string, any>>();
     const resultStage: Record<string, any>[] = [];
     const attachments = new Map<string, Blob>();
@@ -473,6 +474,7 @@ export namespace ProjectUpgrader {
           break;
         }
         case "core:image_node": {
+          isHaveImageNode = true;
           // 图片
           const path = entity.path;
           const imageContent = await readFile(basePath.join(path).toString());
@@ -664,6 +666,12 @@ export namespace ProjectUpgrader {
 
     // 遍历所有标签
     // TODO
+
+    if (isHaveImageNode) {
+      toast.warning("有图片节点，请保存当前prg文件后，再用软件重新打开此prg文件，才能正常显示图片。", {
+        duration: 30000,
+      });
+    }
 
     return { data: resultStage, attachments };
   }

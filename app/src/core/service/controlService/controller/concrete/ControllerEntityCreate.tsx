@@ -37,7 +37,7 @@ export class ControllerEntityCreateClass extends ControllerClass {
     // 是否是在Section内部双击
     const sections = this.project.sectionMethods.getSectionsByInnerLocation(pressLocation);
 
-    if (this.project.controller.pressingKeySet.has("`")) {
+    if (this.project.controller.pressingKeySet.has("`") || this.project.controller.pressingKeySet.has("·")) {
       this.createConnectPoint(pressLocation, sections);
     } else {
       // 双击创建节点
