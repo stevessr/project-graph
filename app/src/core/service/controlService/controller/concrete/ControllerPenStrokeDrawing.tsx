@@ -24,7 +24,10 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
   }
 
   public mousedown = (event: PointerEvent) => {
-    if (event.button === 0 && Settings.mouseLeftMode !== "draw" && event.pointerType !== "pen") {
+    if (event.button !== 0) {
+      return;
+    }
+    if (Settings.mouseLeftMode !== "draw" && event.pointerType !== "pen") {
       return;
     }
     this._isUsing = true;

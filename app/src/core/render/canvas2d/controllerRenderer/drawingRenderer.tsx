@@ -16,97 +16,105 @@ export class DrawingControllerRenderer {
   renderTempDrawing() {
     const currentStrokeColor = this.project.controller.penStrokeDrawing.getCurrentStrokeColor();
 
-    if (Settings.mouseLeftMode === "draw") {
+    if (Settings.mouseLeftMode !== "draw") {
+      return;
+    }
+
+    if (this.project.controller.penStrokeDrawing.currentSegments.length > 0) {
       // 画鼠标绘制过程，还未抬起鼠标左键的 笔迹
-      if (this.project.controller.penStrokeDrawing.currentSegments.length > 0) {
-        const startLocation = this.project.controller.penStrokeDrawing.currentSegments[0].location;
-        const endLocation = this.project.renderer.transformView2World(MouseLocation.vector());
+      this.renderTrace(currentStrokeColor);
+    }
+    if (this.project.controller.penStrokeControl.isAdjusting) {
+      // 正在调整粗细
+      this.renderAdjusting(currentStrokeColor);
+    } else {
+      // 吸附在鼠标上的小圆点 和 量角器
+      this.renderMouse(currentStrokeColor);
+    }
+  }
 
-        // 正在绘制直线
-        if (this.project.controller.pressingKeySet.has("shift")) {
-          // 垂直于坐标轴的直线
-          if (this.project.controller.pressingKeySet.has("control")) {
-            const dy = Math.abs(endLocation.y - startLocation.y);
-            const dx = Math.abs(endLocation.x - startLocation.x);
-            if (dy > dx) {
-              // 垂直
-              endLocation.x = startLocation.x;
-            } else {
-              // 水平
-              endLocation.y = startLocation.y;
-            }
+  private renderTrace(currentStrokeColor: Color) {
+    const startLocation = this.project.controller.penStrokeDrawing.currentSegments[0].location;
+    const endLocation = this.project.renderer.transformView2World(MouseLocation.vector());
 
-            this.project.curveRenderer.renderSolidLine(
-              this.project.renderer.transformWorld2View(startLocation),
-              this.project.renderer.transformWorld2View(endLocation),
-              currentStrokeColor.a === 0
-                ? this.project.stageStyleManager.currentStyle.StageObjectBorder
-                : currentStrokeColor,
-              5 * this.project.camera.currentScale,
-            );
-          } else {
-            this.project.curveRenderer.renderSolidLine(
-              this.project.renderer.transformWorld2View(startLocation),
-              MouseLocation.vector(),
-              currentStrokeColor.a === 0
-                ? this.project.stageStyleManager.currentStyle.StageObjectBorder
-                : currentStrokeColor,
-              5 * this.project.camera.currentScale,
-            );
-          }
+    // 正在绘制直线
+    if (this.project.controller.pressingKeySet.has("shift")) {
+      // 垂直于坐标轴的直线
+      if (this.project.controller.pressingKeySet.has("control")) {
+        const dy = Math.abs(endLocation.y - startLocation.y);
+        const dx = Math.abs(endLocation.x - startLocation.x);
+        if (dy > dx) {
+          // 垂直
+          endLocation.x = startLocation.x;
         } else {
-          this.project.curveRenderer.renderPenStroke(
-            this.project.controller.penStrokeDrawing.currentSegments.map((segment) => ({
-              location: this.project.renderer.transformWorld2View(segment.location),
-              pressure: segment.pressure,
-            })),
-            currentStrokeColor.a === 0
-              ? this.project.stageStyleManager.currentStyle.StageObjectBorder
-              : currentStrokeColor,
-          );
+          // 水平
+          endLocation.y = startLocation.y;
         }
-      }
-      if (this.project.controller.penStrokeControl.isAdjusting) {
-        const circleCenter = this.project.renderer.transformWorld2View(
-          this.project.controller.penStrokeControl.startAdjustWidthLocation,
-        );
-        // 鼠标正在调整状态
-        this.project.shapeRenderer.renderCircle(
-          circleCenter,
-          (5 / 2) * this.project.camera.currentScale,
+
+        this.project.curveRenderer.renderSolidLine(
+          this.project.renderer.transformWorld2View(startLocation),
+          this.project.renderer.transformWorld2View(endLocation),
           currentStrokeColor.a === 0
             ? this.project.stageStyleManager.currentStyle.StageObjectBorder
             : currentStrokeColor,
-          Color.Transparent,
-          0,
-        );
-        // 当前粗细显示
-        this.project.textRenderer.renderTextFromCenter(
-          `2R: ${5}px`,
-          circleCenter.add(new Vector(0, (-(5 / 2) - 40) * this.project.camera.currentScale)),
-          24,
-          currentStrokeColor.a === 0
-            ? this.project.stageStyleManager.currentStyle.StageObjectBorder
-            : currentStrokeColor,
+          5 * this.project.camera.currentScale,
         );
       } else {
-        // 画跟随鼠标的笔头
-        // 如果粗细大于一定程度，则渲染成空心的
-        this.project.shapeRenderer.renderCircle(
+        this.project.curveRenderer.renderSolidLine(
+          this.project.renderer.transformWorld2View(startLocation),
           MouseLocation.vector(),
-          (5 / 2) * this.project.camera.currentScale,
           currentStrokeColor.a === 0
             ? this.project.stageStyleManager.currentStyle.StageObjectBorder
             : currentStrokeColor,
-          Color.Transparent,
-          0,
+          5 * this.project.camera.currentScale,
         );
-        // 如果按下shift键，说明正在画直线
-        if (this.project.controller.pressingKeySet.has("shift")) {
-          this.renderAxisMouse();
-        }
       }
+    } else {
+      this.project.curveRenderer.renderPenStroke(
+        this.project.controller.penStrokeDrawing.currentSegments.map((segment) => ({
+          location: this.project.renderer.transformWorld2View(segment.location),
+          pressure: segment.pressure,
+        })),
+        currentStrokeColor.a === 0 ? this.project.stageStyleManager.currentStyle.StageObjectBorder : currentStrokeColor,
+      );
     }
+  }
+
+  private renderMouse(currentStrokeColor: Color) {
+    // 画跟随鼠标的笔头
+    // 如果粗细大于一定程度，则渲染成空心的
+    this.project.shapeRenderer.renderCircle(
+      MouseLocation.vector(),
+      (5 / 2) * this.project.camera.currentScale,
+      currentStrokeColor.a === 0 ? this.project.stageStyleManager.currentStyle.StageObjectBorder : currentStrokeColor,
+      Color.Transparent,
+      0,
+    );
+    // 如果按下shift键，说明正在画直线
+    if (this.project.controller.pressingKeySet.has("shift")) {
+      this.renderAxisMouse();
+    }
+  }
+
+  private renderAdjusting(currentStrokeColor: Color) {
+    const circleCenter = this.project.renderer.transformWorld2View(
+      this.project.controller.penStrokeControl.startAdjustWidthLocation,
+    );
+    // 鼠标正在调整状态
+    this.project.shapeRenderer.renderCircle(
+      circleCenter,
+      (5 / 2) * this.project.camera.currentScale,
+      currentStrokeColor.a === 0 ? this.project.stageStyleManager.currentStyle.StageObjectBorder : currentStrokeColor,
+      Color.Transparent,
+      0,
+    );
+    // 当前粗细显示
+    this.project.textRenderer.renderTextFromCenter(
+      `2R: ${5}px`,
+      circleCenter.add(new Vector(0, (-(5 / 2) - 40) * this.project.camera.currentScale)),
+      24,
+      currentStrokeColor.a === 0 ? this.project.stageStyleManager.currentStyle.StageObjectBorder : currentStrokeColor,
+    );
   }
 
   /**

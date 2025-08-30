@@ -628,6 +628,35 @@ export default function MyContextMenuContent() {
         </>
       )}
 
+      {/* 涂鸦模式增加修改画笔颜色 */}
+      {Settings.mouseLeftMode === "draw" && (
+        <Sub>
+          <SubTrigger>
+            <Palette />
+            改变画笔颜色
+          </SubTrigger>
+          <SubContent>
+            <Item onClick={() => (Settings.autoFillPenStrokeColor = Color.Transparent.toArray())}>
+              <Slash />
+              {t("resetColor")}
+            </Item>
+            <Item className="bg-transparent! grid grid-cols-11 gap-0">
+              {Object.values(tailwindColors)
+                .filter((it) => typeof it !== "string")
+                .flatMap((it) => Object.values(it).map(Color.fromCss))
+                .map((color, index) => (
+                  <div
+                    key={index}
+                    className="hover:outline-accent-foreground size-4 -outline-offset-2 hover:outline-2"
+                    style={{ backgroundColor: color.toString() }}
+                    onMouseEnter={() => (Settings.autoFillPenStrokeColor = color.toArray())}
+                  />
+                ))}
+            </Item>
+          </SubContent>
+        </Sub>
+      )}
+
       {/* 鼠标模式 */}
       <Item className="bg-transparent! gap-0 p-0">
         <Button
