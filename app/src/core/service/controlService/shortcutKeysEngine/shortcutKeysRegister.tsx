@@ -317,7 +317,8 @@ export class KeyBindsRegistrar {
     });
 
     await this.project.keyBinds.create("openColorPanel", "F6", () => {
-      ColorWindow.open();
+      toast.warning("2.0版本的颜色面板已被整合入右键菜单，请在右键菜单中打开");
+      // ColorWindow.open();
     });
     await this.project.keyBinds.create("switchDebugShow", "F3", async () => {
       const currentValue = Settings.showDebug;
@@ -336,6 +337,11 @@ export class KeyBindsRegistrar {
       this.project.sectionPackManager.unpackSelectedSections();
     });
     await this.project.keyBinds.create("checkoutProtectPrivacy", "C-2", async () => {
+      if (Settings.protectingPrivacy) {
+        toast.info("您已退出隐私模式，再次按下此快捷键、或在设置中开启，可进入隐私模式");
+      } else {
+        toast.info("您已通过快捷键进入隐私模式，再次按下此快捷键、或在设置中关闭，可退出隐私模式");
+      }
       Settings.protectingPrivacy = !Settings.protectingPrivacy;
     });
     await this.project.keyBinds.create("searchText", "C-f", () => {
