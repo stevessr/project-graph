@@ -64,6 +64,7 @@ import {
   RefreshCcwDot,
   Save,
   Scaling,
+  Search,
   SettingsIcon,
   SquareDashedMousePointer,
   TestTube2,
@@ -85,6 +86,7 @@ import { Telemetry } from "./Telemetry";
 import { SubWindow } from "./SubWindow";
 import { Rectangle } from "@graphif/shapes";
 import { Vector } from "@graphif/data-structures";
+import FindWindow from "@/sub/FindWindow";
 
 const Content = MenubarContent;
 const Item = MenubarItem;
@@ -381,6 +383,14 @@ export function GlobalMenu() {
           {t("actions.title")}
         </Trigger>
         <Content>
+          <Item
+            onClick={() => {
+              FindWindow.open();
+            }}
+          >
+            <Search />
+            {t("actions.search")}
+          </Item>
           <Item>
             <RefreshCcwDot />
             {t("actions.refresh")}

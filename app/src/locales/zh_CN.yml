@@ -37,6 +37,7 @@ globalMenu:
     moveViewToOrigin: 移动视野到坐标轴原点
   actions:
     title: 操作
+    search: 搜索
     refresh: 刷新
     undo: 撤销
     redo: 重做

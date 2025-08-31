@@ -1116,6 +1116,7 @@ keyBindsGroup:
 
   actions:
     title: 操作
+    search: 搜索
     refresh: 刷新
     undo: 撤銷
     redo: 重做
