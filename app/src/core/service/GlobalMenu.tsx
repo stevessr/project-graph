@@ -591,7 +591,13 @@ export function GlobalMenu() {
             <MessageCircleWarning />
             {t("about.title")}
           </Item>
-          <Item>
+          <Item
+            onClick={() => {
+              toast.warning(
+                "由于2.0文件类型变更为了prg，因此新手引导文件无法正常加载，但整体内容与1.8版本几乎一致，请参考1.8版本的新手引导文件。此新手引导文件将在2.1版补充完整。如果您是新用户，建议在github历史中下载1.8版本。github链接在关于页面",
+              );
+            }}
+          >
             <PersonStanding />
             {t("about.guide")}
           </Item>

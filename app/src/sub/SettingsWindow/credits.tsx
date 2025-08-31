@@ -17,6 +17,9 @@ const donations: DonationData[] = [
   { user: "域名 2y.nz", note: "zty012", amount: -151.8 },
   // { user: "MacBook", note: "littlefean", amount: -7599.2 },
   { user: "域名 project-graph.top", note: "zty012", amount: -13.66 },
+  // 以下为捐赠用户
+  { user: "", note: "", amount: 20 },
+  { user: "天", note: "能设置连线不穿过文本框就好了", amount: 5 },
   { user: "", note: "用了半年，非常好用，由于经济能力有限，只能捐些小钱", amount: 5 },
   { user: "余伟锋", note: "", amount: 5 },
   { user: "墨水云裳", note: "", amount: 5 },
@@ -132,7 +135,7 @@ export default function CreditsTab() {
         </div>
         <Popover.Confirm
           title="提示"
-          description="此列表并不是实时更新的，开发者将在您捐赠后的下一个版本中手动更新此列表"
+          description="此列表并不是实时更新的，开发者将在您捐赠后的下一个版本中手动更新此列表，当您选择要捐赠时，请在开头添加备注“pg”，以便开发者能区分您的捐赠的项目是project-graph。"
           onConfirm={() => open("https://2y.nz/pgdonate")}
         >
           <div className="bg-muted/50 **:cursor-pointer group flex flex-1 cursor-pointer flex-col justify-center gap-2 rounded-lg border p-4">
