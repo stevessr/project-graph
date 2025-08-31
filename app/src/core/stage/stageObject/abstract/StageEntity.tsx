@@ -27,8 +27,15 @@ export abstract class Entity extends StageObject {
    */
   abstract moveTo(location: Vector): void;
 
+  /**
+   * [
+   *  { type: 'p', children: [{ text: 'Serialize just this paragraph.' }] },
+   *  { type: 'h1', children: [{ text: 'And this heading.' }] }
+   * ]
+   */
   @serializable
   public details: Value = [];
+
   /** 用于交互使用，比如鼠标悬浮显示details */
   public isMouseHover: boolean = false;
 

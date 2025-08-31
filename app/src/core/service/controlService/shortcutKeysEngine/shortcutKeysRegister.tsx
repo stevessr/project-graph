@@ -343,7 +343,7 @@ export class KeyBindsRegistrar {
     });
     await this.project.keyBinds.create("openTextNodeByContentExternal", "C-e", () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
-      openBrowserOrFile();
+      openBrowserOrFile(this.project);
     });
 
     await this.project.keyBinds.create("clickAppMenuSettingsButton", "S-!", () => {

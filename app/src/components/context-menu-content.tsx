@@ -38,6 +38,7 @@ import {
   Code,
   Copy,
   Dot,
+  ExternalLink,
   Grip,
   Maximize2,
   Minimize2,
@@ -64,6 +65,7 @@ import tailwindColors from "tailwindcss/colors";
 import KeyTooltip from "./key-tooltip";
 import { Edge } from "@/core/stage/stageObject/association/Edge";
 import { Direction } from "@/types/directions";
+import { openBrowserOrFile } from "@/utils/externalOpen";
 
 const Content = ContextMenuContent;
 const Item = ContextMenuItem;
@@ -422,6 +424,10 @@ export default function MyContextMenuContent() {
           >
             <Package />
             {t("convertToSection")}
+          </Item>
+          <Item onClick={() => openBrowserOrFile(p)}>
+            <ExternalLink />
+            将内容视为路径并打开
           </Item>
         </>
       )}

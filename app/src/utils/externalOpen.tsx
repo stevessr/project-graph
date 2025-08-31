@@ -1,25 +1,28 @@
+import { Project } from "@/core/Project";
+import { Entity } from "@/core/stage/stageObject/abstract/StageEntity";
+import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { open } from "@tauri-apps/plugin-shell";
+import { toast } from "sonner";
+import { PathString } from "./pathString";
 
-// TODO: 工具栏中的地球仪图标
-export async function openBrowserOrFile() {
-  // for (const node of StageManager.getSelectedEntities()) {
-  //   if (node instanceof TextNode) {
-  //     openOneTextNode(node);
-  //   } else {
-  //     openOneEntity(node);
-  //   }
-  // }
+export async function openBrowserOrFile(project: Project) {
+  for (const node of project.stageManager.getSelectedEntities()) {
+    if (node instanceof TextNode) {
+      openOneTextNode(node);
+    } else {
+      openOneEntity(node);
+    }
+  }
 }
 
-// function openOneEntity(node: Entity) {
-//   let targetUrl = node.details;
-//   if (node.details.trim() !== "") {
-//     const firstLine = node.details.trim().split("\n")[0].trim();
-//     targetUrl = firstLine;
-//   }
-//   targetUrl = splitDoubleQuote(targetUrl);
-//   myOpen(targetUrl);
-// }
+function openOneEntity(node: Entity) {
+  let targetUrl = "";
+  if (node.details.length > 0) {
+    targetUrl = getEntityDetailsFirstLine(node);
+  }
+  targetUrl = splitDoubleQuote(targetUrl);
+  myOpen(targetUrl);
+}
 
 /**
  * 打开一个文本节点url
@@ -27,41 +30,45 @@ export async function openBrowserOrFile() {
  * 如果不符合，就根据内容打开
  * @param node
  */
-// function openOneTextNode(node: TextNode) {
-//   let targetUrl = node.text;
-//   if (node.details.trim() !== "") {
-//     const firstLine = node.details.trim().split("\n")[0].trim();
-//     targetUrl = firstLine;
-//   }
-//   targetUrl = splitDoubleQuote(targetUrl);
-//   myOpen(targetUrl);
-//   // 2025年1月4日——有自动备份功能了，好像不需要再加验证了
+function openOneTextNode(node: TextNode) {
+  let targetUrl = node.text;
+  targetUrl = splitDoubleQuote(targetUrl);
+  if (node.details.length > 0) {
+    targetUrl = getEntityDetailsFirstLine(node);
+  }
+  myOpen(targetUrl);
+  // 2025年1月4日——有自动备份功能了，好像不需要再加验证了
+}
 
-//   // if (PathString.isValidURL(nodeText)) {
-//   //   // 是网址
-//   //   myOpen(nodeText);
-//   // } else {
-//   //   const isExists = await exists(nodeText);
-//   //   if (isExists) {
-//   //     // 是文件
-//   //     myOpen(nodeText);
-//   //   } else {
-//   //     // 不是网址也不是文件，不做处理
-//   //     this.project.effects.addEffect(new TextRiseEffect("非法文件路径: " + nodeText));
-//   //   }
-//   // }
-// }
+function getEntityDetailsFirstLine(node: Entity): string {
+  let res = "";
+  if (node.details.length > 0) {
+    // 说明详细信息里面有内容，看看第一个内容是不是p标签
+    console.log("deails");
+    console.log(node.details);
+    const firstLine = node.details[0];
+    if (firstLine.type === "p") {
+      for (const child of firstLine.children) {
+        if (typeof child.text === "string") {
+          res = child.text;
+        }
+        break;
+      }
+    }
+  }
+  return res;
+}
 
 /**
  * 去除字符串两端的引号
  * @param str
  */
-// function splitDoubleQuote(str: string) {
-//   if (str.startsWith('"') && str.endsWith('"')) {
-//     return str.slice(1, -1);
-//   }
-//   return str;
-// }
+function splitDoubleQuote(str: string) {
+  if (str.startsWith('"') && str.endsWith('"')) {
+    return str.slice(1, -1);
+  }
+  return str;
+}
 
 // TODO: 打开图片节点文件路径
 export function openSelectedImageNode() {
@@ -76,9 +83,17 @@ export function openSelectedImageNode() {
  * @param url
  */
 export function myOpen(url: string) {
+  if (PathString.isValidURL(url)) {
+    // 是网址
+    toast.info(`正在打开网址：【${url}】`);
+  } else {
+    toast.info(`正在打开本地文件路径：【${url}】`);
+  }
   open(url)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    .then((_) => {})
+    .then((_) => {
+      console.log("打开成功");
+    })
     .catch((e) => {
       // 依然会导致程序崩溃，具体原因未知
       // 2025年2月17日，好像不会再崩溃了，只是可能会弹窗说找不到文件
