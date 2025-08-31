@@ -24,6 +24,7 @@ globalMenu:
     plainText: 纯文本
     exportSuccess: 导出成功
     attachments: 附件管理器
+    tags: 标签管理器
   location:
     title: 位置
     openConfigFolder: 打开软件配置文件夹

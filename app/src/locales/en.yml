@@ -641,6 +641,7 @@ globalMenu:
     plainText: Plain Text
     exportSuccess: Export Successful
     attachments: Attachment Manager
+    tags: Tag Manager
   location:
     title: Location
     openConfigFolder: Open Software Configuration Folder

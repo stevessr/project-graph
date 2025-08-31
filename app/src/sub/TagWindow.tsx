@@ -1,17 +1,21 @@
 import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
 import { SubWindow } from "@/core/service/SubWindow";
-import { StageManager } from "@/core/stage/stageManager/StageManager";
 import { Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
 import { Angry, MousePointerClick, RefreshCcw, Smile, Tags, Telescope } from "lucide-react";
 import React from "react";
+import { useAtom } from "jotai";
+import { activeProjectAtom } from "@/state";
+import { toast } from "sonner";
 
 /**
  * 标签相关面板
  * @param param0
  */
 export default function TagWindow() {
+  const [project] = useAtom(activeProjectAtom);
+  if (!project) return <></>;
+
   const [tagNameList, setTagNameList] = React.useState<
     { tagName: string; uuid: string; color: [number, number, number, number] }[]
   >([]);
@@ -21,7 +25,7 @@ export default function TagWindow() {
   const [isPerspective, setIsPerspective] = React.useState(false);
 
   function refreshTagNameList() {
-    setTagNameList(StageManager.refreshTags());
+    setTagNameList(project!.stageManager.refreshTags());
   }
 
   React.useEffect(() => {
@@ -31,21 +35,21 @@ export default function TagWindow() {
   const handleMoveCameraToTag = (tagUUID: string) => {
     return () => {
       // 跳转到对应位置
-      StageManager.moveCameraToTag(tagUUID);
+      project.stageManager.moveCameraToTag(tagUUID);
     };
   };
 
   const handleMoveUp = (tagUUID: string) => {
     return () => {
       // 向上移动标签
-      StageManager.TagOptions.moveUpTag(tagUUID);
+      project!.stageManager.TagOptions.moveUpTag(tagUUID);
       refreshTagNameList();
     };
   };
   const handleMoveDown = (tagUUID: string) => {
     return () => {
       // 向下移动标签
-      StageManager.TagOptions.moveDownTag(tagUUID);
+      project!.stageManager.TagOptions.moveDownTag(tagUUID);
       refreshTagNameList();
     };
   };
@@ -53,7 +57,7 @@ export default function TagWindow() {
   const handleMouseEnterTag = (tagUUID: string) => {
     return () => {
       if (isMouseEnterMoveCameraAble) {
-        StageManager.moveCameraToTag(tagUUID);
+        project!.stageManager.moveCameraToTag(tagUUID);
       } else {
         console.warn("禁止滑动");
       }
@@ -62,13 +66,13 @@ export default function TagWindow() {
 
   const handleClickAddTag = () => {
     // 检查是否有选中的entity或连线
-    if (StageManager.getSelectedEntities().length === 0 && StageManager.getSelectedAssociations().length === 0) {
-      Dialog.show({
-        title: "请先选中舞台上的物体",
-        content: "选中后再点此按钮，即可添标签",
-      });
+    if (
+      project.stageManager.getSelectedEntities().length === 0 &&
+      project.stageManager.getSelectedAssociations().length === 0
+    ) {
+      toast.error("请先选中舞台上的物体, 选中后再点此按钮，即可添标签");
     }
-    StageManager.addTagBySelected();
+    project!.stageManager.addTagBySelected();
     refreshTagNameList();
   };
 

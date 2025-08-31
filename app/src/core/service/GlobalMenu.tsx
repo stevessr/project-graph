@@ -51,6 +51,7 @@ import {
   FolderClock,
   FolderCog,
   FolderOpen,
+  Frown,
   Fullscreen,
   Keyboard,
   MapPin,
@@ -67,10 +68,12 @@ import {
   Search,
   SettingsIcon,
   SquareDashedMousePointer,
+  Tag,
   TestTube2,
   TextQuote,
   Trash,
   Undo,
+  VenetianMask,
   View,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -87,6 +90,7 @@ import { SubWindow } from "./SubWindow";
 import { Rectangle } from "@graphif/shapes";
 import { Vector } from "@graphif/data-structures";
 import FindWindow from "@/sub/FindWindow";
+import { Settings } from "./Settings";
 
 const Content = MenubarContent;
 const Item = MenubarItem;
@@ -214,6 +218,8 @@ export function GlobalMenu() {
               </Item>
             </SubContent>
           </Sub>*/}
+
+          {/* 各种导出 */}
           <Sub>
             <SubTrigger disabled={!activeProject}>
               <FileOutput />
@@ -288,10 +294,27 @@ export function GlobalMenu() {
               </Sub>
             </SubContent>
           </Sub>
+
           <Separator />
+
+          {/* 附件管理器 */}
           <Item disabled={!activeProject} onClick={() => AttachmentsWindow.open()}>
             <Paperclip />
             {t("file.attachments")}
+          </Item>
+
+          {/* 标签管理器 */}
+          <Item
+            disabled={!activeProject}
+            onClick={() => {
+              toast.warning("还没做好");
+              // TagWindow.open()
+            }}
+            className="*:text-destructive! text-destructive!"
+          >
+            <Tag />
+            {t("file.tags")}
+            <Frown />
           </Item>
         </Content>
       </Menu>
@@ -572,21 +595,33 @@ export function GlobalMenu() {
           </Item>
           <Item
             onClick={async () => {
+              toast.info("还没做好");
               if (!isClassroomMode) {
                 toast.info(t("classroomModeHint"));
               }
               const newValue = !isClassroomMode;
               setIsClassroomMode(newValue);
             }}
+            className="*:text-destructive! text-destructive!"
           >
             <Airplay />
             {t("window.classroomMode")}
+            <Frown />
           </Item>
-          {/* TODO: 隐私模式 */}
-          {/* <Item>
+          <Item
+            disabled={!activeProject}
+            onClick={() => {
+              if (Settings.protectingPrivacy) {
+                toast.info("您已退出隐私模式，再次点击将进入隐私模式");
+              } else {
+                toast.success("您已进入隐私模式，再次点击将退出隐私模式，现在您可以放心地截图、将bug报告给开发者了");
+              }
+              Settings.protectingPrivacy = !Settings.protectingPrivacy;
+            }}
+          >
             <VenetianMask />
-            隐私模式
-          </Item> */}
+            {activeProject ? "进入/退出 隐私模式" : "请先打开工程文件才能使用此功能"}
+          </Item>
         </Content>
       </Menu>
 
@@ -607,9 +642,11 @@ export function GlobalMenu() {
                 "由于2.0文件类型变更为了prg，因此新手引导文件无法正常加载，但整体内容与1.8版本几乎一致，请参考1.8版本的新手引导文件。此新手引导文件将在2.1版补充完整。如果您是新用户，建议在github历史中下载1.8版本。github链接在关于页面",
               );
             }}
+            className="*:text-destructive! text-destructive!"
           >
             <PersonStanding />
             {t("about.guide")}
+            <Frown />
           </Item>
         </Content>
       </Menu>
