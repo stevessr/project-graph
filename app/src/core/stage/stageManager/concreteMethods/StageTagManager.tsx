@@ -12,7 +12,11 @@ import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
 import { Section } from "@/core/stage/stageObject/entity/Section";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { UrlNode } from "@/core/stage/stageObject/entity/UrlNode";
+import { MouseLocation } from "@/core/service/controlService/MouseLocation";
 
+/**
+ * 标签管理器
+ */
 @service("tagManager")
 export class TagManager {
   constructor(private readonly project: Project) {}

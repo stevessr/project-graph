@@ -39,21 +39,6 @@ export default function TagWindow() {
     };
   };
 
-  const handleMoveUp = (tagUUID: string) => {
-    return () => {
-      // 向上移动标签
-      project!.stageManager.TagOptions.moveUpTag(tagUUID);
-      refreshTagNameList();
-    };
-  };
-  const handleMoveDown = (tagUUID: string) => {
-    return () => {
-      // 向下移动标签
-      project!.stageManager.TagOptions.moveDownTag(tagUUID);
-      refreshTagNameList();
-    };
-  };
-
   const handleMouseEnterTag = (tagUUID: string) => {
     return () => {
       if (isMouseEnterMoveCameraAble) {
@@ -82,11 +67,15 @@ export default function TagWindow() {
         <Button
           size="icon"
           onClick={handleClickAddTag}
-          tooltip="选中节点并添加到标签，如果选中了已经是标签的节点，则会移出标签"
+          // tooltip="选中节点并添加到标签，如果选中了已经是标签的节点，则会移出标签"
         >
           <Tags />
         </Button>
-        <Button size="icon" onClick={refreshTagNameList} tooltip="如果舞台上的标签发生变更但此处未更新，可以手动刷新">
+        <Button
+          size="icon"
+          onClick={refreshTagNameList}
+          // tooltip="如果舞台上的标签发生变更但此处未更新，可以手动刷新"
+        >
           <RefreshCcw />
         </Button>
         {tagNameList.length >= 3 && (
@@ -95,7 +84,7 @@ export default function TagWindow() {
             onClick={() => {
               setIsMouseEnterMoveCameraAble(!isMouseEnterMoveCameraAble);
             }}
-            tooltip={isMouseEnterMoveCameraAble ? "快速瞭望模式" : "点击跳转模式"}
+            // tooltip={isMouseEnterMoveCameraAble ? "快速瞭望模式" : "点击跳转模式"}
           >
             {isMouseEnterMoveCameraAble ? <Telescope /> : <MousePointerClick />}
           </Button>
@@ -106,7 +95,7 @@ export default function TagWindow() {
             onClick={() => {
               setIsPerspective(!isPerspective);
             }}
-            tooltip={isPerspective ? "透视已开启" : "开启透视眼"}
+            // tooltip={isPerspective ? "透视已开启" : "开启透视眼"}
           >
             {isPerspective ? <Angry /> : <Smile />}
           </Button>
@@ -136,18 +125,6 @@ export default function TagWindow() {
                   className="flex-1 cursor-pointer truncate hover:underline"
                 >
                   {tag.tagName}
-                </span>
-                <span
-                  className="text-panel-text border-panel-details-text border-1 mx-0.5 cursor-pointer rounded text-xs opacity-0 hover:scale-105 active:scale-95 group-hover:opacity-100"
-                  onClick={handleMoveUp(tag.uuid)}
-                >
-                  ↑
-                </span>
-                <span
-                  className="text-panel-text border-panel-details-text border-1 mx-0.5 cursor-pointer rounded text-xs opacity-0 hover:scale-105 active:scale-95 group-hover:opacity-100"
-                  onClick={handleMoveDown(tag.uuid)}
-                >
-                  ↓
                 </span>
               </div>
             );

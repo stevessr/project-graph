@@ -91,6 +91,7 @@ import { Rectangle } from "@graphif/shapes";
 import { Vector } from "@graphif/data-structures";
 import FindWindow from "@/sub/FindWindow";
 import { Settings } from "./Settings";
+import TestWindow from "@/sub/TestWindow";
 
 const Content = MenubarContent;
 const Item = MenubarItem;
@@ -674,6 +675,13 @@ export function GlobalMenu() {
               </SubTrigger>
               <SubContent>
                 <Item variant="destructive">仅供开发使用</Item>
+                <Item
+                  onClick={() => {
+                    TestWindow.open();
+                  }}
+                >
+                  测试窗口
+                </Item>
                 <Item
                   onClick={() => {
                     const tn1 = new TextNode(activeProject!, { text: "tn1" });
