@@ -6,13 +6,18 @@ import { Earth, FilePlus, FolderOpen, Info, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SettingsWindow from "../sub/SettingsWindow";
+import { getVersion } from "@tauri-apps/api/app";
 
 export default function WelcomePage() {
   const [recentFiles, setRecentFiles] = useState<RecentFileManager.RecentFile[]>([]);
   const { t } = useTranslation("welcome");
+  const [appVersion, setAppVersion] = useState("unknown");
 
   useEffect(() => {
     refresh();
+    (async () => {
+      setAppVersion(await getVersion());
+    })();
   }, []);
 
   async function refresh() {
@@ -23,7 +28,9 @@ export default function WelcomePage() {
     <div className="flex h-full w-full items-center justify-center bg-[var(--stage-background)]">
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-2">
-          <div className="text-3xl">Project Graph</div>
+          <div className="text-3xl">
+            Project Graph <span className="text-2xl opacity-50">{appVersion}</span>
+          </div>
           <div className="text-lg opacity-50">{t("slogan")}</div>
         </div>
         <div className="flex gap-16">
