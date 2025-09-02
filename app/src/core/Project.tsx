@@ -252,6 +252,7 @@ export class Project extends EventEmitter<{
         }
       }
       this.stage = deserialize(serializedStageObjects, this);
+      console.log("stage deserialized!!!");
     } catch (e) {
       console.warn(e);
     }

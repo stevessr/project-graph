@@ -70,7 +70,11 @@ import { TagManager } from "@/core/stage/stageManager/concreteMethods/StageTagMa
 import { HistoryManager } from "@/core/stage/stageManager/StageHistoryManager";
 import { StageManager } from "@/core/stage/stageManager/StageManager";
 
-export function loadAllServices(project: Project): void {
+/**
+ * 以下方法在项目初始化之前加载所有服务
+ * @param project
+ */
+export function loadAllServicesBeforeInit(project: Project): void {
   project.registerFileSystemProvider("file", FileSystemProviderFile);
   project.registerFileSystemProvider("draft", FileSystemProviderDraft);
   project.loadService(Renderer);
@@ -89,7 +93,7 @@ export function loadAllServices(project: Project): void {
   project.loadService(Camera);
   project.loadService(Effects);
   project.loadService(AutoCompute);
-  project.loadService(HistoryManager);
+
   project.loadService(RectangleSelect);
   project.loadService(StageNodeRotate);
   project.loadService(ComplexityDetector);
@@ -141,4 +145,8 @@ export function loadAllServices(project: Project): void {
   project.loadService(StageExportSvg);
   project.loadService(GenerateFromFolder);
   project.loadService(KeyBindsRegistrar);
+}
+
+export function loadAllServicesAfterInit(project: Project): void {
+  project.loadService(HistoryManager);
 }
