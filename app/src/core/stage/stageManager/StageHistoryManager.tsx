@@ -20,11 +20,24 @@ export class HistoryManager {
   deltas: Delta[] = [];
   /**
    * 历史记录列表数组上的一个指针
+   *
+   * []
+   * -1      一开始数组为空时，指针指向 -1
+   *
+   * [a]
+   *  0
+   *
+   * [a, b]
+   *     1
    */
   currentIndex = -1;
+
+  /**
+   * 初始化的舞台数据
+   */
   initialStage: Record<string, any>[] = [];
 
-  // 在软件启动时调用
+  // 在project加载完毕后调用
   constructor(private readonly project: Project) {
     this.initialStage = serialize(project.stage);
   }
@@ -36,13 +49,32 @@ export class HistoryManager {
   recordStep() {
     this.deltas.splice(this.currentIndex + 1);
     // 上面一行的含义：删除从 currentIndex + 1 开始的所有元素。
-    // 也就是撤回了好几步之后再做修改，后面的曾经历史就都删掉了，相当于重开了一个分支。
+    // [a, b, c, d, e]
+    //  0  1  2  3  4
+    //        ^
+    //  currentIndex = 2，去掉 3 4
+    // 变成
+    // [a, b, c]
+    //  0  1  2
+    //        ^
+
+    // 也就是撤回了好几步(两步)之后再做修改，后面的曾经历史就都删掉了，相当于重开了一个分支。
     this.currentIndex++;
+    // [a, b, c]
+    //  0  1  2  3
+    //           ^
     const prev = serialize(this.get(this.currentIndex - 1));
     const current = serialize(this.project.stage);
     const patch_ = diff(prev, current);
-    if (!patch_) return;
-    this.deltas.push(patch_);
+    if (!patch_) {
+      this.currentIndex--; // 没有变化，当指针回退到当前位置
+      return;
+    }
+
+    this.deltas.push(patch_); // D
+    // [a, b, c, D]
+    //  0  1  2  3
+    //           ^
     if (this.deltas.length > Settings.historySize) {
       // 当历史记录超过限制时，需要删除最旧的记录
       // 但是不能简单删除，因为get方法依赖于从initialStage开始应用所有delta
@@ -50,6 +82,9 @@ export class HistoryManager {
       const firstDelta = _.cloneDeep(this.deltas[0]);
       this.initialStage = patch(_.cloneDeep(this.initialStage), firstDelta) as any;
       this.currentIndex--;
+      toast.warning(
+        "历史记录已满！此时按 ctrl z 撤销可能会触发 严重的 全部内容重叠bug！请调大历史记录容量、或者关闭重新打开文件、或者等待新版本bug修复",
+      );
     }
     // 检测index是否越界
     if (this.currentIndex >= this.deltas.length) {
@@ -62,6 +97,7 @@ export class HistoryManager {
    * 撤销
    */
   undo() {
+    // currentIndex 最小为 -1
     if (this.currentIndex >= 0) {
       this.currentIndex--;
       this.project.stage = this.get(this.currentIndex);

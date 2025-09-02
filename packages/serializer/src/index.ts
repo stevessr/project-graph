@@ -41,6 +41,9 @@ export const id = Reflect.metadata(idSymbol, true);
 
 const classes: Map<string, any> = new Map();
 
+/**
+ * 将任意类型对象转换为 序列化形式，不包含函数
+ */
 export function serialize(originalObj: any): any {
   const id2path = new Map<string, string>();
   function _serialize(obj: any, path: string): any {
