@@ -444,6 +444,7 @@ export function GlobalMenu() {
             {t("actions.releaseKeys")}
           </Item>
           <Item
+            className="*:text-destructive! text-destructive!"
             onClick={async () => {
               if (await Dialog.confirm(t("confirmClearStage"), t("irreversible"), { destructive: true })) {
                 activeProject!.stage = [];
