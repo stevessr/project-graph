@@ -1,6 +1,7 @@
 import { Project, ProjectState, service } from "@/core/Project";
 import { Settings } from "@/core/service/Settings";
 import { deserialize, serialize } from "@graphif/serializer";
+import { cn } from "@udecode/cn";
 import { Delta, diff, patch } from "jsondiffpatch";
 import _ from "lodash";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ import { toast } from "sonner";
 export class HistoryManager {
   /**
    * 历史记录列表数组
+   * 每一项都是变化的delta，不是完整的舞台数据！
    */
   deltas: Delta[] = [];
   /**
@@ -47,6 +49,7 @@ export class HistoryManager {
    * @param file
    */
   recordStep() {
+    // this.deltas = this.deltas.splice(this.currentIndex + 1);
     this.deltas.splice(this.currentIndex + 1);
     // 上面一行的含义：删除从 currentIndex + 1 开始的所有元素。
     // [a, b, c, d, e]
@@ -63,28 +66,33 @@ export class HistoryManager {
     // [a, b, c]
     //  0  1  2  3
     //           ^
-    const prev = serialize(this.get(this.currentIndex - 1));
-    const current = serialize(this.project.stage);
-    const patch_ = diff(prev, current);
+    const prev = serialize(this.get(this.currentIndex - 1)); // [C stage]
+    const current = serialize(this.project.stage); // [D stage]
+    const patch_ = diff(prev, current); // [D stage] - [C stage] = [d]
     if (!patch_) {
       this.currentIndex--; // 没有变化，当指针回退到当前位置
       return;
     }
 
-    this.deltas.push(patch_); // D
-    // [a, b, c, D]
+    this.deltas.push(patch_);
+    // [a, b, c, d]
     //  0  1  2  3
     //           ^
-    if (this.deltas.length > Settings.historySize) {
+    while (this.deltas.length > Settings.historySize) {
       // 当历史记录超过限制时，需要删除最旧的记录
       // 但是不能简单删除，因为get方法依赖于从initialStage开始应用所有delta
       // 所以我们需要将第一个delta合并到initialStage中，然后删除这个delta
       const firstDelta = _.cloneDeep(this.deltas[0]);
       this.initialStage = patch(_.cloneDeep(this.initialStage), firstDelta) as any;
+      this.deltas.shift(); // 删除第一个delta [a]
+      // [b, c, d]
+      //  0  1  2  3
+      //           ^
+
       this.currentIndex--;
-      toast.warning(
-        "历史记录已满！此时按 ctrl z 撤销可能会触发 严重的 全部内容重叠bug！请调大历史记录容量、或者关闭重新打开文件、或者等待新版本bug修复",
-      );
+      // [b, c, d]
+      //  0  1  2
+      //        ^
     }
     // 检测index是否越界
     if (this.currentIndex >= this.deltas.length) {
@@ -101,10 +109,25 @@ export class HistoryManager {
     if (this.currentIndex >= 0) {
       this.currentIndex--;
       this.project.stage = this.get(this.currentIndex);
-      toast(`当前进度：${this.currentIndex + 1} / ${this.deltas.length}`);
-    } else {
-      toast(`已到撤回到底！${this.currentIndex + 1} / ${this.deltas.length}，默认 ctrl + y 反撤销`);
     }
+    toast(
+      <div className="flex text-sm">
+        <span className="m-2 flex flex-col justify-center">
+          <span>当前历史位置</span>
+          <span className={cn(this.currentIndex === -1 && "text-red-500")}>{this.currentIndex + 1}</span>
+        </span>
+        <span className="m-2 flex flex-col justify-center">
+          <span>当前历史长度</span>
+          <span className={cn(this.deltas.length === Settings.historySize && "text-yellow-500")}>
+            {this.deltas.length}
+          </span>
+        </span>
+        <span className="m-2 flex flex-col justify-center">
+          <span>限定历史长度</span>
+          <span className="opacity-50">{Settings.historySize}</span>
+        </span>
+      </div>,
+    );
   }
 
   /**
@@ -114,10 +137,27 @@ export class HistoryManager {
     if (this.currentIndex < this.deltas.length - 1) {
       this.currentIndex++;
       this.project.stage = this.get(this.currentIndex);
-      toast(`当前进度：${this.currentIndex + 1} / ${this.deltas.length}`);
-    } else {
-      toast(`已到最新状态！${this.currentIndex + 1} / ${this.deltas.length}`);
     }
+    toast(
+      <div className="flex text-sm">
+        <span className="m-2 flex flex-col justify-center">
+          <span>当前历史位置</span>
+          <span className={cn(this.currentIndex === this.deltas.length - 1 && "text-green-500")}>
+            {this.currentIndex + 1}
+          </span>
+        </span>
+        <span className="m-2 flex flex-col justify-center">
+          <span>当前历史长度</span>
+          <span className={cn(this.deltas.length === Settings.historySize && "text-yellow-500")}>
+            {this.deltas.length}
+          </span>
+        </span>
+        <span className="m-2 flex flex-col justify-center">
+          <span>限定历史长度</span>
+          <span className="opacity-50">{Settings.historySize}</span>
+        </span>
+      </div>,
+    );
   }
 
   get(index: number) {
@@ -132,7 +172,7 @@ export class HistoryManager {
     // const data = deltas.reduce((acc, delta) => {
     //   return patch(_.cloneDeep(acc), _.cloneDeep(delta)) as any;
     // }, _.cloneDeep(this.initialStage));
-    let data = _.cloneDeep(this.initialStage);
+    let data = _.cloneDeep(this.initialStage); // 迭代这个data
     for (const delta of deltas) {
       data = patch(data, _.cloneDeep(delta)) as any;
     }
