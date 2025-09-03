@@ -29,7 +29,7 @@ export default function WelcomePage() {
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-2">
           <div className="text-3xl">
-            Project Graph <span className="text-2xl opacity-50">{appVersion}</span>
+            Project Graph <span className="rounded-lg px-2 py-1 text-lg opacity-50 ring">{appVersion}</span>
           </div>
           <div className="text-lg opacity-50">{t("slogan")}</div>
         </div>
