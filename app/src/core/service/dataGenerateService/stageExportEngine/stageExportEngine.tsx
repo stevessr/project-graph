@@ -2,6 +2,7 @@ import { Project, service } from "@/core/Project";
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { Entity } from "@/core/stage/stageObject/abstract/StageEntity";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
+import { EntityDetailsTool } from "../../dataManageService/entityDetailsService/entityDetailsTool";
 
 /**
  * 专注于导出各种格式内容的引擎
@@ -32,8 +33,8 @@ export class StageExport {
         continue;
       }
       nodesContent += node.text + "\n";
-      if (node.details.trim()) {
-        nodesContent += "\t" + node.details + "\n";
+      if (EntityDetailsTool.from(node).isNotEmpty()) {
+        nodesContent += "\t" + EntityDetailsTool.from(node).toMarkdown() + "\n";
       }
       const childTextNodes = this.project.graphMethods
         .nodeChildrenArray(node)
@@ -125,8 +126,8 @@ export class StageExport {
     } else {
       stringResult += `**${node.text}**\n\n`;
     }
-    if (node.details.trim()) {
-      stringResult += `${node.details}\n\n`;
+    if (EntityDetailsTool.from(node).isNotEmpty()) {
+      stringResult += `${EntityDetailsTool.from(node).toMarkdown()}\n\n`;
     }
     return stringResult;
   }
@@ -134,8 +135,8 @@ export class StageExport {
   private getTabText(node: TextNode, level: number): string {
     let stringResult = "";
     stringResult += `${"\t".repeat(Math.max(level - 1, 0))}${node.text}\n`;
-    if (node.details.trim()) {
-      stringResult += `${"\t".repeat(level)}${node.details}\n`;
+    if (EntityDetailsTool.from(node).isNotEmpty()) {
+      stringResult += `${"\t".repeat(level)}${EntityDetailsTool.from(node).toMarkdown()}\n`;
     }
     return stringResult;
   }

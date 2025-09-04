@@ -305,7 +305,8 @@ Dialog.copy = (title = "导出成功", description = "", value = ""): Promise<vo
             <DialogHeader>
               <DialogTitle>{title}</DialogTitle>
               <DialogDescription>{description}</DialogDescription>
-              <Textarea value={value} />
+              {/* <Textarea value={value} style={{ height: "300px", minHeigt: "600px" }} /> */}
+              <pre className="max-h-64 select-text overflow-y-auto rounded-md border p-2">{value}</pre>
               <DialogFooter>
                 <Button
                   variant="outline"

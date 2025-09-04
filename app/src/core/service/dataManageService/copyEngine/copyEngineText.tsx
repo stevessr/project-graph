@@ -69,10 +69,11 @@ export class CopyEngineText {
         // 只是普通的文本
         if (item.length > 3000) {
           entity = new TextNode(this.project, {
-            text: "粘贴板文字过长（超过3000字符），已写入节点详细信息",
+            text: "粘贴板文字过长（超过3000字符），已写入节点详细信息，但详细信息目前还在重构中",
             collisionBox,
             // [ { type: 'p', children: [{ text: 'Serialize just this paragraph.' }] },
-            details: item.split("\n").map((line) => ({ type: "p", children: [{ text: line }] })),
+            // details: item.split("\n").map((line) => ({ type: "p", children: [{ text: line }] })),
+            // TODO: 将超长文本写入详细信息
           });
         } else {
           entity = new TextNode(this.project, {

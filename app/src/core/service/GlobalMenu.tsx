@@ -277,19 +277,62 @@ export function GlobalMenu() {
                   {t("file.plainText")}
                 </SubTrigger>
                 <SubContent>
+                  {/* 导出 全部 网状关系 */}
                   <Item
                     onClick={() => {
-                      const entities = activeProject!.stageManager.getEntities();
-                      const result = activeProject!.stageExport.getPlainTextByEntities(entities);
+                      if (!activeProject) {
+                        toast.warning(t("file.noProject"));
+                        return;
+                      }
+                      const entities = activeProject.stageManager.getEntities();
+                      const result = activeProject.stageExport.getPlainTextByEntities(entities);
                       Dialog.copy(t("file.exportSuccess"), "", result);
                     }}
                   >
                     <FileDigit />
-                    {t("file.exportAll")}
+                    {t("file.plainTextType.exportAllNodeGraph")}
                   </Item>
-                  <Item>
+                  {/* 导出 选中 网状关系 */}
+                  <Item
+                    onClick={() => {
+                      if (!activeProject) {
+                        toast.warning(t("file.noProject"));
+                        return;
+                      }
+                      const entities = activeProject.stageManager.getEntities();
+                      const selectedEntities = entities.filter((entity) => entity.isSelected);
+                      const result = activeProject.stageExport.getPlainTextByEntities(selectedEntities);
+                      Dialog.copy(t("file.exportSuccess"), "", result);
+                    }}
+                  >
                     <MousePointer2 />
-                    {t("file.exportSelected")}
+                    {t("file.plainTextType.exportSelectedNodeGraph")}
+                  </Item>
+                  {/* 导出 选中 树状关系 （纯文本缩进） */}
+                  <Item
+                    onClick={() => {
+                      const textNode = getOneSelectedTextNodeWhenExportingPlainText(activeProject);
+                      if (textNode) {
+                        const result = activeProject!.stageExport.getTabStringByTextNode(textNode);
+                        Dialog.copy(t("file.exportSuccess"), "", result);
+                      }
+                    }}
+                  >
+                    <MousePointer2 />
+                    {t("file.plainTextType.exportSelectedNodeTree")}
+                  </Item>
+                  {/* 导出 选中 树状关系 （Markdown格式） */}
+                  <Item
+                    onClick={() => {
+                      const textNode = getOneSelectedTextNodeWhenExportingPlainText(activeProject);
+                      if (textNode) {
+                        const result = activeProject!.stageExport.getMarkdownStringByTextNode(textNode);
+                        Dialog.copy(t("file.exportSuccess"), "", result);
+                      }
+                    }}
+                  >
+                    <MousePointer2 />
+                    {t("file.plainTextType.exportSelectedNodeTreeMarkdown")}
                   </Item>
                 </SubContent>
               </Sub>
@@ -867,4 +910,37 @@ export async function onOpenFile(uri?: URI, source: string = "unknown") {
       },
     },
   );
+}
+
+/**
+ * 获取唯一选中的文本节点，用于导出纯文本时。
+ * 如果不符合情况就提前弹窗错误，并返回null
+ * @param activeProject
+ * @returns
+ */
+function getOneSelectedTextNodeWhenExportingPlainText(activeProject: Project | undefined): TextNode | null {
+  if (!activeProject) {
+    toast.warning("请先打开工程文件");
+    return null;
+  }
+  const entities = activeProject.stageManager.getEntities();
+  const selectedEntities = entities.filter((entity) => entity.isSelected);
+  if (selectedEntities.length === 0) {
+    toast.warning("没有选中节点");
+    return null;
+  } else if (selectedEntities.length === 1) {
+    const result = selectedEntities[0];
+    if (!(result instanceof TextNode)) {
+      toast.warning("必须选中文本节点，而不是其他类型的节点");
+      return null;
+    }
+    if (!activeProject.graphMethods.isTree(result)) {
+      toast.warning("不符合树形结构");
+      return null;
+    }
+    return result;
+  } else {
+    toast.warning(`只能选择一个节点，你选中了${selectedEntities.length}个节点`);
+    return null;
+  }
 }
