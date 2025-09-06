@@ -467,8 +467,17 @@ export class StageManager {
     return res;
   }
 
+  // 一个简单的文案
+  private static w = `自环已被禁止，可在设置>控制>连线 中打开允许添加自环选项，
+    但您可能并不是想添加自环，您可能是想打开右键菜单，所以请在空白位置右键。
+    如果您不需要添加自环的操作但想保持能够通过在节点上右键打开菜单的操作，
+    可在设置>控制>连线 中关闭“启用右键点击连线功能”。
+    但如果您既要右键点击节点创建连线功能，又想要在节点上右键展开右键菜单操作，很抱歉，这两个功能在逻辑上冲突了。
+    `;
+
   connectEntity(fromNode: ConnectableEntity, toNode: ConnectableEntity, isCrEdge: boolean = false) {
     if (fromNode === toNode && !Settings.allowAddCycleEdge) {
+      toast.warning(StageManager.w);
       return false;
     }
     if (isCrEdge) {
@@ -500,6 +509,7 @@ export class StageManager {
     }
     for (const fromNode of fromNodes) {
       if (fromNode === toNode && !Settings.allowAddCycleEdge) {
+        toast.warning(StageManager.w);
         continue;
       }
       if (isCrEdge) {
