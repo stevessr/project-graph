@@ -1,7 +1,6 @@
 import { Project, service } from "@/core/Project";
 import { Entity } from "@/core/stage/stageObject/abstract/StageEntity";
 import { StageObject } from "@/core/stage/stageObject/abstract/StageObject";
-import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
 import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { Serialized } from "@/types/node";
@@ -10,7 +9,6 @@ import { deserialize, serialize } from "@graphif/serializer";
 import { Rectangle } from "@graphif/shapes";
 import { Image } from "@tauri-apps/api/image";
 import { readText, writeImage, writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { MouseLocation } from "../../controlService/MouseLocation";
 import { RectangleNoteEffect } from "../../feedbackService/effectEngine/concrete/RectangleNoteEffect";
 import { RectangleNoteReversedEffect } from "../../feedbackService/effectEngine/concrete/RectangleNoteReversedEffect";
 import { VirtualClipboard } from "./VirtualClipboard";
@@ -112,6 +110,8 @@ export class CopyEngine {
         toast.success("已将选中的文本复制到系统剪贴板");
       }
     }
+    // 最后清空所有选择
+    this.project.stageManager.clearSelectAll();
   }
 
   /**
@@ -131,10 +131,6 @@ export class CopyEngine {
     const pastDataSerialized = VirtualClipboard.paste();
     console.log(pastDataSerialized);
     const pasteData: StageObject[] = deserialize(pastDataSerialized); // 加了project会报错
-
-    // console.log(pastDataSerialized);
-    // console.log(pastData);
-    // console.log(JSON.stringify(pastData));
 
     // 粘贴的时候刷新UUID
     for (const stageObject of pasteData) {
@@ -164,38 +160,25 @@ export class CopyEngine {
         }
       }
     }
-    this.project.stage.push(...pasteData);
-    return;
-
-    const rect = Rectangle.getBoundingRectangle(pasteData.map((it: StageObject) => it.collisionBox.getRectangle()));
-    // 将鼠标位置转换为世界坐标
-    const mouseWorldLocation = this.project.renderer.transformView2World(MouseLocation.vector());
-    // 计算偏移量，使得粘贴的内容在鼠标位置附近
-    const delta = mouseWorldLocation.subtract(rect.location);
-    const data: StageObject[] = VirtualClipboard.paste().map((it: StageObject) => {
-      if (it instanceof Entity) {
-        return deserialize(
-          {
-            ...serialize(it),
-            uuid: undefined,
-            collisionBox: new CollisionBox([it.collisionBox.getRectangle().translate(delta)]),
-          },
-          this.project,
-        );
-      }
-    });
-    this.project.stage.push(...data);
-    this.project.effects.addEffect(
-      new RectangleNoteEffect(new ProgressNumber(0, 50), rect.translate(delta), Color.Green),
+    // 将pasteData设为选中状态
+    const shouldSelectedEntities = this.project.sectionMethods.shallowerNotSectionEntities(
+      pasteData.filter((it) => it instanceof Entity) as Entity[],
     );
-    // 粘贴后，选中粘贴的内容
-    data.map((it) => {
-      if (it instanceof Entity) {
-        it.isSelected = true;
-      }
-      return it;
-    });
+    shouldSelectedEntities.forEach((it) => (it.isSelected = true));
     this.project.stageObjectSelectCounter.update();
+
+    // 将所有选中的实体，往右下角移动一点
+    const rect = Rectangle.getBoundingRectangle(pasteData.map((it: StageObject) => it.collisionBox.getRectangle()));
+    shouldSelectedEntities.forEach((it) => {
+      it.move(new Vector(0, rect.height));
+    });
+    // 加特效
+    const effectRect = Rectangle.getBoundingRectangle(
+      shouldSelectedEntities.map((it) => it.collisionBox.getRectangle()),
+    );
+    this.project.effects.addEffect(new RectangleNoteEffect(new ProgressNumber(0, 50), effectRect, Color.Green));
+    // 粘贴到舞台上
+    this.project.stage.push(...pasteData);
   }
 
   /**
