@@ -35,7 +35,9 @@ export class KeyboardOnlyEngine {
       event.preventDefault(); // 这个prevent必须开启，否则会立刻在刚创建的输入框里输入一个换行符。
       this.addSuccessEffect();
       // 编辑节点
-      this.project.controllerUtils.editTextNode(selectedNode, Settings.textNodeSelectAllWhenStartEditByKeyboard);
+      setTimeout(() => {
+        this.project.controllerUtils.editTextNode(selectedNode, Settings.textNodeSelectAllWhenStartEditByKeyboard);
+      }, 1); // 上面的prevent似乎不生效了，但这里加个1毫秒就能解决了
     };
 
     this.project.canvas.element.addEventListener("keydown", (event) => {
