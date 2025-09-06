@@ -780,6 +780,13 @@ export function GlobalMenu() {
                   </SubContent>
                 </Sub>
                 <Item onClick={() => NodeDetailsWindow.open()}>plate</Item>
+                <Item
+                  onClick={() => {
+                    console.log(activeProject!.stage);
+                  }}
+                >
+                  在控制台输出舞台内容
+                </Item>
               </SubContent>
             </Sub>
           </Content>
