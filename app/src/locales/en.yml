@@ -5,6 +5,8 @@ welcome:
   github: GitHub
   bilibili: Bilibili
   qq: QQ Group
+  title: Welcome to《Project Graph》
+  subtitle: Infinite canvas mind mapping software based on graph theory
 
 about:
   updater:
