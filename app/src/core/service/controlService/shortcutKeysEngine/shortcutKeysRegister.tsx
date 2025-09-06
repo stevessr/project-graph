@@ -636,12 +636,12 @@ export class KeyBindsRegistrar {
       setTheme("park");
     });
 
-    await this.project.keyBinds.create("switchToMacaronTheme", "m k l", () => {
+    await this.project.keyBinds.create("switchToMacaronTheme", "m k l m k l", () => {
       toast.info("切换到马卡龙主题");
       setTheme("macaron");
     });
 
-    await this.project.keyBinds.create("switchToMorandiTheme", "m l d", () => {
+    await this.project.keyBinds.create("switchToMorandiTheme", "m l d m l d", () => {
       toast.info("切换到莫兰迪主题");
       setTheme("morandi");
     });
