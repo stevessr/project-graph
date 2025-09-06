@@ -212,8 +212,13 @@ export default function KeyBindsPage() {
     <Field color="warning" title="需要先打开一个工程文件才能编辑快捷键设置" />
   );
 }
+type ShortcutKeysGroup = {
+  title: string;
+  icon: React.ReactNode;
+  keys: string[];
+};
 
-const shortcutKeysGroups = [
+const shortcutKeysGroups: ShortcutKeysGroup[] = [
   {
     title: "basic",
     icon: <Keyboard />,

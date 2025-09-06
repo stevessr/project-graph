@@ -604,6 +604,32 @@ export function GlobalMenu() {
             <Palette />
             {t("settings.appearance")}
           </Item>
+          <Item
+            className="*:text-destructive! text-destructive!"
+            onClick={async () => {
+              if (
+                await Dialog.confirm(
+                  "确认重置全部快捷键",
+                  "此操作会将所有快捷键恢复为默认值，无法撤销。\n\n是否继续？",
+                  { destructive: true },
+                )
+              ) {
+                try {
+                  const activeProject = store.get(activeProjectAtom);
+                  if (activeProject) {
+                    await activeProject.keyBinds.resetAllKeyBinds();
+                    toast.success("所有快捷键已重置为默认值");
+                  }
+                } catch (error) {
+                  toast.error("重置快捷键失败");
+                  console.error("重置快捷键失败:", error);
+                }
+              }
+            }}
+          >
+            <Radiation />
+            重置全部快捷键
+          </Item>
         </Content>
       </Menu>
 

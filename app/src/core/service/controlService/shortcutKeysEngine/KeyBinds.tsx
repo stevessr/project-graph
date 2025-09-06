@@ -111,6 +111,8 @@ export class KeyBinds {
       userSetKey = defaultKey;
     }
     const obj = new _Bind(this.project, id, userSetKey, onPress);
+    // 将绑定对象添加到集合中，以便后续清理
+    this.binds.add(obj);
     // 监听快捷键变化
     this.watch(id, (value) => {
       obj.key = value;
@@ -123,6 +125,21 @@ export class KeyBinds {
     this.binds.clear();
     this.registeredIdSet.clear();
     this.callbacks = {};
+  }
+
+  /**
+   * 重置所有快捷键为默认值
+   */
+  async resetAllKeyBinds() {
+    if (!this.store) {
+      throw new Error("Store not initialized.");
+    }
+    // 清除已注册ID集合和资源
+    this.dispose();
+    // 清空存储
+    await this.store.clear();
+    // 重新注册所有快捷键
+    await this.project.keyBindsRegistrar.registerKeyBinds();
   }
 }
 
