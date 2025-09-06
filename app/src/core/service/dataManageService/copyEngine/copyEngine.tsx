@@ -17,6 +17,12 @@ import { VirtualClipboard } from "./VirtualClipboard";
 import { CopyEngineImage } from "./copyEngineImage";
 import { CopyEngineText } from "./copyEngineText";
 import { toast } from "sonner";
+import { ConnectableAssociation } from "@/core/stage/stageObject/abstract/Association";
+import { Edge } from "@/core/stage/stageObject/association/Edge";
+import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
+import { SetFunctions } from "@/core/algorithm/setFunctions";
+import { Section } from "@/core/stage/stageObject/entity/Section";
+import { v4 } from "uuid";
 
 /**
  * 专门用来管理节点复制的引擎
@@ -37,24 +43,61 @@ export class CopyEngine {
    * 也要将选中的部分复制到系统粘贴板
    */
   copy() {
-    // 获取所有选中的实体
-    const stageObjects = this.project.stageManager.getSelectedStageObjects();
-    if (stageObjects.length === 0) {
+    // 获取所有选中的实体，不能包含关系
+    const selectedEntites = this.project.stageManager.getSelectedEntities();
+    if (selectedEntites.length === 0) {
       // 如果没有选中东西，就是清空虚拟粘贴板
       VirtualClipboard.clear();
-      toast.success("清空了虚拟剪贴板");
+      toast.success("当前没有选中任何实体，已清空了虚拟剪贴板");
       return;
     }
 
     // 更新虚拟剪贴板
-    VirtualClipboard.copy(stageObjects);
-    const rect = Rectangle.getBoundingRectangle(stageObjects.map((it) => it.collisionBox.getRectangle()));
+    const selectedUUIDs = new Set(selectedEntites.map((it) => it.uuid));
+    // ===== 开始构建 copyedStageObjects
+    const copyedStageObjects: StageObject[] = [...selectedEntites]; // 准备复制后的数据
+    // O(N), N 为当前舞台对象数量
+    for (const association of this.project.stageManager.getAssociations()) {
+      if (association instanceof ConnectableAssociation) {
+        if (association instanceof Edge) {
+          if (selectedUUIDs.has(association.source.uuid) && selectedUUIDs.has(association.target.uuid)) {
+            copyedStageObjects.push(association);
+          }
+        } else if (association instanceof MultiTargetUndirectedEdge) {
+          // 无向边
+          const associationUUIDs = new Set(association.associationList.map((it) => it.uuid));
+          if (SetFunctions.isSubset(associationUUIDs, selectedUUIDs)) {
+            copyedStageObjects.push(association);
+          }
+        }
+      }
+    }
+    // ===== copyedStageObjects 构建完毕
+
+    // 处理Section框内部的实体
+    // 先检测一下选中的内容中是否有框
+    let isHaveSection = false;
+    selectedEntites.forEach((it) => {
+      if (it instanceof Section) {
+        isHaveSection = true;
+      }
+    });
+    if (isHaveSection) {
+      // 如果有框，则二元遍历所有舞台实体和框，看看它们是否包含
+      // TODO:
+    }
+
+    // 深拷贝一下数据，只有在粘贴的时候才刷新uuid
+    const serializedCopyedStageObjects = serialize(copyedStageObjects);
+    console.log(serializedCopyedStageObjects);
+    VirtualClipboard.copy(serialize(serializedCopyedStageObjects));
+    const rect = Rectangle.getBoundingRectangle(selectedEntites.map((it) => it.collisionBox.getRectangle()));
     this.project.effects.addEffect(new RectangleNoteReversedEffect(new ProgressNumber(0, 100), rect, Color.Green));
 
     // 更新系统剪贴板
     // 如果只有一张图片就直接复制图片
-    if (stageObjects.length === 1 && stageObjects[0] instanceof ImageNode) {
-      const imageNode = stageObjects[0] as ImageNode;
+    if (selectedEntites.length === 1 && selectedEntites[0] instanceof ImageNode) {
+      const imageNode = selectedEntites[0] as ImageNode;
       const blob = this.project.attachments.get(imageNode.attachmentId);
       if (blob) {
         blob.arrayBuffer().then(Image.fromBytes).then(writeImage);
@@ -62,7 +105,7 @@ export class CopyEngine {
       }
     } else {
       // 否则复制全部文本节点，用两个换行分割
-      const textNodes = stageObjects.filter((it) => it instanceof TextNode) as TextNode[];
+      const textNodes = selectedEntites.filter((it) => it instanceof TextNode) as TextNode[];
       if (textNodes.length > 0) {
         const text = textNodes.map((it) => it.text).join("\n\n");
         writeText(text);
@@ -85,9 +128,49 @@ export class CopyEngine {
 
   virtualClipboardPaste() {
     // 获取虚拟粘贴板上数据的外接矩形
-    const rect = Rectangle.getBoundingRectangle(
-      VirtualClipboard.paste().map((it: StageObject) => it.collisionBox.getRectangle()),
-    );
+    const pastDataSerialized = VirtualClipboard.paste();
+    console.log(pastDataSerialized);
+    const pasteData: StageObject[] = deserialize(pastDataSerialized); // 加了project会报错
+
+    // console.log(pastDataSerialized);
+    // console.log(pastData);
+    // console.log(JSON.stringify(pastData));
+
+    // 粘贴的时候刷新UUID
+    for (const stageObject of pasteData) {
+      if (stageObject instanceof Entity) {
+        stageObject.project = this.project; // 没办法，只能这么做了，否则会出现移动速度2倍甚至n倍的bug
+        const newUUID = v4();
+        const oldUUID = stageObject.uuid;
+        stageObject.uuid = newUUID;
+        // 开始遍历所有关联，更新uuid
+        for (const stageObject2 of pasteData) {
+          if (stageObject2 instanceof ConnectableAssociation) {
+            if (stageObject2 instanceof Edge) {
+              if (stageObject2.source.uuid === oldUUID) {
+                stageObject2.source.uuid = newUUID;
+                // stageObject2.project = this.project;
+              }
+              if (stageObject2.target.uuid === oldUUID) {
+                stageObject2.target.uuid = newUUID;
+                // stageObject2.project = this.project;
+              }
+            } else if (stageObject2 instanceof MultiTargetUndirectedEdge) {
+              for (const associationListItem of stageObject2.associationList) {
+                if (associationListItem.uuid === oldUUID) {
+                  associationListItem.uuid = newUUID;
+                  // stageObject2.project = this.project;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    this.project.stage.push(...pasteData);
+    return;
+
+    const rect = Rectangle.getBoundingRectangle(pasteData.map((it: StageObject) => it.collisionBox.getRectangle()));
     // 将鼠标位置转换为世界坐标
     const mouseWorldLocation = this.project.renderer.transformView2World(MouseLocation.vector());
     // 计算偏移量，使得粘贴的内容在鼠标位置附近
@@ -108,6 +191,7 @@ export class CopyEngine {
     this.project.effects.addEffect(
       new RectangleNoteEffect(new ProgressNumber(0, 50), rect.translate(delta), Color.Green),
     );
+    // 粘贴后，选中粘贴的内容
     data.map((it) => {
       if (it instanceof Entity) {
         it.isSelected = true;

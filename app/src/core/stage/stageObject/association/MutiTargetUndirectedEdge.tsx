@@ -65,6 +65,7 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
   public rename(text: string) {
     this.text = text;
   }
+
   constructor(
     protected readonly project: Project,
     {
@@ -77,6 +78,16 @@ export class MultiTargetUndirectedEdge extends ConnectableAssociation {
       centerRate = Vector.same(0.5),
       padding = 10,
       renderType = "line" as MultiTargetUndirectedEdgeRenderType,
+    }: {
+      associationList?: ConnectableEntity[];
+      text?: string;
+      uuid?: string;
+      color?: Color;
+      rectRates?: Vector[];
+      arrow?: UndirectedEdgeArrowType;
+      centerRate?: Vector;
+      padding?: number;
+      renderType?: MultiTargetUndirectedEdgeRenderType;
     },
     /** true表示解析状态，false表示解析完毕 */
     public unknown = false,
