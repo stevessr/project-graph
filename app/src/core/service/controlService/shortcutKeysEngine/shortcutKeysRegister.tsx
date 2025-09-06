@@ -447,12 +447,12 @@ export class KeyBindsRegistrar {
       toast("todo");
     });
 
-    await this.project.keyBinds.create("checkoutLeftMouseToSelectAndMove", "v", async () => {
+    await this.project.keyBinds.create("checkoutLeftMouseToSelectAndMove", "v v v", async () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
       Settings.mouseLeftMode = "selectAndMove";
       toast("当前鼠标左键已经切换为框选/移动模式");
     });
-    await this.project.keyBinds.create("checkoutLeftMouseToDrawing", "p", async () => {
+    await this.project.keyBinds.create("checkoutLeftMouseToDrawing", "b b b", async () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
       Settings.mouseLeftMode = "draw";
       toast("当前鼠标左键已经切换为画笔模式");
@@ -460,7 +460,7 @@ export class KeyBindsRegistrar {
 
     // 鼠标左键切换为连接模式
     // let lastMouseMode = "selectAndMove";
-    await this.project.keyBinds.create("checkoutLeftMouseToConnectAndCutting", "c", async () => {
+    await this.project.keyBinds.create("checkoutLeftMouseToConnectAndCutting", "c c c", async () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
       Settings.mouseLeftMode = "connectAndCut";
       toast("当前鼠标左键已经切换为连接/切割模式");
