@@ -56,6 +56,20 @@ export class CopyEngine {
     const selectedUUIDs = new Set(selectedEntites.map((it) => it.uuid));
     // ===== 开始构建 copyedStageObjects
     const copyedStageObjects: StageObject[] = [...selectedEntites]; // 准备复制后的数据
+    // 处理Section框内部的实体
+    // 先检测一下选中的内容中是否有框
+    const isHaveSection = selectedEntites.some((it) => it instanceof Section);
+    if (isHaveSection) {
+      // 如果有框，则获取框内的实体
+      const innerEntities = this.project.sectionMethods.getAllEntitiesInSelectedSectionsOrEntities(selectedEntites);
+      // 根据 selectedUUIDs 过滤
+      const filteredInnerEntities = innerEntities.filter((it) => !selectedUUIDs.has(it.uuid));
+      copyedStageObjects.push(...filteredInnerEntities);
+      // 补充 selectedUUIDs
+      for (const entity of filteredInnerEntities) {
+        selectedUUIDs.add(entity.uuid);
+      }
+    }
     // O(N), N 为当前舞台对象数量
     for (const association of this.project.stageManager.getAssociations()) {
       if (association instanceof ConnectableAssociation) {
@@ -74,22 +88,8 @@ export class CopyEngine {
     }
     // ===== copyedStageObjects 构建完毕
 
-    // 处理Section框内部的实体
-    // 先检测一下选中的内容中是否有框
-    let isHaveSection = false;
-    selectedEntites.forEach((it) => {
-      if (it instanceof Section) {
-        isHaveSection = true;
-      }
-    });
-    if (isHaveSection) {
-      // 如果有框，则二元遍历所有舞台实体和框，看看它们是否包含
-      // TODO:
-    }
-
     // 深拷贝一下数据，只有在粘贴的时候才刷新uuid
     const serializedCopyedStageObjects = serialize(copyedStageObjects);
-    console.log(serializedCopyedStageObjects);
     VirtualClipboard.copy(serialize(serializedCopyedStageObjects));
     const rect = Rectangle.getBoundingRectangle(selectedEntites.map((it) => it.collisionBox.getRectangle()));
     this.project.effects.addEffect(new RectangleNoteReversedEffect(new ProgressNumber(0, 100), rect, Color.Green));
@@ -149,17 +149,14 @@ export class CopyEngine {
             if (stageObject2 instanceof Edge) {
               if (stageObject2.source.uuid === oldUUID) {
                 stageObject2.source.uuid = newUUID;
-                // stageObject2.project = this.project;
               }
               if (stageObject2.target.uuid === oldUUID) {
                 stageObject2.target.uuid = newUUID;
-                // stageObject2.project = this.project;
               }
             } else if (stageObject2 instanceof MultiTargetUndirectedEdge) {
               for (const associationListItem of stageObject2.associationList) {
                 if (associationListItem.uuid === oldUUID) {
                   associationListItem.uuid = newUUID;
-                  // stageObject2.project = this.project;
                 }
               }
             }

@@ -8,7 +8,7 @@ export class SectionMethods {
   constructor(protected readonly project: Project) {}
 
   /**
-   * 获取一个实体的第一层所有父亲Sections
+   * 获取一个实体的它自己的父亲Sections、是第一层所有父亲Sections
    * 注：需要遍历所有Section
    * @param entity
    */
