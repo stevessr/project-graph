@@ -376,7 +376,11 @@ export class KeyBindsRegistrar {
     //   }, 200);
     // });
     await this.project.keyBinds.create("saveFile", "C-s", () => {
-      store.get(activeProjectAtom)?.save();
+      const activeProject = store.get(activeProjectAtom);
+      if (activeProject) {
+        activeProject.save();
+        activeProject.historyManager.clearHistory();
+      }
     });
     await this.project.keyBinds.create("newDraft", "C-n", () => {
       onNewDraft();

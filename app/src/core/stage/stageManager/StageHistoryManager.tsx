@@ -180,4 +180,16 @@ export class HistoryManager {
     const stage = deserialize(data, this.project);
     return stage;
   }
+
+  /**
+   * 清空历史记录
+   * 保存文件时调用，将当前状态设为新的初始状态
+   */
+  clearHistory() {
+    this.deltas = [];
+    this.currentIndex = -1;
+    this.initialStage = serialize(this.project.stage);
+    this.project.state = ProjectState.Saved;
+    toast("历史记录已清空");
+  }
 }
