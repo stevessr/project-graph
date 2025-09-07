@@ -7,6 +7,7 @@ import { Earth, FilePlus, FolderOpen, Info, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SettingsWindow from "../sub/SettingsWindow";
+import { toast } from "sonner";
 
 export default function WelcomePage() {
   const [recentFiles, setRecentFiles] = useState<RecentFileManager.RecentFile[]>([]);
@@ -54,8 +55,12 @@ export default function WelcomePage() {
                   <div
                     key={index}
                     onClick={async () => {
-                      await onOpenFile(file.uri, "欢迎页面-最近打开的文件");
-                      await refresh();
+                      try {
+                        await onOpenFile(file.uri, "欢迎页面-最近打开的文件");
+                        await refresh();
+                      } catch (e) {
+                        toast.error(e as string);
+                      }
                     }}
                   >
                     <span>{new Path(file.uri).nameWithoutExt}</span>
