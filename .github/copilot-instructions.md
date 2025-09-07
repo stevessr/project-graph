@@ -58,4 +58,4 @@ When the user asks which tasks remain unfinished, you must
 
 ## Commit Message
 
-Use gitmoji
+Use conventional commits
