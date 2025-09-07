@@ -120,4 +120,46 @@ export class ImageNode extends ConnectableEntity {
     this.collisionBox.shapes[0] = newRectangle;
     this.updateFatherSectionByMove();
   }
+
+  /**
+   * 反转图片颜色
+   * 将图片的RGB值转换为互补色（255-R, 255-G, 255-B）
+   */
+  reverseColors() {
+    if (!this.bitmap) return;
+
+    // 创建临时canvas
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // 设置canvas尺寸
+    canvas.width = this.bitmap.width;
+    canvas.height = this.bitmap.height;
+
+    // 绘制原图
+    ctx.drawImage(this.bitmap, 0, 0);
+
+    // 获取图像数据
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+
+    // 反转颜色（255-R, 255-G, 255-B）
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = 255 - data[i]; // R
+      data[i + 1] = 255 - data[i + 1]; // G
+      data[i + 2] = 255 - data[i + 2]; // B
+      // data[i + 3] 保持不变（alpha通道）
+    }
+
+    // 将修改后的图像数据绘制回canvas
+    ctx.putImageData(imageData, 0, 0);
+
+    // 创建新的ImageBitmap
+    createImageBitmap(imageData).then((newBitmap) => {
+      this.bitmap = newBitmap;
+      // 记录操作历史
+      this.project.historyManager.recordStep();
+    });
+  }
 }

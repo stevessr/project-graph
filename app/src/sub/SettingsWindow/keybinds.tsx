@@ -18,6 +18,7 @@ import {
   Brush,
   FileQuestion,
   Fullscreen,
+  Image,
   Keyboard,
   MousePointer,
   Move,
@@ -397,4 +398,5 @@ const shortcutKeysGroups: ShortcutKeysGroup[] = [
       "alignTopToBottomNoSpace",
     ],
   },
+  { title: "image", icon: <Image />, keys: ["reverseImageColors"] },
 ];

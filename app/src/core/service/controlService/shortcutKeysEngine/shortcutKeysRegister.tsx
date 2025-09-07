@@ -11,7 +11,6 @@ import { PenStrokeMethods } from "@/core/stage/stageManager/basicMethods/PenStro
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
-import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { activeProjectAtom, store } from "@/state";
 // import ColorWindow from "@/sub/ColorWindow";
 import FindWindow from "@/sub/FindWindow";
@@ -25,6 +24,8 @@ import { Rectangle } from "@graphif/shapes";
 import { toast } from "sonner";
 import { v4 } from "uuid";
 import { onNewDraft, onOpenFile } from "../../GlobalMenu";
+import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
+import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 
 /**
  * 快捷键注册函数
@@ -581,7 +582,7 @@ export class KeyBindsRegistrar {
 
     // 做计划的功能
     await this.project.keyBinds.create("toggleCheckmarkOnTextNodes", "o k k", () => {
-      const selectedTextNodes = this.project.stageManager
+      const selectedTextNodes: TextNode[] = this.project.stageManager
         .getSelectedEntities()
         .filter((node) => node instanceof TextNode);
       for (const node of selectedTextNodes) {
@@ -594,6 +595,19 @@ export class KeyBindsRegistrar {
         }
       }
       this.project.stageManager.updateReferences();
+    });
+
+    // 反转选中图片的颜色
+    await this.project.keyBinds.create("reverseImageColors", "r r r", () => {
+      const selectedImageNodes: ImageNode[] = this.project.stageManager
+        .getSelectedEntities()
+        .filter((node) => node instanceof ImageNode);
+      for (const node of selectedImageNodes) {
+        node.reverseColors();
+      }
+      if (selectedImageNodes.length > 0) {
+        toast(`已反转 ${selectedImageNodes.length} 张图片的颜色`);
+      }
     });
 
     // 主题切换相关功能

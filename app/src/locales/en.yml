@@ -1302,3 +1302,8 @@ visualSettingsGroup:
     title: Basic Settings
   background:
     title: Background Settings
+
+# Keybinds translation
+reverseImageColors:
+  title: Reverse Image Colors
+  description: Reverse the colors of selected images (makes white background black and vice versa)
