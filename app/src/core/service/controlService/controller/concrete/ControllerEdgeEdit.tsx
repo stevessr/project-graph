@@ -31,7 +31,9 @@ export class ControllerEdgeEditClass extends ControllerClass {
     if (event.key === "Enter") {
       const selectedEdges = this.project.stageManager.getLineEdges().filter((edge) => edge.isSelected);
       if (selectedEdges.length === 1) {
-        this.project.controllerUtils.editEdgeText(selectedEdges[0]);
+        setTimeout(() => {
+          this.project.controllerUtils.editEdgeText(selectedEdges[0]);
+        }); // delay 默认 1ms，防止多输入一个回车
       } else if (selectedEdges.length === 0) {
         return;
       } else {
