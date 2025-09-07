@@ -71,8 +71,6 @@ For advanced features like compute engine, see [Full Documentation](https://proj
 
 [慕乐云](https://muleyun.com/aff/HLONILNH)
 
-AD: 慕乐云的年度活动太便宜了xD，8c8g 30G系统盘 80G数据盘 只要480CNY/年
-
 [YXVM](https://yxvm.com/)
 
 ![yxvm](https://beisudianxueuser.oss-cn-beijing.aliyuncs.com/storage/user_avatar/ciallo/2025/04/06/1818c0770e94a4257af5eb7d5530f5fd/Screenshot%202025-04-06%20at%2016-23-03%20NodeSupport%20Promotion.png)

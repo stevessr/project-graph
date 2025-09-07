@@ -1,4 +1,6 @@
 import Markdown from "@/components/ui/markdown";
+import { Textarea } from "@/components/ui/textarea";
+import { AITools } from "@/core/service/dataManageService/aiEngine/AITools";
 import { Settings } from "@/core/service/Settings";
 import { SubWindow } from "@/core/service/SubWindow";
 import { activeProjectAtom } from "@/state";
@@ -6,7 +8,7 @@ import SettingsWindow from "@/sub/SettingsWindow";
 import { Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
 import { useAtom } from "jotai";
-import { Bot, FolderOpen, Loader2, Send, SettingsIcon, User } from "lucide-react";
+import { Bot, FolderOpen, Loader2, Send, SettingsIcon, User, Wrench } from "lucide-react";
 import OpenAI from "openai";
 import { useRef, useState } from "react";
 
@@ -14,22 +16,10 @@ export default function AIWindow() {
   const [project] = useAtom(activeProjectAtom);
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState<(OpenAI.ChatCompletionMessageParam & { tokens?: number })[]>([
-    //     {
-    //       role: "system",
-    //       content: `\
-    // **角色：** Project Graph AI (首席工程师，严格遵循 ReAct 模式)
-    // **核心原则：**
-    // 1.  **深度优先探索：** 系统性探索用户视野内节点及其父子节点，理解内容、结构、关系。
-    // 2.  **基于事实行动：** 收集充分上下文前不修改节点。分析工具输出，留意新节点/关系线索。
-    // 3.  **最小有效修改：** 仅进行完成任务必需的最少更改，保持图结构整洁。
-    // 4.  **高度自主：** 优先使用工具解决问题。仅在多次尝试失败且信息关键时请求用户输入。
-    // 5.  **专注任务：** 避免无关对话，专注迭代（思考->行动->观察）直至任务完成。
-    // **关键指令：**
-    // *   **ReAct 循环：** 推理->调用工具->观察结果->迭代。
-    // *   **工具输出关键：** 仔细分析所有输出，主动探索输出中提到的新相关节点。
-    // *   **根因分析：** 识别问题节点及其潜在关联节点（可能为根本原因）。
-    //       `,
-    //     },
+    {
+      role: "system",
+      content: "尽可能尝试使用工具解决问题，如果实在不行才能问用户",
+    },
   ]);
   const [requesting, setRequesting] = useState(false);
   const [totalInputTokens, setTotalInputTokens] = useState(0);
@@ -40,11 +30,11 @@ export default function AIWindow() {
   function addMessage(message: OpenAI.ChatCompletionMessageParam & { tokens?: number }) {
     setMessages((prev) => [...prev, message]);
   }
-  function setLastMessageContent(content: string) {
+  function setLastMessage(msg: OpenAI.ChatCompletionMessageParam) {
     setMessages((prev) => {
-      const lastMessage = prev[prev.length - 1];
-      if (!lastMessage) return prev;
-      return [...prev.slice(0, -1), { ...lastMessage, content } as any];
+      const newMessages = [...prev];
+      newMessages[newMessages.length - 1] = msg;
+      return newMessages;
     });
   }
 
@@ -54,42 +44,89 @@ export default function AIWindow() {
     }
   }
 
-  async function send() {
+  async function run(msgs: OpenAI.ChatCompletionMessageParam[] = [...messages, { role: "user", content: inputValue }]) {
     if (!project) return;
     scrollToBottom();
     setRequesting(true);
-    setInputValue("");
-    const msgs: OpenAI.ChatCompletionMessageParam[] = [
-      ...messages,
-      {
-        role: "user",
-        content: inputValue,
-      },
-    ];
-    addMessage({
-      role: "user",
-      content: inputValue,
-    });
-    addMessage({
-      role: "assistant",
-      content: "Requesting...",
-    });
-    const stream = await project.aiEngine.chat(msgs);
-    let streamingMsg = "";
-    let lastChunk: OpenAI.ChatCompletionChunk | null = null;
-    for await (const chunk of stream) {
-      const delta = chunk.choices[0].delta;
-      streamingMsg += delta.content;
-      setLastMessageContent(streamingMsg);
+    try {
+      const stream = await project.aiEngine.chat(msgs);
+      addMessage({
+        role: "assistant",
+        content: "Requesting...",
+      });
+      const streamingMsg: OpenAI.ChatCompletionAssistantMessageParam = {
+        role: "assistant",
+        content: "",
+        tool_calls: [],
+      };
+      let lastChunk: OpenAI.ChatCompletionChunk | null = null;
+      for await (const chunk of stream) {
+        const delta = chunk.choices[0].delta;
+        streamingMsg.content! += delta.content ?? "";
+        const toolCalls = delta.tool_calls || [];
+        for (const toolCall of toolCalls) {
+          if (typeof streamingMsg.tool_calls !== "undefined") {
+            const index = streamingMsg.tool_calls.length;
+            if (!streamingMsg.tool_calls[index]) {
+              streamingMsg.tool_calls[index] = {
+                ...toolCall,
+                // Google AI 不会返回工具调用的 id
+                // https://discuss.ai.google.dev/t/tool-calling-with-openai-api-not-working/60140/5
+                id: toolCall.id || crypto.randomUUID(),
+              } as any;
+            } else if (toolCall.function) {
+              streamingMsg.tool_calls[index].function.arguments += toolCall.function.arguments;
+            }
+          }
+        }
+        setLastMessage(streamingMsg);
+        scrollToBottom();
+        lastChunk = chunk;
+      }
+      setRequesting(false);
+      if (!lastChunk) return;
+      if (!lastChunk.usage) return;
+      setTotalInputTokens((v) => v + lastChunk.usage!.prompt_tokens);
+      setTotalOutputTokens((v) => v + lastChunk.usage!.completion_tokens);
       scrollToBottom();
-      lastChunk = chunk;
+      // 如果有工具调用，执行工具调用
+      if (streamingMsg.tool_calls && streamingMsg.tool_calls.length > 0) {
+        const toolMsgs: OpenAI.ChatCompletionToolMessageParam[] = [];
+        for (const toolCall of streamingMsg.tool_calls) {
+          const tool = AITools.handlers.get(toolCall.function.name);
+          if (!tool) {
+            return;
+          }
+          let observation = "";
+          try {
+            const result = await tool(project, JSON.parse(toolCall.function.arguments));
+            if (typeof result === "string") {
+              observation = result;
+            } else if (typeof result === "object") {
+              observation = JSON.stringify(result);
+            } else {
+              observation = String(result);
+            }
+          } catch (e) {
+            observation = `工具调用失败：${(e as Error).message}`;
+          }
+          const msg = {
+            role: "tool" as const,
+            content: observation,
+            tool_call_id: toolCall.id!,
+          };
+          addMessage(msg);
+          toolMsgs.push(msg);
+        }
+        // 工具调用结束后，重新发送消息，让模型继续思考
+        run([...msgs, streamingMsg, ...toolMsgs]);
+      }
+    } catch (e) {
+      addMessage({
+        role: "assistant",
+        content: String(e),
+      });
     }
-    setRequesting(false);
-    if (!lastChunk) return;
-    if (!lastChunk.usage) return;
-    setTotalInputTokens((v) => v + lastChunk.usage!.prompt_tokens);
-    setTotalOutputTokens((v) => v + lastChunk.usage!.completion_tokens);
-    scrollToBottom();
   }
 
   return project ? (
@@ -98,43 +135,54 @@ export default function AIWindow() {
         {messages.map((msg, i) =>
           msg.role === "user" ? (
             <div key={i} className="flex justify-end">
-              <div className="max-w-11/12 rounded-2xl rounded-br-none px-3 py-2">{msg.content as string}</div>
+              <div className="max-w-11/12 bg-accent text-accent-foreground rounded-2xl rounded-br-none px-3 py-2">
+                {msg.content as string}
+              </div>
             </div>
           ) : msg.role === "assistant" ? (
-            <div key={i}>
-              <Markdown source={msg.content as string} />
+            <div key={i} className="flex flex-col gap-2">
+              {msg.content && <Markdown source={msg.content as string} />}
+              {msg.tool_calls &&
+                msg.tool_calls.map((toolCall) => (
+                  <div className="flex items-center gap-1 text-xs" key={toolCall.id}>
+                    <Wrench size={16} />
+                    {toolCall.function.name}
+                    {/*{toolCall.function.arguments}*/}
+                  </div>
+                ))}
             </div>
           ) : (
             <></>
           ),
         )}
       </div>
-      <div className="flex flex-col gap-2 rounded-xl border p-2">
-        <div className="flex gap-2">
-          <SettingsIcon className="cursor-pointer" onClick={() => SettingsWindow.open("settings")} />
-          {showTokenCount && (
-            <>
-              <div className="flex-1"></div>
-              <User />
-              <span>{totalInputTokens}</span>
-              <Bot />
-              <span>{totalOutputTokens}</span>
-            </>
-          )}
-          <div className="flex-1"></div>
-          {requesting ? (
-            <Loader2 className="animate-spin" />
-          ) : (
-            <Send className="cursor-pointer" onClick={() => send()} />
-          )}
-        </div>
-        <textarea
-          className="cursor-text outline-none"
-          placeholder="What can I say?"
-          onChange={(e) => setInputValue(e.target.value)}
-          value={inputValue}
-        />
+      <div className="mb-2 flex gap-2">
+        <SettingsIcon className="cursor-pointer" onClick={() => SettingsWindow.open("settings")} />
+        {showTokenCount && (
+          <>
+            <div className="flex-1"></div>
+            <User />
+            <span>{totalInputTokens}</span>
+            <Bot />
+            <span>{totalOutputTokens}</span>
+          </>
+        )}
+        <div className="flex-1"></div>
+        {requesting ? (
+          <Loader2 className="animate-spin" />
+        ) : (
+          <Send
+            className="cursor-pointer"
+            onClick={() => {
+              if (!inputValue.trim()) return;
+              addMessage({ role: "user", content: inputValue });
+              setInputValue("");
+              run();
+            }}
+          />
+        )}
       </div>
+      <Textarea placeholder="What can I say?" onChange={(e) => setInputValue(e.target.value)} value={inputValue} />
     </div>
   ) : (
     <div className="flex flex-col gap-2 p-8">
