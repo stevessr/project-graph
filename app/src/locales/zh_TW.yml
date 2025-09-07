@@ -717,6 +717,9 @@ keyBinds:
       按下後，所有框選選中的節點中
       每個節點的所有連線都會反轉方向
       進而實現更快捷的一連多
+  reverseImageColors:
+    title: 反转图片颜色
+    description: 反转选中图片的颜色（将白色背景变为黑色，反之亦然）
   packEntityToSection:
     title: 將選中的實體打包到Section框中
     description: |
@@ -1113,22 +1116,81 @@ keyBindsGroup:
     title: 对齐相关
     description: |
       关于实体对齐的一些功能
+  image:
+    title: 图片相关
+    description: |
+      关于图片的一些功能
 
+globalMenu:
+  file:
+    title: 文件
+    new: 新建
+    open: 打开
+    recentFiles: 最近打开的文件
+    clear: 清空
+    save: 保存
+    saveAs: 另存为
+    import: 导入
+    importFromFolder: 根据文件夹生成嵌套图
+    export: 导出
+    exportAsSVG: 导出为 SVG
+    exportAll: 导出全部内容
+    plainTextType:
+      exportAllNodeGraph: 导出 全部的 网状关系
+      exportSelectedNodeGraph: 导出 选中的 网状关系
+      exportSelectedNodeTree: 导出 选中的 树状关系（纯文本缩进）
+      exportSelectedNodeTreeMarkdown: 导出 选中的 树状关系（Markdown格式）
+    exportSelected: 导出选中内容
+    plainText: 纯文本
+    exportSuccess: 导出成功
+    attachments: 附件管理器
+    tags: 标签管理器
+  location:
+    title: 位置
+    openConfigFolder: 打开软件配置文件夹
+    openCacheFolder: 打开软件缓存文件夹
+    openCurrentProjectFolder: 打开当前项目文件夹
+  view:
+    title: 视野
+    resetViewAll: 根据全部内容重置视野
+    resetViewSelected: 根据选中内容重置视野
+    resetViewScale: 重置视野缩放到标准大小
+    moveViewToOrigin: 移动视野到坐标轴原点
   actions:
     title: 操作
     search: 搜索
     refresh: 刷新
-    undo: 撤銷
+    undo: 撤销
     redo: 重做
-    releaseKeys: 釋放按鍵
-    confirmClearStage: 確認清空舞臺？
-    irreversible: 此操作無法撤銷！
-    clearStage: 清空舞臺
+    releaseKeys: 释放按键
+    confirmClearStage: 确认清空舞台？
+    irreversible: 此操作无法撤销！
+    clearStage: 清空舞台
     cancel: 取消
-    confirm: 確定
+    confirm: 确定
     generate:
       title: 生成
-      generateNodeTreeByText: 根據純文字生成樹狀結構
-      generateNodeTreeByTextDescription: 請輸入樹狀結構文字，每行代表一個節點，縮進表示層級關係
-      generateNodeTreeByTextPlaceholder: 輸入樹狀結構文字...
-      indention: 縮進字元數
+      generateNodeTreeByText: 根据纯文本生成树状结构
+      generateNodeTreeByTextDescription: 请输入树状结构文本，每行代表一个节点，缩进表示层级关系
+      generateNodeTreeByTextPlaceholder: 输入树状结构文本...
+      indention: 缩进字符数
+  settings:
+    title: 设置
+    appearance: 个性化
+  ai:
+    title: AI
+    openAIPanel: 打开 AI 面板
+  window:
+    title: 视图
+    fullscreen: 全屏
+    classroomMode: 专注模式
+    classroomModeHint: 左上角菜单按钮仅仅是透明了，并没有消失
+  about:
+    title: 关于
+    guide: 新手引导
+  unstable:
+    title: 测试版
+    notRelease: 此版本并非正式版
+    mayHaveBugs: 可能包含 Bug 和未完善的功能
+    reportBug: "报告 Bug: 在 Issue #487 中评论"
+    test: 测试功能

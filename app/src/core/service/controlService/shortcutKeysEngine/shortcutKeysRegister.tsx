@@ -8,6 +8,8 @@ import { Settings } from "@/core/service/Settings";
 import { Themes } from "@/core/service/Themes";
 import { StageStyle } from "@/core/service/feedbackService/stageStyle/stageStyle";
 import { PenStrokeMethods } from "@/core/stage/stageManager/basicMethods/PenStrokeMethods";
+import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
+import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
@@ -24,8 +26,6 @@ import { Rectangle } from "@graphif/shapes";
 import { toast } from "sonner";
 import { v4 } from "uuid";
 import { onNewDraft, onOpenFile } from "../../GlobalMenu";
-import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
-import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 
 /**
  * 快捷键注册函数
@@ -582,7 +582,7 @@ export class KeyBindsRegistrar {
 
     // 做计划的功能
     await this.project.keyBinds.create("toggleCheckmarkOnTextNodes", "o k k", () => {
-      const selectedTextNodes: TextNode[] = this.project.stageManager
+      const selectedTextNodes = this.project.stageManager
         .getSelectedEntities()
         .filter((node) => node instanceof TextNode);
       for (const node of selectedTextNodes) {

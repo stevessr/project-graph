@@ -1146,6 +1146,9 @@ keyBinds:
     title: 'Handbrake: Open/Close Camera Movement Controlled by Button'
   checkoutLeftMouseToConnectAndCuttingOnlyPressed:
     description: "Release to switch back to the default mouse mode\n"
+  reverseImageColors:
+    title: Reverse Image Colors
+    description: Reverse the colors of selected images (makes white background black and vice versa)
 effects:
   RectangleLittleNoteEffect:
     title: Rectangle Glimmer Hint Effect
@@ -1288,6 +1291,10 @@ keyBindsGroup:
     title: Align Shortcuts
     description: |
       Functions used for aligning entities
+  image:
+    title: 图片相关
+    description: |
+      关于图片的一些功能
 controlSettingsGroup:
   mouse:
     title: Mouse Settings
@@ -1303,7 +1310,3 @@ visualSettingsGroup:
   background:
     title: Background Settings
 
-# Keybinds translation
-reverseImageColors:
-  title: Reverse Image Colors
-  description: Reverse the colors of selected images (makes white background black and vice versa)
