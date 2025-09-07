@@ -43,7 +43,7 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
     if (!this._isUsing) return;
     if (!this.project.controller.isMouseDown[0] && Settings.mouseLeftMode === "draw") return;
     if (this.project.controller.isMouseDown[0] && Settings.mouseLeftMode !== "draw") return;
-    const events = event.getCoalescedEvents();
+    const events = "getCoalescedEvents" in event ? event.getCoalescedEvents() : [event];
     for (const e of events) {
       const isPen = e.pointerType === "pen";
       const worldLocation = this.project.renderer.transformView2World(new Vector(e.clientX, e.clientY));
