@@ -1,12 +1,12 @@
 import { RecentFileManager } from "@/core/service/dataFileService/RecentFileManager";
 import { onNewDraft, onOpenFile } from "@/core/service/GlobalMenu";
 import { Path } from "@/utils/path";
+import { getVersion } from "@tauri-apps/api/app";
 import { open as shellOpen } from "@tauri-apps/plugin-shell";
 import { Earth, FilePlus, FolderOpen, Info, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SettingsWindow from "../sub/SettingsWindow";
-import { getVersion } from "@tauri-apps/api/app";
 
 export default function WelcomePage() {
   const [recentFiles, setRecentFiles] = useState<RecentFileManager.RecentFile[]>([]);
@@ -28,11 +28,10 @@ export default function WelcomePage() {
     <div className="flex h-full w-full items-center justify-center bg-[var(--stage-background)]">
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-2">
-          <div className="text-3xl">
-            {t("title")}
-            <span className="rounded-lg px-2 py-1 text-lg opacity-50 ring">{appVersion}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-3xl">{t("title")}</span>
+            <span className="rounded-lg px-2 py-1 text-sm opacity-50 ring">{appVersion}</span>
           </div>
-          <div>——{t("subtitle")}</div>
           <div className="text-lg opacity-50">{t("slogan")}</div>
         </div>
         <div className="flex gap-16">

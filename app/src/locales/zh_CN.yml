@@ -1,12 +1,11 @@
 welcome:
-  slogan: 笔起思涌，图见真意
+  slogan: 基于图论的无限画布思维导图软件
   newDraft: 新建文件
   openFile: 打开文件
   settings: 设置
   about: 关于
   website: 官网
-  title: 欢迎来到《Project Graph：计划-投射》
-  subtitle: 基于图论的无限画布思维导图软件
+  title: Project Graph
 
 globalMenu:
   file:
