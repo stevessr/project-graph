@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Dialog } from "@/components/ui/dialog";
 import { Popover } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
 import { SubWindow } from "@/core/service/SubWindow";
 import { activeProjectAtom } from "@/state";
 import { Vector } from "@graphif/data-structures";
@@ -44,7 +43,7 @@ export default function AttachmentsWindow() {
   }, [attachments]);
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="bg-background flex flex-col gap-2 p-2">
       <div className="flex gap-3">
         <Button
           onClick={async () => {
@@ -71,6 +70,7 @@ export default function AttachmentsWindow() {
           title="清理附件"
           description="删除所有未被实体引用的附件，且此操作不可撤销，是否继续？"
           onConfirm={async () => {
+            let deletedCount = 0;
             const referencedAttachmentIds = project.stageManager
               .getEntities()
               .map((it) => ("attachmentId" in it ? (it.attachmentId as string) : ""))
@@ -78,10 +78,13 @@ export default function AttachmentsWindow() {
             for (const id of project.attachments.keys()) {
               if (!referencedAttachmentIds.includes(id)) {
                 project.attachments.delete(id);
+                deletedCount++;
               }
             }
-            refresh();
-            toast.success("ok");
+            toast.success(`已清理 ${deletedCount} 个未被引用的附件`);
+            setTimeout(() => {
+              refresh();
+            }, 500); // TODO: 在windows上未生效
           }}
           destructive
         >
@@ -91,56 +94,66 @@ export default function AttachmentsWindow() {
           </Button>
         </Popover.Confirm>
       </div>
-      {attachments.entries().map(([id, blob]) => (
-        <ContextMenu key={id}>
-          <ContextMenuTrigger>
-            <div className="flex flex-col gap-2">
-              <Separator />
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xs opacity-50">{id}</span>
-                <div className="flex flex-wrap gap-x-2">
-                  <span>{blob.type}</span>
-                  <span>{formatBytes(blob.size)}</span>
+      <div>
+        <span className="text-xs opacity-50">提示：对着附件右键可进行操作</span>
+      </div>
+
+      {/* 一个又一个的附件展示 */}
+      <div className="flex flex-wrap gap-1">
+        {attachments.entries().map(([id, blob]) => (
+          <ContextMenu key={id}>
+            {/* 非右键的直接展示部分 */}
+            <ContextMenuTrigger>
+              <div className="bg-card hover:bg-primary text-primary hover:text-primary-foreground flex flex-col gap-2 rounded-sm p-1 transition-colors hover:ring">
+                {/* <Separator /> */}
+                {blob.type.startsWith("image") && (
+                  <img src={urls.get(id)} alt={id} className="max-h-12 max-w-full object-contain" />
+                )}
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[6px] opacity-50">{id}</span>
+                  <div className="flex flex-wrap gap-x-2 text-xs">
+                    <span>{blob.type}</span>
+                    <span>{formatBytes(blob.size)}</span>
+                  </div>
                 </div>
               </div>
-              {blob.type.startsWith("image") && (
-                <img src={urls.get(id)} alt={id} className="max-h-64 max-w-full object-contain" />
-              )}
-            </div>
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            <ContextMenuItem
-              onClick={async () => {
-                const path = await save({
-                  filters: [
-                    {
-                      name: blob.type,
-                      extensions: [...(mime.getAllExtensions(blob.type) ?? [])],
-                    },
-                  ],
-                });
-                if (!path) return;
-                await writeFile(path, new Uint8Array(await blob.arrayBuffer()));
-              }}
-            >
-              <FileOutput />
-              导出
-            </ContextMenuItem>
-            <ContextMenuItem
-              variant="destructive"
-              onClick={async () => {
-                if (await Dialog.confirm("删除附件", "所有引用了此附件的实体将无法正常渲染", { destructive: true })) {
-                  project.attachments.delete(id);
-                  refresh();
-                }
-              }}
-            >
-              <Trash />
-              删除
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenu>
-      ))}
+            </ContextMenuTrigger>
+
+            {/* 右键内容 */}
+            <ContextMenuContent>
+              <ContextMenuItem
+                onClick={async () => {
+                  const path = await save({
+                    filters: [
+                      {
+                        name: blob.type,
+                        extensions: [...(mime.getAllExtensions(blob.type) ?? [])],
+                      },
+                    ],
+                  });
+                  if (!path) return;
+                  await writeFile(path, new Uint8Array(await blob.arrayBuffer()));
+                }}
+              >
+                <FileOutput />
+                导出
+              </ContextMenuItem>
+              <ContextMenuItem
+                variant="destructive"
+                onClick={async () => {
+                  if (await Dialog.confirm("删除附件", "所有引用了此附件的实体将无法正常渲染", { destructive: true })) {
+                    project.attachments.delete(id);
+                    refresh();
+                  }
+                }}
+              >
+                <Trash />
+                删除
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
+        ))}
+      </div>
     </div>
   );
 }
