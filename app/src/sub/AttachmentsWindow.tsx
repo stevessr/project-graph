@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Dialog } from "@/components/ui/dialog";
 import { Popover } from "@/components/ui/popover";
@@ -43,7 +44,7 @@ export default function AttachmentsWindow() {
   }, [attachments]);
 
   return (
-    <div className="bg-background flex flex-col gap-2 p-2">
+    <div className="flex flex-col gap-2 p-2">
       <div className="flex gap-3">
         <Button
           onClick={async () => {
@@ -99,24 +100,24 @@ export default function AttachmentsWindow() {
       </div>
 
       {/* 一个又一个的附件展示 */}
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-2">
         {attachments.entries().map(([id, blob]) => (
           <ContextMenu key={id}>
             {/* 非右键的直接展示部分 */}
             <ContextMenuTrigger>
-              <div className="bg-card hover:bg-primary text-primary hover:text-primary-foreground flex flex-col gap-2 rounded-sm p-1 transition-colors hover:ring">
+              <Card className="gap-2 p-2">
                 {/* <Separator /> */}
                 {blob.type.startsWith("image") && (
-                  <img src={urls.get(id)} alt={id} className="max-h-12 max-w-full object-contain" />
+                  <img src={urls.get(id)} alt={id} className="max-w-full rounded-lg object-contain" />
                 )}
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[6px] opacity-50">{id}</span>
-                  <div className="flex flex-wrap gap-x-2 text-xs">
+                  <span className="text-[8px] opacity-50">{id}</span>
+                  <div className="flex flex-wrap gap-x-2 text-sm">
                     <span>{blob.type}</span>
                     <span>{formatBytes(blob.size)}</span>
                   </div>
                 </div>
-              </div>
+              </Card>
             </ContextMenuTrigger>
 
             {/* 右键内容 */}
