@@ -340,7 +340,7 @@ export namespace ProjectUpgrader {
 
   export async function convertVAnyToN1(json: Record<string, any>, uri: URI) {
     // 升级json数据到最新版本
-    // json = ProjectUpgrader.upgrade(json);
+    json = ProjectUpgrader.upgrade(json);
     let isHaveImageNode = false;
     const uuidMap = new Map<string, Record<string, any>>();
     const resultStage: Record<string, any>[] = [];
@@ -349,17 +349,17 @@ export namespace ProjectUpgrader {
     const basePath = new Path(uri.fsPath).parent;
 
     // Helper functions for repeated structures
-    const toColor = (arr: number[]) => ({
+    const toColor = (colorArr: number[]) => ({
       _: "Color",
-      r: arr[0],
-      g: arr[1],
-      b: arr[2],
-      a: arr[3],
+      r: colorArr[0],
+      g: colorArr[1],
+      b: colorArr[2],
+      a: colorArr[3],
     });
-    const toVector = (arr: number[]) => ({
+    const toVector = (vectorArr: number[]) => ({
       _: "Vector",
-      x: arr[0],
-      y: arr[1],
+      x: vectorArr[0],
+      y: vectorArr[1],
     });
     const toDetails = (md: string) => {
       const editor = createPlateEditor({
