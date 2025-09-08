@@ -9,7 +9,8 @@ const _cache = new MaxSizeCache<string, number>(10000);
 /** canvas中使用的字体 */
 export let FONT = "-apple-system, BlinkMacSystemFont, MiSans, system-ui, sans-serif";
 if (isMac) {
-  FONT = "-apple-system, system-ui, sans-serif";
+  // 只有 PingFang TC 在mac中，中英文混合文字 宽度才能计算正确，离谱
+  FONT = "PingFang SC, PingFang TC, -apple-system";
 }
 
 // eslint-disable-next-line prefer-const
