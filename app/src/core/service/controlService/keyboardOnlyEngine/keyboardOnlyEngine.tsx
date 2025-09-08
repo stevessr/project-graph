@@ -4,7 +4,6 @@ import { EntityShakeEffect } from "@/core/service/feedbackService/effectEngine/c
 import { Settings } from "@/core/service/Settings";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { getEnterKey } from "@/utils/keyboardFunctions";
-import { toast } from "sonner";
 
 /**
  * 纯键盘控制的相关引擎
@@ -86,6 +85,6 @@ export class KeyboardOnlyEngine {
     for (const textNode of textNodes) {
       this.project.effects.addEffect(EntityShakeEffect.fromEntity(textNode));
     }
-    toast("您可能记错了节点进入编辑状态的控制键设置");
+    // 这里就不显示提示文字了。因为用户“快深频”说总是误弹出。
   }
 }

@@ -164,7 +164,7 @@ export class NodeAdder {
       );
     }
     this.project.historyManager.recordStep();
-    return newUUID;
+    return connectPoint.uuid;
   }
   /**
    * 通过纯文本生成网状结构
