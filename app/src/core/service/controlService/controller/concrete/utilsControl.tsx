@@ -284,7 +284,9 @@ export class ControllerUtils {
 
   addTextNodeFromCurrentSelectedNode(direction: Direction, selectCurrent = false) {
     this.project.nodeAdder.addTextNodeFromCurrentSelectedNode(direction, [], selectCurrent).then((uuid) => {
-      this.textNodeInEditModeByUUID(uuid);
+      setTimeout(() => {
+        this.textNodeInEditModeByUUID(uuid);
+      });
     });
   }
 
