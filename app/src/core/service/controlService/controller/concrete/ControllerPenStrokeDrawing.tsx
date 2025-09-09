@@ -30,6 +30,9 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
     if (Settings.mouseLeftMode !== "draw" && event.pointerType !== "pen") {
       return;
     }
+    if (this.project.controller.camera.isPreGrabbingWhenSpace) {
+      return;
+    }
     this._isUsing = true;
 
     const pressWorldLocation = this.project.renderer.transformView2World(new Vector(event.clientX, event.clientY));

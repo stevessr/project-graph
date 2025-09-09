@@ -20,6 +20,9 @@ export class ControllerPenStrokeControlClass extends ControllerClass {
     if (!(event.button === 2 && Settings.mouseLeftMode === "draw")) {
       return;
     }
+    if (this.project.controller.camera.isPreGrabbingWhenSpace) {
+      return;
+    }
     const pressWorldLocation = this.project.renderer.transformView2World(new Vector(event.clientX, event.clientY));
     if (event.button === 2 && this.project.controller.pressingKeySet.has("alt")) {
       // 右键按下时，开始调整笔刷粗细

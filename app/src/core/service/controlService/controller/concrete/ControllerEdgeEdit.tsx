@@ -11,6 +11,9 @@ export class ControllerEdgeEditClass extends ControllerClass {
     if (event.button !== 0) {
       return;
     }
+    if (this.project.controller.camera.isPreGrabbingWhenSpace) {
+      return;
+    }
     const firstHoverEdge = this.project.mouseInteraction.firstHoverEdge;
     const firstHoverMultiTargetEdge = this.project.mouseInteraction.firstHoverMultiTargetEdge;
     if (!(firstHoverEdge || firstHoverMultiTargetEdge)) {

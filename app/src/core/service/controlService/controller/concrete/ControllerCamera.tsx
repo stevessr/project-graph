@@ -29,7 +29,10 @@ export class ControllerCameraClass extends ControllerClass {
   public isUsingMouseGrabMove = false;
   private lastMousePressLocation: Vector[] = [Vector.getZero(), Vector.getZero(), Vector.getZero()];
   private isPressingCtrl = false;
-  private isPreGrabbingWhenSpace = false;
+  /**
+   * 是否正在使用空格+左键 拖动视野
+   */
+  public isPreGrabbingWhenSpace = false;
 
   private mac = new ControllerCameraMac(this.project);
 

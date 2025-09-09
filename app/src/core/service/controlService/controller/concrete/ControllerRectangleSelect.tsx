@@ -39,6 +39,9 @@ export class ControllerRectangleSelectClass extends ControllerClass {
     if (button !== 0) {
       return;
     }
+    if (this.project.controller.camera.isPreGrabbingWhenSpace) {
+      return;
+    }
     const pressWorldLocation = this.project.renderer.transformView2World(new Vector(event.clientX, event.clientY));
 
     if (this.project.controllerUtils.getClickedStageObject(pressWorldLocation) !== null) {

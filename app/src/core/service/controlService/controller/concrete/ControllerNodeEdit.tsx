@@ -20,6 +20,9 @@ export class ControllerNodeEditClass extends ControllerClass {
     if (event.button !== 0) {
       return;
     }
+    if (this.project.controller.camera.isPreGrabbingWhenSpace) {
+      return;
+    }
 
     const pressLocation = this.project.renderer.transformView2World(new Vector(event.clientX, event.clientY));
     const clickedEntity = this.project.stageManager.findEntityByLocation(pressLocation);
@@ -48,6 +51,9 @@ export class ControllerNodeEditClass extends ControllerClass {
 
   mouseup = (event: MouseEvent) => {
     if (event.button !== 0) {
+      return;
+    }
+    if (this.project.controller.camera.isPreGrabbingWhenSpace) {
       return;
     }
 

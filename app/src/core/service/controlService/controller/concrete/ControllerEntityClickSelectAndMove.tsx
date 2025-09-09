@@ -21,6 +21,9 @@ export class ControllerEntityClickSelectAndMoveClass extends ControllerClass {
     if (Settings.mouseLeftMode !== "selectAndMove") {
       return;
     }
+    if (this.project.controller.camera.isPreGrabbingWhenSpace) {
+      return;
+    }
     this.mouseDownViewLocation = new Vector(event.clientX, event.clientY);
 
     const pressWorldLocation = this.project.renderer.transformView2World(this.mouseDownViewLocation);

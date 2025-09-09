@@ -17,6 +17,9 @@ export class ControllerSectionEditClass extends ControllerClass {
     if (event.button !== 0) {
       return;
     }
+    if (this.project.controller.camera.isPreGrabbingWhenSpace) {
+      return;
+    }
     const firstHoverSection = this.project.mouseInteraction.firstHoverSection;
     if (!firstHoverSection) {
       return;

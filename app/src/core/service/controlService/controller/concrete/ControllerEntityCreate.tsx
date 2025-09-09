@@ -21,6 +21,9 @@ export class ControllerEntityCreateClass extends ControllerClass {
       // 绘制模式不能使用创建节点
       return;
     }
+    if (this.project.controller.camera.isPreGrabbingWhenSpace) {
+      return;
+    }
 
     this.project.rectangleSelect.shutDown();
 

@@ -41,6 +41,9 @@ export class ControllerAssociationReshapeClass extends ControllerClass {
     if (event.button !== 0) {
       return;
     }
+    if (this.project.controller.camera.isPreGrabbingWhenSpace) {
+      return;
+    }
     const pressWorldLocation = this.project.renderer.transformView2World(new Vector(event.clientX, event.clientY));
     // 点击
     const clickedAssociation = this.project.stageManager.findAssociationByLocation(pressWorldLocation);
