@@ -919,6 +919,8 @@ export class KeyBindsRegistrar {
         details: mergeDetails,
       });
       this.project.stageManager.add(newTextNode);
+      // 选中新的节点
+      newTextNode.isSelected = true;
       this.project.stageManager.deleteEntities(selectedTextNodes);
     });
 
