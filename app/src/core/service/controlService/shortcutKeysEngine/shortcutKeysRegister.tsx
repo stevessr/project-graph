@@ -841,40 +841,51 @@ export class KeyBindsRegistrar {
     });
 
     await this.project.keyBinds.create("splitTextNodes", "k e i", () => {
+      // 获取所有选中的文本节点
       const selectedTextNodes = this.project.stageManager
         .getSelectedEntities()
         .filter((node) => node instanceof TextNode);
       selectedTextNodes.forEach((node) => {
         node.isSelected = false;
       });
-      for (const node of selectedTextNodes) {
-        const text = node.text;
-        const seps = [" ", "\n", "\t", ".", ",", "，", "。", "、", "；", "：", "？", "！"];
-        const escapedSeps = seps.map((sep) => sep.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-        const regex = new RegExp(escapedSeps.join("|"), "g");
-        const splitedTextList = text.split(regex).filter((item) => item !== "");
-        const putLocation = node.collisionBox.getRectangle().location.clone();
-        const newNodes = [];
-        for (const splitedText of splitedTextList) {
-          const newTextNode = new TextNode(this.project, {
-            uuid: v4(),
-            text: splitedText,
-            collisionBox: new CollisionBox([new Rectangle(new Vector(putLocation.x, putLocation.y), new Vector(1, 1))]),
-            color: node.color.clone(),
-          });
-          newNodes.push(newTextNode);
-          this.project.stageManager.add(newTextNode);
-          putLocation.y += 100;
-        }
-        newNodes.forEach((newNode) => {
-          newNode.isSelected = true;
+      setTimeout(() => {
+        Dialog.input("请输入分割符").then((userInput) => {
+          if (userInput === undefined || userInput === "") return;
+          userInput = userInput.replaceAll("n", "\n");
+          userInput = userInput.replaceAll("t", "\t");
+          for (const node of selectedTextNodes) {
+            const text = node.text;
+            const seps = [userInput];
+            const escapedSeps = seps.map((sep) => sep.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+            const regex = new RegExp(escapedSeps.join("|"), "g");
+            const splitedTextList = text.split(regex).filter((item) => item !== "");
+            const putLocation = node.collisionBox.getRectangle().location.clone();
+            const newNodes = [];
+            for (const splitedText of splitedTextList) {
+              const newTextNode = new TextNode(this.project, {
+                uuid: v4(),
+                text: splitedText,
+                collisionBox: new CollisionBox([
+                  new Rectangle(new Vector(putLocation.x, putLocation.y), new Vector(1, 1)),
+                ]),
+                color: node.color.clone(),
+              });
+              newNodes.push(newTextNode);
+              this.project.stageManager.add(newTextNode);
+              putLocation.y += 100;
+            }
+            newNodes.forEach((newNode) => {
+              newNode.isSelected = true;
+            });
+            this.project.layoutManager.alignTopToBottomNoSpace();
+            newNodes.forEach((newNode) => {
+              newNode.isSelected = false;
+            });
+          }
+          // 删除所有选中的文本节点
+          this.project.stageManager.deleteEntities(selectedTextNodes);
         });
-        this.project.layoutManager.alignTopToBottomNoSpace();
-        newNodes.forEach((newNode) => {
-          newNode.isSelected = false;
-        });
-      }
-      this.project.stageManager.deleteEntities(selectedTextNodes);
+      });
     });
 
     await this.project.keyBinds.create("mergeTextNodes", "r u a", () => {
