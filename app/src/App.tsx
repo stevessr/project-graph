@@ -332,6 +332,7 @@ export default function App() {
         <Button
           key={project.uri.toString()}
           variant={activeProject?.uri.toString() === project.uri.toString() ? "secondary" : "outline"}
+          className={activeProject?.uri.toString() === project.uri.toString() ? "border-primary border-t-2" : ""}
           onClick={() => {
             setActiveProject(project);
           }}
