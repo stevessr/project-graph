@@ -849,7 +849,7 @@ export class KeyBindsRegistrar {
         node.isSelected = false;
       });
       setTimeout(() => {
-        Dialog.input("请输入分割符").then((userInput) => {
+        Dialog.input("请输入分割符（n代表一个换行符，t代表一个制表符）").then((userInput) => {
           if (userInput === undefined || userInput === "") return;
           userInput = userInput.replaceAll("n", "\n");
           userInput = userInput.replaceAll("t", "\t");
