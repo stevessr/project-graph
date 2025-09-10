@@ -10,6 +10,7 @@ import { Rectangle } from "@graphif/shapes";
 import { MouseLocation } from "../../controlService/MouseLocation";
 import { RectanglePushInEffect } from "../../feedbackService/effectEngine/concrete/RectanglePushInEffect";
 import { isMermaidGraphString, isSvgString } from "./stringValidTools";
+import { toast } from "sonner";
 
 /**
  * 专门处理文本粘贴的服务
@@ -66,6 +67,10 @@ export class CopyEngineText {
           new Vector(-entity.collisionBox.getRectangle().width / 2, -entity.collisionBox.getRectangle().height / 2),
         );
       } else {
+        if (item === "") {
+          toast.warning("粘贴板中没有内容，若想快速复制多个文本节点，请交替按ctrl c、ctrl v");
+          return;
+        }
         // 只是普通的文本
         if (item.length > 3000) {
           entity = new TextNode(this.project, {

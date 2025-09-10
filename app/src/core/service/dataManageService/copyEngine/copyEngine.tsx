@@ -179,6 +179,8 @@ export class CopyEngine {
     this.project.effects.addEffect(new RectangleNoteEffect(new ProgressNumber(0, 50), effectRect, Color.Green));
     // 粘贴到舞台上
     this.project.stage.push(...pasteData);
+    // 清空虚拟粘贴板
+    VirtualClipboard.clear(); // TODO: 先暂时清空吧。连续两次ctrl + v会导致重叠问题，待排查
   }
 
   /**
