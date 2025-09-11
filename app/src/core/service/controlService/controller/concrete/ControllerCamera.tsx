@@ -235,6 +235,9 @@ export class ControllerCameraClass extends ControllerClass {
    * @param event - 滚轮事件
    */
   public mousewheel = (event: WheelEvent) => {
+    if (this.dealStealthMode(event)) {
+      return;
+    }
     if (this.project.controller.isCameraLocked) {
       return;
     }
@@ -271,6 +274,18 @@ export class ControllerCameraClass extends ControllerClass {
 
     this.mousewheelFunction(event);
   };
+
+  private dealStealthMode(event: WheelEvent) {
+    if (Settings.isStealthModeEnabled && this.project.controller.pressingKeySet.has("shift")) {
+      console.log(event);
+      const delta = event.deltaX > 0 ? -10 : 10; // 上滚增大半径，下滚减小半径
+      const newRadius = Math.max(10, Math.min(500, Settings.stealthModeScopeRadius + delta));
+      Settings.stealthModeScopeRadius = newRadius;
+      this.project.effects.addEffect(MouseTipFeedbackEffect.default(delta > 0 ? "expand" : "shrink"));
+      return true;
+    }
+    return false;
+  }
 
   /**
    * 在上游代码已经确认是鼠标滚轮事件，这里进行处理
