@@ -480,6 +480,15 @@ settings:
     options:
       intersect: Collision-based Selection
       contain: Full Coverage Selection
+  isStealthModeEnabled:
+    title: Stealth Mode
+    description: |
+      Enable stealth mode.
+  stealthModeScopeRadius:
+    title: Stealth Mode Scope Radius
+    description: |
+      The radius of the stealth mode scope.
+
   # Sounds
   cuttingLineStartSoundFile:
     title: Sound File for Cutting Line Start

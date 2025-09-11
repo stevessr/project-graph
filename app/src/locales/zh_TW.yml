@@ -533,6 +533,14 @@ settings:
   autoLayoutWhenTreeGenerate:
     description: "開啟後，生長節點時自動更新佈局\n此處的生長節點指 tab 和 \\ 鍵生長節點\n"
     title: 生長節點時自動更新佈局
+  isStealthModeEnabled:
+    title: 潜行模式
+    description: 摸鱼专用，配合窗口透明效果更佳
+  stealthModeScopeRadius:
+    title: 潜行模式范围半径
+    description: |
+      狙击镜的半径
+
 app:
   unsaved: "(未保存)"
   comingSoon: 即將到來……

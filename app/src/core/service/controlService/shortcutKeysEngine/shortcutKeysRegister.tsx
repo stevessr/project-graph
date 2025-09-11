@@ -927,10 +927,10 @@ export class KeyBindsRegistrar {
     await this.project.keyBinds.create("swapTextAndDetails", "e e e e e", () => {
       const selectedTextNodes = this.project.stageManager
         .getSelectedEntities()
-        .filter((node): node is TextNode => node instanceof TextNode);
+        .filter((node) => node instanceof TextNode);
       for (const node of selectedTextNodes) {
-        const details: string = node.details;
-        const text: string = node.text;
+        const details = node.details;
+        const text = node.text;
         node.details = text;
         node.text = details;
         node.forceAdjustSizeByText();

@@ -678,6 +678,14 @@ settings:
       low: 低
       medium: 中
       high: 高
+  isStealthModeEnabled:
+    title: 潜行模式
+    description: 摸鱼专用，配合窗口透明效果更佳
+  stealthModeScopeRadius:
+    title: 潜行模式范围半径
+    description: |
+      狙击镜的半径
+    
 
 effects:
   CircleChangeRadiusEffect:

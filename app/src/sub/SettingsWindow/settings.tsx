@@ -190,6 +190,8 @@ const categories = {
       "showBackgroundVerticalLines",
       "showBackgroundDots",
       "showBackgroundCartesian",
+      "isStealthModeEnabled",
+      "stealthModeScopeRadius",
     ],
     node: ["enableTagTextNodesBigDisplay", "showTextNodeBorder"],
     edge: ["lineStyle"],
@@ -203,13 +205,7 @@ const categories = {
     ],
     debug: ["showDebug", "protectingPrivacy"],
     miniWindow: ["windowCollapsingWidth", "windowCollapsingHeight"],
-    experimental: [
-      "limitCameraInCycleSpace",
-      "cameraCycleSpaceSizeX",
-      "cameraCycleSpaceSizeY",
-      "isStealthModeEnabled",
-      "stealthModeScopeRadius",
-    ],
+    experimental: ["limitCameraInCycleSpace", "cameraCycleSpaceSizeX", "cameraCycleSpaceSizeY"],
   },
   automation: {
     autoNamer: ["autoNamerTemplate", "autoNamerSectionTemplate"],
