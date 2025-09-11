@@ -203,7 +203,13 @@ const categories = {
     ],
     debug: ["showDebug", "protectingPrivacy"],
     miniWindow: ["windowCollapsingWidth", "windowCollapsingHeight"],
-    experimental: ["limitCameraInCycleSpace", "cameraCycleSpaceSizeX", "cameraCycleSpaceSizeY"],
+    experimental: [
+      "limitCameraInCycleSpace",
+      "cameraCycleSpaceSizeX",
+      "cameraCycleSpaceSizeY",
+      "isStealthModeEnabled",
+      "stealthModeScopeRadius",
+    ],
   },
   automation: {
     autoNamer: ["autoNamerTemplate", "autoNamerSectionTemplate"],

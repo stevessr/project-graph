@@ -151,6 +151,8 @@ export const settingsSchema = z.object({
   githubUser: z.string().default(""),
   theme: z.string().default("dark-blue"),
   telemetry: z.boolean().default(true),
+  isStealthModeEnabled: z.boolean().default(false),
+  stealthModeScopeRadius: z.number().min(50).max(500).int().default(150),
 });
 
 export type Settings = z.infer<typeof settingsSchema>;

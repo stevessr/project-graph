@@ -145,4 +145,6 @@ export const settingsIcons = {
   cameraCycleSpaceSizeY: Scaling,
   autoAdjustLineEndpointsByMouseTrack: LineSquiggle,
   enableRightClickConnect: MousePointerClick,
+  isStealthModeEnabled: Crosshair,
+  stealthModeScopeRadius: ScanEye,
 };

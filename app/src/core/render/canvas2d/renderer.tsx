@@ -93,6 +93,25 @@ export class Renderer {
     const viewRectangle = this.getCoverWorldRectangle();
     this.renderBackground();
     this.renderMainStageElements(viewRectangle);
+
+    // 潜行模式 - 只显示鼠标周围的一个圆形区域
+    if (Settings.isStealthModeEnabled) {
+      const ctx = this.project.canvas.ctx;
+      // 设置合成模式为目标输入模式
+      ctx.globalCompositeOperation = "destination-in";
+      // 获取鼠标位置
+      const mouseX = MouseLocation.x;
+      const mouseY = MouseLocation.y;
+      // 获取潜行模式半径
+      const scopeRadius = Settings.stealthModeScopeRadius;
+      // 绘制圆形区域
+      ctx.beginPath();
+      ctx.arc(mouseX, mouseY, scopeRadius, 0, Math.PI * 2);
+      ctx.fill();
+      // 恢复合成模式
+      ctx.globalCompositeOperation = "source-over";
+    }
+
     this.renderViewElements(viewRectangle);
   }
 
@@ -594,7 +613,7 @@ export class Renderer {
       `Stage.warningAssociations: ${this.project.controller.cutting.warningAssociations.length}`,
       `ConnectFromNodes: ${this.project.controller.nodeConnection.connectFromEntities}`,
       `lastSelectedNode: ${this.project.controller.lastSelectedEntityUUID.size}`,
-      `粘贴板: ${JSON.stringify(this.project.copyEngine.copyBoardData)}`,
+      `粘贴板: ${JSON.stringify(this.project.copyEngine?.copyBoardData || "undefined")}`,
       `fps: ${this.fps}`,
       `delta: ${this.deltaTime.toFixed(2)}`,
       `uri: ${this.project.uri}`,

@@ -927,15 +927,20 @@ export class KeyBindsRegistrar {
     await this.project.keyBinds.create("swapTextAndDetails", "e e e e e", () => {
       const selectedTextNodes = this.project.stageManager
         .getSelectedEntities()
-        .filter((node) => node instanceof TextNode);
+        .filter((node): node is TextNode => node instanceof TextNode);
       for (const node of selectedTextNodes) {
-        const details = node.details;
-        const text = node.text;
+        const details: string = node.details;
+        const text: string = node.text;
         node.details = text;
         node.text = details;
         node.forceAdjustSizeByText();
       }
       this.project.historyManager.recordStep();
+    });
+
+    await this.project.keyBinds.create("switchStealthMode", "j a c k a l", () => {
+      Settings.isStealthModeEnabled = !Settings.isStealthModeEnabled;
+      toast(Settings.isStealthModeEnabled ? "已开启潜行模式" : "已关闭潜行模式");
     });
   }
 }
