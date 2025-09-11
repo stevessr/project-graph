@@ -107,6 +107,7 @@ export class Renderer {
       // 绘制圆形区域
       ctx.beginPath();
       ctx.arc(mouseX, mouseY, scopeRadius, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0, 0, 0, 1)"; // 设置填充颜色为完全不透明的黑色
       ctx.fill();
       // 恢复合成模式
       ctx.globalCompositeOperation = "source-over";
@@ -613,7 +614,7 @@ export class Renderer {
       `Stage.warningAssociations: ${this.project.controller.cutting.warningAssociations.length}`,
       `ConnectFromNodes: ${this.project.controller.nodeConnection.connectFromEntities}`,
       `lastSelectedNode: ${this.project.controller.lastSelectedEntityUUID.size}`,
-      `粘贴板: ${JSON.stringify(this.project.copyEngine?.copyBoardData || "undefined")}`,
+      `粘贴板: ${this.project.copyEngine ? "存在" : "undefined"}`,
       `fps: ${this.fps}`,
       `delta: ${this.deltaTime.toFixed(2)}`,
       `uri: ${this.project.uri}`,
