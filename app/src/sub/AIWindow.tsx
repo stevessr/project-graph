@@ -18,7 +18,8 @@ export default function AIWindow() {
   const [messages, setMessages] = useState<(OpenAI.ChatCompletionMessageParam & { tokens?: number })[]>([
     {
       role: "system",
-      content: "尽可能尝试使用工具解决问题，如果实在不行才能问用户",
+      content:
+        "尽可能尝试使用工具解决问题，如果实在不行才能问用户。TextNode正常情况下高度为75，多个节点叠起来时需要适当留padding",
     },
   ]);
   const [requesting, setRequesting] = useState(false);
