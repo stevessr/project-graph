@@ -1,5 +1,6 @@
 /// <reference types="vitest/config" />
 
+import operatorOverload from "@graphif/unplugin-operator-overload/vite";
 import originalClassName from "@graphif/unplugin-original-class-name/vite";
 import ViteYaml from "@modyfi/vite-plugin-yaml";
 import tailwindcss from "@tailwindcss/vite";
@@ -17,6 +18,7 @@ export default defineConfig({
     originalClassName({
       staticMethodName: "className",
     }),
+    operatorOverload(),
     // 将svg文件作为react组件导入
     // import Icon from "./icon.svg?react"
     svgr(),

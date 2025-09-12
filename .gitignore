@@ -21,5 +21,3 @@ backup_*
 
 # mac下开发需要忽略
 .DS_Store
-
-.vscode/settings.json

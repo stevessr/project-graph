@@ -49,7 +49,10 @@
       "esbuild",
       "msw",
       "sharp"
-    ]
+    ],
+    "patchedDependencies": {
+      "typescript": "patches/typescript.patch"
+    }
   },
   "packageManager": "pnpm@10.6.5"
 }

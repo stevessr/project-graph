@@ -296,4 +296,8 @@ export class Vector {
   toArray(): [number, number] {
     return [this.x, this.y];
   }
+
+  __add__(other: Vector): Vector {
+    return this.add(other);
+  }
 }

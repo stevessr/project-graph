@@ -21,6 +21,7 @@
     "@graphif/data-structures": "workspace:*",
     "@graphif/serializer": "workspace:*",
     "@graphif/shapes": "workspace:*",
+    "@graphif/unplugin-operator-overload": "workspace:*",
     "@graphif/unplugin-original-class-name": "workspace:*",
     "@headlessui/react": "^2.2.4",
     "@modyfi/vite-plugin-yaml": "^1.1.1",

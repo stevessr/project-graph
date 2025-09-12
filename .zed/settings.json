@@ -5,5 +5,14 @@
 {
   "file_types": {
     "YAML": ["*.pg-theme"]
+  },
+  "lsp": {
+    "vtsls": {
+      "settings": {
+        "typescript": {
+          "tsdk": "app/node_modules/typescript/lib"
+        }
+      }
+    }
   }
 }
