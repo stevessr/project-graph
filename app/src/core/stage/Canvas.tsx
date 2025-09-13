@@ -23,6 +23,12 @@ export class Canvas {
     });
     // 重定向键盘事件
     element.addEventListener("focus", () => element.blur());
+    const shouldRedirectKeyboardEvent = () =>
+      !(
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.getAttribute("contenteditable") === "true"
+      );
     window.addEventListener("keydown", (event) => {
       // 在窗口层面拦截浏览器默认快捷键，避免触发系统/浏览器查找/搜索等行为
       const key = event.key;
@@ -34,14 +40,7 @@ export class Canvas {
       ) {
         event.preventDefault();
       }
-      if (
-        document.activeElement?.tagName === "INPUT" ||
-        document.activeElement?.tagName === "TEXTAREA" ||
-        document.activeElement?.getAttribute("contenteditable") === "true"
-      ) {
-        // 如果当前焦点在输入框上，则不处理键盘事件
-        return;
-      }
+      if (!shouldRedirectKeyboardEvent()) return;
       if (project.isRunning) {
         element.dispatchEvent(
           new KeyboardEvent("keydown", {
@@ -55,6 +54,10 @@ export class Canvas {
       }
     });
     window.addEventListener("keyup", (event) => {
+      if (!shouldRedirectKeyboardEvent()) {
+        this.project.controller.pressingKeySet.clear();
+        return;
+      }
       if (project.isRunning) {
         element.dispatchEvent(
           new KeyboardEvent("keyup", {

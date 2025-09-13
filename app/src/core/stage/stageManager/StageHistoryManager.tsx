@@ -49,7 +49,7 @@ export class HistoryManager {
    * @param file
    */
   recordStep() {
-    console.trace("recordStep");
+    // console.trace("recordStep");
     // this.deltas = this.deltas.splice(this.currentIndex + 1);
     this.deltas.splice(this.currentIndex + 1);
     // 上面一行的含义：删除从 currentIndex + 1 开始的所有元素。
