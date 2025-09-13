@@ -19,7 +19,9 @@ const donations: DonationData[] = [
   { user: "域名 project-graph.top", note: "zty012", amount: -13.66 },
   // 以下为捐赠用户
 
-  { user: "韩淼", note: "pg软件挺好用", amount: 20 },
+  { user: "🍀🌟🏅 叶善译", note: "开源万岁，加油加油", amount: 20 },
+  { user: "asasasasaa", note: "加油，希望你们做的更好", amount: 5 },
+  { user: "韩淼", note: "pg软件挺好用", amount: 40 },
   { user: "番茄炒土豆", note: "希望越来越好", amount: 5 },
   { user: "V_V", note: "", amount: 5 },
   { user: "哈士基🐶", note: "知识没有这么廉价，但这个月太穷", amount: 50 },
