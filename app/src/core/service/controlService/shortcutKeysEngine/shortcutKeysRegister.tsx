@@ -991,8 +991,8 @@ export class KeyBindsRegistrar {
       toast(Settings.isStealthModeEnabled ? "已开启潜行模式" : "已关闭潜行模式");
     });
 
-    // 去除选中文本节点开头的一个字符，并将移除的字符创建为新的文本节点放在左侧 (ber 拟声词，类似"剥"或"掰"的动作)
-    await this.project.keyBinds.create("removeFirstCharFromSelectedTextNodes", "b e r", () => {
+    // 去除选中文本节点开头的一个字符，并将移除的字符创建为新的文本节点放在左侧
+    await this.project.keyBinds.create("removeFirstCharFromSelectedTextNodes", "C-backspace", () => {
       const selectedTextNodes = this.project.stageManager
         .getSelectedEntities()
         .filter((node) => node instanceof TextNode);
@@ -1053,8 +1053,8 @@ export class KeyBindsRegistrar {
       }
     });
 
-    // 去除选中文本节点结尾的一个字符，并将移除的字符创建为新的文本节点放在右侧 (der 拟声词，类似"剁"或"掉"的动作)
-    await this.project.keyBinds.create("removeLastCharFromSelectedTextNodes", "d e r", () => {
+    // 去除选中文本节点结尾的一个字符，并将移除的字符创建为新的文本节点放在右侧
+    await this.project.keyBinds.create("removeLastCharFromSelectedTextNodes", "C-delete", () => {
       const selectedTextNodes = this.project.stageManager
         .getSelectedEntities()
         .filter((node) => node instanceof TextNode);
