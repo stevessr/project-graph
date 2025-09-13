@@ -54,10 +54,7 @@ export default function FindWindow() {
           );
         }}
         onKeyDown={(e) => {
-          if (e.ctrlKey || e.altKey || e.metaKey) {
-            // 取消默认事件
-            e.preventDefault();
-          } else if (e.key === "Escape") {
+          if (e.key === "Escape") {
             if (searchString !== "") {
               // 取消搜索
               setSearchString("");

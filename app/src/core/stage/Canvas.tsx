@@ -30,6 +30,7 @@ export class Canvas {
         document.activeElement?.getAttribute("contenteditable") === "true"
       );
     window.addEventListener("keydown", (event) => {
+      if (!shouldRedirectKeyboardEvent()) return;
       // 在窗口层面拦截浏览器默认快捷键，避免触发系统/浏览器查找/搜索等行为
       const key = event.key;
       if (
@@ -40,7 +41,6 @@ export class Canvas {
       ) {
         event.preventDefault();
       }
-      if (!shouldRedirectKeyboardEvent()) return;
       if (project.isRunning) {
         element.dispatchEvent(
           new KeyboardEvent("keydown", {
