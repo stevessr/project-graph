@@ -29,7 +29,8 @@ export default function KeyTooltip({ keyId, children = <></> }: { keyId: string;
   return (
     <Tooltip>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent className="flex gap-2">
+      {/* 给下面的组件加属性，sideOffset={12}，可以缓解右键菜单按钮比较密集的tooltip遮挡的问题 */}
+      <TooltipContent className="pointer-events-none flex gap-2">
         <span>{t(`${keyId}.title`)}</span>
         <div className="flex">
           {keySeq ? keySeq.map((data, index) => <RenderKey key={index} data={data} />) : "未绑定"}

@@ -72,8 +72,12 @@ export class ControllerUtils {
           ele.style.height = "auto";
           ele.style.height = `${rectView.height.toFixed(2) + 8}px`;
           // 自动改变宽度
-          ele.style.width = "auto";
-          ele.style.width = `${rectView.width.toFixed(2) + 8}px`;
+          if (clickedNode.sizeAdjust === "manual") {
+            ele.style.width = "auto";
+            ele.style.width = `${rectView.width.toFixed(2) + 8}px`;
+          } else if (clickedNode.sizeAdjust === "auto") {
+            ele.style.width = "100vw";
+          }
           // 自动调整它的外层框的大小
           const fatherSections = this.project.sectionMethods.getFatherSectionsList(clickedNode);
           for (const section of fatherSections) {
@@ -90,7 +94,7 @@ export class ControllerUtils {
           left: `${rectView.left.toFixed(2)}px`,
           top: `${rectView.top.toFixed(2)}px`,
           // ====
-          // width: `${rectView.width.toFixed(2)}px`,
+          width: clickedNode.sizeAdjust === "manual" ? `${rectView.width.toFixed(2)}px` : "100vw",
           // maxWidth: `${rectView.width.toFixed(2)}px`,
           minWidth: `${rectView.width.toFixed(2)}px`,
           minHeight: `${rectView.height.toFixed(2)}px`,
@@ -99,7 +103,7 @@ export class ControllerUtils {
           fontSize: Renderer.FONT_SIZE * this.project.camera.currentScale + "px",
           backgroundColor: "transparent",
           color: fontColor,
-          outline: `solid ${2 * this.project.camera.currentScale}px ${this.project.stageStyleManager.currentStyle.effects.successShadow.toNewAlpha(0.25).toString()}`,
+          outline: `solid ${1 * this.project.camera.currentScale}px ${this.project.stageStyleManager.currentStyle.effects.successShadow.toNewAlpha(0.1).toString()}`,
           borderRadius: `${Renderer.NODE_ROUNDED_RADIUS * this.project.camera.currentScale}px`,
         },
         selectAll,

@@ -51,7 +51,7 @@ export class InputElement {
         }
       };
       const adjustSize = () => {
-        inputElement.style.width = `${inputElement.scrollWidth + 2}px`;
+        // inputElement.style.width = `${inputElement.scrollWidth + 2}px`;
       };
 
       const onOutsideClick = (event: Event) => {
@@ -165,7 +165,7 @@ export class InputElement {
         // 重置高度和宽度以获取正确的scrollHeight和scrollWidth
         textareaElement.style.height = "auto";
         textareaElement.style.height = `${textareaElement.scrollHeight}px`;
-        textareaElement.style.width = `${textareaElement.scrollWidth + 2}px`;
+        // textareaElement.style.width = `${textareaElement.scrollWidth + 2}px`;
       };
       setTimeout(() => {
         adjustSize(); // 初始化时调整大小
@@ -188,9 +188,11 @@ export class InputElement {
           isComposing = false;
         }, 100);
       });
+      textareaElement.addEventListener("click", () => {
+        console.log("click");
+      });
 
       textareaElement.addEventListener("keydown", (event) => {
-        console.log(event.key, "keydown");
         event.stopPropagation();
         if (event.key === "Tab") {
           // 防止tab切换到其他按钮
