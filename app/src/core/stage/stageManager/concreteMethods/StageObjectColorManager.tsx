@@ -13,6 +13,7 @@ export class StageObjectColorManager {
     for (const node of this.project.stageManager.getTextNodes()) {
       if (node.isSelected) {
         node.color = color;
+        this.project.controllerUtils.finishChangeTextNode(node);
       }
     }
     for (const node of this.project.stageManager.getSections()) {

@@ -595,6 +595,7 @@ export class KeyBindsRegistrar {
           node.rename("✅ " + node.text);
           node.color = new Color(59, 114, 60);
         }
+        this.project.controllerUtils.finishChangeTextNode(node);
       }
       this.project.stageManager.updateReferences();
     });

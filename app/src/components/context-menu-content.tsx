@@ -324,6 +324,7 @@ export default function MyContextMenuContent() {
       {/* 存在选中实体 */}
       {p.stageManager.getSelectedStageObjects().length > 0 &&
         p.stageManager.getSelectedStageObjects().every((it) => "color" in it) && (
+          // 更改颜色
           <Sub>
             <SubTrigger>
               <Palette />
@@ -346,6 +347,9 @@ export default function MyContextMenuContent() {
                       onMouseEnter={() => p.stageObjectColorManager.setSelectedStageObjectColor(color)}
                     />
                   ))}
+              </Item>
+              <Item onClick={() => p.stageObjectColorManager.setSelectedStageObjectColor(new Color(11, 45, 14, 0))}>
+                改为强制特殊透明色
               </Item>
             </SubContent>
           </Sub>

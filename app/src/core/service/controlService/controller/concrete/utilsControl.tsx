@@ -15,7 +15,7 @@ import AutoCompleteWindow from "@/sub/AutoCompleteWindow";
 import NodeDetailsWindow from "@/sub/NodeDetailsWindow";
 import { Direction } from "@/types/directions";
 import { isDesktop } from "@/utils/platform";
-import { colorInvert, Vector } from "@graphif/data-structures";
+import { Color, colorInvert, Vector } from "@graphif/data-structures";
 import { toast } from "sonner";
 
 /**
@@ -83,6 +83,8 @@ export class ControllerUtils {
           for (const section of fatherSections) {
             section.adjustLocationAndSize();
           }
+
+          this.finishChangeTextNode(clickedNode);
         },
         {
           position: "fixed",
@@ -116,6 +118,9 @@ export class ControllerUtils {
         // this.project.historyManager.recordStep();
         // 更新选中内容的数量
         this.project.stageObjectSelectCounter.update();
+
+        // 实验
+        this.finishChangeTextNode(clickedNode);
       });
   }
 
@@ -353,5 +358,39 @@ export class ControllerUtils {
       }
     }
     return false;
+  }
+
+  // 实验性的双链
+  public finishChangeTextNode(textNode: TextNode) {
+    // 查找所有无向边，如果无向边的颜色 = (11, 45, 14, 0)，那么就找到了一个关联
+    console.log(textNode.text);
+    const edges: MultiTargetUndirectedEdge[] = [];
+
+    const otherUUID: Set<string> = new Set();
+
+    // 直接和这个节点相连的所有超边
+    this.project.stageManager
+      .getAssociations()
+      .filter((association) => association instanceof MultiTargetUndirectedEdge)
+      .filter((association) => association.color.equals(new Color(11, 45, 14, 0)))
+      .filter((association) => association.associationList.includes(textNode))
+      .forEach((association) => {
+        association.associationList.forEach((node) => {
+          if (node instanceof TextNode) {
+            otherUUID.add(node.uuid);
+          }
+        });
+      });
+
+    otherUUID.forEach((uuid) => {
+      const node = this.project.stageManager.getTextNodeByUUID(uuid);
+      if (node) {
+        // node.text = textNode.text;
+        node.rename(textNode.text);
+        node.color = textNode.color;
+      }
+    });
+
+    return edges;
   }
 }

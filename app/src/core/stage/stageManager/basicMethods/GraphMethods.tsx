@@ -163,6 +163,11 @@ export class GraphMethods {
     return null;
   }
 
+  /**
+   * 找到和一个节点直接相连的所有超边
+   * @param node
+   * @returns
+   */
   getHyperEdgesByNode(node: ConnectableEntity): MultiTargetUndirectedEdge[] {
     const edges: MultiTargetUndirectedEdge[] = [];
     const hyperEdges = this.project.stageManager
@@ -204,5 +209,32 @@ export class GraphMethods {
       }
     }
     return result;
+  }
+
+  /**
+   * 获取一个节点通过连接它的所有超边的其他节点
+   * 例如 {A B C}, {C, D, E}，f(A) => {B, C, D, E}
+   * @param node 指定节点
+   * @returns 通过超边连接的所有其他节点集合（排除节点自身）
+   */
+  public getNodesConnectedByHyperEdges(node: ConnectableEntity): ConnectableEntity[] {
+    // 获取与节点相连的所有超边
+    const hyperEdges = this.getHyperEdgesByNode(node);
+
+    // 创建一个Set来存储结果，确保没有重复节点
+    const connectedNodes = new Set<ConnectableEntity>();
+
+    // 遍历所有超边，收集连接的节点
+    for (const hyperEdge of hyperEdges) {
+      for (const connectedNode of hyperEdge.associationList) {
+        // 排除节点自身
+        if (connectedNode.uuid !== node.uuid) {
+          connectedNodes.add(connectedNode);
+        }
+      }
+    }
+
+    // 将Set转换为数组并返回
+    return Array.from(connectedNodes);
   }
 }
