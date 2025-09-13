@@ -127,4 +127,27 @@ export abstract class Edge extends ConnectableAssociation {
   public isIntersectsWithLine(line: Line): boolean {
     return this.collisionBox.isIntersectsWithLine(line);
   }
+
+  public isLeftToRight(): boolean {
+    return this.sourceRectangleRate.x === 0.99 && this.targetRectangleRate.x === 0.01;
+  }
+  public isRightToLeft(): boolean {
+    return this.sourceRectangleRate.x === 0.01 && this.targetRectangleRate.x === 0.99;
+  }
+
+  public isTopToBottom(): boolean {
+    return this.sourceRectangleRate.y === 0.99 && this.targetRectangleRate.y === 0.01;
+  }
+  public isBottomToTop(): boolean {
+    return this.sourceRectangleRate.y === 0.01 && this.targetRectangleRate.y === 0.99;
+  }
+
+  public isUnknownDirection(): boolean {
+    return (
+      this.sourceRectangleRate.x === 0.5 &&
+      this.targetRectangleRate.x === 0.5 &&
+      this.sourceRectangleRate.y === 0.5 &&
+      this.targetRectangleRate.y === 0.5
+    );
+  }
 }

@@ -175,4 +175,19 @@ export class GraphMethods {
     }
     return edges;
   }
+
+  /**
+   * 获取一个节点的所有出度（出边）
+   * @param node 源节点
+   * @returns 节点的所有出边数组
+   */
+  public getOutgoingEdges(node: ConnectableEntity): Edge[] {
+    const result: Edge[] = [];
+    for (const edge of this.project.stageManager.getEdges()) {
+      if (edge.source === node) {
+        result.push(edge);
+      }
+    }
+    return result;
+  }
 }

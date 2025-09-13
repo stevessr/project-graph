@@ -50,7 +50,7 @@ export class AutoLayoutFastTree {
    * @param node
    * @returns
    */
-  getTreeBoundingRectangle(node: ConnectableEntity): Rectangle {
+  private getTreeBoundingRectangle(node: ConnectableEntity): Rectangle {
     const childList = this.project.graphMethods.nodeChildrenArray(node);
     const childRectangle = childList.map((child) => this.getTreeBoundingRectangle(child));
     return Rectangle.getBoundingRectangle(childRectangle.concat([node.collisionBox.getRectangle()]));
@@ -60,77 +60,189 @@ export class AutoLayoutFastTree {
    * @param treeRoot
    * @param targetLocation
    */
-  moveTreeRectTo(treeRoot: ConnectableEntity, targetLocation: Vector) {
+  private moveTreeRectTo(treeRoot: ConnectableEntity, targetLocation: Vector) {
     const treeRect = this.getTreeBoundingRectangle(treeRoot);
     this.project.entityMoveManager.moveWithChildren(treeRoot, targetLocation.subtract(treeRect.leftTop));
   }
 
   /**
-   * 排列多个子树，使得它们在一列上
-   * @param trees
+   * 获取根节点的所有第一层子节点，并根据指定方向进行排序
+   * @param node 根节点
+   * @param childNodes 子节点列表
+   * @param direction 排序方向：col表示从上到下，row表示从左到右
+   * @returns 排序后的子节点数组
+   */
+  private getSortedChildNodes(
+    node: ConnectableEntity,
+    childNodes: ConnectableEntity[],
+    direction: "col" | "row" = "col",
+  ): ConnectableEntity[] {
+    // const childNodes = this.project.graphMethods.nodeChildrenArray(node);
+
+    // 根据方向进行排序
+    if (direction === "col") {
+      // 从上到下排序：根据矩形的top属性
+      return childNodes.sort((a, b) => a.collisionBox.getRectangle().top - b.collisionBox.getRectangle().top);
+    } else {
+      // 从左到右排序：根据矩形的left属性
+      return childNodes.sort((a, b) => a.collisionBox.getRectangle().left - b.collisionBox.getRectangle().left);
+    }
+  }
+
+  /**
+   * 排列多个子树，支持从上到下或从左到右排列
+   * @param trees 要排列的子树数组
+   * @param direction 排列方向，col表示从上到下，row表示从左到右
+   * @param gap 子树之间的间距
    * @returns
    */
-  alignColumnTrees(trees: ConnectableEntity[], gap = 10) {
+  private alignTrees(trees: ConnectableEntity[], direction: "col" | "row" = "col", gap = 10) {
     if (trees.length === 0 || trees.length === 1) {
       return;
     }
     const firstTree = trees[0];
     const firstTreeRect = this.getTreeBoundingRectangle(firstTree);
-    const currentLeftTop = firstTreeRect.leftBottom.add(new Vector(0, gap));
-    // 将这些子树向下排列时，要保持从上到下的相对位置
-    trees.sort((a, b) => a.collisionBox.getRectangle().top - b.collisionBox.getRectangle().top);
+
+    // 根据方向设置初始位置
+    let currentPosition: Vector;
+    if (direction === "col") {
+      // 从上到下排列：初始位置在第一棵树的左下方
+      currentPosition = firstTreeRect.leftBottom.add(new Vector(0, gap));
+      // 保持从上到下的相对位置
+      trees.sort((a, b) => a.collisionBox.getRectangle().top - b.collisionBox.getRectangle().top);
+    } else {
+      // 从左到右排列：初始位置在第一棵树的右下方
+      currentPosition = firstTreeRect.rightTop.add(new Vector(gap, 0));
+      // 保持从左到右的相对位置
+      trees.sort((a, b) => a.collisionBox.getRectangle().left - b.collisionBox.getRectangle().left);
+    }
+
     for (let i = 1; i < trees.length; i++) {
       const tree = trees[i];
-      this.moveTreeRectTo(tree, currentLeftTop);
-      currentLeftTop.y += this.getTreeBoundingRectangle(tree).height + gap;
+      this.moveTreeRectTo(tree, currentPosition);
+
+      // 根据方向更新下一个位置
+      if (direction === "col") {
+        currentPosition.y += this.getTreeBoundingRectangle(tree).height + gap;
+      } else {
+        currentPosition.x += this.getTreeBoundingRectangle(tree).width + gap;
+      }
     }
   }
 
   /**
    * 根据子节点，调整根节点的位置
-   * 然后最终返回的是 自己整个子树的外接矩形
-   * @param rootNode
+   * @param rootNode 要调整位置的根节点
+   * @param gap 根节点与子节点之间的间距
+   * @param position 根节点相对于子节点外接矩形的位置：leftCenter(左侧中心)、rightCenter(右侧中心)、topCenter(上方中心)、bottomCenter(下方中心)
    */
-  adjustRootNodeLocationByChildren(rootNode: ConnectableEntity, gap = 100) {
-    const childList = this.project.graphMethods.nodeChildrenArray(rootNode);
+  private adjustRootNodeLocationByChildren(
+    rootNode: ConnectableEntity,
+    childList: ConnectableEntity[],
+    gap = 100,
+    position: "leftCenter" | "rightCenter" | "topCenter" | "bottomCenter" = "leftCenter",
+  ) {
+    // const childList = this.project.graphMethods.nodeChildrenArray(rootNode);
     if (childList.length === 0) {
       return;
     }
+
     const childsRectangle = Rectangle.getBoundingRectangle(childList.map((child) => child.collisionBox.getRectangle()));
     const parentRectangle = rootNode.collisionBox.getRectangle();
-    const parentNodeRightCenterTargetLocation = childsRectangle.leftCenter.add(new Vector(-gap, 0));
-    rootNode.moveTo(parentNodeRightCenterTargetLocation);
-    rootNode.move(new Vector(-parentRectangle.width, -parentRectangle.height / 2));
+    let targetLocation: Vector;
+
+    // 根据位置参数计算目标位置
+    switch (position) {
+      case "leftCenter":
+        // 左侧中心：父节点位于子节点外接矩形的左侧中心位置
+        targetLocation = childsRectangle.leftCenter.add(new Vector(-gap, 0));
+        rootNode.moveTo(targetLocation);
+        rootNode.move(new Vector(-parentRectangle.width, -parentRectangle.height / 2));
+        break;
+
+      case "rightCenter":
+        // 右侧中心：父节点位于子节点外接矩形的右侧中心位置
+        targetLocation = childsRectangle.rightCenter.add(new Vector(gap, 0));
+        rootNode.moveTo(targetLocation);
+        rootNode.move(new Vector(0, -parentRectangle.height / 2));
+        break;
+
+      case "topCenter":
+        // 上方中心：父节点位于子节点外接矩形的上方中心位置
+        targetLocation = childsRectangle.topCenter.add(new Vector(0, -gap));
+        rootNode.moveTo(targetLocation);
+        rootNode.move(new Vector(-parentRectangle.width / 2, -parentRectangle.height));
+        break;
+
+      case "bottomCenter":
+        // 下方中心：父节点位于子节点外接矩形的下方中心位置
+        targetLocation = childsRectangle.bottomCenter.add(new Vector(0, gap));
+        rootNode.moveTo(targetLocation);
+        rootNode.move(new Vector(-parentRectangle.width / 2, 0));
+        break;
+    }
   }
   /**
    * 向右树形节点的根节点
    * @param rootNode
    */
-  autoLayoutFastTreeModeRight(rootNode: ConnectableEntity) {
-    // 树形结构的根节点 左上角位置固定不动
+  public autoLayoutFastTreeModeRight(rootNode: ConnectableEntity) {
+    // 树形结构的根节点 矩形左上角位置固定不动
     const initLocation = rootNode.collisionBox.getRectangle().leftTop.clone();
 
     const dfs = (node: ConnectableEntity) => {
-      // 按照从上到下的顺序排序
-      const childList = this.project.graphMethods
-        .nodeChildrenArray(node)
-        .sort((a, b) => a.collisionBox.getRectangle().top - b.collisionBox.getRectangle().top);
-      for (const child of childList) {
+      const outEdges = this.project.graphMethods.getOutgoingEdges(node);
+      const outRightEdges = outEdges.filter((edge) => edge.isLeftToRight());
+      const outLeftEdges = outEdges.filter((edge) => edge.isRightToLeft());
+      const outTopEdges = outEdges.filter((edge) => edge.isBottomToTop());
+      const outBottomEdges = outEdges.filter((edge) => edge.isTopToBottom());
+      console.log(outEdges, outRightEdges, outLeftEdges, outTopEdges, outBottomEdges);
+
+      // 获取排序后的子节点列表
+      // const childList = outEdges.map((edge) => edge.target);
+      let rightChildList = outRightEdges.map((edge) => edge.target);
+      let leftChildList = outLeftEdges.map((edge) => edge.target);
+      let topChildList = outTopEdges.map((edge) => edge.target);
+      let bottomChildList = outBottomEdges.map((edge) => edge.target);
+
+      rightChildList = this.getSortedChildNodes(node, rightChildList, "col");
+      leftChildList = this.getSortedChildNodes(node, leftChildList, "col");
+      topChildList = this.getSortedChildNodes(node, topChildList, "row");
+      bottomChildList = this.getSortedChildNodes(node, bottomChildList, "row");
+
+      for (const child of rightChildList) {
         dfs(child); // 递归口
       }
-      // 排列这些子节点
-      this.alignColumnTrees(childList, 20);
-      // 将当前节点放到所有子节点的左侧
-      this.adjustRootNodeLocationByChildren(node, 150);
+      for (const child of topChildList) {
+        dfs(child); // 递归口
+      }
+      for (const child of bottomChildList) {
+        dfs(child); // 递归口
+      }
+      for (const child of leftChildList) {
+        dfs(child); // 递归口
+      }
+      // 排列这些子节点，然后更改当前根节点在所有子节点中的相对位置
+      this.alignTrees(rightChildList, "col", 20);
+      this.adjustRootNodeLocationByChildren(node, rightChildList, 150, "leftCenter");
+      this.alignTrees(topChildList, "row", 20);
+      this.adjustRootNodeLocationByChildren(node, topChildList, 150, "bottomCenter");
+      this.alignTrees(bottomChildList, "row", 20);
+      this.adjustRootNodeLocationByChildren(node, bottomChildList, 150, "topCenter");
+      this.alignTrees(leftChildList, "col", 20);
+      this.adjustRootNodeLocationByChildren(node, leftChildList, 150, "rightCenter");
     };
 
     dfs(rootNode);
-    // rootNode.moveTo(initLocation);
+
+    // ------- 恢复根节点的位置
+    // 矩形左上角是矩形的标志位
     const delta = initLocation.subtract(rootNode.collisionBox.getRectangle().leftTop);
     // 选中根节点
     this.project.stageManager.clearSelectAll();
     rootNode.isSelected = true;
     this.project.entityMoveManager.moveConnectableEntitiesWithChildren(delta);
+    // ------- 恢复完毕
   }
 
   // ======================= 反转树的位置系列 ====================

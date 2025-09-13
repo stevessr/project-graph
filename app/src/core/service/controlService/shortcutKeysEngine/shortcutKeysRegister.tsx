@@ -552,9 +552,11 @@ export class KeyBindsRegistrar {
     });
     await this.project.keyBinds.create("treeGraphAdjust", "A-S-f", () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
+      // 获取所有的选中节点
       const entities = this.project.stageManager
         .getSelectedEntities()
         .filter((entity) => entity instanceof ConnectableEntity);
+      // 调整所有节点的树形结构
       for (const entity of entities) {
         this.project.keyboardOnlyTreeEngine.adjustTreeNode(entity);
       }
