@@ -2,8 +2,10 @@ import { Project } from "@/core/Project";
 import { ControllerClass } from "@/core/service/controlService/controller/ControllerClass";
 import { Settings } from "@/core/service/Settings";
 import { PenStroke, PenStrokeSegment } from "@/core/stage/stageObject/entity/PenStroke";
+import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { isMac } from "@/utils/platform";
 import { Color, Vector } from "@graphif/data-structures";
+import { toast } from "sonner";
 
 /**
  * 涂鸦功能
@@ -59,7 +61,19 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
     if (!(event.button === 0 && Settings.mouseLeftMode === "draw")) {
       return;
     }
-    if (this.currentSegments.length <= 2) return;
+    if (this.currentSegments.length <= 2) {
+      toast.warning("涂鸦太短了，触发点点儿上色功能");
+      // 涂鸦太短，认为是点上色节点
+      const releaseWorldLocation = this.project.renderer.transformView2World(new Vector(event.clientX, event.clientY));
+      const entity = this.project.stageManager.findEntityByLocation(releaseWorldLocation);
+      if (entity) {
+        if (entity instanceof TextNode) {
+          entity.color = this.getCurrentStrokeColor().clone();
+        }
+      }
+      this.releaseMouseAndClear();
+      return;
+    }
     // 正常的划过一段距离
     // 生成笔触
     if (this.project.controller.pressingKeySet.has("shift")) {
@@ -101,11 +115,15 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
       this.project.stageManager.add(stroke);
     }
 
+    this.releaseMouseAndClear();
+  };
+
+  private releaseMouseAndClear() {
     // 清理
     this.currentSegments = [];
     this._isUsing = false;
     this.isDrawingLine = false;
-  };
+  }
 
   public mousewheel: (event: WheelEvent) => void = (event: WheelEvent) => {
     if (!this.project.controller.pressingKeySet.has("shift")) {

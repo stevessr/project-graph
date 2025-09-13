@@ -15,6 +15,7 @@ import { Settings } from "../../Settings";
 export class KeyboardOnlyTreeEngine {
   constructor(private readonly project: Project) {}
 
+  // 通过一个节点的所有入度线的端点，来判断在这个节点上按tab时，应该往哪里创建节点
   private getNodeDirectionByIncomingEdges(node: ConnectableEntity): "right" | "left" | "down" | "up" {
     const incomingEdges = this.project.graphMethods.getIncomingEdges(node);
     if (incomingEdges.length === 0) {
@@ -55,11 +56,10 @@ export class KeyboardOnlyTreeEngine {
     if (!rootNode) return;
     this.project.camera.clearMoveCommander();
     this.project.camera.speed = Vector.getZero();
-    // 先找到自己所有的第一层后继节点
-    const childSet = this.project.graphMethods.getOneStepSuccessorSet(rootNode);
-
     // 确定创建方向：默认向右
     const direction = this.getNodeDirectionByIncomingEdges(rootNode);
+    // 先找到自己所有的第一层后继节点
+    const childSet = this.project.graphMethods.getOneStepSuccessorSet(rootNode);
 
     // 寻找创建位置
     let createLocation: Vector;
