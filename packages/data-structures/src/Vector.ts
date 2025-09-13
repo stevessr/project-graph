@@ -235,6 +235,22 @@ export class Vector {
   static average(p1: Vector, p2: Vector): Vector {
     return new Vector((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
   }
+
+  /**
+   * 计算多个向量所代表位置的平均点
+   * @param vectors 向量数组
+   * @returns 平均位置向量
+   */
+  static averageMultiple(vectors: Vector[]): Vector {
+    if (vectors.length === 0) {
+      return Vector.getZero();
+    }
+
+    const sumX = vectors.reduce((sum, vec) => sum + vec.x, 0);
+    const sumY = vectors.reduce((sum, vec) => sum + vec.y, 0);
+
+    return new Vector(sumX / vectors.length, sumY / vectors.length);
+  }
   /**
    * 将自己这个向量转换成角度数字
    * 例如当自己 x=1 y=1 时，返回 45

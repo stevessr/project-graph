@@ -113,4 +113,23 @@ describe("Vector 向量", () => {
     expect(v1).not.toBe(v2);
     expect(v1.equals(v2)).toBe(true);
   });
+
+  it("多个向量的平均值", () => {
+    const v1 = new Vector(1, 2);
+    const v2 = new Vector(3, 4);
+    const v3 = new Vector(5, 6);
+
+    // 测试多个向量的平均值
+    const avg = Vector.averageMultiple([v1, v2, v3]);
+    expect(avg.x).toBe(3);
+    expect(avg.y).toBe(4);
+
+    // 测试空数组的情况（应该返回零向量）
+    const avgEmpty = Vector.averageMultiple([]);
+    expect(avgEmpty.isZero()).toBe(true);
+
+    // 测试只有一个向量的情况
+    const avgSingle = Vector.averageMultiple([v1]);
+    expect(avgSingle.equals(v1)).toBe(true);
+  });
 });

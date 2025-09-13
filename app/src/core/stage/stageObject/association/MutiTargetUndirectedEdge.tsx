@@ -19,8 +19,9 @@ export type UndirectedEdgeArrowType = "inner" | "outer" | "none";
  * 无向边的渲染方式
  * line：内部连线式渲染
  * convex：凸包连线式渲染
+ * circle：圆形包围渲染
  */
-export type MultiTargetUndirectedEdgeRenderType = "line" | "convex";
+export type MultiTargetUndirectedEdgeRenderType = "line" | "convex" | "circle";
 
 /**
  * 多端无向边

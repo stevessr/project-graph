@@ -123,6 +123,50 @@ export class MultiTargetUndirectedEdgeRenderer {
         edgeColor.toNewAlpha(0.5),
         8 * this.project.camera.currentScale,
       );
+    } else if (edge.renderType === "circle") {
+      // 圆形渲染 - 使用最小的圆形套住所有实体
+      if (edge.associationList.length === 0) {
+        return;
+      }
+
+      // 计算包围所有实体的最小圆
+      const allPoints: Vector[] = [];
+      edge.associationList.map((node) => {
+        const nodeRectangle = node.collisionBox.getRectangle().expandFromCenter(edge.padding);
+        allPoints.push(nodeRectangle.leftTop);
+        allPoints.push(nodeRectangle.rightTop);
+        allPoints.push(nodeRectangle.rightBottom);
+        allPoints.push(nodeRectangle.leftBottom);
+      });
+
+      if (edge.text !== "") {
+        const textRectangle = edge.textRectangle.expandFromCenter(edge.padding);
+        allPoints.push(textRectangle.leftTop);
+        allPoints.push(textRectangle.rightTop);
+        allPoints.push(textRectangle.rightBottom);
+        allPoints.push(textRectangle.leftBottom);
+      }
+
+      // 计算圆心（使用所有点的中心点）
+      const center = Vector.averageMultiple(allPoints);
+
+      // 计算最大距离作为半径
+      let maxDistance = 0;
+      for (const point of allPoints) {
+        const distance = center.distance(point);
+        if (distance > maxDistance) {
+          maxDistance = distance;
+        }
+      }
+
+      // 绘制圆形
+      this.project.shapeRenderer.renderCircle(
+        this.project.renderer.transformWorld2View(center),
+        maxDistance * this.project.camera.currentScale,
+        Color.Transparent,
+        edgeColor.toNewAlpha(0.5),
+        8 * this.project.camera.currentScale,
+      );
     }
   }
 }

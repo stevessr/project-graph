@@ -616,6 +616,8 @@ export default function MyContextMenuContent() {
                 if (multi_target_undirected_edge.renderType === "line") {
                   multi_target_undirected_edge.renderType = "convex";
                 } else if (multi_target_undirected_edge.renderType === "convex") {
+                  multi_target_undirected_edge.renderType = "circle";
+                } else if (multi_target_undirected_edge.renderType === "circle") {
                   multi_target_undirected_edge.renderType = "line";
                 }
               }
