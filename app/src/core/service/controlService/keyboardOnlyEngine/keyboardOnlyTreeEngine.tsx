@@ -15,6 +15,34 @@ import { Settings } from "../../Settings";
 export class KeyboardOnlyTreeEngine {
   constructor(private readonly project: Project) {}
 
+  private getNodeDirectionByIncomingEdges(node: ConnectableEntity): "right" | "left" | "down" | "up" {
+    const incomingEdges = this.project.graphMethods.getIncomingEdges(node);
+    if (incomingEdges.length === 0) {
+      return "right";
+    }
+    const directionCount: Record<string, number> = { right: 0, left: 0, down: 0, up: 0 };
+    incomingEdges.forEach((edge) => {
+      if (edge.isRightToLeft()) {
+        directionCount.left++;
+      } else if (edge.isLeftToRight()) {
+        directionCount.right++;
+      } else if (edge.isBottomToTop()) {
+        directionCount.up++;
+      } else if (edge.isTopToBottom()) {
+        directionCount.down++;
+      }
+    });
+    let maxCount = 0;
+    let direction: "right" | "left" | "down" | "up" = "right";
+    Object.entries(directionCount).forEach(([dir, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        direction = dir as "right" | "left" | "down" | "up";
+      }
+    });
+    return direction;
+  }
+
   /**
    * 树形深度生长节点
    * @returns
@@ -27,21 +55,66 @@ export class KeyboardOnlyTreeEngine {
     if (!rootNode) return;
     this.project.camera.clearMoveCommander();
     this.project.camera.speed = Vector.getZero();
-    // 在自己的右下方创建一个节点
-    // 先找到自己所有的第一层后继节点，如果没有则在正右方创建节点。
+    // 先找到自己所有的第一层后继节点
     const childSet = this.project.graphMethods.getOneStepSuccessorSet(rootNode);
+
+    // 确定创建方向：默认向右
+    const direction = this.getNodeDirectionByIncomingEdges(rootNode);
 
     // 寻找创建位置
     let createLocation: Vector;
     if (childSet.length === 0) {
-      // 在正右侧创建
-      createLocation = rootNode.collisionBox.getRectangle().rightCenter.add(new Vector(100, 0));
+      // 没有子节点时，在相应方向的正方向创建
+      const rect = rootNode.collisionBox.getRectangle();
+      switch (direction) {
+        case "right":
+          createLocation = rect.rightCenter.add(new Vector(100, 0));
+          break;
+        case "left":
+          createLocation = rect.leftCenter.add(new Vector(-100, 0));
+          break;
+        case "down":
+          createLocation = rect.bottomCenter.add(new Vector(0, 100));
+          break;
+        case "up":
+          createLocation = rect.topCenter.add(new Vector(0, -100));
+          break;
+      }
     } else {
-      // 在所有子节点中的下方创建
-      childSet.sort((a, b) => a.collisionBox.getRectangle().top - b.collisionBox.getRectangle().top);
+      // 有子节点时，在相应方向的最后一个子节点的外侧创建
+      // 根据方向对已有的子节点进行排序
+      switch (direction) {
+        case "right":
+        case "left":
+          // 垂直方向排序
+          childSet.sort((a, b) => a.collisionBox.getRectangle().top - b.collisionBox.getRectangle().top);
+          break;
+        case "up":
+        case "down":
+          // 水平方向排序
+          childSet.sort((a, b) => a.collisionBox.getRectangle().left - b.collisionBox.getRectangle().left);
+          break;
+      }
+
       const lastChild = childSet[childSet.length - 1];
-      createLocation = lastChild.collisionBox.getRectangle().bottomCenter.add(new Vector(0, 10));
+      const lastChildRect = lastChild.collisionBox.getRectangle();
+
+      switch (direction) {
+        case "right":
+          createLocation = lastChildRect.bottomCenter.add(new Vector(0, 10));
+          break;
+        case "left":
+          createLocation = lastChildRect.bottomCenter.add(new Vector(0, 10));
+          break;
+        case "down":
+          createLocation = lastChildRect.rightCenter.add(new Vector(10, 0));
+          break;
+        case "up":
+          createLocation = lastChildRect.rightCenter.add(new Vector(10, 0));
+          break;
+      }
     }
+
     // 创建位置寻找完毕
     const newNode = new TextNode(this.project, {
       text: "新节点",
@@ -64,12 +137,32 @@ export class KeyboardOnlyTreeEngine {
     // 连接节点
     this.project.stageManager.connectEntity(rootNode, newNode);
     const newEdges = this.project.graphMethods.getEdgesBetween(rootNode, newNode);
-    this.project.stageManager.changeEdgesConnectLocation(newEdges, Direction.Right, true);
-    this.project.stageManager.changeEdgesConnectLocation(newEdges, Direction.Left);
+
+    // 根据方向设置边的连接位置
+    switch (direction) {
+      case "right":
+        this.project.stageManager.changeEdgesConnectLocation(newEdges, Direction.Right, true);
+        this.project.stageManager.changeEdgesConnectLocation(newEdges, Direction.Left);
+        break;
+      case "left":
+        this.project.stageManager.changeEdgesConnectLocation(newEdges, Direction.Left, true);
+        this.project.stageManager.changeEdgesConnectLocation(newEdges, Direction.Right);
+        break;
+      case "down":
+        this.project.stageManager.changeEdgesConnectLocation(newEdges, Direction.Down, true);
+        this.project.stageManager.changeEdgesConnectLocation(newEdges, Direction.Up);
+        break;
+      case "up":
+        this.project.stageManager.changeEdgesConnectLocation(newEdges, Direction.Up, true);
+        this.project.stageManager.changeEdgesConnectLocation(newEdges, Direction.Down);
+        break;
+    }
+
     // 继承父节点颜色
     if (rootNode instanceof TextNode) {
       newNode.color = rootNode.color.clone();
     }
+
     // 重新排列树形节点
     const rootNodeParents = this.project.graphMethods.getRoots(rootNode);
     if (rootNodeParents.length === 1) {

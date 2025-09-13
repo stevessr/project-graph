@@ -190,4 +190,19 @@ export class GraphMethods {
     }
     return result;
   }
+
+  /**
+   * 获取一个节点的所有入度（入边）
+   * @param node 目标节点
+   * @returns 节点的所有入边数组
+   */
+  public getIncomingEdges(node: ConnectableEntity): Edge[] {
+    const result: Edge[] = [];
+    for (const edge of this.project.stageManager.getEdges()) {
+      if (edge.target === node) {
+        result.push(edge);
+      }
+    }
+    return result;
+  }
 }
