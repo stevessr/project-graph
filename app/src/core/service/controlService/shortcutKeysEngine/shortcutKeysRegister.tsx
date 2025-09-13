@@ -1115,5 +1115,30 @@ export class KeyBindsRegistrar {
         }
       }
     });
+
+    // 交换两个选中实体的位置
+    await this.project.keyBinds.create("swapTwoSelectedEntitiesPositions", "S-r", () => {
+      if (!this.project.keyboardOnlyEngine.isOpenning()) return;
+
+      const selectedEntities = this.project.stageManager.getSelectedEntities();
+      // 只有当恰好选中两个实体时才执行交换
+      if (selectedEntities.length !== 2) {
+        return;
+      }
+
+      // 记录操作历史
+      this.project.historyManager.recordStep();
+
+      // 获取两个实体的碰撞箱外接矩形左上角位置
+      const entity1 = selectedEntities[0];
+      const entity2 = selectedEntities[1];
+
+      const position1 = entity1.collisionBox.getRectangle().location.clone();
+      const position2 = entity2.collisionBox.getRectangle().location.clone();
+
+      // 交换两个实体的位置
+      entity1.moveTo(position2);
+      entity2.moveTo(position1);
+    });
   }
 }
