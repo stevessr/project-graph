@@ -990,5 +990,130 @@ export class KeyBindsRegistrar {
       Settings.isStealthModeEnabled = !Settings.isStealthModeEnabled;
       toast(Settings.isStealthModeEnabled ? "已开启潜行模式" : "已关闭潜行模式");
     });
+
+    // 去除选中文本节点开头的一个字符，并将移除的字符创建为新的文本节点放在左侧 (ber 拟声词，类似"剥"或"掰"的动作)
+    await this.project.keyBinds.create("removeFirstCharFromSelectedTextNodes", "b e r", () => {
+      const selectedTextNodes = this.project.stageManager
+        .getSelectedEntities()
+        .filter((node) => node instanceof TextNode);
+      if (selectedTextNodes.length === 0) {
+        return;
+      }
+
+      // 记录操作历史
+      this.project.historyManager.recordStep();
+
+      for (const node of selectedTextNodes) {
+        if (node.text.length > 0) {
+          // 获取要移除的字符
+          const removedChar = node.text.charAt(0);
+
+          // 更新原节点文本
+          node.rename(node.text.substring(1));
+
+          // 创建新的单字符节点
+          const rect = node.collisionBox.getRectangle();
+
+          // 创建新节点（先创建但不立即添加到舞台，以便获取其实际宽度）
+          const newNode = new TextNode(this.project, {
+            text: removedChar,
+            collisionBox: new CollisionBox([new Rectangle(new Vector(0, 0), new Vector(0, 0))]),
+            color: node.color.clone(),
+          });
+
+          // 计算新节点的实际宽度
+          const newNodeWidth = newNode.collisionBox.getRectangle().width;
+
+          // 检测左侧是否有单字符节点，如果有则将它们往左推
+          const textNodes = this.project.stageManager.getTextNodes();
+          const leftNodes = textNodes.filter(
+            (n) =>
+              n !== node &&
+              n.text.length === 1 &&
+              n.rectangle.right <= rect.left &&
+              Math.abs(n.rectangle.center.y - rect.center.y) < rect.size.y / 2,
+          );
+
+          // 按x坐标从右到左排序，确保先推最靠近原节点的
+          leftNodes.sort((a, b) => b.rectangle.right - a.rectangle.right);
+
+          // 推动现有节点，使用新节点的实际宽度作为推动距离
+          leftNodes.forEach((n) => {
+            n.move(new Vector(-newNodeWidth, 0));
+          });
+
+          // 设置新节点的位置，使其右侧边缘贴住原节点的左侧边缘
+          newNode.moveTo(new Vector(rect.left - newNodeWidth, rect.location.y));
+          // 添加到舞台
+          this.project.stageManager.add(newNode);
+
+          // 保持原节点的选中状态
+          node.isSelected = true;
+        }
+      }
+    });
+
+    // 去除选中文本节点结尾的一个字符，并将移除的字符创建为新的文本节点放在右侧 (der 拟声词，类似"剁"或"掉"的动作)
+    await this.project.keyBinds.create("removeLastCharFromSelectedTextNodes", "d e r", () => {
+      const selectedTextNodes = this.project.stageManager
+        .getSelectedEntities()
+        .filter((node) => node instanceof TextNode);
+      if (selectedTextNodes.length === 0) {
+        return;
+      }
+
+      // 记录操作历史
+      this.project.historyManager.recordStep();
+
+      for (const node of selectedTextNodes) {
+        if (node.text.length > 0) {
+          // 获取要移除的字符
+          const removedChar = node.text.charAt(node.text.length - 1);
+
+          // 更新原节点文本
+          node.rename(node.text.substring(0, node.text.length - 1));
+
+          // 创建新的单字符节点
+          const rect = node.collisionBox.getRectangle();
+
+          // 创建新节点（先创建但不立即添加到舞台，以便获取其实际宽度）
+          const newNode = new TextNode(this.project, {
+            text: removedChar,
+            collisionBox: new CollisionBox([new Rectangle(new Vector(0, 0), new Vector(0, 0))]),
+            color: node.color.clone(),
+          });
+
+          // 计算新节点的实际宽度
+          const newNodeWidth = newNode.collisionBox.getRectangle().width;
+
+          // 检测右侧是否有单字符节点，如果有则将它们往右推
+          const textNodes = this.project.stageManager.getTextNodes();
+          const rightNodes = textNodes.filter(
+            (n) =>
+              n !== node &&
+              n.text.length === 1 &&
+              n.rectangle.left >= rect.right &&
+              Math.abs(n.rectangle.center.y - rect.center.y) < rect.size.y / 2,
+          );
+
+          // 按x坐标从左到右排序，确保先推最靠近原节点的
+          rightNodes.sort((a, b) => a.rectangle.left - b.rectangle.left);
+
+          // 推动现有节点，使用新节点的实际宽度作为推动距离
+          rightNodes.forEach((n) => {
+            n.move(new Vector(newNodeWidth, 0));
+          });
+
+          // 设置新节点的位置，使其左侧边缘贴住原节点的右侧边缘
+          newNode.moveTo(new Vector(rect.right, rect.location.y));
+
+          // 添加到舞台
+          this.project.stageManager.add(newNode);
+
+          // 保持原节点的选中状态
+          node.isSelected = true;
+        }
+      }
+    });
   }
 }
