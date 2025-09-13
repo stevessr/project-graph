@@ -113,6 +113,7 @@ export class NodeConnector {
         this.changeEdgeTarget(edge, newTarget);
       }
     }
-    this.project.historyManager.recordStep();
+    // https://github.com/graphif/project-graph/issues/522
+    // this.project.historyManager.recordStep();
   }
 }
