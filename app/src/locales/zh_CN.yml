@@ -1307,6 +1307,19 @@ keyBinds:
   gradientColor:
     title: 将所选实体的颜色渐变
     description: 后续打算做成更改色相环，目前还不完善
+  changeColorHueUp:
+    title: 将所选实体的颜色色相增加
+    description: 不能对没有上色的或者透明的实体使用
+  changeColorHueDown:
+    title: 将所选实体的颜色色相减少
+    description: 不能对没有上色的或者透明的实体使用
+  changeColorHueMajorUp:
+    title: 将所选实体的颜色色相大幅增加
+    description: 不能对没有上色的或者透明的实体使用
+  changeColorHueMajorDown:
+    title: 将所选实体的颜色色相大幅减少
+    description: 不能对没有上色的或者透明的实体使用
+
   toggleTextNodeSizeMode:
     title: 将选中的文本节点，切换大小调整模式
     description: 仅对文本节点生效，auto模式：输入文字不能自动换行，manual模式：宽度为框的宽度，宽度超出自动换行

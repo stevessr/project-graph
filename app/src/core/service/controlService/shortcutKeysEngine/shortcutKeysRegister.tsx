@@ -828,6 +828,51 @@ export class KeyBindsRegistrar {
       }
     });
 
+    await this.project.keyBinds.create("changeColorHueUp", "A-S-arrowup", () => {
+      const selectedStageObject = this.project.stageManager.getStageObjects().filter((obj) => obj.isSelected);
+      for (const obj of selectedStageObject) {
+        if (obj instanceof TextNode) {
+          if (obj.color.a === 0) continue;
+          const oldColor = obj.color.clone();
+          obj.color = oldColor.changeHue(30);
+        }
+      }
+    });
+    await this.project.keyBinds.create("changeColorHueDown", "A-S-arrowdown", () => {
+      const selectedStageObject = this.project.stageManager.getStageObjects().filter((obj) => obj.isSelected);
+      for (const obj of selectedStageObject) {
+        if (obj instanceof TextNode) {
+          if (obj.color.a === 0) continue;
+          const oldColor = obj.color.clone();
+          console.log(obj.color);
+          obj.color = oldColor.changeHue(-30);
+          console.log(obj.color);
+        }
+      }
+    });
+    await this.project.keyBinds.create("changeColorHueMajorUp", "A-S-home", () => {
+      const selectedStageObject = this.project.stageManager.getStageObjects().filter((obj) => obj.isSelected);
+      for (const obj of selectedStageObject) {
+        if (obj instanceof TextNode) {
+          if (obj.color.a === 0) continue;
+          const oldColor = obj.color.clone();
+          obj.color = oldColor.changeHue(90);
+        }
+      }
+    });
+    await this.project.keyBinds.create("changeColorHueMajorDown", "A-S-end", () => {
+      const selectedStageObject = this.project.stageManager.getStageObjects().filter((obj) => obj.isSelected);
+      for (const obj of selectedStageObject) {
+        if (obj instanceof TextNode) {
+          if (obj.color.a === 0) continue;
+          const oldColor = obj.color.clone();
+          console.log(obj.color);
+          obj.color = oldColor.changeHue(-90);
+          console.log(obj.color);
+        }
+      }
+    });
+
     await this.project.keyBinds.create("toggleTextNodeSizeMode", "t t t", () => {
       const selectedTextNodes = this.project.stageManager
         .getSelectedEntities()

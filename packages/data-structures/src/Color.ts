@@ -364,8 +364,10 @@ export class Color {
    * @param deHue 色相差值(角度)，正数表示顺时针，负数表示逆时针
    */
   public changeHue(deHue: number): Color {
+    // 修复处理负值色相差的问题
     const hsl = this.rgbToHsl();
-    hsl.h = (hsl.h + deHue + 360) % 360;
+    // 确保色相值始终在0-360范围内
+    hsl.h = (((hsl.h + deHue) % 360) + 360) % 360;
     const { r, g, b } = this.hslToRgb(hsl);
     return new Color(r, g, b, this.a);
   }
