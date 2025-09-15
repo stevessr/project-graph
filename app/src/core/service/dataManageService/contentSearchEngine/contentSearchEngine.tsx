@@ -43,7 +43,9 @@ export class ContentSearch {
     }
     // 任何实体上都可能会写details
     if (stageObject instanceof Entity) {
-      return stageObject.details;
+      // 不对，这样还是返回"[Object object]" 字符串，但仅仅只是能防止一下报错
+      // TODO: 需要增加一个详细信息处理器
+      return JSON.stringify(stageObject.details);
     }
     // 线上的字
     if (stageObject instanceof Edge) {

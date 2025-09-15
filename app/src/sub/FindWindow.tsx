@@ -36,6 +36,17 @@ export default function FindWindow() {
     project.contentSearch.isCaseSensitive = isCaseSensitive;
   }, [project, isCaseSensitive]);
 
+  const clearSearch = () => {
+    setSearchString("");
+    setSearchResults([]);
+  };
+
+  useEffect(() => {
+    return () => {
+      clearSearch();
+    };
+  }, []);
+
   if (!project) return <></>;
   return (
     <div className="flex flex-col gap-2 p-4">
@@ -56,9 +67,7 @@ export default function FindWindow() {
         onKeyDown={(e) => {
           if (e.key === "Escape") {
             if (searchString !== "") {
-              // 取消搜索
-              setSearchString("");
-              setSearchResults([]);
+              clearSearch();
             }
           }
         }}
