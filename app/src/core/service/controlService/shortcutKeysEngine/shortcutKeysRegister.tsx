@@ -331,7 +331,17 @@ export class KeyBindsRegistrar {
     await this.project.keyBinds.create("selectAll", "C-a", () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
       this.project.stageManager.selectAll();
-      this.project.effects.addEffect(ViewOutlineFlashEffect.normal(Color.Green));
+      toast.success(
+        <div>
+          <h2>已全选所有元素</h2>
+          <p>
+            {this.project.stageManager.getSelectedEntities().length}个实体+
+            {this.project.stageManager.getSelectedAssociations().length}个关系=
+            {this.project.stageManager.getSelectedStageObjects().length}个舞台对象
+          </p>
+        </div>,
+      );
+      this.project.effects.addEffect(ViewOutlineFlashEffect.normal(Color.Green.toNewAlpha(0.2)));
     });
     await this.project.keyBinds.create("textNodeToSection", "C-S-g", () => {
       this.project.sectionPackManager.textNodeToSection();
