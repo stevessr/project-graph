@@ -173,6 +173,26 @@ export default function MyContextMenuContent() {
                 <AlignEndHorizontal />
               </Button>
             </KeyTooltip>
+            <KeyTooltip keyId="layoutToSquare">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.layoutManager.layoutToTightSquare(p.stageManager.getSelectedEntities())}
+              >
+                <Grip />
+              </Button>
+            </KeyTooltip>
+            <KeyTooltip keyId="layoutToSquare">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={() => p.layoutManager.layoutBySelected(p.layoutManager.layoutToTightSquare, true)}
+              >
+                <Grip />
+              </Button>
+            </KeyTooltip>
           </div>
         )}
         {p.stageManager.getSelectedEntities().length >= 2 && (
@@ -677,33 +697,40 @@ export default function MyContextMenuContent() {
 
       {/* 鼠标模式 */}
       <Item className="bg-transparent! gap-0 p-0">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            Settings.mouseLeftMode = "selectAndMove";
-          }}
-        >
-          <MousePointer />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            Settings.mouseLeftMode = "draw";
-          }}
-        >
-          <Pencil />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            Settings.mouseLeftMode = "connectAndCut";
-          }}
-        >
-          <Waypoints />
-        </Button>
+        <KeyTooltip keyId="checkoutLeftMouseToSelectAndMove">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              Settings.mouseLeftMode = "selectAndMove";
+            }}
+          >
+            <MousePointer />
+          </Button>
+        </KeyTooltip>
+
+        <KeyTooltip keyId="checkoutLeftMouseToDrawing">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              Settings.mouseLeftMode = "draw";
+            }}
+          >
+            <Pencil />
+          </Button>
+        </KeyTooltip>
+        <KeyTooltip keyId="checkoutLeftMouseToConnectAndCutting">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              Settings.mouseLeftMode = "connectAndCut";
+            }}
+          >
+            <Waypoints />
+          </Button>
+        </KeyTooltip>
       </Item>
     </Content>
   );
