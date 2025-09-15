@@ -4,7 +4,7 @@ import { Settings } from "@/core/service/Settings";
 import { PenStroke, PenStrokeSegment } from "@/core/stage/stageObject/entity/PenStroke";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { isMac } from "@/utils/platform";
-import { Color, Vector } from "@graphif/data-structures";
+import { Color, mixColors, Vector } from "@graphif/data-structures";
 import { toast } from "sonner";
 
 /**
@@ -68,7 +68,12 @@ export class ControllerPenStrokeDrawingClass extends ControllerClass {
       const entity = this.project.stageManager.findEntityByLocation(releaseWorldLocation);
       if (entity) {
         if (entity instanceof TextNode) {
-          entity.color = this.getCurrentStrokeColor().clone();
+          if (this.project.controller.pressingKeySet.has("shift")) {
+            const entityColor = entity.color.clone();
+            entity.color = mixColors(entityColor, this.getCurrentStrokeColor().clone(), 0.1);
+          } else {
+            entity.color = this.getCurrentStrokeColor().clone();
+          }
         }
       }
       this.releaseMouseAndClear();
