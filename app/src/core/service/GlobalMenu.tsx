@@ -38,6 +38,7 @@ import {
   Axe,
   Bot,
   CircleAlert,
+  Dumbbell,
   ExternalLink,
   File,
   FileClock,
@@ -718,6 +719,23 @@ export function GlobalMenu() {
             <PersonStanding />
             {t("about.guide")}
             <Frown />
+          </Item>
+          <Item
+            onClick={() =>
+              Dialog.confirm(
+                "2.0使用提示",
+                [
+                  "1. 底部工具栏移动至右键菜单（在空白处右键，因为在节点上右键是点击式连线）",
+                  "2. 文件从json升级为了prg文件，能够内置图片了，打开旧版本json文件时会自动转为prg文件",
+                  "3. 快捷键与秘籍键合并了",
+                  "4. 节点详细信息不是markdown格式了",
+                  "5. 标签面板暂时关闭了，后续会用更高级的功能代替",
+                ].join("\n"),
+              )
+            }
+          >
+            <Dumbbell />
+            1.8 至 2.0 升级使用指南
           </Item>
         </Content>
       </Menu>
