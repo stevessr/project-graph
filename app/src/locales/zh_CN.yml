@@ -1283,6 +1283,15 @@ keyBinds:
   alignTopToBottomNoSpace:
     title: 向下紧密堆积一列
     description: 小键盘竖着从上到下穿一串
+  adjustSelectedTextNodeWidthMin:
+    title: 统一宽度为最小值
+    description: 仅对文本节点生效，将所有选中节点的宽度统一为最小值
+  adjustSelectedTextNodeWidthMax:
+    title: 统一宽度为最大值
+    description: 仅对文本节点生效，将所有选中节点的宽度统一为最大值
+  adjustSelectedTextNodeWidthAverage:
+    title: 统一宽度为平均值
+    description: 仅对文本节点生效，将所有选中节点的宽度统一为平均值
   connectAllSelectedEntities:
     title: 将所有选中实体进行全连接
     description: 用于特殊教学场景或图论教学，“- -”开头表示连线相关
