@@ -19,6 +19,10 @@ const donations: DonationData[] = [
   { user: "域名 project-graph.top", note: "zty012", amount: -13.66 },
   // 以下为捐赠用户
 
+  { user: "Oxygen_Retrain", note: "感谢开发者们为Linux提供支持，加油", amount: 10 },
+  { user: "末影", note: "", amount: 20 },
+  { user: "不入", note: "希望可以考虑 32 64版本适用以及贝塞尔曲线自定义形状问题", amount: 30 },
+  { user: "", note: "加油加油", amount: 20 },
   { user: "🍀🌟🏅 叶善译", note: "开源万岁，加油加油", amount: 20 },
   { user: "asasasasaa", note: "加油，希望你们做的更好", amount: 5 },
   { user: "韩淼", note: "pg软件挺好用", amount: 40 },
