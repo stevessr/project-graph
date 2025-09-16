@@ -4,6 +4,7 @@ import { Vector } from "@graphif/data-structures";
 import { serializable } from "@graphif/serializer";
 import { Rectangle } from "@graphif/shapes";
 import type { Value } from "platejs";
+import { DetailsManager } from "../tools/entityDetailsManager";
 /**
  * 一切独立存在、能被移动的东西，且放在框里能被连带移动的东西
  * 实体
@@ -102,4 +103,7 @@ export abstract class Entity extends StageObject {
    * 因为任何Entity都可以放入Section
    */
   abstract isHiddenBySectionCollapse: boolean;
+
+  // 桥接模式，让详细信息的各种操作封装在外部类中
+  public detailsManager = new DetailsManager(this);
 }

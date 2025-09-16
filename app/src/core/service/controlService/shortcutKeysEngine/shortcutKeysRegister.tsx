@@ -26,6 +26,7 @@ import { Rectangle } from "@graphif/shapes";
 import { toast } from "sonner";
 import { v4 } from "uuid";
 import { onNewDraft, onOpenFile } from "../../GlobalMenu";
+import { DetailsManager } from "@/core/stage/stageObject/tools/entityDetailsManager";
 
 /**
  * 快捷键注册函数
@@ -963,10 +964,10 @@ export class KeyBindsRegistrar {
         (a, b) => a.collisionBox.getRectangle().location.y - b.collisionBox.getRectangle().location.y,
       );
       let mergeText = "";
-      let mergeDetails = "";
+      const detailsList = [];
       for (const textNode of selectedTextNodes) {
         mergeText += textNode.text + "\n";
-        mergeDetails += textNode.details;
+        detailsList.push(textNode.details);
       }
       mergeText = mergeText.trim();
       const leftTop = Rectangle.getBoundingRectangle(
@@ -979,7 +980,7 @@ export class KeyBindsRegistrar {
         collisionBox: new CollisionBox([new Rectangle(new Vector(leftTop.x, leftTop.y), new Vector(400, 1))]),
         color: avgColor.clone(),
         sizeAdjust: "manual",
-        details: mergeDetails,
+        details: DetailsManager.mergeDetails(detailsList),
       });
       this.project.stageManager.add(newTextNode);
       // 选中新的节点
@@ -994,8 +995,8 @@ export class KeyBindsRegistrar {
       for (const node of selectedTextNodes) {
         const details = node.details;
         const text = node.text;
-        node.details = text;
-        node.text = details;
+        node.details = DetailsManager.markdownToDetails(text);
+        node.text = DetailsManager.detailsToMarkdown(details);
         node.forceAdjustSizeByText();
       }
       this.project.historyManager.recordStep();

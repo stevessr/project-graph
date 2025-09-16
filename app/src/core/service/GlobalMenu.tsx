@@ -834,6 +834,16 @@ export function GlobalMenu() {
                 >
                   在控制台输出舞台内容
                 </Item>
+                <Item
+                  onClick={() => {
+                    const selectedEntity = activeProject!.stageManager.getSelectedEntities();
+                    for (const entity of selectedEntity) {
+                      console.log(entity.details);
+                    }
+                  }}
+                >
+                  输出选中节点的详细信息
+                </Item>
               </SubContent>
             </Sub>
           </Content>

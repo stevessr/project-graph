@@ -11,7 +11,7 @@ export class EntityDetailsButtonRenderer {
   constructor(private readonly project: Project) {}
 
   render(entity: Entity) {
-    if (entity.details.length === 0) {
+    if (entity.detailsManager.isEmpty()) {
       return;
     }
     // this.project.shapeRenderer.renderRect(
