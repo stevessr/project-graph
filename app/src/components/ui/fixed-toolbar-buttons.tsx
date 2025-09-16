@@ -9,6 +9,7 @@ import {
   PaintBucketIcon,
   StrikethroughIcon,
   UnderlineIcon,
+  Hand,
 } from "lucide-react";
 import { KEYS } from "platejs";
 import { useEditorReadOnly } from "platejs/react";
@@ -16,7 +17,7 @@ import { useEditorReadOnly } from "platejs/react";
 import { AlignToolbarButton } from "./align-toolbar-button";
 import { ExportToolbarButton } from "./export-toolbar-button";
 import { FontColorToolbarButton } from "./font-color-toolbar-button";
-import { RedoToolbarButton, UndoToolbarButton } from "./history-toolbar-button";
+// import { RedoToolbarButton, UndoToolbarButton } from "./history-toolbar-button";
 import { ImportToolbarButton } from "./import-toolbar-button";
 import { InsertToolbarButton } from "./insert-toolbar-button";
 import { LinkToolbarButton } from "./link-toolbar-button";
@@ -34,12 +35,18 @@ export function FixedToolbarButtons() {
 
   return (
     <div className="scrollbar-hide flex flex-1 overflow-x-auto">
+      <div
+        className="bg-accent flex min-w-8 items-center justify-center rounded-lg opacity-50 transition-colors hover:cursor-grab hover:opacity-100 active:cursor-grabbing"
+        data-pg-drag-region
+      >
+        <Hand className="pointer-events-none" />
+      </div>
       {!readOnly && (
         <>
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <UndoToolbarButton />
             <RedoToolbarButton />
-          </ToolbarGroup>
+          </ToolbarGroup> */}
 
           {/*<ToolbarGroup>
             <AIToolbarButton tooltip="AI commands">
@@ -112,7 +119,7 @@ export function FixedToolbarButtons() {
         </>
       )}
 
-      <div className="grow" data-pg-drag-region />
+      <div className="grow hover:cursor-grab active:cursor-grabbing" data-pg-drag-region />
 
       {/*<ToolbarGroup>
         <ModeToolbarButton />

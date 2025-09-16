@@ -16,7 +16,8 @@ export class Rectangle extends Shape {
   }
 
   /**
-   * 构造一个内容居中的矩形
+   * 构造一个相对于屏幕来说内容居中的矩形
+   * 用于UI初始化窗口
    */
   public static inCenter(size: Vector): Rectangle {
     const screenCenter = new Vector(window.innerWidth, window.innerHeight).divide(2);

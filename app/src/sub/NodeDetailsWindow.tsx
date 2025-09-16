@@ -50,7 +50,11 @@ export default function NodeDetailsWindow({
 NodeDetailsWindow.open = (value?: Value, onChange?: (value: Value) => void) => {
   SubWindow.create({
     children: <NodeDetailsWindow value={value} onChange={onChange} />,
-    rect: Rectangle.inCenter(new Vector(innerWidth * 0.625, innerHeight * 0.74)),
+    // rect: Rectangle.inCenter(new Vector(innerWidth * 0.625, innerHeight * 0.74)),
+    rect: new Rectangle(
+      new Vector(innerWidth * 0.75, innerHeight * 0.1),
+      new Vector(innerWidth * 0.25, innerHeight * 0.9),
+    ),
     titleBarOverlay: true,
   });
 };
