@@ -487,17 +487,6 @@ export function GlobalMenu() {
             <Keyboard />
             {t("actions.releaseKeys")}
           </Item>
-          <Item
-            className="*:text-destructive! text-destructive!"
-            onClick={async () => {
-              if (await Dialog.confirm(t("confirmClearStage"), t("irreversible"), { destructive: true })) {
-                activeProject!.stage = [];
-              }
-            }}
-          >
-            <Radiation />
-            {t("actions.clearStage")}
-          </Item>
           {/* 生成子菜单 */}
           <Sub>
             <SubTrigger>
@@ -587,6 +576,18 @@ export function GlobalMenu() {
               </Item>
             </SubContent>
           </Sub>
+          {/* 清空舞台最不常用，放在最后一个 */}
+          <Item
+            className="*:text-destructive! text-destructive!"
+            onClick={async () => {
+              if (await Dialog.confirm(t("confirmClearStage"), t("irreversible"), { destructive: true })) {
+                activeProject!.stage = [];
+              }
+            }}
+          >
+            <Radiation />
+            {t("actions.clearStage")}
+          </Item>
         </Content>
       </Menu>
 
@@ -666,19 +667,21 @@ export function GlobalMenu() {
             {t("window.fullscreen")}
           </Item>
           <Item
+            disabled={!activeProject}
             onClick={async () => {
-              toast.info("还没做好");
-              if (!isClassroomMode) {
-                toast.info(t("classroomModeHint"));
-              }
-              const newValue = !isClassroomMode;
-              setIsClassroomMode(newValue);
+              setIsClassroomMode(!Settings.isClassroomMode);
+              Settings.isClassroomMode = !Settings.isClassroomMode;
             }}
-            className="*:text-destructive! text-destructive!"
           >
             <Airplay />
-            {t("window.classroomMode")}
-            <Frown />
+            {activeProject ? (
+              <>
+                {isClassroomMode ? "退出" : "开启"}
+                {t("window.classroomMode")}（顶部菜单在鼠标移开时透明）
+              </>
+            ) : (
+              "请先打开工程文件才能使用此功能"
+            )}
           </Item>
           <Item
             disabled={!activeProject}

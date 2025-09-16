@@ -363,7 +363,6 @@ export class ControllerUtils {
   // 实验性的双链
   public finishChangeTextNode(textNode: TextNode) {
     // 查找所有无向边，如果无向边的颜色 = (11, 45, 14, 0)，那么就找到了一个关联
-    console.log(textNode.text);
     const edges: MultiTargetUndirectedEdge[] = [];
 
     const otherUUID: Set<string> = new Set();

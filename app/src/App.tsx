@@ -9,7 +9,7 @@ import { GlobalMenu, onOpenFile } from "@/core/service/GlobalMenu";
 import { Settings } from "@/core/service/Settings";
 import { Telemetry } from "@/core/service/Telemetry";
 import { Themes } from "@/core/service/Themes";
-import { activeProjectAtom, projectsAtom } from "@/state";
+import { activeProjectAtom, isClassroomModeAtom, projectsAtom } from "@/state";
 import { getVersion } from "@tauri-apps/api/app";
 import { getAllWindows, getCurrentWindow } from "@tauri-apps/api/window";
 import { arch, platform, version } from "@tauri-apps/plugin-os";
@@ -32,6 +32,7 @@ export default function App() {
   const [telemetryEventSent, setTelemetryEventSent] = useState(false);
   const [dropState, setDropState] = useState<"none" | "open" | "append">("none");
   const [ignoreMouseEvents, setIgnoreMouseEvents] = useState(false);
+  const [isClassroomMode, setIsClassroomMode] = useAtom(isClassroomModeAtom);
 
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const scrollPositionRef = useRef(0); // 用于保存滚动位置的 ref，防止切换标签页时滚动位置丢失
@@ -154,6 +155,10 @@ export default function App() {
       unlisten2?.then((f) => f());
     };
   }, []);
+
+  useEffect(() => {
+    setIsClassroomMode(Settings.isClassroomMode);
+  }, [Settings.isClassroomMode]);
 
   // https://github.com/tauri-apps/tauri/issues/5812
   const isOnResizedDisabled = useRef(false);
@@ -320,11 +325,15 @@ export default function App() {
     });
   };
 
-  const Tabs = () => (
+  /**
+   * 多标签页
+   */
+  const ProjectTabs = () => (
     <div
       ref={tabsContainerRef}
       className={cn(
-        "scrollbar-hide z-10 flex h-9 gap-2 overflow-x-auto whitespace-nowrap",
+        "scrollbar-hide z-10 flex h-9 gap-2 overflow-x-auto whitespace-nowrap hover:opacity-100",
+        isClassroomMode && "opacity-0",
         ignoreMouseEvents && "pointer-events-none",
       )}
     >
@@ -375,10 +384,16 @@ export default function App() {
       onContextMenu={(e) => e.preventDefault()}
     >
       {/* 菜单 | 标签页 | ...移动窗口区域... | 窗口控制按钮 */}
-      <div className={cn("z-10 flex h-9 gap-2", ignoreMouseEvents && "pointer-events-none")}>
+      <div
+        className={cn(
+          "z-10 flex h-9 gap-2 transition-all hover:opacity-100",
+          isClassroomMode && "opacity-0",
+          ignoreMouseEvents && "pointer-events-none",
+        )}
+      >
         {/* <div className=" flex h-8 shrink-0 items-center overflow-hidden rounded-xl border"></div> */}
         <GlobalMenu />
-        {isWide && <Tabs />}
+        {isWide && <ProjectTabs />}
         <div className="h-full flex-1 cursor-grab active:cursor-grabbing" data-tauri-drag-region></div>
         <div className="bg-background shadow-xs flex h-full items-center rounded-md border">
           <Button variant="ghost" size="icon" onClick={() => getCurrentWindow().minimize()}>
@@ -399,7 +414,7 @@ export default function App() {
         </div>
       </div>
 
-      {!isWide && <Tabs />}
+      {!isWide && <ProjectTabs />}
 
       {/* canvas */}
       <div className="absolute inset-0 overflow-hidden" ref={canvasWrapperRef}></div>

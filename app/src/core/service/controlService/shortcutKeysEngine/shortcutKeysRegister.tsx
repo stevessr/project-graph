@@ -70,6 +70,11 @@ export class KeyBindsRegistrar {
 
     await this.project.keyBinds.create("checkoutClassroomMode", "F5", async () => {
       // F5 是PPT的播放快捷键
+      if (Settings.isClassroomMode) {
+        toast.info("已经退出专注模式，点击一下更新状态");
+      } else {
+        toast.info("进入专注模式，点击一下更新状态");
+      }
       Settings.isClassroomMode = !Settings.isClassroomMode;
     });
 
