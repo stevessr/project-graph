@@ -1,4 +1,3 @@
-import { createPlateEditor } from "platejs/react";
 import { Entity } from "../abstract/StageEntity";
 import { BasicBlocksKit } from "@/components/editor/plugins/basic-blocks-kit";
 import { BasicMarksKit } from "@/components/editor/plugins/basic-marks-kit";
@@ -15,6 +14,7 @@ import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { Value } from "platejs";
+import { createPlateEditor } from "platejs/react";
 
 /**
  * 详细信息管理器
@@ -45,17 +45,34 @@ export class DetailsManager {
     if (this.isEmpty()) {
       return "";
     } else {
-      return JSON.stringify(this.entity.details);
+      return DetailsManager.detailsToMarkdown(this.entity.details);
     }
   }
 
+  /**
+   * 将详细信息(platejs格式)转换为markdown字符串
+   * @param details platejs的Value格式内容
+   * @returns markdown字符串
+   */
   public static detailsToMarkdown(details: Value) {
-    const result: string[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    details.entries().forEach(([_, tElement]) => {
-      result.push(JSON.stringify(tElement));
+    const editor = createPlateEditor({
+      plugins: [
+        ...FloatingToolbarKit,
+        ...FixedToolbarKit,
+        ...BasicMarksKit,
+        ...BasicBlocksKit,
+        ...FontKit,
+        ...TableKit,
+        ...MathKit,
+        ...CodeBlockKit,
+        ...ListKit,
+        ...LinkKit,
+        MarkdownPlugin,
+      ],
     });
-    return result.join("\n");
+    editor.children = details;
+    const markdown = editor.api.markdown.serialize();
+    return markdown;
   }
 
   public static markdownToDetails(md: string) {

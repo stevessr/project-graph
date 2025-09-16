@@ -35,11 +35,11 @@ export class ContentSearch {
    */
   public getStageObjectText(stageObject: StageObject): string {
     if (stageObject instanceof TextNode) {
-      return stageObject.text + "　" + stageObject.details;
+      return stageObject.text + "　" + stageObject.detailsManager.getBeSearchingText();
     } else if (stageObject instanceof Section) {
-      return stageObject.text + "　" + stageObject.details;
+      return stageObject.text + "　" + stageObject.detailsManager.getBeSearchingText();
     } else if (stageObject instanceof UrlNode) {
-      return stageObject.title + "　" + stageObject.details + "　" + stageObject.url;
+      return stageObject.title + "　" + stageObject.detailsManager.getBeSearchingText() + "　" + stageObject.url;
     }
     // 任何实体上都可能会写details
     if (stageObject instanceof Entity) {
