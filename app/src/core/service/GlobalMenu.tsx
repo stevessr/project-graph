@@ -52,6 +52,7 @@ import {
   FolderClock,
   FolderCog,
   FolderOpen,
+  FolderTree,
   Frown,
   Fullscreen,
   Keyboard,
@@ -574,6 +575,24 @@ export function GlobalMenu() {
               >
                 <RefreshCcwDot />
                 {t("actions.generate.generateNodeTreeByText")}
+              </Item>
+              <Item
+                onClick={async () => {
+                  const path = await open({
+                    title: "打开文件夹",
+                    directory: true,
+                    multiple: false,
+                    filters: [],
+                  });
+                  console.log(path);
+                  if (!path) {
+                    return;
+                  }
+                  activeProject!.generateFromFolder.generateFromFolder(path);
+                }}
+              >
+                <FolderTree />
+                根据文件夹生成框嵌套图
               </Item>
             </SubContent>
           </Sub>

@@ -40,6 +40,7 @@ import {
   Dot,
   ExternalLink,
   Grip,
+  LayoutDashboard,
   Maximize2,
   Minimize2,
   MousePointer,
@@ -55,6 +56,7 @@ import {
   Spline,
   SquareDot,
   SquareRoundCorner,
+  SquareSquare,
   TextSelect,
   Trash,
   Waypoints,
@@ -173,24 +175,24 @@ export default function MyContextMenuContent() {
                 <AlignEndHorizontal />
               </Button>
             </KeyTooltip>
-            <KeyTooltip keyId="layoutToSquare">
+            <KeyTooltip keyId="layoutToTightSquare">
               <Button
                 variant="ghost"
                 size="icon"
                 className="size-6"
                 onClick={() => p.layoutManager.layoutToTightSquare(p.stageManager.getSelectedEntities())}
               >
-                <Grip />
+                <LayoutDashboard />
               </Button>
             </KeyTooltip>
-            <KeyTooltip keyId="layoutToSquare">
+            <KeyTooltip keyId="layoutToTightSquareDeep">
               <Button
                 variant="ghost"
                 size="icon"
                 className="size-6"
                 onClick={() => p.layoutManager.layoutBySelected(p.layoutManager.layoutToTightSquare, true)}
               >
-                <Grip />
+                <SquareSquare />
               </Button>
             </KeyTooltip>
           </div>

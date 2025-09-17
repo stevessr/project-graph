@@ -59,9 +59,10 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             cmd::device::get_device_id,
+            cmd::fs::read_folder_structure,
             write_stdout,
             write_stderr,
-            exit
+            exit,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
