@@ -61,6 +61,7 @@ import {
   Palette,
   Paperclip,
   PersonStanding,
+  Rabbit,
   Radiation,
   Redo,
   RefreshCcwDot,
@@ -580,13 +581,15 @@ export function GlobalMenu() {
           <Item
             className="*:text-destructive! text-destructive!"
             onClick={async () => {
-              if (await Dialog.confirm(t("confirmClearStage"), t("irreversible"), { destructive: true })) {
+              if (
+                await Dialog.confirm(t("actions.confirmClearStage"), t("actions.irreversible"), { destructive: true })
+              ) {
                 activeProject!.stage = [];
               }
             }}
           >
             <Radiation />
-            {t("actions.clearStage")}
+            <span className="">{t("actions.clearStage")}</span>
           </Item>
         </Content>
       </Menu>
@@ -604,7 +607,7 @@ export function GlobalMenu() {
           </Item>
           <Sub>
             <SubTrigger>
-              <SettingsIcon />
+              <Rabbit />
               自动化操作设置
             </SubTrigger>
             <SubContent>

@@ -477,7 +477,11 @@ export class StageManager {
 
   connectEntity(fromNode: ConnectableEntity, toNode: ConnectableEntity, isCrEdge: boolean = false) {
     if (fromNode === toNode && !Settings.allowAddCycleEdge) {
-      toast.warning(StageManager.w);
+      toast.warning(
+        <div>
+          <span>{StageManager.w}</span>
+        </div>,
+      );
       return false;
     }
     if (isCrEdge) {
@@ -509,7 +513,12 @@ export class StageManager {
     }
     for (const fromNode of fromNodes) {
       if (fromNode === toNode && !Settings.allowAddCycleEdge) {
-        toast.warning(StageManager.w);
+        toast.warning(
+          <div>
+            <h2 className="text-xl">请在空白处右键</h2>
+            <span>{StageManager.w}</span>
+          </div>,
+        );
         continue;
       }
       if (isCrEdge) {
