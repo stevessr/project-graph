@@ -10,6 +10,7 @@ import { Direction } from "@/types/directions";
 import { MarkdownNode, parseMarkdownToJSON } from "@/utils/markdownParse";
 import { Color, MonoStack, ProgressNumber, Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
+import { DetailsManager } from "../../stageObject/tools/entityDetailsManager";
 
 /**
  * 包含增加节点的方法
@@ -30,11 +31,12 @@ export class NodeAdder {
     addToSections: Section[],
     selectCurrent = false,
   ): Promise<string> {
+    const autoFillColor = this.getAutoColor();
     const node = new TextNode(this.project, {
       text: await this.getAutoName(),
       collisionBox: new CollisionBox([new Rectangle(clickWorldLocation, Vector.getZero())]),
+      color: autoFillColor,
     });
-    node.color = await this.getAutoColor();
     // 将node本身向左上角移动，使其居中
     node.moveTo(node.rectangle.location.subtract(node.rectangle.size.divide(2)));
     this.project.stageManager.add(node);
@@ -137,7 +139,7 @@ export class NodeAdder {
     return template;
   }
 
-  private async getAutoColor(): Promise<Color> {
+  private getAutoColor(): Color {
     const isEnable = Settings.autoFillNodeColorEnable;
     if (isEnable) {
       const colorData = Settings.autoFillNodeColor;
@@ -363,7 +365,7 @@ export class NodeAdder {
       visitedCount++;
       const node = new TextNode(this.project, {
         text: markdownNode.title,
-        details: markdownNode.content,
+        details: DetailsManager.markdownToDetails(markdownNode.content),
         collisionBox: new CollisionBox([
           new Rectangle(diffLocation.add(new Vector(deepLevel * 50, visitedCount * 100)), Vector.same(100)),
         ]),

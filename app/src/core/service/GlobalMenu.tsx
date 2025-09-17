@@ -89,7 +89,7 @@ import { FeatureFlags } from "./FeatureFlags";
 import { Telemetry } from "./Telemetry";
 import { SubWindow } from "./SubWindow";
 import { Rectangle } from "@graphif/shapes";
-import { Vector } from "@graphif/data-structures";
+import { Color, Vector } from "@graphif/data-structures";
 import FindWindow from "@/sub/FindWindow";
 import { Settings } from "./Settings";
 import TestWindow from "@/sub/TestWindow";
@@ -602,6 +602,78 @@ export function GlobalMenu() {
             <SettingsIcon />
             {t("settings.title")}
           </Item>
+          <Sub>
+            <SubTrigger>
+              <SettingsIcon />
+              自动化操作设置
+            </SubTrigger>
+            <SubContent>
+              <Item
+                onClick={() => {
+                  Dialog.input("设置自动命名", "填入参数写法详见设置页面", {
+                    defaultValue: Settings.autoNamerTemplate,
+                  }).then((result) => {
+                    if (!result) return;
+                    Settings.autoNamerTemplate = result;
+                  });
+                }}
+              >
+                <span>创建节点时填入命名：</span>
+                <span>{Settings.autoNamerTemplate}</span>
+              </Item>
+              <Item
+                onClick={() => {
+                  Dialog.input("设置自动框命名", "填入参数写法详见设置页面", {
+                    defaultValue: Settings.autoNamerSectionTemplate,
+                  }).then((result) => {
+                    if (!result) return;
+                    Settings.autoNamerSectionTemplate = result;
+                  });
+                }}
+              >
+                <span>创建框时自动命名：</span>
+                <span>{Settings.autoNamerSectionTemplate}</span>
+              </Item>
+              <Item
+                onClick={() => {
+                  Dialog.confirm("确认改变？", Settings.autoFillNodeColorEnable ? "即将关闭" : "即将开启").then(() => {
+                    Settings.autoFillNodeColorEnable = !Settings.autoFillNodeColorEnable;
+                  });
+                }}
+              >
+                <span>创建节点时自动上色是否开启：</span>
+                <span>{Settings.autoFillNodeColorEnable ? "开启" : "关闭"}</span>
+              </Item>
+              <Item
+                onClick={() => {
+                  Dialog.input(
+                    "设置自动上色",
+                    "填入颜色数组式代码[r, g, b, a]，其中a为不透明度，取之范围在0-1之间，例如纯红色[255, 0, 0, 1]",
+                    {
+                      defaultValue: JSON.stringify(new Color(...Settings.autoFillNodeColor).toArray()),
+                    },
+                  ).then((result) => {
+                    if (!result) return;
+                    // 解析字符串
+                    const colorArray: [number, number, number, number] = JSON.parse(result);
+                    if (colorArray.length !== 4) {
+                      toast.error("颜色数组长度必须为4");
+                      return;
+                    }
+                    const color = new Color(...colorArray);
+                    if (color.a < 0 || color.a > 1) {
+                      toast.error("颜色不透明度必须在0-1之间");
+                      return;
+                    }
+                    Settings.autoFillNodeColor = colorArray;
+                  });
+                }}
+              >
+                <span>创建节点时自动上色：</span>
+                <span>{JSON.stringify(Settings.autoFillNodeColor)}</span>
+              </Item>
+            </SubContent>
+          </Sub>
           <Item onClick={() => SettingsWindow.open("appearance")}>
             <Palette />
             {t("settings.appearance")}
