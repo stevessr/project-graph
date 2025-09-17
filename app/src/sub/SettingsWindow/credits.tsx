@@ -19,6 +19,8 @@ const donations: DonationData[] = [
   { user: "域名 project-graph.top", note: "zty012", amount: -13.66 },
   // 以下为捐赠用户
 
+  { user: "今晚打老虎", note: "支持", amount: 20 },
+  { user: "山东扣扣人", note: "很简洁明了 好", amount: 5 },
   { user: "程彦轲", note: "pg是一个极其有潜力的项目，期待继续更新新的功能", amount: 50 },
   { user: "Oxygen_Retrain", note: "感谢开发者们为Linux提供支持，加油", amount: 10 },
   { user: "末影", note: "", amount: 20 },
