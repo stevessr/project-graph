@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { v4 } from "uuid";
 import { onNewDraft, onOpenFile } from "../../GlobalMenu";
 import { DetailsManager } from "@/core/stage/stageObject/tools/entityDetailsManager";
+import ColorWindow from "@/sub/ColorWindow";
 
 /**
  * 快捷键注册函数
@@ -326,8 +327,8 @@ export class KeyBindsRegistrar {
     });
 
     await this.project.keyBinds.create("openColorPanel", "F6", () => {
-      toast.warning("2.0版本的颜色面板已被整合入右键菜单，请在右键菜单中打开");
-      // ColorWindow.open();
+      // toast.warning("2.0版本的颜色面板已被整合入右键菜单，请在右键菜单中打开");
+      ColorWindow.open();
     });
     await this.project.keyBinds.create("switchDebugShow", "F3", async () => {
       const currentValue = Settings.showDebug;
