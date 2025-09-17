@@ -13,8 +13,6 @@ export class GenerateFromFolder {
 
   async generateFromFolder(folderPath: string): Promise<void> {
     const folderStructure = await readFolderStructure(folderPath);
-    console.log("folderStructure");
-    console.log(folderStructure);
     // 当前的放置点位
     const currentLocation = this.project.camera.location.clone();
     const dfs = (fEntry: FolderEntry, currentSection: Section | null = null) => {
@@ -52,7 +50,11 @@ export class GenerateFromFolder {
       }
     };
     const rootEntity = dfs(folderStructure);
-    this.project.layoutManager.layoutToTightSquare([rootEntity]);
+    this.project.stageManager.clearSelectAll();
+    rootEntity.isSelected = true;
+    setTimeout(() => {
+      this.project.layoutManager.layoutBySelected(this.project.layoutManager.layoutToTightSquare, true);
+    });
   }
 
   private getColorByPath(path: string): Color {
