@@ -49,6 +49,25 @@ export class DetailsManager {
     }
   }
 
+  private cacheMap: Map<Value, string> = new Map();
+  /**
+   * 获取用于渲染在舞台上的字符串
+   * @returns
+   */
+  public getRenderStageString(): string {
+    if (this.isEmpty()) {
+      return "";
+    } else {
+      if (this.cacheMap.has(this.entity.details)) {
+        return this.cacheMap.get(this.entity.details)!;
+      } else {
+        const markdown = DetailsManager.detailsToMarkdown(this.entity.details).replace("\n\n", "\n");
+        this.cacheMap.set(this.entity.details, markdown);
+        return markdown;
+      }
+    }
+  }
+
   /**
    * 将详细信息(platejs格式)转换为markdown字符串
    * @param details platejs的Value格式内容

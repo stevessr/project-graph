@@ -8,8 +8,9 @@ import { Section } from "@/core/stage/stageObject/entity/Section";
 import { SvgNode } from "@/core/stage/stageObject/entity/SvgNode";
 import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { UrlNode } from "@/core/stage/stageObject/entity/UrlNode";
-import { Color } from "@graphif/data-structures";
+import { Color, Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
+import { Renderer } from "../renderer";
 
 /**
  * 处理节点相关的绘制
@@ -143,6 +144,8 @@ export class EntityRenderer {
     if (this.project.camera.currentScale > Settings.ignoreTextNodeTextRenderLessThanCameraScale) {
       this.project.entityDetailsButtonRenderer.render(entity);
     }
+    // 渲染详细信息
+    this.renderEntityDetails(entity);
   }
 
   private renderConnectPoint(connectPoint: ConnectPoint) {
@@ -248,5 +251,34 @@ export class EntityRenderer {
         this.project.stageStyleManager.currentStyle.CollideBoxSelected.toNewAlpha(0.5),
       );
     }
+  }
+
+  renderEntityDetails(entity: Entity) {
+    if (entity.details) {
+      this._renderEntityDetails(entity, Renderer.ENTITY_DETAILS_LIENS_LIMIT);
+      // if (Settings.isAlwaysShowDetails) {
+      //   this._renderEntityDetails(entity, Renderer.ENTITY_DETAILS_LIENS_LIMIT);
+      // } else {
+      //   if (entity.isMouseHover) {
+      //     this._renderEntityDetails(entity, Renderer.ENTITY_DETAILS_LIENS_LIMIT);
+      //   }
+      // }
+    }
+  }
+  _renderEntityDetails(entity: Entity, limitLiens: number) {
+    this.project.textRenderer.renderMultiLineText(
+      entity.detailsManager.getRenderStageString(),
+      this.project.renderer.transformWorld2View(
+        entity.collisionBox.getRectangle().location.add(new Vector(0, entity.collisionBox.getRectangle().size.y)),
+      ),
+      Renderer.FONT_SIZE_DETAILS * this.project.camera.currentScale,
+      Math.max(
+        Renderer.ENTITY_DETAILS_WIDTH * this.project.camera.currentScale,
+        entity.collisionBox.getRectangle().size.x * this.project.camera.currentScale,
+      ),
+      this.project.stageStyleManager.currentStyle.NodeDetailsText,
+      1.2,
+      limitLiens,
+    );
   }
 }
