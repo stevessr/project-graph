@@ -262,6 +262,7 @@ const categories = {
       "cacheTextAsBitmap",
       "textCacheSize",
       "textScalingBehavior",
+      "textIntegerLocationAndSizeRender",
       "antialiasing",
     ],
     experimental: ["compatibilityMode", "isEnableEntityCollision"],

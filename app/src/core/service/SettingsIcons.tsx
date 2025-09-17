@@ -60,6 +60,7 @@ import {
   Undo,
   Ungroup,
   VenetianMask,
+  WholeWord,
 } from "lucide-react";
 
 export const settingsIcons = {
@@ -114,6 +115,7 @@ export const settingsIcons = {
   cacheTextAsBitmap: Layers,
   textCacheSize: MemoryStick,
   textScalingBehavior: Text,
+  textIntegerLocationAndSizeRender: WholeWord,
   antialiasing: Calculator,
   compatibilityMode: Turtle,
   isEnableEntityCollision: Ungroup,

@@ -41,6 +41,7 @@ export const settingsSchema = z.object({
   antialiasing: z
     .union([z.literal("disabled"), z.literal("low"), z.literal("medium"), z.literal("high")])
     .default("low"),
+  textIntegerLocationAndSizeRender: z.boolean().default(false),
   compatibilityMode: z.boolean().default(false),
   isEnableEntityCollision: z.boolean().default(false),
   autoNamerTemplate: z.string().default("..."),

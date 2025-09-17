@@ -129,6 +129,10 @@ export class TextRenderer {
   renderTempText(text: string, location: Vector, size: number, color: Color = Color.White): void {
     if (text.trim().length === 0) return;
     text = Settings.protectingPrivacy ? replaceTextWhenProtect(text) : text;
+    if (Settings.textIntegerLocationAndSizeRender) {
+      location = location.toInteger();
+      size = Math.round(size);
+    }
     this.project.canvas.ctx.textBaseline = "middle";
     this.project.canvas.ctx.textAlign = "left";
     this.project.canvas.ctx.font = `${size}px normal ${FONT}`;
@@ -141,11 +145,19 @@ export class TextRenderer {
    */
   renderTextFromCenter(text: string, centerLocation: Vector, size: number, color: Color = Color.White): void {
     if (text.trim().length === 0) return;
+    if (Settings.textIntegerLocationAndSizeRender) {
+      centerLocation = centerLocation.toInteger();
+      size = Math.round(size);
+    }
     const textSize = getTextSize(text, size);
     this.renderText(text, centerLocation.subtract(textSize.divide(2)), size, color);
   }
   renderTempTextFromCenter(text: string, centerLocation: Vector, size: number, color: Color = Color.White): void {
     if (text.trim().length === 0) return;
+    if (Settings.textIntegerLocationAndSizeRender) {
+      centerLocation = centerLocation.toInteger();
+      size = Math.round(size);
+    }
     const textSize = getTextSize(text, size);
     this.renderTempText(text, centerLocation.subtract(textSize.divide(2)), size, color);
   }
@@ -169,6 +181,11 @@ export class TextRenderer {
   ): void {
     if (!text) return;
     if (text.length === 0) return;
+    if (Settings.textIntegerLocationAndSizeRender) {
+      location = location.toInteger();
+      fontSize = Math.round(fontSize);
+      limitWidth = Math.round(limitWidth);
+    }
     // 如果文本里面没有换行符就直接渲染单行文本，不要计算了
     // if (!text.includes("\n")) {
     //   this.renderText(text, location, fontSize, color);
@@ -196,6 +213,11 @@ export class TextRenderer {
     limitLines: number = Infinity,
   ): void {
     if (text.trim().length === 0) return;
+    if (Settings.textIntegerLocationAndSizeRender) {
+      location = location.toInteger();
+      fontSize = Math.round(fontSize);
+      limitWidth = Math.round(limitWidth);
+    }
     text = Settings.protectingPrivacy ? replaceTextWhenProtect(text) : text;
     let currentY = 0; // 顶部偏移量
     let textLineArray = this.textToTextArrayWrapCache(text, fontSize, limitWidth);
@@ -220,6 +242,11 @@ export class TextRenderer {
     limitLines: number = Infinity,
   ): void {
     if (text.trim().length === 0) return;
+    if (Settings.textIntegerLocationAndSizeRender) {
+      centerLocation = centerLocation.toInteger();
+      size = Math.round(size);
+      limitWidth = Math.round(limitWidth);
+    }
     text = Settings.protectingPrivacy ? replaceTextWhenProtect(text) : text;
     let currentY = 0; // 顶部偏移量
     let textLineArray = this.textToTextArrayWrapCache(text, size, limitWidth);
@@ -248,6 +275,11 @@ export class TextRenderer {
     limitLines: number = Infinity,
   ): void {
     if (text.trim().length === 0) return;
+    if (Settings.textIntegerLocationAndSizeRender) {
+      centerLocation = centerLocation.toInteger();
+      size = Math.round(size);
+      limitWidth = Math.round(limitWidth);
+    }
     text = Settings.protectingPrivacy ? replaceTextWhenProtect(text) : text;
     let currentY = 0; // 顶部偏移量
     let textLineArray = this.textToTextArrayWrapCache(text, size, limitWidth);

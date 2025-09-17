@@ -669,6 +669,12 @@ settings:
       temp: 每一帧都重新渲染文本，不使用缓存
       nearestCache: 使用文本大小最接近的缓存，缩放再渲染
       cacheEveryTick: 每一帧都重新渲染文本，并且缓存
+  textIntegerLocationAndSizeRender:
+    title: 文本整数位置和大小渲染
+    description: |
+      开启后，一切文字的大小和位置都是整数，以节省渲染性能。
+      但会出现文字抖动现象。建议配合视角缩放速度调整成1一起使用。
+      如果您的电脑使用体验非常卡顿，尤其是在缩放和移动的情况下，可以开启此选项。
   antialiasing:
     title: 抗锯齿
     description: |

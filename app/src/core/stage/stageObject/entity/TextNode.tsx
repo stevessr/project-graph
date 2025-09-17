@@ -11,6 +11,7 @@ import { getMultiLineTextSize } from "@/utils/font";
 import { Color, ProgressNumber, Vector } from "@graphif/data-structures";
 import { id, passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
 import { Rectangle } from "@graphif/shapes";
+import { Value } from "platejs";
 
 /**
  *
@@ -98,6 +99,13 @@ export class TextNode extends ConnectableEntity implements ResizeAble {
       collisionBox = new CollisionBox([new Rectangle(Vector.getZero(), Vector.getZero())]),
       color = Color.Transparent,
       sizeAdjust = "auto",
+    }: {
+      uuid?: string;
+      text?: string;
+      details?: Value;
+      color?: Color;
+      sizeAdjust?: "auto" | "manual";
+      collisionBox?: CollisionBox;
     },
     public unknown = false,
   ) {
