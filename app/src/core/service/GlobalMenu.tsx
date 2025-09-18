@@ -38,6 +38,7 @@ import {
   Axe,
   Bot,
   CircleAlert,
+  CircleDot,
   Dumbbell,
   ExternalLink,
   File,
@@ -62,6 +63,7 @@ import {
   Palette,
   Paperclip,
   PersonStanding,
+  PictureInPicture2,
   Rabbit,
   Radiation,
   Redo,
@@ -791,6 +793,50 @@ export function GlobalMenu() {
             <VenetianMask />
             {activeProject ? "进入/退出 隐私模式" : "请先打开工程文件才能使用此功能"}
           </Item>
+          <Item
+            disabled={!activeProject}
+            onClick={() => {
+              Settings.isStealthModeEnabled = !Settings.isStealthModeEnabled;
+            }}
+          >
+            <CircleDot />
+            {activeProject ? <span>开启/关闭狙击镜</span> : "请先打开工程文件才能使用此功能"}
+          </Item>
+          <Sub>
+            <SubTrigger>
+              <PictureInPicture2 />
+              调整舞台透明度
+            </SubTrigger>
+            <SubContent>
+              <Item
+                disabled={!activeProject}
+                onClick={() => {
+                  Settings.windowBackgroundAlpha = Settings.windowBackgroundAlpha === 0 ? 1 : 0;
+                }}
+              >
+                <PictureInPicture2 />
+                {activeProject ? <span>开启/关闭舞台背景颜色透明</span> : "请先打开工程文件才能使用此功能"}
+              </Item>
+              <Item
+                disabled={!activeProject}
+                onClick={() => {
+                  Settings.windowBackgroundAlpha = Math.max(0, Settings.windowBackgroundAlpha - 0.1);
+                }}
+              >
+                <PictureInPicture2 />
+                {activeProject ? <span>降低舞台背景不透明度</span> : "请先打开工程文件才能使用此功能"}
+              </Item>
+              <Item
+                disabled={!activeProject}
+                onClick={() => {
+                  Settings.windowBackgroundAlpha = Math.min(1, Settings.windowBackgroundAlpha + 0.1);
+                }}
+              >
+                <PictureInPicture2 />
+                {activeProject ? <span>提高舞台背景不透明度</span> : "请先打开工程文件才能使用此功能"}
+              </Item>
+            </SubContent>
+          </Sub>
         </Content>
       </Menu>
 
