@@ -57,6 +57,7 @@ import {
   Frown,
   Fullscreen,
   Keyboard,
+  LayoutGrid,
   MapPin,
   MessageCircleWarning,
   MousePointer2,
@@ -76,7 +77,6 @@ import {
   Tag,
   TestTube2,
   TextQuote,
-  Trash,
   Undo,
   VenetianMask,
   View,
@@ -97,6 +97,8 @@ import { Color, Vector } from "@graphif/data-structures";
 import FindWindow from "@/sub/FindWindow";
 import { Settings } from "./Settings";
 import TestWindow from "@/sub/TestWindow";
+import { PathString } from "@/utils/pathString";
+import RecentFilesWindow from "@/sub/RecentFilesWindow";
 
 const Content = MenubarContent;
 const Item = MenubarItem;
@@ -161,20 +163,29 @@ export function GlobalMenu() {
               {t("file.recentFiles")}
             </SubTrigger>
             <SubContent>
-              {recentFiles.toReversed().map((file) => (
-                <Item
-                  key={file.uri.toString()}
-                  onClick={async () => {
-                    await onOpenFile(file.uri, "GlobalMenu最近打开的文件");
-                    await refresh();
-                  }}
-                >
-                  <File />
-                  {decodeURI(file.uri.toString())}
-                </Item>
-              ))}
-              <Separator />
-              <Item
+              {recentFiles
+                .toReversed()
+                .slice(0, 12)
+                .map((file) => (
+                  <Item
+                    key={file.uri.toString()}
+                    onClick={async () => {
+                      await onOpenFile(file.uri, "GlobalMenu最近打开的文件");
+                      await refresh();
+                    }}
+                  >
+                    <File />
+                    {PathString.absolute2file(decodeURI(file.uri.toString()))}
+                  </Item>
+                ))}
+              {recentFiles.length > 12 && (
+                <>
+                  <Separator />
+                  <span className="p-2 text-sm opacity-50">注：此处仅显示12个</span>
+                </>
+              )}
+
+              {/* <Item
                 variant="destructive"
                 onClick={async () => {
                   await RecentFileManager.clearAllRecentFiles();
@@ -183,9 +194,19 @@ export function GlobalMenu() {
               >
                 <Trash />
                 {t("file.clear")}
-              </Item>
+              </Item> */}
             </SubContent>
           </Sub>
+          {recentFiles.length > 12 && (
+            <Item
+              onClick={() => {
+                RecentFilesWindow.open();
+              }}
+            >
+              <LayoutGrid />
+              查看全部历史文件
+            </Item>
+          )}
           <Separator />
           <Item
             disabled={!activeProject}
