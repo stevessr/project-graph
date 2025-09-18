@@ -9,13 +9,13 @@ import { GlobalMenu, onOpenFile } from "@/core/service/GlobalMenu";
 import { Settings } from "@/core/service/Settings";
 import { Telemetry } from "@/core/service/Telemetry";
 import { Themes } from "@/core/service/Themes";
-import { activeProjectAtom, isClassroomModeAtom, projectsAtom } from "@/state";
+import { activeProjectAtom, isClassroomModeAtom, isWindowAlwaysOnTopAtom, projectsAtom } from "@/state";
 import { getVersion } from "@tauri-apps/api/app";
 import { getAllWindows, getCurrentWindow } from "@tauri-apps/api/window";
 import { arch, platform, version } from "@tauri-apps/plugin-os";
 import { restoreStateCurrent, saveWindowState, StateFlags } from "@tauri-apps/plugin-window-state";
 import { useAtom } from "jotai";
-import { CloudUpload, Copy, Dot, Minus, Square, X } from "lucide-react";
+import { CloudUpload, Copy, Dot, Minus, Pin, PinOff, Square, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { URI } from "vscode-uri";
@@ -27,6 +27,7 @@ export default function App() {
 
   const [projects, setProjects] = useAtom(projectsAtom);
   const [activeProject, setActiveProject] = useAtom(activeProjectAtom);
+  const [isWindowAlwaysOnTop, setIsWindowAlwaysOnTop] = useAtom(isWindowAlwaysOnTopAtom);
   const canvasWrapperRef = useRef<HTMLDivElement>(null);
   const [isWide, setIsWide] = useState(false);
   const [telemetryEventSent, setTelemetryEventSent] = useState(false);
@@ -396,9 +397,32 @@ export default function App() {
         {isWide && <ProjectTabs />}
         <div className="h-full flex-1 cursor-grab active:cursor-grabbing" data-tauri-drag-region></div>
         <div className="bg-background shadow-xs flex h-full items-center rounded-md border">
+          {/* 钉住 */}
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={async (e) => {
+              e.stopPropagation();
+              const tauriWindow = getCurrentWindow();
+              if (isWindowAlwaysOnTop) {
+                // 展开
+                setIsWindowAlwaysOnTop(false);
+                await tauriWindow.setAlwaysOnTop(false);
+              } else {
+                // 收起
+                setIsWindowAlwaysOnTop(true);
+                await tauriWindow.setAlwaysOnTop(true);
+              }
+            }}
+          >
+            {isWindowAlwaysOnTop ? <Pin strokeWidth={3} /> : <PinOff strokeWidth={3} className="opacity-50" />}
+          </Button>
+          {/* 最小化 */}
           <Button variant="ghost" size="icon" onClick={() => getCurrentWindow().minimize()}>
             <Minus strokeWidth={3} />
           </Button>
+          {/* 最大化/还原 */}
           {maximized ? (
             <Button variant="ghost" size="icon" className="text-xs" onClick={() => getCurrentWindow().unmaximize()}>
               <Copy className="size-3" strokeWidth={3} />
@@ -408,6 +432,7 @@ export default function App() {
               <Square className="size-3" strokeWidth={4} />
             </Button>
           )}
+          {/* 关闭 */}
           <Button variant="ghost" size="icon" onClick={() => getCurrentWindow().close()}>
             <X strokeWidth={3} />
           </Button>
