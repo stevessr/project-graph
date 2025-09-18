@@ -34,6 +34,9 @@ export default function RecentFilesWindow({ winId = "" }: { winId?: string }) {
   const [currentPreselect, setCurrentPreselect] = React.useState<number>(0);
   const [searchString, setSearchString] = React.useState("");
 
+  const [currentShowPath, setCurrentShowPath] = React.useState<string>("");
+  const [currentShowTime, setCurrentShowTime] = React.useState<string>("");
+
   /**
    * 用于刷新页面显示
    */
@@ -65,24 +68,8 @@ export default function RecentFilesWindow({ winId = "" }: { winId?: string }) {
 
   useEffect(() => {
     if (isLoading) return;
-    const currentRect = SubWindow.get(winId).rect;
-    const createdWin = SubWindow.create({
-      titleBarOverlay: true,
-      children: (
-        <div className="flex flex-col gap-1 p-5">
-          <span className="text-sm">文件路径</span>
-          <span>{recentFilesFiltered[currentPreselect].uri.toString()}</span>
-          <div className="h-1"></div>
-          <span className="text-sm">修改时间</span>
-          <span>{new Date(recentFilesFiltered[currentPreselect].time).toLocaleString()}</span>
-        </div>
-      ),
-      rect: new Rectangle(currentRect.rightTop.add(new Vector(10, 0)), Vector.same(-1)),
-      closeWhenClickOutside: true,
-    });
-    return () => {
-      SubWindow.close(createdWin.id);
-    };
+    setCurrentShowPath(decodeURI(recentFilesFiltered[currentPreselect].uri.toString()));
+    setCurrentShowTime(new Date(recentFilesFiltered[currentPreselect].time).toLocaleString());
   }, [currentPreselect, isLoading]);
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -118,6 +105,10 @@ export default function RecentFilesWindow({ winId = "" }: { winId?: string }) {
   return (
     <div className={cn("flex h-full flex-col items-center gap-2")}>
       <Input placeholder="请输入要筛选的文件" onChange={onInputChange} value={searchString} autoFocus />
+      <div className="flex w-full flex-col items-baseline justify-center px-4 text-xs">
+        <p>{currentShowPath}</p>
+        <p>{currentShowTime}</p>
+      </div>
 
       {/* 加载中提示 */}
       {isLoading && (
@@ -132,13 +123,16 @@ export default function RecentFilesWindow({ winId = "" }: { winId?: string }) {
         </div>
       )}
 
-      <div className="flex w-full flex-1 ring">
+      <div className="flex w-full flex-wrap gap-2 p-4">
         {recentFilesFiltered.map((file, index) => (
           <div
             key={index}
-            className={cn("flex origin-left items-center gap-2 border-4 border-transparent px-2 py-1 opacity-75", {
-              "border-panel-success-text opacity-100": index === currentPreselect,
-            })}
+            className={cn(
+              "bg-muted/50 flex max-w-64 origin-left flex-col items-center gap-2 truncate rounded-lg border p-4 px-2 py-1 opacity-75",
+              {
+                "opacity-100": index === currentPreselect,
+              },
+            )}
             onMouseEnter={() => setCurrentPreselect(index)}
             onClick={() => openFile(file)}
           >
@@ -154,6 +148,6 @@ RecentFilesWindow.open = () => {
   SubWindow.create({
     title: "最近打开的文件",
     children: <RecentFilesWindow />,
-    rect: new Rectangle(new Vector(50, 50), new Vector(250, window.innerHeight - 100)),
+    rect: new Rectangle(new Vector(50, 50), new Vector(window.innerWidth - 300, window.innerHeight - 100)),
   });
 };
