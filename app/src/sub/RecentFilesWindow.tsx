@@ -59,7 +59,7 @@ export default function RecentFilesWindow({ winId = "" }: { winId?: string }) {
     }
     setCurrentPreselect(0); // 一旦有输入，就设置下标为0
     setSearchString(inputString);
-    setRecentFilesFiltered(recentFiles.filter((file) => file.uri.toString().includes(inputString)));
+    setRecentFilesFiltered(recentFiles.filter((file) => decodeURI(file.uri.toString()).includes(inputString)));
   };
 
   useEffect(() => {
@@ -148,6 +148,6 @@ RecentFilesWindow.open = () => {
   SubWindow.create({
     title: "最近打开的文件",
     children: <RecentFilesWindow />,
-    rect: new Rectangle(new Vector(50, 50), new Vector(window.innerWidth - 300, window.innerHeight - 100)),
+    rect: new Rectangle(new Vector(50, 50), new Vector(window.innerWidth - 100, window.innerHeight - 100)),
   });
 };
