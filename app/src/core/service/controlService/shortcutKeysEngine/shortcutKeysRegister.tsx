@@ -16,7 +16,7 @@ import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox
 import { activeProjectAtom, store } from "@/state";
 // import ColorWindow from "@/sub/ColorWindow";
 import FindWindow from "@/sub/FindWindow";
-import KeyboardRecentFilesWindow from "@/sub/KeyboardRecentFilesWindow";
+// import KeyboardRecentFilesWindow from "@/sub/KeyboardRecentFilesWindow";
 import SettingsWindow from "@/sub/SettingsWindow";
 import { Direction } from "@/types/directions";
 import { openBrowserOrFile } from "@/utils/externalOpen";
@@ -28,6 +28,7 @@ import { v4 } from "uuid";
 import { onNewDraft, onOpenFile } from "../../GlobalMenu";
 import { DetailsManager } from "@/core/stage/stageObject/tools/entityDetailsManager";
 import ColorWindow from "@/sub/ColorWindow";
+import RecentFilesWindow from "@/sub/RecentFilesWindow";
 
 /**
  * 快捷键注册函数
@@ -379,7 +380,8 @@ export class KeyBindsRegistrar {
     //   TagWindow.open();
     // });
     await this.project.keyBinds.create("clickAppMenuRecentFileButton", "S-#", () => {
-      KeyboardRecentFilesWindow.open();
+      // KeyboardRecentFilesWindow.open();
+      RecentFilesWindow.open();
     });
     // await this.project.keyBinds.create("clickStartFilePanelButton", "S-$", () => {
     //   const button = document.getElementById("app-start-file-btn");
