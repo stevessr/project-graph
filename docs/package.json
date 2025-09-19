@@ -5,7 +5,7 @@
   "license": "CC-BY-SA-4.0",
   "scripts": {
     "build": "next build",
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "start": "next start",
     "postinstall": "fumadocs-mdx"
   },
