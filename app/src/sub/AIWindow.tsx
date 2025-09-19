@@ -19,7 +19,7 @@ export default function AIWindow() {
     {
       role: "system",
       content:
-        "尽可能尝试使用工具解决问题，如果实在不行才能问用户。TextNode正常情况下高度为75，多个节点叠起来时需要适当留padding",
+        "尽可能尝试使用工具解决问题，如果实在不行才能问用户。TextNode正常情况下高度为75，多个节点叠起来时需要适当留padding。节点正常情况下的颜色应该是透明[0,0,0,0]，注意透明色并非是“看不见文本”",
     },
   ]);
   const [requesting, setRequesting] = useState(false);
