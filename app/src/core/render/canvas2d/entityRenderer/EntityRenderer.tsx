@@ -255,14 +255,13 @@ export class EntityRenderer {
 
   renderEntityDetails(entity: Entity) {
     if (entity.details) {
-      this._renderEntityDetails(entity, Renderer.ENTITY_DETAILS_LIENS_LIMIT);
-      // if (Settings.isAlwaysShowDetails) {
-      //   this._renderEntityDetails(entity, Renderer.ENTITY_DETAILS_LIENS_LIMIT);
-      // } else {
-      //   if (entity.isMouseHover) {
-      //     this._renderEntityDetails(entity, Renderer.ENTITY_DETAILS_LIENS_LIMIT);
-      //   }
-      // }
+      if (Settings.alwaysShowDetails) {
+        this._renderEntityDetails(entity, Renderer.ENTITY_DETAILS_LIENS_LIMIT);
+      } else {
+        if (entity.isMouseHover) {
+          this._renderEntityDetails(entity, Renderer.ENTITY_DETAILS_LIENS_LIMIT);
+        }
+      }
     }
   }
   _renderEntityDetails(entity: Entity, limitLiens: number) {
