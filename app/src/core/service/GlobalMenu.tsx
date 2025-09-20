@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
 import {
   Menubar,
   MenubarContent,
@@ -9,8 +11,6 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,10 +20,18 @@ import { activeProjectAtom, isClassroomModeAtom, projectsAtom, store } from "@/s
 import AIWindow from "@/sub/AIWindow";
 import AttachmentsWindow from "@/sub/AttachmentsWindow";
 import ExportPngWindow from "@/sub/ExportPngWindow";
+import FindWindow from "@/sub/FindWindow";
+import LoginWindow from "@/sub/LoginWindow";
 import NodeDetailsWindow from "@/sub/NodeDetailsWindow";
+import RecentFilesWindow from "@/sub/RecentFilesWindow";
 import SettingsWindow from "@/sub/SettingsWindow";
+import TestWindow from "@/sub/TestWindow";
+import UserWindow from "@/sub/UserWindow";
 import { getDeviceId } from "@/utils/otherApi";
+import { PathString } from "@/utils/pathString";
+import { Color, Vector } from "@graphif/data-structures";
 import { deserialize, serialize } from "@graphif/serializer";
+import { Rectangle } from "@graphif/shapes";
 import { Decoder } from "@msgpack/msgpack";
 import { getVersion } from "@tauri-apps/api/app";
 import { appCacheDir, dataDir, join } from "@tauri-apps/api/path";
@@ -90,15 +98,9 @@ import { LineEdge } from "../stage/stageObject/association/LineEdge";
 import { TextNode } from "../stage/stageObject/entity/TextNode";
 import { RecentFileManager } from "./dataFileService/RecentFileManager";
 import { FeatureFlags } from "./FeatureFlags";
-import { Telemetry } from "./Telemetry";
-import { SubWindow } from "./SubWindow";
-import { Rectangle } from "@graphif/shapes";
-import { Color, Vector } from "@graphif/data-structures";
-import FindWindow from "@/sub/FindWindow";
 import { Settings } from "./Settings";
-import TestWindow from "@/sub/TestWindow";
-import { PathString } from "@/utils/pathString";
-import RecentFilesWindow from "@/sub/RecentFilesWindow";
+import { SubWindow } from "./SubWindow";
+import { Telemetry } from "./Telemetry";
 
 const Content = MenubarContent;
 const Item = MenubarItem;
@@ -1005,6 +1007,8 @@ export function GlobalMenu() {
                 >
                   输出选中节点的详细信息
                 </Item>
+                <Item onClick={() => LoginWindow.open()}>login</Item>
+                <Item onClick={() => UserWindow.open()}>user</Item>
               </SubContent>
             </Sub>
           </Content>
