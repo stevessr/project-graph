@@ -286,6 +286,27 @@ export function GlobalMenu() {
                 <Images />
                 导入PNG图片
               </Item>
+              <Item
+                disabled={!activeProject}
+                onClick={async () => {
+                  const pathList = await open({
+                    title: "打开文件",
+                    directory: false,
+                    multiple: true,
+                    filters: [{ name: "*", extensions: ["svg"] }],
+                  });
+                  console.log(pathList);
+                  if (!pathList) {
+                    return;
+                  }
+                  for (const path of pathList) {
+                    DragFileIntoStageEngine.handleDropSvg(activeProject!, path);
+                  }
+                }}
+              >
+                <Images />
+                导入SVG图片
+              </Item>
             </SubContent>
           </Sub>
 

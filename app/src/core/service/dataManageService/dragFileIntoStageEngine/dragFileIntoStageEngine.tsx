@@ -6,6 +6,8 @@ import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
 import { Rectangle } from "@graphif/shapes";
 import { toast } from "sonner";
 import { Random } from "@/core/algorithm/random";
+import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
+import { SvgNode } from "@/core/stage/stageObject/entity/SvgNode";
 
 /**
  * 处理文件拖拽到舞台的引擎
@@ -20,15 +22,15 @@ export namespace DragFileIntoStageEngine {
   export async function handleDrop(project: Project, pathList: string[]) {
     try {
       for (const filePath of pathList) {
-        // 检查文件是否为PNG格式
-        if (!filePath.toLowerCase().endsWith(".png")) {
-          console.warn(`不支持的文件格式: ${filePath}`);
-          continue;
-        }
-
         const extName = filePath.split(".").pop()?.toLowerCase();
         if (extName === "png") {
           handleDropPng(project, filePath);
+        } else if (extName === "txt") {
+          handleDropTxt(project, filePath);
+        } else if (extName === "svg") {
+          handleDropSvg(project, filePath);
+        } else {
+          toast.error(`不支持的文件类型: 【${extName}】`);
         }
       }
     } catch (error) {
@@ -58,6 +60,29 @@ export namespace DragFileIntoStageEngine {
     });
 
     project.stageManager.add(imageNode);
-    return imageNode;
+  }
+
+  export async function handleDropTxt(project: Project, filePath: string) {
+    const fileData = await readFile(filePath);
+    const content = new TextDecoder().decode(fileData);
+    const textNode = new TextNode(project, {
+      text: content,
+      collisionBox: new CollisionBox([new Rectangle(project.camera.location.clone(), new Vector(300, 150))]),
+      sizeAdjust: "manual",
+    });
+
+    project.stageManager.add(textNode);
+  }
+
+  export async function handleDropSvg(project: Project, filePath: string) {
+    const fileData = await readFile(filePath);
+    const content = new TextDecoder().decode(fileData);
+    const svg = new DOMParser().parseFromString(content, "image/svg+xml");
+    const item = new XMLSerializer().serializeToString(svg.documentElement);
+    const attachmentId = project.addAttachment(new Blob([item], { type: "image/svg+xml" }));
+    const entity = new SvgNode(project, {
+      attachmentId,
+    });
+    project.stageManager.add(entity);
   }
 }
