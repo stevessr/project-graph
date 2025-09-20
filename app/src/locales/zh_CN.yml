@@ -17,7 +17,7 @@ globalMenu:
     save: 保存
     saveAs: 另存为
     import: 导入
-    importFromFolder: 根据文件夹生成嵌套图
+    importFromFolder: 根据文件夹生成框框嵌套图
     export: 导出
     exportAsSVG: 导出为 SVG
     exportAll: 导出全部内容

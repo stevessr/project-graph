@@ -5,7 +5,7 @@ import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox
 import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
 import { Rectangle } from "@graphif/shapes";
 import { toast } from "sonner";
-import { MouseLocation } from "../../controlService/MouseLocation";
+import { Random } from "@/core/algorithm/random";
 
 /**
  * 处理文件拖拽到舞台的引擎
@@ -26,14 +26,17 @@ export namespace DragFileIntoStageEngine {
           continue;
         }
 
-        handleDropPng(project, filePath);
+        const extName = filePath.split(".").pop()?.toLowerCase();
+        if (extName === "png") {
+          handleDropPng(project, filePath);
+        }
       }
     } catch (error) {
       toast.error(`处理拖拽文件失败: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  async function handleDropPng(project: Project, filePath: string) {
+  export async function handleDropPng(project: Project, filePath: string) {
     // 使用Tauri的文件系统API读取文件内容
     const fileData = await readFile(filePath);
 
@@ -42,14 +45,19 @@ export namespace DragFileIntoStageEngine {
 
     // 添加到项目的attachments中
     const attachmentId = project.addAttachment(blob);
+
+    const addLocation = project.camera.location.clone();
+    // 添加位置向左下角随机偏移
+    addLocation.x += Random.randomInt(0, -500);
+    addLocation.y += Random.randomInt(0, 500);
+
     // 创建ImageNode并添加到舞台
     const imageNode = new ImageNode(project, {
       attachmentId,
-      collisionBox: new CollisionBox([
-        new Rectangle(project.renderer.transformView2World(MouseLocation.vector()), new Vector(300, 150)),
-      ]),
+      collisionBox: new CollisionBox([new Rectangle(addLocation, new Vector(300, 150))]),
     });
 
     project.stageManager.add(imageNode);
+    return imageNode;
   }
 }

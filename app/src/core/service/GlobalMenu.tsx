@@ -55,9 +55,11 @@ import {
   FileDigit,
   FileDown,
   FileImage,
+  FileInput,
   FileOutput,
   FilePlus,
   Folder,
+  Images,
   FolderClock,
   FolderCog,
   FolderOpen,
@@ -103,6 +105,7 @@ import { FeatureFlags } from "./FeatureFlags";
 import { Settings } from "./Settings";
 import { SubWindow } from "./SubWindow";
 import { Telemetry } from "./Telemetry";
+import { DragFileIntoStageEngine } from "./dataManageService/dragFileIntoStageEngine/dragFileIntoStageEngine";
 
 const Content = MenubarContent;
 const Item = MenubarItem;
@@ -237,18 +240,54 @@ export function GlobalMenu() {
             {t("file.saveAs")}
           </Item>
           <Separator />
-          {/*<Sub>
+          <Sub>
             <SubTrigger>
               <FileInput />
               {t("file.import")}
             </SubTrigger>
             <SubContent>
-              <Item>
+              <Item
+                disabled={!activeProject}
+                onClick={async () => {
+                  const path = await open({
+                    title: "打开文件夹",
+                    directory: true,
+                    multiple: false,
+                    filters: [],
+                  });
+                  console.log(path);
+                  if (!path) {
+                    return;
+                  }
+                  activeProject!.generateFromFolder.generateFromFolder(path);
+                }}
+              >
                 <FolderTree />
                 {t("file.importFromFolder")}
               </Item>
+              <Item
+                disabled={!activeProject}
+                onClick={async () => {
+                  const pathList = await open({
+                    title: "打开文件",
+                    directory: false,
+                    multiple: true,
+                    filters: [{ name: "*", extensions: ["png"] }],
+                  });
+                  console.log(pathList);
+                  if (!pathList) {
+                    return;
+                  }
+                  for (const path of pathList) {
+                    DragFileIntoStageEngine.handleDropPng(activeProject!, path);
+                  }
+                }}
+              >
+                <Images />
+                导入PNG图片
+              </Item>
             </SubContent>
-          </Sub>*/}
+          </Sub>
 
           {/* 各种导出 */}
           <Sub>
@@ -602,24 +641,6 @@ export function GlobalMenu() {
               >
                 <RefreshCcwDot />
                 {t("actions.generate.generateNodeTreeByText")}
-              </Item>
-              <Item
-                onClick={async () => {
-                  const path = await open({
-                    title: "打开文件夹",
-                    directory: true,
-                    multiple: false,
-                    filters: [],
-                  });
-                  console.log(path);
-                  if (!path) {
-                    return;
-                  }
-                  activeProject!.generateFromFolder.generateFromFolder(path);
-                }}
-              >
-                <FolderTree />
-                根据文件夹生成框嵌套图
               </Item>
             </SubContent>
           </Sub>
