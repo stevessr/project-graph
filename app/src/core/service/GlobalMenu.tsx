@@ -66,6 +66,7 @@ import {
   Fullscreen,
   Keyboard,
   LayoutGrid,
+  Loader,
   MapPin,
   MessageCircleWarning,
   MousePointer2,
@@ -85,6 +86,7 @@ import {
   Tag,
   TestTube2,
   TextQuote,
+  Tv,
   Undo,
   VenetianMask,
   View,
@@ -874,6 +876,50 @@ export function GlobalMenu() {
             <MessageCircleWarning />
             {t("about.title")}
           </Item>
+          <Sub>
+            <SubTrigger>
+              <Tv />
+              视频教程
+            </SubTrigger>
+            <SubContent>
+              <Item className="*:text-destructive! text-destructive!">
+                <Tv />
+                2.1 版本使用教程（筹备中） <Loader />
+              </Item>
+              <Item
+                onClick={() => {
+                  shellOpen("https://www.bilibili.com/video/BV19B5WzyEiZ");
+                }}
+              >
+                <Tv />
+                1.6 版本基础教程
+              </Item>
+              <Item
+                onClick={() => {
+                  shellOpen("https://www.bilibili.com/video/BV1MM5WzKESm");
+                }}
+              >
+                <Tv />
+                1.6 版本进阶教程
+              </Item>
+              <Item
+                onClick={() => {
+                  shellOpen("https://www.bilibili.com/video/BV1W4k7YqEgU");
+                }}
+              >
+                <Tv />
+                1.0 版本宣传片
+              </Item>
+              <Item
+                onClick={() => {
+                  shellOpen("https://www.bilibili.com/video/BV1hmHKeDE9D");
+                }}
+              >
+                <Tv />
+                pyqt 版本使用教程（考古用）
+              </Item>
+            </SubContent>
+          </Sub>
           <Item
             onClick={() => {
               toast.warning(

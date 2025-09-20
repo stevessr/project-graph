@@ -61,7 +61,11 @@ export default function AboutTab() {
       <section className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
         <div className="rounded-md border p-4">
           <div className="text-xs opacity-50">开发者</div>
-          <div className="mt-1 font-medium">Littlefean, zty012, 以及所有贡献者</div>
+          <div className="mt-1 font-medium">
+            <Author name="Littlefean" url="https://github.com/Littlefean" />,{" "}
+            <Author name="zty012" url="https://github.com/zty012" />,{" "}
+            <Author name="Rutubet" url="https://github.com/Rutubet" /> 以及所有贡献者
+          </div>
         </div>
         <div className="**:cursor-pointer cursor-pointer rounded-md border p-4">
           <div className="text-xs opacity-50">仓库</div>
@@ -78,3 +82,11 @@ export default function AboutTab() {
     </div>
   );
 }
+
+const Author: React.FC<{ name: string; url: string }> = ({ name, url }: { name: string; url: string }) => {
+  return (
+    <span className="mt-1 font-medium underline underline-offset-4 hover:cursor-pointer" onClick={() => open(url)}>
+      {name}
+    </span>
+  );
+};
