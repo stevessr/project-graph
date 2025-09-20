@@ -33,7 +33,7 @@ export default function KeyTooltip({ keyId, children = <></> }: { keyId: string;
       <TooltipContent className="pointer-events-none flex gap-2">
         <span>{t(`${keyId}.title`)}</span>
         <div className="flex">
-          {keySeq ? keySeq.map((data, index) => <RenderKey key={index} data={data} />) : "未绑定"}
+          {keySeq ? keySeq.map((data, index) => <RenderKey key={index} data={data} />) : "[未绑定快捷键]"}
         </div>
       </TooltipContent>
     </Tooltip>
