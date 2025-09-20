@@ -21,6 +21,8 @@ import { toast } from "sonner";
 import { URI } from "vscode-uri";
 import { cn } from "./utils/cn";
 import { isWindows } from "./utils/platform";
+import { DragFileIntoStageEngine } from "./core/service/dataManageService/dragFileIntoStageEngine/dragFileIntoStageEngine";
+import { Vector } from "@graphif/data-structures";
 
 export default function App() {
   const [maximized, _setMaximized] = useState(false);
@@ -100,34 +102,6 @@ export default function App() {
       }
       setIsWide(window.innerWidth / window.innerHeight > 1.8);
     });
-    const unlisten2 = getCurrentWindow().onDragDropEvent((event) => {
-      if (event.payload.type === "over") {
-        if (event.payload.position.y <= 96) {
-          // 拖拽到标签页栏区域
-          setDropState("open");
-        } else {
-          // 拖拽到画布区域
-          setDropState("append");
-        }
-      } else if (event.payload.type === "leave") {
-        setDropState("none");
-      } else if (event.payload.type === "drop") {
-        setDropState("none");
-        if (event.payload.position.y <= 96) {
-          // 拖拽到标签页栏区域
-          for (const path of event.payload.paths) {
-            if (path.endsWith(".prg") || path.endsWith(".json")) {
-              onOpenFile(URI.file(path), "拖入窗口");
-            } else {
-              toast.error("不支持打开此文件");
-            }
-          }
-        } else {
-          // 拖拽到画布区域
-          toast("追加到画布……待完善");
-        }
-      }
-    });
 
     if (!telemetryEventSent) {
       setTelemetryEventSent(true);
@@ -153,7 +127,6 @@ export default function App() {
 
     return () => {
       unlisten1?.then((f) => f());
-      unlisten2?.then((f) => f());
     };
   }, []);
 
@@ -186,6 +159,43 @@ export default function App() {
     activeProject.canvas.element.addEventListener("pointerup", () => {
       setIgnoreMouseEvents(false);
     });
+    const unlisten2 = getCurrentWindow().onDragDropEvent((event) => {
+      if (event.payload.type === "over") {
+        if (event.payload.position.y <= 96) {
+          // 拖拽到标签页栏区域
+          setDropState("open");
+        } else {
+          // 拖拽到画布区域
+          setDropState("append");
+        }
+      } else if (event.payload.type === "leave") {
+        setDropState("none");
+      } else if (event.payload.type === "drop") {
+        setDropState("none");
+        if (event.payload.position.y <= 96) {
+          // 拖拽到标签页栏区域
+          for (const path of event.payload.paths) {
+            if (path.endsWith(".prg") || path.endsWith(".json")) {
+              onOpenFile(URI.file(path), "拖入窗口");
+            } else {
+              toast.error("不支持打开此文件");
+            }
+          }
+        } else {
+          // 拖拽到画布区域
+          toast("追加到画布……待完善");
+          // console.log(activeProject, event.payload.paths);
+          DragFileIntoStageEngine.handleDrop(
+            activeProject,
+            event.payload.paths,
+            new Vector(event.payload.position.x, event.payload.position.y),
+          );
+        }
+      }
+    });
+    return () => {
+      unlisten2?.then((f) => f());
+    };
   }, [activeProject]);
 
   useEffect(() => {
