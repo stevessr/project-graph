@@ -77,7 +77,6 @@ import { StageManager } from "@/core/stage/stageManager/StageManager";
 export function loadAllServicesBeforeInit(project: Project): void {
   project.registerFileSystemProvider("file", FileSystemProviderFile);
   project.registerFileSystemProvider("draft", FileSystemProviderDraft);
-  project.loadService(Renderer);
   project.loadService(Canvas);
   project.loadService(InputElement);
   project.loadService(StageStyleManager);
@@ -91,8 +90,9 @@ export function loadAllServicesBeforeInit(project: Project): void {
   project.loadService(WorldRenderUtils);
   project.loadService(StageManager);
   project.loadService(Camera);
-  project.loadService(Effects);
   project.loadService(AutoCompute);
+  project.loadService(Renderer);
+  project.loadService(Effects); // Effects必须在Renderer之后
 
   project.loadService(RectangleSelect);
   project.loadService(StageNodeRotate);

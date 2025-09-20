@@ -19,7 +19,7 @@ export class EdgeCutEffect extends Effect {
   }
 
   static default(start: Vector, end: Vector, color: Color, width: number) {
-    return new EdgeCutEffect(new ProgressNumber(0, 30), 0, start, end, color, width);
+    return new EdgeCutEffect(new ProgressNumber(0, 300), 0, start, end, color, width);
   }
 
   render(project: Project) {
