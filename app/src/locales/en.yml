@@ -1129,6 +1129,10 @@ keyBinds:
       I J K L\" key while holding down the key to freely adjust the growth position\
       \ \nAfter release, growth is complete \nBefore using this feature, ensure that
       a node has been selected\n"
+  createConnectPointWhenDragConnecting:
+    title: Create Connect Point When Drag Connecting
+    description: "When dragging a connection, a connect point will be created at the
+      current position of the mouse.\n"
   windowOpacityAlphaIncrease:
     title: Increase window opacity
     description: "After pressing, the window opacity (alpha) value will be increased

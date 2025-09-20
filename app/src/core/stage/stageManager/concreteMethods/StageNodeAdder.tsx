@@ -151,12 +151,20 @@ export class NodeAdder {
 
   public addConnectPoint(clickWorldLocation: Vector, addToSections: Section[]): string {
     const connectPoint = new ConnectPoint(this.project, {
-      collisionBox: new CollisionBox([new Rectangle(clickWorldLocation, Vector.getZero())]),
+      collisionBox: new CollisionBox([
+        new Rectangle(
+          clickWorldLocation.subtract(Vector.same(ConnectPoint.CONNECT_POINT_SHRINK_RADIUS)),
+          Vector.same(ConnectPoint.CONNECT_POINT_SHRINK_RADIUS * 2),
+        ),
+      ]),
     });
     this.project.stageManager.add(connectPoint);
+
+    // 把质点加入到每一个section中，并调整section大小
     for (const section of addToSections) {
       section.children.push(connectPoint);
       section.adjustLocationAndSize();
+      // 特效
       this.project.effects.addEffect(
         new RectanglePushInEffect(
           connectPoint.collisionBox.getRectangle(),
@@ -165,6 +173,7 @@ export class NodeAdder {
         ),
       );
     }
+
     this.project.historyManager.recordStep();
     return connectPoint.uuid;
   }

@@ -1004,6 +1004,10 @@ keyBinds:
       在按下该键不松开的同时按下“I J K L”键自由调整生长位置
       松开后，生长完成
       使用此功能前先确保已选中一个节点
+  createConnectPointWhenDragConnecting:
+    title: 拖拽连线时，按下此键，创建质点中转
+    description: |
+      当拖拽连线时，按下此键，创建质点中转
   treeGraphAdjust:
     title: 调整当前节点所在树形结构的树形排布
     description: |

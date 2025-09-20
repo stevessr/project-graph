@@ -1,16 +1,24 @@
 import { Project } from "@/core/Project";
-import { CircleChangeRadiusEffect } from "@/core/service/feedbackService/effectEngine/concrete/CircleChangeRadiusEffect";
+// import { CircleChangeRadiusEffect } from "@/core/service/feedbackService/effectEngine/concrete/CircleChangeRadiusEffect";
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
 import { Vector } from "@graphif/data-structures";
 import { id, passExtraAtArg1, passObject, serializable } from "@graphif/serializer";
 import { Rectangle } from "@graphif/shapes";
 
-// HACK: 【现在没问题了2025-7-9】这里继承了ConnectableEntity的话，TextNode模块就会报错，原因未知
-// Uncaught ReferenceError: can't access lexical declaration 'ConnectableEntity' before initialization
+/**
+ * 注释
+ * 当质点是坍缩状态时，R=1
+ * 膨胀状态，R>1，且是一个常量，可能是30，也可能是其他值，后面可能会随时调整
+ */
 @passExtraAtArg1
 @passObject
 export class ConnectPoint extends ConnectableEntity {
+  // 坍缩状态半径
+  static CONNECT_POINT_SHRINK_RADIUS = 1;
+  // 膨胀状态半径
+  static CONNECT_POINT_EXPAND_RADIUS = 30;
+
   get geometryCenter(): Vector {
     return this.collisionBox.getRectangle().center;
   }
@@ -23,17 +31,8 @@ export class ConnectPoint extends ConnectableEntity {
   @serializable
   uuid: string;
 
-  private _radius = 10;
   get radius(): number {
-    return this._radius;
-  }
-  set radius(value: number) {
-    this._radius = value;
-    const rectangle = this.collisionBox.shapes[0];
-    if (rectangle instanceof Rectangle) {
-      rectangle.size = new Vector(value * 2, value * 2);
-      rectangle.location = this.geometryCenter.subtract(new Vector(value, value));
-    }
+    return this._isSelected ? ConnectPoint.CONNECT_POINT_EXPAND_RADIUS : ConnectPoint.CONNECT_POINT_SHRINK_RADIUS;
   }
 
   /**
@@ -54,19 +53,21 @@ export class ConnectPoint extends ConnectableEntity {
       return;
     }
     this._isSelected = value;
+
+    const rectangle = this.collisionBox.shapes[0];
+    if (!(rectangle instanceof Rectangle)) {
+      return;
+    }
+
+    const centerLocation = this.geometryCenter.clone();
     if (value) {
-      // 设定选中
-      this.radius = 30;
-      // this.project.effects.addEffect(
-      //   CircleChangeRadiusEffect.fromConnectPointExpand(
-      //     this.geometryCenter.clone(),
-      //     30,
-      //   ),
-      // );
+      // 变为选中，放大
+      rectangle.size = Vector.same(ConnectPoint.CONNECT_POINT_EXPAND_RADIUS * 2);
+      rectangle.location = centerLocation.subtract(Vector.same(ConnectPoint.CONNECT_POINT_EXPAND_RADIUS));
     } else {
-      // 取消选中
-      this.radius = 1;
-      this.project.effects.addEffect(CircleChangeRadiusEffect.fromConnectPointShrink(this.geometryCenter.clone(), 30));
+      // 变为 未选中，缩小
+      rectangle.size = Vector.same(ConnectPoint.CONNECT_POINT_SHRINK_RADIUS * 2);
+      rectangle.location = centerLocation.subtract(Vector.same(ConnectPoint.CONNECT_POINT_SHRINK_RADIUS));
     }
   }
 
@@ -74,7 +75,9 @@ export class ConnectPoint extends ConnectableEntity {
     protected readonly project: Project,
     {
       uuid = crypto.randomUUID() as string,
-      collisionBox = new CollisionBox([new Rectangle(Vector.getZero(), Vector.getZero())]),
+      collisionBox = new CollisionBox([
+        new Rectangle(Vector.getZero(), Vector.same(ConnectPoint.CONNECT_POINT_SHRINK_RADIUS * 2)),
+      ]),
       details = [],
     },
     public unknown = false,
@@ -83,7 +86,6 @@ export class ConnectPoint extends ConnectableEntity {
     this.uuid = uuid;
     this.collisionBox = collisionBox;
     this.details = details;
-    this.radius = 1;
   }
 
   move(delta: Vector): void {

@@ -569,6 +569,12 @@ export class KeyBindsRegistrar {
         }
       }
     });
+
+    await this.project.keyBinds.create("createConnectPointWhenDragConnecting", "1", () => {
+      if (!this.project.keyboardOnlyEngine.isOpenning()) return;
+      this.project.controller.nodeConnection.createConnectPointWhenConnect();
+    });
+
     await this.project.keyBinds.create("treeGraphAdjust", "A-S-f", () => {
       if (!this.project.keyboardOnlyEngine.isOpenning()) return;
       // 获取所有的选中节点

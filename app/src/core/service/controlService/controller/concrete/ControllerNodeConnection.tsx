@@ -103,32 +103,31 @@ export class ControllerNodeConnectionClass extends ControllerClass {
    * 拖拽时左键生成质点
    * @param pressWorldLocation
    */
-  private createConnectPointWhenConnect(pressWorldLocation: Vector) {
+  public createConnectPointWhenConnect() {
+    const pressWorldLocation = this.project.renderer.transformView2World(MouseLocation.vector().clone());
     // 如果是左键，则检查是否在连接的过程中按下
-    if (this.isConnecting()) {
-      const clickedConnectableEntity: ConnectableEntity | null =
-        this.project.stageManager.findConnectableEntityByLocation(pressWorldLocation);
-      if (clickedConnectableEntity === null) {
-        // 是否是在Section内部双击
-        const sections = this.project.sectionMethods.getSectionsByInnerLocation(pressWorldLocation);
-
-        const pointUUID = this.project.nodeAdder.addConnectPoint(pressWorldLocation, sections);
-        const connectPoint = this.project.stageManager.getConnectableEntityByUUID(pointUUID) as ConnectPoint;
-
-        for (const fromEntity of this.connectFromEntities) {
-          this.project.stageManager.connectEntity(fromEntity, connectPoint);
-          this.addConnectEffect(fromEntity, connectPoint);
-        }
-        this.connectFromEntities = [connectPoint];
-        // 选中这个质点
-        for (const entity of this.project.stageManager.getConnectableEntity()) {
-          if (entity.isSelected) {
-            entity.isSelected = false;
-          }
-        }
-        connectPoint.isSelected = true;
-      }
+    if (!this.isConnecting()) {
+      return;
     }
+    if (this.project.stageManager.findConnectableEntityByLocation(pressWorldLocation) !== null) {
+      return;
+    }
+    // 是否是在Section内部双击
+    const sections = this.project.sectionMethods.getSectionsByInnerLocation(pressWorldLocation);
+
+    const pointUUID = this.project.nodeAdder.addConnectPoint(pressWorldLocation, sections);
+    const connectPoint = this.project.stageManager.getConnectableEntityByUUID(pointUUID) as ConnectPoint;
+
+    // 连向新质点
+    for (const fromEntity of this.connectFromEntities) {
+      this.project.stageManager.connectEntity(fromEntity, connectPoint);
+      this.addConnectEffect(fromEntity, connectPoint);
+    }
+    this.connectFromEntities = [connectPoint];
+
+    // 选中这个质点
+    this.project.stageManager.clearSelectAll();
+    // connectPoint.isSelected = true;
   }
 
   public mousedown: (event: MouseEvent) => void = (event) => {
@@ -140,8 +139,7 @@ export class ControllerNodeConnectionClass extends ControllerClass {
       this.onMouseDown(event);
     } else if (event.button === 0 && Settings.mouseLeftMode !== "connectAndCut") {
       // 右键拖拽连线的时候点击左键
-      const pressWorldLocation = this.project.renderer.transformView2World(new Vector(event.clientX, event.clientY));
-      this.createConnectPointWhenConnect(pressWorldLocation);
+      this.createConnectPointWhenConnect();
     } else if (event.button === 2) {
       // if (Stage.mouseRightDragBackground === "moveCamera") {
       //   return;

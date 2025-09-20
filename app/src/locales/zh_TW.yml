@@ -863,6 +863,10 @@ keyBinds:
   generateNodeGraph:
     title: 生長自由節點
     description: "按下後，出現一個虛擬生長位置\n在按下該鍵不鬆開的同時按下“I J K L”鍵自由調整生長位置\n鬆開後，生長完成\n使用此功能前先確保已選中一個節點\n"
+  createConnectPointWhenDragConnecting:
+    title: 拖拽连线时，按下此键，创建质点中转
+    description: |
+      当拖拽连线时，按下此键，创建质点中转
   checkoutClassroomMode:
     title: 進入或退出專注模式
     description: "按下後，進入專注模式，所有UI都會隱藏，頂部按鈕會透明化處理\n再按一次恢復\n"

@@ -369,6 +369,7 @@ const shortcutKeysGroups: ShortcutKeysGroup[] = [
       "connectLeftToRight",
       "connectTopToBottom",
       "selectAllEdges",
+      "createConnectPointWhenDragConnecting",
     ],
   },
   {
