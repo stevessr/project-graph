@@ -149,6 +149,23 @@ export class EntityRenderer {
   }
 
   private renderConnectPoint(connectPoint: ConnectPoint) {
+    // 在中心点一个点，防止独立质点看不到
+    this.project.shapeRenderer.renderCircle(
+      this.project.renderer.transformWorld2View(connectPoint.geometryCenter),
+      1 * this.project.camera.currentScale,
+      Color.Transparent,
+      this.project.stageStyleManager.currentStyle.StageObjectBorder,
+      2 * this.project.camera.currentScale,
+    );
+    if (Settings.showDebug) {
+      this.project.shapeRenderer.renderCircle(
+        this.project.renderer.transformWorld2View(connectPoint.geometryCenter),
+        connectPoint.radius * this.project.camera.currentScale,
+        Color.Transparent,
+        this.project.stageStyleManager.currentStyle.StageObjectBorder,
+        2 * this.project.camera.currentScale,
+      );
+    }
     if (connectPoint.isSelected) {
       // 在外面增加一个框
       this.project.collisionBoxRenderer.render(
@@ -156,13 +173,6 @@ export class EntityRenderer {
         this.project.stageStyleManager.currentStyle.CollideBoxSelected,
       );
     }
-    this.project.shapeRenderer.renderCircle(
-      this.project.renderer.transformWorld2View(connectPoint.geometryCenter),
-      connectPoint.radius * this.project.camera.currentScale,
-      Color.Transparent,
-      this.project.stageStyleManager.currentStyle.StageObjectBorder,
-      2 * this.project.camera.currentScale,
-    );
   }
 
   private renderImageNode(imageNode: ImageNode) {

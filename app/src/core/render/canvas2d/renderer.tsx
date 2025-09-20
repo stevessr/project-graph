@@ -228,6 +228,12 @@ export class Renderer {
         this.project.stageStyleManager.currentStyle.CollideBoxPreSelected,
       );
     }
+    for (const connectPoint of this.project.mouseInteraction.hoverConnectPoints) {
+      this.project.collisionBoxRenderer.render(
+        connectPoint.collisionBox,
+        this.project.stageStyleManager.currentStyle.StageObjectBorder,
+      );
+    }
   }
 
   /** 框选框 */

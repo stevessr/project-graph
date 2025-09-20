@@ -3,6 +3,7 @@ import { Project, service } from "@/core/Project";
 import { Edge } from "@/core/stage/stageObject/association/Edge";
 import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
 import { Section } from "@/core/stage/stageObject/entity/Section";
+import { ConnectPoint } from "@/core/stage/stageObject/entity/ConnectPoint";
 
 @service("mouseInteraction")
 export class MouseInteraction {
@@ -12,16 +13,17 @@ export class MouseInteraction {
    * 鼠标悬浮的边
    */
   private _hoverEdges: Edge[] = [];
+
   /** 鼠标悬浮的框 */
+  // 2.0.22 开始，取消section悬浮状态，因为感觉没什么必要
   private _hoverSections: Section[] = [];
+
+  // 2.0.22 开始，增加质点的悬浮状态
+  private _hoverConnectPoints: ConnectPoint[] = [];
   /**
    * 鼠标悬浮的多边形边
    */
   private _hoverMultiTargetEdges: MultiTargetUndirectedEdge[] = [];
-
-  public isHaveHoverObject(): boolean {
-    return this._hoverEdges.length > 0 || this._hoverSections.length > 0;
-  }
 
   get hoverEdges(): Edge[] {
     return this._hoverEdges;
@@ -35,6 +37,10 @@ export class MouseInteraction {
     return this._hoverSections;
   }
 
+  get hoverConnectPoints(): ConnectPoint[] {
+    return this._hoverConnectPoints;
+  }
+
   get firstHoverSection(): Section | undefined {
     return this._hoverSections.length > 0 ? this._hoverSections[0] : undefined;
   }
@@ -46,16 +52,9 @@ export class MouseInteraction {
     return this._hoverMultiTargetEdges.length > 0 ? this._hoverMultiTargetEdges[0] : undefined;
   }
 
-  public isHoverEdge(edge: Edge): boolean {
-    return this._hoverEdges.includes(edge);
-  }
-
-  public isHaveHoverEdge(): boolean {
-    return this._hoverEdges.length > 0;
-  }
-
   /**
    * mousemove 事件触发此函数
+   * 要确保此函数只会被外界的一个地方调用，因为mousemove事件会频繁触发
    * @param mouseWorldLocation
    */
   public updateByMouseMove(mouseWorldLocation: Vector): void {
@@ -78,13 +77,12 @@ export class MouseInteraction {
         this._hoverMultiTargetEdges.push(edge);
       }
     }
-    // 更新 Section状态
-    this._hoverSections = [];
-    const sections = this.project.stageManager.getSections();
 
-    for (const section of sections) {
-      if (section.collisionBox.isContainsPoint(mouseWorldLocation)) {
-        this._hoverSections.push(section);
+    // 更新质点的状态
+    this._hoverConnectPoints = [];
+    for (const connectPoint of this.project.stageManager.getConnectPoints()) {
+      if (connectPoint.collisionBox.isContainsPoint(mouseWorldLocation)) {
+        this._hoverConnectPoints.push(connectPoint);
       }
     }
   }

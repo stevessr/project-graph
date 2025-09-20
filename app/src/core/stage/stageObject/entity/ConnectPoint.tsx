@@ -7,17 +7,15 @@ import { id, passExtraAtArg1, passObject, serializable } from "@graphif/serializ
 import { Rectangle } from "@graphif/shapes";
 
 /**
- * 注释
- * 当质点是坍缩状态时，R=1
- * 膨胀状态，R>1，且是一个常量，可能是30，也可能是其他值，后面可能会随时调整
+ * 质点不再区分膨胀状态和收缩状态
  */
 @passExtraAtArg1
 @passObject
 export class ConnectPoint extends ConnectableEntity {
   // 坍缩状态半径
-  static CONNECT_POINT_SHRINK_RADIUS = 1;
+  static CONNECT_POINT_SHRINK_RADIUS = 15;
   // 膨胀状态半径
-  static CONNECT_POINT_EXPAND_RADIUS = 30;
+  static CONNECT_POINT_EXPAND_RADIUS = 15;
 
   get geometryCenter(): Vector {
     return this.collisionBox.getRectangle().center;

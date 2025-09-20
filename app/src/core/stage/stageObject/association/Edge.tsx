@@ -4,6 +4,7 @@ import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox
 import { Vector } from "@graphif/data-structures";
 import { serializable } from "@graphif/serializer";
 import { Line, Rectangle } from "@graphif/shapes";
+import { ConnectPoint } from "../entity/ConnectPoint";
 
 /**
  * 连接两个实体的有向边
@@ -50,8 +51,20 @@ export abstract class Edge extends ConnectableAssociation {
       sourceRectangle.getInnerLocationByRateVector(this.sourceRectangleRate),
       targetRectangle.getInnerLocationByRateVector(this.targetRectangleRate),
     );
-    const startPoint = sourceRectangle.getLineIntersectionPoint(edgeCenterLine);
-    const endPoint = targetRectangle.getLineIntersectionPoint(edgeCenterLine);
+    let startPoint: Vector;
+    let endPoint: Vector;
+
+    if (this.source instanceof ConnectPoint) {
+      startPoint = this.source.geometryCenter;
+    } else {
+      // 这个函数性能损耗可能稍微高一点点，所以放在else里
+      startPoint = sourceRectangle.getLineIntersectionPoint(edgeCenterLine);
+    }
+    if (this.target instanceof ConnectPoint) {
+      endPoint = this.target.geometryCenter;
+    } else {
+      endPoint = targetRectangle.getLineIntersectionPoint(edgeCenterLine);
+    }
     return new Line(startPoint, endPoint);
   }
 
