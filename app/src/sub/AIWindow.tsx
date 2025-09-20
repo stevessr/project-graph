@@ -1,3 +1,4 @@
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import Markdown from "@/components/ui/markdown";
 import { Textarea } from "@/components/ui/textarea";
 import { AITools } from "@/core/service/dataManageService/aiEngine/AITools";
@@ -8,7 +9,7 @@ import SettingsWindow from "@/sub/SettingsWindow";
 import { Vector } from "@graphif/data-structures";
 import { Rectangle } from "@graphif/shapes";
 import { useAtom } from "jotai";
-import { Bot, FolderOpen, Loader2, Send, SettingsIcon, User, Wrench } from "lucide-react";
+import { Bot, BrainCircuit, ChevronRight, FolderOpen, Loader2, Send, SettingsIcon, User, Wrench } from "lucide-react";
 import OpenAI from "openai";
 import { useRef, useState } from "react";
 
@@ -65,21 +66,36 @@ export default function AIWindow() {
         const delta = chunk.choices[0].delta;
         streamingMsg.content! += delta.content ?? "";
         const toolCalls = delta.tool_calls || [];
+
         for (const toolCall of toolCalls) {
           if (typeof streamingMsg.tool_calls !== "undefined") {
-            const index = streamingMsg.tool_calls.length;
-            if (!streamingMsg.tool_calls[index]) {
+            const index =
+              toolCall.index !== undefined
+                ? toolCall.index
+                : toolCall.type
+                  ? streamingMsg.tool_calls.length
+                  : streamingMsg.tool_calls.length - 1;
+
+            // 确保索引有效
+            if (index >= streamingMsg.tool_calls.length) {
               streamingMsg.tool_calls[index] = {
-                ...toolCall,
-                // Google AI 不会返回工具调用的 id
-                // https://discuss.ai.google.dev/t/tool-calling-with-openai-api-not-working/60140/5
                 id: toolCall.id || crypto.randomUUID(),
-              } as any;
-            } else if (toolCall.function) {
-              streamingMsg.tool_calls[index].function.arguments += toolCall.function.arguments;
+                type: "function",
+                function: {
+                  name: "",
+                  arguments: "",
+                },
+              };
             }
+
+            // 更新工具调用信息
+            if (toolCall.id) streamingMsg.tool_calls[index].id = toolCall.id;
+            if (toolCall.function?.name) streamingMsg.tool_calls[index].function.name += toolCall.function.name;
+            if (toolCall.function?.arguments)
+              streamingMsg.tool_calls[index].function.arguments += toolCall.function.arguments;
           }
         }
+
         setLastMessage(streamingMsg);
         scrollToBottom();
         lastChunk = chunk;
@@ -91,6 +107,7 @@ export default function AIWindow() {
       setTotalOutputTokens((v) => v + lastChunk.usage!.completion_tokens);
       scrollToBottom();
       // 如果有工具调用，执行工具调用
+      console.log(streamingMsg.tool_calls);
       if (streamingMsg.tool_calls && streamingMsg.tool_calls.length > 0) {
         const toolMsgs: OpenAI.ChatCompletionToolMessageParam[] = [];
         for (const toolCall of streamingMsg.tool_calls) {
@@ -142,14 +159,41 @@ export default function AIWindow() {
             </div>
           ) : msg.role === "assistant" ? (
             <div key={i} className="flex flex-col gap-2">
-              {msg.content && <Markdown source={msg.content as string} />}
+              {msg.content && typeof msg.content === "string" && (
+                <>
+                  {msg.content.startsWith("<think>") && (
+                    <Collapsible className="group/collapsible" defaultOpen={!msg.content.includes("</think>")}>
+                      <CollapsibleTrigger className="flex items-center gap-2">
+                        <BrainCircuit />
+                        <span>思考中</span>
+                        <ChevronRight className="transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="animate-none! mt-2 rounded-lg border px-3 py-2 opacity-50">
+                        <span className="text-sm">
+                          <Markdown source={msg.content.split("<think>")[1].split("</think>")[0]} />
+                        </span>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  )}
+                  <Markdown
+                    source={msg.content.includes("</think>") ? msg.content.split("</think>")[1] : msg.content}
+                  />
+                </>
+              )}
               {msg.tool_calls &&
                 msg.tool_calls.map((toolCall) => (
-                  <div className="flex items-center gap-1 text-xs" key={toolCall.id}>
-                    <Wrench size={16} />
-                    {toolCall.function.name}
-                    {/*{toolCall.function.arguments}*/}
-                  </div>
+                  <Collapsible className="group/collapsible" key={toolCall.id}>
+                    <CollapsibleTrigger className="flex items-center gap-2">
+                      <Wrench />
+                      <span>{toolCall.function.name}</span>
+                      <ChevronRight className="transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="animate-none! mt-2 rounded-lg border px-3 py-2 opacity-50">
+                      <span className="text-sm">
+                        <Markdown source={`\`\`\`json\n${toolCall.function.arguments}\n\`\`\``} />
+                      </span>
+                    </CollapsibleContent>
+                  </Collapsible>
                 ))}
             </div>
           ) : (
