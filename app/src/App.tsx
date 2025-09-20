@@ -22,7 +22,6 @@ import { URI } from "vscode-uri";
 import { cn } from "./utils/cn";
 import { isWindows } from "./utils/platform";
 import { DragFileIntoStageEngine } from "./core/service/dataManageService/dragFileIntoStageEngine/dragFileIntoStageEngine";
-import { Vector } from "@graphif/data-structures";
 
 export default function App() {
   const [maximized, _setMaximized] = useState(false);
@@ -185,11 +184,7 @@ export default function App() {
           // 拖拽到画布区域
           toast("追加到画布……待完善");
           // console.log(activeProject, event.payload.paths);
-          DragFileIntoStageEngine.handleDrop(
-            activeProject,
-            event.payload.paths,
-            new Vector(event.payload.position.x, event.payload.position.y),
-          );
+          DragFileIntoStageEngine.handleDrop(activeProject, event.payload.paths);
         }
       }
     });
