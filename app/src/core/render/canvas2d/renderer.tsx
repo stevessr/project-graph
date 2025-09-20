@@ -89,6 +89,16 @@ export class Renderer {
    * @returns
    */
   tick() {
+    if (Settings.isPauseRenderWhenManipulateOvertime) {
+      if (!this.project.controller.isManipulateOverTime()) {
+        this.tick_();
+      }
+    } else {
+      this.tick_();
+    }
+  }
+
+  private tick_() {
     this.updateFPS();
     const viewRectangle = this.getCoverWorldRectangle();
     this.renderBackground();
