@@ -32,9 +32,11 @@ export class ControllerContextMenuClass extends ControllerClass {
     // 检查点击位置是否在可连接对象上
     const clickedConnectableEntity = this.project.stageManager.findConnectableEntityByLocation(worldLocation);
 
-    // 如果启用了右键点击连线功能、有实体被选中，并且点击位置在可连接对象上，则不显示右键菜单
+    // 如果启用了右键点击连线功能、有实体被选中，并且点击位置在可连接对象上，并且点击的对象未选中，则触发连接，不触发右键菜单
     if (Settings.enableRightClickConnect && hasSelectedConnectableEntities && clickedConnectableEntity !== null) {
-      return;
+      if (!clickedConnectableEntity.isSelected) {
+        return;
+      }
     }
 
     if (distance < 5) {
