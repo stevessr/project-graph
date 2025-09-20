@@ -16,6 +16,7 @@ export class MouseInteraction {
 
   /** 鼠标悬浮的框 */
   // 2.0.22 开始，取消section悬浮状态，因为感觉没什么必要
+  // 不不不，有必要，在界面缩小的时候点击式连线，能很方便的看到section的碰撞箱
   private _hoverSections: Section[] = [];
 
   // 2.0.22 开始，增加质点的悬浮状态
@@ -75,6 +76,16 @@ export class MouseInteraction {
       .filter((association) => association instanceof MultiTargetUndirectedEdge)) {
       if (edge.collisionBox.isContainsPoint(mouseWorldLocation)) {
         this._hoverMultiTargetEdges.push(edge);
+      }
+    }
+
+    // 更新 Section状态
+    this._hoverSections = [];
+    const sections = this.project.stageManager.getSections();
+
+    for (const section of sections) {
+      if (section.collisionBox.isContainsPoint(mouseWorldLocation)) {
+        this._hoverSections.push(section);
       }
     }
 
