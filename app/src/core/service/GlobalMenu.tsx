@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import {
   Menubar,
@@ -12,8 +11,6 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { loadAllServicesAfterInit, loadAllServicesBeforeInit } from "@/core/loadAllServices";
 import { Project } from "@/core/Project";
 import { activeProjectAtom, isClassroomModeAtom, projectsAtom, store } from "@/state";
@@ -21,6 +18,7 @@ import AIWindow from "@/sub/AIWindow";
 import AttachmentsWindow from "@/sub/AttachmentsWindow";
 import ExportPngWindow from "@/sub/ExportPngWindow";
 import FindWindow from "@/sub/FindWindow";
+import GenerateNodeTree, { GenerateNodeGraph } from "@/sub/GenerateNodeWindow";
 import LoginWindow from "@/sub/LoginWindow";
 import NodeDetailsWindow from "@/sub/NodeDetailsWindow";
 import RecentFilesWindow from "@/sub/RecentFilesWindow";
@@ -29,9 +27,8 @@ import TestWindow from "@/sub/TestWindow";
 import UserWindow from "@/sub/UserWindow";
 import { getDeviceId } from "@/utils/otherApi";
 import { PathString } from "@/utils/pathString";
-import { Color, Vector } from "@graphif/data-structures";
+import { Color } from "@graphif/data-structures";
 import { deserialize, serialize } from "@graphif/serializer";
-import { Rectangle } from "@graphif/shapes";
 import { Decoder } from "@msgpack/msgpack";
 import { getVersion } from "@tauri-apps/api/app";
 import { appCacheDir, dataDir, join } from "@tauri-apps/api/path";
@@ -59,23 +56,26 @@ import {
   FileOutput,
   FilePlus,
   Folder,
-  Images,
   FolderClock,
   FolderCog,
   FolderOpen,
   FolderTree,
   Frown,
   Fullscreen,
+  GitCompareArrows,
+  Images,
   Keyboard,
   LayoutGrid,
   Loader,
   MapPin,
   MessageCircleWarning,
   MousePointer2,
+  Network,
   Palette,
   Paperclip,
   PersonStanding,
   PictureInPicture2,
+  Plus,
   Rabbit,
   Radiation,
   Redo,
@@ -101,11 +101,10 @@ import { ProjectUpgrader } from "../stage/ProjectUpgrader";
 import { LineEdge } from "../stage/stageObject/association/LineEdge";
 import { TextNode } from "../stage/stageObject/entity/TextNode";
 import { RecentFileManager } from "./dataFileService/RecentFileManager";
+import { DragFileIntoStageEngine } from "./dataManageService/dragFileIntoStageEngine/dragFileIntoStageEngine";
 import { FeatureFlags } from "./FeatureFlags";
 import { Settings } from "./Settings";
-import { SubWindow } from "./SubWindow";
 import { Telemetry } from "./Telemetry";
-import { DragFileIntoStageEngine } from "./dataManageService/dragFileIntoStageEngine/dragFileIntoStageEngine";
 
 const Content = MenubarContent;
 const Item = MenubarItem;
@@ -579,89 +578,25 @@ export function GlobalMenu() {
           {/* 生成子菜单 */}
           <Sub>
             <SubTrigger>
-              <RefreshCcwDot />
+              <Plus />
               {t("actions.generate.title")}
             </SubTrigger>
             <SubContent>
               <Item
                 onClick={async () => {
-                  // 创建自定义对话框
-                  const result = await new Promise<{ text: string; indention: number } | undefined>((resolve) => {
-                    function CustomDialog({ winId }: { winId?: string }) {
-                      const [text, setText] = useState("");
-                      const [indention, setIndention] = useState("4");
-
-                      return (
-                        <div className="space-y-4 p-6">
-                          <div>
-                            <h3 className="mb-2 text-xl font-semibold">
-                              {t("actions.generate.generateNodeTreeByText")}
-                            </h3>
-                            <p className="text-muted-foreground mb-4">
-                              {t("actions.generate.generateNodeTreeByTextDescription")}
-                            </p>
-                          </div>
-                          <Textarea
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            placeholder={t("actions.generate.generateNodeTreeByTextPlaceholder")}
-                            className="min-h-[200px]"
-                          />
-                          <div className="flex items-center gap-2">
-                            <label htmlFor="indention">{t("actions.generate.indention")}:</label>
-                            <Input
-                              id="indention"
-                              type="number"
-                              value={indention}
-                              onChange={(e) => setIndention(e.target.value)}
-                              min="1"
-                              max="10"
-                              className="w-20"
-                            />
-                          </div>
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                resolve(undefined);
-                                setTimeout(() => {
-                                  SubWindow.close(winId!);
-                                }, 100);
-                              }}
-                            >
-                              {t("actions.cancel")}
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                resolve({ text, indention: parseInt(indention) || 4 });
-                                setTimeout(() => {
-                                  SubWindow.close(winId!);
-                                }, 100);
-                              }}
-                            >
-                              {t("actions.confirm")}
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    SubWindow.create({
-                      title: t("actions.generate.generateNodeTreeByText"),
-                      titleBarOverlay: true,
-                      closable: true,
-                      rect: new Rectangle(Vector.same(100), new Vector(600, 450)),
-                      children: <CustomDialog />,
-                    });
-                  });
-
-                  if (result) {
-                    activeProject?.stageManager.generateNodeTreeByText(result.text, result.indention);
-                  }
+                  GenerateNodeTree.open();
                 }}
               >
-                <RefreshCcwDot />
+                <Network className="-rotate-90" />
                 {t("actions.generate.generateNodeTreeByText")}
+              </Item>
+              <Item
+                onClick={async () => {
+                  GenerateNodeGraph.open();
+                }}
+              >
+                <GitCompareArrows />
+                {t("actions.generate.generateNodeGraphByText")}
               </Item>
             </SubContent>
           </Sub>

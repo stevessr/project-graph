@@ -574,8 +574,12 @@ export class StageManager {
   }
 
   generateNodeGraphByText(text: string, location = this.project.camera.location) {
-    this.project.nodeAdder.addNodeGraphByText(text, location);
-    this.project.historyManager.recordStep();
+    try {
+      this.project.nodeAdder.addNodeGraphByText(text, location);
+      this.project.historyManager.recordStep();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   }
 
   generateNodeByMarkdown(text: string, location = this.project.camera.location) {

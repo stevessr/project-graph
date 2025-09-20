@@ -179,7 +179,7 @@ export class NodeAdder {
   }
   /**
    * 通过纯文本生成网状结构
-   *
+   * 这个函数不稳定，可能会随时throw错误
    * @param text 网状结构的格式文本
    * @param diffLocation
    */
@@ -256,7 +256,15 @@ export class NodeAdder {
           }
           const leftContentList = leftContent.split("-");
           if (leftContentList.length !== 2) {
-            throw new Error(`解析时出现错误: "${line}"，左侧内容应该只有两个名称`);
+            if (leftContentList.length === 1) {
+              throw new Error(
+                `解析时出现错误: "${line}"，此行被识别为连线上有文字的行，中间的连接线应该是 "-->"，而不是 "->"`,
+              );
+            } else {
+              throw new Error(
+                `解析时出现错误: "${line}"，此行被识别为连线上有文字的行，短横线 “-” 左侧内容应该确保只有两个名称`,
+              );
+            }
           }
           const startName = leftContentList[0].trim();
           const edgeText = leftContentList[1].trim();
