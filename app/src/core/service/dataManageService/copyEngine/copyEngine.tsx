@@ -42,8 +42,8 @@ export class CopyEngine {
    */
   copy() {
     // 获取所有选中的实体，不能包含关系
-    const selectedEntites = this.project.stageManager.getSelectedEntities();
-    if (selectedEntites.length === 0) {
+    const selectedEntities = this.project.stageManager.getSelectedEntities();
+    if (selectedEntities.length === 0) {
       // 如果没有选中东西，就是清空虚拟粘贴板
       VirtualClipboard.clear();
       toast.success("当前没有选中任何实体，已清空了虚拟剪贴板");
@@ -51,18 +51,18 @@ export class CopyEngine {
     }
 
     // 更新虚拟剪贴板
-    const selectedUUIDs = new Set(selectedEntites.map((it) => it.uuid));
+    const selectedUUIDs = new Set(selectedEntities.map((it) => it.uuid));
     // ===== 开始构建 copyedStageObjects
-    const copyedStageObjects: StageObject[] = [...selectedEntites]; // 准备复制后的数据
+    const copiedStageObjects: StageObject[] = [...selectedEntities]; // 准备复制后的数据
     // 处理Section框内部的实体
     // 先检测一下选中的内容中是否有框
-    const isHaveSection = selectedEntites.some((it) => it instanceof Section);
+    const isHaveSection = selectedEntities.some((it) => it instanceof Section);
     if (isHaveSection) {
       // 如果有框，则获取框内的实体
-      const innerEntities = this.project.sectionMethods.getAllEntitiesInSelectedSectionsOrEntities(selectedEntites);
+      const innerEntities = this.project.sectionMethods.getAllEntitiesInSelectedSectionsOrEntities(selectedEntities);
       // 根据 selectedUUIDs 过滤
       const filteredInnerEntities = innerEntities.filter((it) => !selectedUUIDs.has(it.uuid));
-      copyedStageObjects.push(...filteredInnerEntities);
+      copiedStageObjects.push(...filteredInnerEntities);
       // 补充 selectedUUIDs
       for (const entity of filteredInnerEntities) {
         selectedUUIDs.add(entity.uuid);
@@ -73,13 +73,13 @@ export class CopyEngine {
       if (association instanceof ConnectableAssociation) {
         if (association instanceof Edge) {
           if (selectedUUIDs.has(association.source.uuid) && selectedUUIDs.has(association.target.uuid)) {
-            copyedStageObjects.push(association);
+            copiedStageObjects.push(association);
           }
         } else if (association instanceof MultiTargetUndirectedEdge) {
           // 无向边
           const associationUUIDs = new Set(association.associationList.map((it) => it.uuid));
           if (SetFunctions.isSubset(associationUUIDs, selectedUUIDs)) {
-            copyedStageObjects.push(association);
+            copiedStageObjects.push(association);
           }
         }
       }
@@ -87,15 +87,16 @@ export class CopyEngine {
     // ===== copyedStageObjects 构建完毕
 
     // 深拷贝一下数据，只有在粘贴的时候才刷新uuid
-    const serializedCopyedStageObjects = serialize(copyedStageObjects);
-    VirtualClipboard.copy(serialize(serializedCopyedStageObjects));
-    const rect = Rectangle.getBoundingRectangle(selectedEntites.map((it) => it.collisionBox.getRectangle()));
+    const serializedCopiedStageObjects = serialize(copiedStageObjects);
+    console.log(serializedCopiedStageObjects);
+    VirtualClipboard.copy(serialize(serializedCopiedStageObjects));
+    const rect = Rectangle.getBoundingRectangle(selectedEntities.map((it) => it.collisionBox.getRectangle()));
     this.project.effects.addEffect(new RectangleNoteReversedEffect(new ProgressNumber(0, 100), rect, Color.Green));
 
     // 更新系统剪贴板
     // 如果只有一张图片就直接复制图片
-    if (selectedEntites.length === 1 && selectedEntites[0] instanceof ImageNode) {
-      const imageNode = selectedEntites[0] as ImageNode;
+    if (selectedEntities.length === 1 && selectedEntities[0] instanceof ImageNode) {
+      const imageNode = selectedEntities[0] as ImageNode;
       const blob = this.project.attachments.get(imageNode.attachmentId);
       if (blob) {
         blob.arrayBuffer().then(Image.fromBytes).then(writeImage);
@@ -103,7 +104,7 @@ export class CopyEngine {
       }
     } else {
       // 否则复制全部文本节点，用两个换行分割
-      const textNodes = selectedEntites.filter((it) => it instanceof TextNode) as TextNode[];
+      const textNodes = selectedEntities.filter((it) => it instanceof TextNode) as TextNode[];
       if (textNodes.length > 0) {
         const text = textNodes.map((it) => it.text).join("\n\n");
         writeText(text);
@@ -130,7 +131,7 @@ export class CopyEngine {
     // 获取虚拟粘贴板上数据的外接矩形
     const pastDataSerialized = VirtualClipboard.paste();
     console.log(pastDataSerialized);
-    const pasteData: StageObject[] = deserialize(pastDataSerialized); // 加了project会报错
+    const pasteData: StageObject[] = deserialize(pastDataSerialized, this.project);
 
     // 粘贴的时候刷新UUID
     for (const stageObject of pasteData) {
