@@ -125,6 +125,8 @@ export class CopyEngine {
     } else {
       this.readSystemClipboardAndPaste();
     }
+    // 粘贴后自动重置视野
+    this.project.camera.resetBySelected();
   }
 
   virtualClipboardPaste() {
