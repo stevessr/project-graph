@@ -46,7 +46,7 @@ export class CopyEngine {
     if (selectedEntities.length === 0) {
       // 如果没有选中东西，就是清空虚拟粘贴板
       VirtualClipboard.clear();
-      toast.success("当前没有选中任何实体，已清空了虚拟剪贴板");
+      toast.info("当前没有选中任何实体，已清空了虚拟剪贴板");
       return;
     }
 
@@ -125,14 +125,11 @@ export class CopyEngine {
     } else {
       this.readSystemClipboardAndPaste();
     }
-    // 粘贴后自动重置视野
-    this.project.camera.resetBySelected();
   }
 
   virtualClipboardPaste() {
     // 获取虚拟粘贴板上数据的外接矩形
     const pastDataSerialized = VirtualClipboard.paste();
-    console.log(pastDataSerialized);
     const pasteData: StageObject[] = deserialize(pastDataSerialized, this.project);
 
     // 粘贴的时候刷新UUID
@@ -180,6 +177,13 @@ export class CopyEngine {
       shouldSelectedEntities.map((it) => it.collisionBox.getRectangle()),
     );
     this.project.effects.addEffect(new RectangleNoteEffect(new ProgressNumber(0, 50), effectRect, Color.Green));
+    toast.success(
+      <div>
+        <h2 className="text-lg">粘贴成功</h2>
+        <p className="text-xs">粘贴位置在{effectRect.leftTop.toString()}，如果您是跨文档粘贴，请注意调整位置</p>
+        <p className="text-xs">已帮您自动选中该内容，按下默认快捷键 `F` 即可快速聚焦到该内容</p>
+      </div>,
+    );
     // 粘贴到舞台上
     this.project.stage.push(...pasteData);
     // 清空虚拟粘贴板
