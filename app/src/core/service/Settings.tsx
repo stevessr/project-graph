@@ -30,7 +30,7 @@ export const settingsSchema = z.object({
   cameraCycleSpaceSizeY: z.number().min(1000).max(10000).int().default(1000),
   historySize: z.number().min(1).max(5000).int().default(150),
   autoRefreshStageByMouseAction: z.boolean().default(true),
-  isPauseRenderWhenManipulateOvertime: z.boolean().default(true),
+  isPauseRenderWhenManipulateOvertime: z.boolean().default(false),
   renderOverTimeWhenNoManipulateTime: z.number().min(1).max(10).int().default(5),
   ignoreTextNodeTextRenderLessThanCameraScale: z.number().min(0.01).max(0.3).default(0.065),
   cacheTextAsBitmap: z.boolean().default(false),

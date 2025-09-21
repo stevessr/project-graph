@@ -86,7 +86,7 @@ export class Controller {
   /**
    * 触发了一次操作，记录时间
    */
-  recordManipulate() {
+  public recordManipulate() {
     this.lastManipulateTime = performance.now();
   }
 
@@ -188,6 +188,7 @@ export class Controller {
   }
 
   private keydown(event: KeyboardEvent) {
+    this.recordManipulate();
     // 2025年2月1日
     // 必须要禁止ctrl f 和ctrl+g的浏览器默认行为，否则会弹出一个框
     // ctrl r 会刷新页面
@@ -218,7 +219,6 @@ export class Controller {
     }
     const key = event.key.toLowerCase();
     this.pressingKeySet.add(key);
-    this.recordManipulate();
   }
 
   private keyup(event: KeyboardEvent) {
@@ -254,6 +254,7 @@ export class Controller {
   }
 
   private touchmove(e: TouchEvent) {
+    this.recordManipulate();
     e.preventDefault();
 
     if (e.touches.length === 1) {
@@ -281,10 +282,10 @@ export class Controller {
         this.touchDelta.multiply(1 / this.project.camera.currentScale),
       );
     }
-    this.recordManipulate();
   }
 
   private touchend(e: TouchEvent) {
+    this.recordManipulate();
     e.preventDefault();
     if (e.changedTouches.length === 1) {
       // HACK: 重构后touch方法就有问题了
@@ -300,7 +301,6 @@ export class Controller {
     setTimeout(() => {
       this.project.camera.accelerateCommander = Vector.getZero();
     }, 100);
-    this.recordManipulate();
   }
 }
 

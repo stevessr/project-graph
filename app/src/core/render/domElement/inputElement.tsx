@@ -78,6 +78,7 @@ export class InputElement {
       }, 10);
 
       inputElement.addEventListener("input", () => {
+        this.project.controller.recordManipulate();
         onChange(inputElement.value);
         adjustSize();
       });
@@ -176,6 +177,7 @@ export class InputElement {
         removeElement();
       });
       textareaElement.addEventListener("input", () => {
+        this.project.controller.recordManipulate();
         onChange(textareaElement.value, textareaElement);
       });
       let isComposing = false;
