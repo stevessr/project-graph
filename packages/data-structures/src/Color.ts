@@ -404,7 +404,7 @@ export function mixColors(color1: Color, color2: Color, weight: number): Color {
   const g = Math.round(color1.g * (1 - weight) + color2.g * weight);
   const b = Math.round(color1.b * (1 - weight) + color2.b * weight);
   const a = color1.a * (1 - weight) + color2.a * weight;
-  return new Color(r, g, b, a);
+  return new Color(r, g, b, Math.round(a * 100) / 100); // 颜色混合很容易搞出科学计数法的小数，这里取两位小数精度
 }
 
 /**

@@ -75,11 +75,6 @@ export class Renderer {
     this.project.canvas.ctx.scale(scale, scale);
   }
 
-  /**
-   * 仅在导出png时开启
-   */
-  isRenderBackground = true;
-
   // 确保这个函数在软件打开的那一次调用
   constructor(private readonly project: Project) {}
 
@@ -553,23 +548,17 @@ export class Renderer {
    */
   private renderBackground() {
     const rect = this.getCoverWorldRectangle();
-    if (this.isRenderBackground) {
-      if (Settings.windowBackgroundAlpha < 1) {
-        this.project.canvas.ctx.clearRect(0, 0, this.w, this.h);
-      }
-      this.project.shapeRenderer.renderRect(
-        this.transformWorld2View(rect),
-        mixColors(
-          Color.Transparent,
-          this.project.stageStyleManager.currentStyle.Background,
-          Settings.windowBackgroundAlpha,
-        ),
-        Color.Transparent,
-        0,
-      );
-    } else {
-      this.project.canvas.ctx.clearRect(0, 0, this.w, this.h);
-    }
+    // 先清空一下背景
+    this.project.canvas.ctx.clearRect(0, 0, this.w, this.h);
+    // 画canvas底色
+    const bgColor = mixColors(
+      this.project.stageStyleManager.currentStyle.Background.toTransparent(),
+      this.project.stageStyleManager.currentStyle.Background,
+      Settings.windowBackgroundAlpha,
+    );
+    // const bgColor = this.project.stageStyleManager.currentStyle.Background.toNewAlpha(Settings.windowBackgroundAlpha);
+    console.log(bgColor);
+    this.project.shapeRenderer.renderRect(this.transformWorld2View(rect), bgColor, Color.Transparent, 0);
     if (Settings.showBackgroundDots) {
       this.project.backgroundRenderer.renderDotBackground(rect);
     }

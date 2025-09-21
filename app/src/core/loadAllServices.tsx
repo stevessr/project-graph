@@ -89,8 +89,8 @@ export function loadAllServicesBeforeInit(project: Project): void {
   project.loadService(RenderUtils);
   project.loadService(WorldRenderUtils);
   project.loadService(StageManager);
+  project.loadService(AutoCompute); // 自动计算引擎应该早于Camera，因为它会操作摄像机
   project.loadService(Camera);
-  project.loadService(AutoCompute);
   project.loadService(Renderer);
   project.loadService(Effects); // Effects必须在Renderer之后
 
