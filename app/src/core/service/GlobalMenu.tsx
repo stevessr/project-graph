@@ -63,6 +63,7 @@ import {
   Frown,
   Fullscreen,
   GitCompareArrows,
+  Grip,
   Images,
   Keyboard,
   LayoutGrid,
@@ -70,6 +71,7 @@ import {
   MapPin,
   MessageCircleWarning,
   MousePointer2,
+  Move3d,
   Network,
   Palette,
   Paperclip,
@@ -80,6 +82,8 @@ import {
   Radiation,
   Redo,
   RefreshCcwDot,
+  Rows4,
+  Columns4,
   Save,
   Scaling,
   Search,
@@ -804,6 +808,50 @@ export function GlobalMenu() {
             <CircleDot />
             {activeProject ? <span>开启/关闭狙击镜</span> : "请先打开工程文件才能使用此功能"}
           </Item>
+          <Sub>
+            <SubTrigger>
+              <LayoutGrid />
+              背景网格与坐标设置
+            </SubTrigger>
+            <SubContent>
+              <Item
+                disabled={!activeProject}
+                onClick={() => {
+                  Settings.showBackgroundHorizontalLines = !Settings.showBackgroundHorizontalLines;
+                }}
+              >
+                <Rows4 />
+                {activeProject ? <span>开启/关闭 背景横线</span> : "请先打开工程文件才能使用此功能"}
+              </Item>
+              <Item
+                disabled={!activeProject}
+                onClick={() => {
+                  Settings.showBackgroundVerticalLines = !Settings.showBackgroundVerticalLines;
+                }}
+              >
+                <Columns4 />
+                {activeProject ? <span>开启/关闭 背景竖线</span> : "请先打开工程文件才能使用此功能"}
+              </Item>
+              <Item
+                disabled={!activeProject}
+                onClick={() => {
+                  Settings.showBackgroundDots = !Settings.showBackgroundDots;
+                }}
+              >
+                <Grip />
+                {activeProject ? <span>开启/关闭 背景洞洞板</span> : "请先打开工程文件才能使用此功能"}
+              </Item>
+              <Item
+                disabled={!activeProject}
+                onClick={() => {
+                  Settings.showBackgroundCartesian = !Settings.showBackgroundCartesian;
+                }}
+              >
+                <Move3d />
+                {activeProject ? <span>开启/关闭 坐标轴</span> : "请先打开工程文件才能使用此功能"}
+              </Item>
+            </SubContent>
+          </Sub>
           <Sub>
             <SubTrigger>
               <PictureInPicture2 />
