@@ -68,6 +68,9 @@ import KeyTooltip from "./key-tooltip";
 import { Edge } from "@/core/stage/stageObject/association/Edge";
 import { Direction } from "@/types/directions";
 import { openBrowserOrFile } from "@/utils/externalOpen";
+import { useEffect, useState } from "react";
+import { ColorManager } from "@/core/service/feedbackService/ColorManager";
+import ColorWindow from "@/sub/ColorWindow";
 
 const Content = ContextMenuContent;
 const Item = ContextMenuItem;
@@ -349,38 +352,51 @@ export default function MyContextMenuContent() {
           )}
         </div>
       </Item>
+
       {/* 存在选中实体 */}
       {p.stageManager.getSelectedStageObjects().length > 0 &&
-        p.stageManager.getSelectedStageObjects().every((it) => "color" in it) && (
-          // 更改颜色
-          <Sub>
-            <SubTrigger>
-              <Palette />
-              {t("changeColor")}
-            </SubTrigger>
-            <SubContent>
-              <Item onClick={() => p.stageObjectColorManager.setSelectedStageObjectColor(Color.Transparent)}>
-                <Slash />
-                {t("resetColor")}
-              </Item>
-              <Item className="bg-transparent! grid grid-cols-11 gap-0">
-                {Object.values(tailwindColors)
-                  .filter((it) => typeof it !== "string")
-                  .flatMap((it) => Object.values(it).map(Color.fromCss))
-                  .map((color, index) => (
-                    <div
-                      key={index}
-                      className="hover:outline-accent-foreground size-4 -outline-offset-2 hover:outline-2"
-                      style={{ backgroundColor: color.toString() }}
-                      onMouseEnter={() => p.stageObjectColorManager.setSelectedStageObjectColor(color)}
-                    />
-                  ))}
-              </Item>
-              <Item onClick={() => p.stageObjectColorManager.setSelectedStageObjectColor(new Color(11, 45, 14, 0))}>
-                改为强制特殊透明色
-              </Item>
-            </SubContent>
-          </Sub>
+        p.stageManager.getSelectedStageObjects().some((it) => "color" in it) && (
+          <>
+            {/* 更改更简单的颜色 */}
+            <ColorLine />
+            {/* 更改更详细的颜色 */}
+            <Sub>
+              <SubTrigger>
+                <Palette />
+                {t("changeColor")}
+              </SubTrigger>
+              <SubContent>
+                <Item onClick={() => p.stageObjectColorManager.setSelectedStageObjectColor(Color.Transparent)}>
+                  <Slash />
+                  {t("resetColor")}
+                </Item>
+                <Item className="bg-transparent! grid grid-cols-11 gap-0">
+                  {Object.values(tailwindColors)
+                    .filter((it) => typeof it !== "string")
+                    .slice(4)
+                    .flatMap((it) => Object.values(it).map(Color.fromCss))
+                    .map((color, index) => (
+                      <div
+                        key={index}
+                        className="hover:outline-accent-foreground size-4 -outline-offset-2 hover:outline-2"
+                        style={{ backgroundColor: color.toString() }}
+                        onMouseEnter={() => p.stageObjectColorManager.setSelectedStageObjectColor(color)}
+                      />
+                    ))}
+                </Item>
+                <Item onClick={() => p.stageObjectColorManager.setSelectedStageObjectColor(new Color(11, 45, 14, 0))}>
+                  改为强制特殊透明色
+                </Item>
+                <Item
+                  onClick={() => {
+                    ColorWindow.open();
+                  }}
+                >
+                  打开调色板
+                </Item>
+              </SubContent>
+            </Sub>
+          </>
         )}
       {/* 存在两个及以上选中实体 */}
       {p.stageManager.getSelectedEntities().length >= 2 && (
@@ -737,3 +753,37 @@ export default function MyContextMenuContent() {
     </Content>
   );
 }
+
+const ColorLine: React.FC = () => {
+  const [currentColors, setCurrentColors] = useState<Color[]>([]);
+  const [project] = useAtom(activeProjectAtom);
+
+  useEffect(() => {
+    ColorManager.getUserEntityFillColors().then((colors) => {
+      setCurrentColors(colors);
+    });
+  }, []);
+
+  const handleChangeColor = (color: Color) => {
+    project?.stageObjectColorManager.setSelectedStageObjectColor(color);
+  };
+
+  return (
+    <div className="flex max-w-64 overflow-x-auto">
+      {currentColors.map((color) => {
+        return (
+          <div
+            className="hover:outline-accent-foreground size-4 cursor-pointer -outline-offset-2 hover:outline-2"
+            key={color.toString()}
+            style={{
+              backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
+            }}
+            onClick={() => {
+              handleChangeColor(color);
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
