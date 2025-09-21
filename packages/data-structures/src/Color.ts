@@ -414,6 +414,15 @@ export function averageColors(colors: Color[]): Color {
   const r = Math.round(colors.reduce((acc, cur) => acc + cur.r, 0) / colors.length);
   const g = Math.round(colors.reduce((acc, cur) => acc + cur.g, 0) / colors.length);
   const b = Math.round(colors.reduce((acc, cur) => acc + cur.b, 0) / colors.length);
-  const a = Math.round(colors.reduce((acc, cur) => acc + cur.a, 0) / colors.length);
+
+  // const a = Math.round(colors.reduce((acc, cur) => acc + cur.a, 0.0) / colors.length);
+  // 上面这种写法有bug，透明度平均不了
+
+  let a = 0.0;
+  for (const color of colors) {
+    a += color.a;
+  }
+  a /= colors.length;
+  console.log(a);
   return new Color(r, g, b, a);
 }
