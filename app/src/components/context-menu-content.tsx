@@ -51,7 +51,6 @@ import {
   Palette,
   Pencil,
   RefreshCcw,
-  Scissors,
   Slash,
   Spline,
   SquareDot,
@@ -59,6 +58,7 @@ import {
   SquareSquare,
   TextSelect,
   Trash,
+  Undo,
   Waypoints,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -114,11 +114,18 @@ export default function MyContextMenuContent() {
             </Button>
           </KeyTooltip>
         )}
-        <KeyTooltip keyId="cut">
+        <KeyTooltip keyId="undo">
+          <Button variant="ghost" size="icon" onClick={() => p.historyManager.undo()}>
+            <Undo />
+          </Button>
+        </KeyTooltip>
+
+        {/* 先不放cut，感觉不常用，可能还很容易出bug */}
+        {/* <KeyTooltip keyId="cut">
           <Button variant="ghost" size="icon" onClick={() => p.copyEngine.cut()}>
             <Scissors />
           </Button>
-        </KeyTooltip>
+        </KeyTooltip> */}
       </Item>
 
       {/* 对齐面板 */}
