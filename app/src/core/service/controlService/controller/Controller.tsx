@@ -84,9 +84,10 @@ export class Controller {
   private lastManipulateTime = performance.now();
 
   /**
+   * 重置渲染倒计时器
    * 触发了一次操作，记录时间
    */
-  public recordManipulate() {
+  public resetCountdownTimer() {
     this.lastManipulateTime = performance.now();
   }
 
@@ -150,19 +151,19 @@ export class Controller {
   private mousedown(event: MouseEvent) {
     // event.preventDefault();
     this.handleMousedown(event.button, event.clientX, event.clientY);
-    this.recordManipulate();
+    this.resetCountdownTimer();
   }
 
   private mouseup(event: MouseEvent) {
     // event.preventDefault();
     this.handleMouseup(event.button, event.clientX, event.clientY);
-    this.recordManipulate();
+    this.resetCountdownTimer();
   }
 
   private mousewheel(event: WheelEvent) {
     event.preventDefault();
     // 禁用鼠标滚轮缩放
-    this.recordManipulate();
+    this.resetCountdownTimer();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -188,7 +189,7 @@ export class Controller {
   }
 
   private keydown(event: KeyboardEvent) {
-    this.recordManipulate();
+    this.resetCountdownTimer();
     // 2025年2月1日
     // 必须要禁止ctrl f 和ctrl+g的浏览器默认行为，否则会弹出一个框
     // ctrl r 会刷新页面
@@ -230,7 +231,7 @@ export class Controller {
       // 停止框选
       this.project.rectangleSelect.shutDown();
     }
-    this.recordManipulate();
+    this.resetCountdownTimer();
   }
 
   // touch相关的事件有待重构到具体的功能逻辑中
@@ -250,11 +251,11 @@ export class Controller {
       // 计算初始两指间距离
       this.touchStartDistance = touch1.distance(touch2);
     }
-    this.recordManipulate();
+    this.resetCountdownTimer();
   }
 
   private touchmove(e: TouchEvent) {
-    this.recordManipulate();
+    this.resetCountdownTimer();
     e.preventDefault();
 
     if (e.touches.length === 1) {
@@ -285,7 +286,7 @@ export class Controller {
   }
 
   private touchend(e: TouchEvent) {
-    this.recordManipulate();
+    this.resetCountdownTimer();
     e.preventDefault();
     if (e.changedTouches.length === 1) {
       // HACK: 重构后touch方法就有问题了

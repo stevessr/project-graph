@@ -68,7 +68,7 @@ export class ControllerNodeEditClass extends ControllerClass {
   };
 
   mousemove = (event: MouseEvent) => {
-    this.project.controller.recordManipulate();
+    this.project.controller.resetCountdownTimer();
     /**
      * 如果一直显示详细信息，则不显示鼠标悬停效果
      */
