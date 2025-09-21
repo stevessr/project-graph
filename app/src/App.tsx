@@ -19,9 +19,9 @@ import { CloudUpload, Copy, Dot, Minus, Pin, PinOff, Square, X } from "lucide-re
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { URI } from "vscode-uri";
+import { DragFileIntoStageEngine } from "./core/service/dataManageService/dragFileIntoStageEngine/dragFileIntoStageEngine";
 import { cn } from "./utils/cn";
 import { isWindows } from "./utils/platform";
-import { DragFileIntoStageEngine } from "./core/service/dataManageService/dragFileIntoStageEngine/dragFileIntoStageEngine";
 
 export default function App() {
   const [maximized, _setMaximized] = useState(false);
@@ -77,17 +77,7 @@ export default function App() {
 
     // 监听主题样式切换
     Settings.watch("theme", (value) => {
-      let styleEl = document.querySelector("#pg-theme");
-      if (!styleEl) {
-        styleEl = document.createElement("style");
-        styleEl.id = "pg-theme";
-        document.head.appendChild(styleEl);
-      }
-      styleEl.innerHTML = `
-        :root {
-          ${Themes.convertThemeToCSS(Themes.getThemeById(value)?.content)}
-        }
-      `;
+      Themes.applyThemeById(value);
     });
 
     // 恢复窗口位置大小

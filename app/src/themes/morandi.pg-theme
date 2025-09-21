@@ -1,7 +1,9 @@
 ---
 id: morandi
-author: Official
 type: light
+author:
+  en: Official
+  zh_CN: 官方
 description:
   en: Low-saturation theme with bright light in bright environments.
   zh_CN: 低饱和度主题，光线明朗的环境下使用

@@ -7,12 +7,12 @@ import { StageStyle } from "@/core/service/feedbackService/stageStyle/stageStyle
  */
 @service("stageStyleManager")
 export class StageStyleManager {
-  currentStyle: StageStyle = StageStyle.styleFromTheme("dark");
+  currentStyle = new StageStyle();
 
   // 软件启动运行一次
   constructor() {
-    Settings.watch("theme", (value) => {
-      this.currentStyle = StageStyle.styleFromTheme(value);
+    Settings.watch("theme", async (value) => {
+      this.currentStyle = await StageStyle.styleFromTheme(value);
     });
   }
 }

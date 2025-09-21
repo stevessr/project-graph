@@ -1,7 +1,9 @@
 ---
 id: dark-blue
-author: Official
 type: dark
+author:
+  en: Official
+  zh_CN: 官方
 description:
   en: The default look of shadcn/ui, but with a blue theme color
   zh_CN: shadcn/ui 的默认外观，但是以蓝色为主题色

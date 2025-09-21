@@ -205,6 +205,7 @@ export const Settings = new Proxy<
         throw new Error(`没有这个设置项: ${key}`);
       }
       store.set(key, value);
+      listeners[key]?.forEach((cb) => cb(value));
       return Reflect.set(target, key, value, receiver);
     },
     get: (target, key, receiver) => {

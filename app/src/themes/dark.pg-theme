@@ -1,7 +1,9 @@
 ---
 id: dark
-author: Official
 type: dark
+author:
+  en: Official
+  zh_CN: 官方
 description:
   en: The default look of shadcn/ui
   zh_CN: shadcn/ui 的默认外观

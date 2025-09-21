@@ -6,17 +6,19 @@ import { ViewFlashEffect } from "@/core/service/feedbackService/effectEngine/con
 import { ViewOutlineFlashEffect } from "@/core/service/feedbackService/effectEngine/concrete/ViewOutlineFlashEffect";
 import { Settings } from "@/core/service/Settings";
 import { Themes } from "@/core/service/Themes";
-import { StageStyle } from "@/core/service/feedbackService/stageStyle/stageStyle";
 import { PenStrokeMethods } from "@/core/stage/stageManager/basicMethods/PenStrokeMethods";
-import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
-import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { ConnectableEntity } from "@/core/stage/stageObject/abstract/ConnectableEntity";
 import { MultiTargetUndirectedEdge } from "@/core/stage/stageObject/association/MutiTargetUndirectedEdge";
 import { CollisionBox } from "@/core/stage/stageObject/collisionBox/collisionBox";
+import { ImageNode } from "@/core/stage/stageObject/entity/ImageNode";
+import { TextNode } from "@/core/stage/stageObject/entity/TextNode";
 import { activeProjectAtom, store } from "@/state";
 // import ColorWindow from "@/sub/ColorWindow";
 import FindWindow from "@/sub/FindWindow";
 // import KeyboardRecentFilesWindow from "@/sub/KeyboardRecentFilesWindow";
+import { DetailsManager } from "@/core/stage/stageObject/tools/entityDetailsManager";
+import ColorWindow from "@/sub/ColorWindow";
+import RecentFilesWindow from "@/sub/RecentFilesWindow";
 import SettingsWindow from "@/sub/SettingsWindow";
 import { Direction } from "@/types/directions";
 import { openBrowserOrFile } from "@/utils/externalOpen";
@@ -26,9 +28,6 @@ import { Rectangle } from "@graphif/shapes";
 import { toast } from "sonner";
 import { v4 } from "uuid";
 import { onNewDraft, onOpenFile } from "../../GlobalMenu";
-import { DetailsManager } from "@/core/stage/stageObject/tools/entityDetailsManager";
-import ColorWindow from "@/sub/ColorWindow";
-import RecentFilesWindow from "@/sub/RecentFilesWindow";
 
 /**
  * 快捷键注册函数
@@ -638,58 +637,29 @@ export class KeyBindsRegistrar {
       }
     });
 
-    // 主题切换相关功能
-    // 创建一个可以在非React环境中使用的setter函数
-    const setTheme = (theme: string) => {
-      // 直接使用Settings的原始set方法
-      Settings.theme = theme;
-
-      // 确保主题CSS立即应用到UI
-      let styleEl = document.querySelector("#pg-theme");
-      if (!styleEl) {
-        styleEl = document.createElement("style");
-        styleEl.id = "pg-theme";
-        document.head.appendChild(styleEl);
-      }
-      styleEl.innerHTML = `
-        :root {
-          ${Themes.convertThemeToCSS(Themes.getThemeById(theme)?.content)}
-        }
-      `;
-
-      // 手动更新StageStyleManager，确保Canvas层样式同步更新
-      const stageStyleManager = this.project.getService("stageStyleManager");
-      if (stageStyleManager) {
-        stageStyleManager.currentStyle = StageStyle.styleFromTheme(theme);
-      }
-
-      // 触发项目重绘，确保Canvas立即更新
-      this.project.loop();
-    };
-
     await this.project.keyBinds.create("switchToDarkTheme", "b l a c k k", () => {
       toast.info("切换到暗黑主题");
-      setTheme("dark");
+      Themes.applyThemeById("dark");
     });
 
     await this.project.keyBinds.create("switchToLightTheme", "w h i t e e", () => {
       toast.info("切换到明亮主题");
-      setTheme("light");
+      Themes.applyThemeById("light");
     });
 
     await this.project.keyBinds.create("switchToParkTheme", "p a r k k", () => {
       toast.info("切换到公园主题");
-      setTheme("park");
+      Themes.applyThemeById("park");
     });
 
     await this.project.keyBinds.create("switchToMacaronTheme", "m k l m k l", () => {
       toast.info("切换到马卡龙主题");
-      setTheme("macaron");
+      Themes.applyThemeById("macaron");
     });
 
     await this.project.keyBinds.create("switchToMorandiTheme", "m l d m l d", () => {
       toast.info("切换到莫兰迪主题");
-      setTheme("morandi");
+      Themes.applyThemeById("morandi");
     });
 
     // 画笔相关快捷键
