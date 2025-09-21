@@ -74,9 +74,7 @@ export class Canvas {
     window.addEventListener("blur", () => {
       this.project.controller.pressingKeySet.clear();
     });
-    this.ctx = element.getContext("2d", {
-      alpha: Settings.windowBackgroundAlpha !== 1,
-    })!;
+    this.ctx = element.getContext("2d")!;
     if (Settings.antialiasing === "disabled") {
       this.ctx.imageSmoothingEnabled = false;
     } else {

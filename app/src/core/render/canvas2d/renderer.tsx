@@ -551,12 +551,12 @@ export class Renderer {
     // 先清空一下背景
     this.project.canvas.ctx.clearRect(0, 0, this.w, this.h);
     // 画canvas底色
-    const bgColor = mixColors(
-      this.project.stageStyleManager.currentStyle.Background.toTransparent(),
-      this.project.stageStyleManager.currentStyle.Background,
-      Settings.windowBackgroundAlpha,
-    );
-    // const bgColor = this.project.stageStyleManager.currentStyle.Background.toNewAlpha(Settings.windowBackgroundAlpha);
+    // const bgColor = mixColors(
+    //   this.project.stageStyleManager.currentStyle.Background.toTransparent(),
+    //   this.project.stageStyleManager.currentStyle.Background,
+    //   Settings.windowBackgroundAlpha,
+    // );
+    const bgColor = this.project.stageStyleManager.currentStyle.Background.toNewAlpha(Settings.windowBackgroundAlpha);
     console.log(bgColor);
     this.project.shapeRenderer.renderRect(this.transformWorld2View(rect), bgColor, Color.Transparent, 0);
     if (Settings.showBackgroundDots) {
